@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+html { color-scheme: light; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Palestra Python</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: lesson notebook on the left, editor + always-dark terminal on the right; stacks on phones */
+:root {
+  --bg: #eef1f6;
+  --paper: #fafbfd;
+  --ink: #1b2433;
+  --muted: #5b6578;
+  --line: #d5dbe6;
+  --accent: #2f5fb3;
+  --accent-ink: #ffffff;
+  --accent-soft: #dde6f6;
+  --mustard: #c9961f;
+  --ok: #24804e;
+  --ok-soft: #dcefe3;
+  --err: #c2413a;
+  --term-bg: #15203a;
+  --term-fg: #dbe3f1;
+  --term-dim: #7d8aa5;
+  --term-prompt: #f2c14e;
+  --term-ok: #6fd39a;
+  --term-err: #ff8a80;
+  --term-line: #26324f;
+  --code-bg: #e7ecf4;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1421; --paper: #151d2d; --ink: #e3e8f1; --muted: #98a3b8; --line: #2a3448;
+    --accent: #7ea3ee; --accent-ink: #0e1421; --accent-soft: #1f2c47; --mustard: #f2c14e;
+    --ok: #6fd39a; --ok-soft: #173327; --err: #ff8a80;
+    --term-bg: #0a101d; --term-line: #1d2740; --code-bg: #1e2738;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1421; --paper: #151d2d; --ink: #e3e8f1; --muted: #98a3b8; --line: #2a3448;
+  --accent: #7ea3ee; --accent-ink: #0e1421; --accent-soft: #1f2c47; --mustard: #f2c14e;
+  --ok: #6fd39a; --ok-soft: #173327; --err: #ff8a80;
+  --term-bg: #0a101d; --term-line: #1d2740; --code-bg: #1e2738;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 40px;
+}
+.wrap { max-width: 1280px; margin: 0 auto; display: grid; gap: 18px; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Header */
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand h1 { font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; margin: 0; letter-spacing: -0.02em; }
+.brand h1 span { color: var(--mustard); }
+.brand small { color: var(--muted); font-family: var(--f-mono); font-size: 0.78rem; }
+.tabs { display: flex; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.tabs button { border: 0; background: transparent; color: var(--muted); padding: 6px 16px; border-radius: 999px; font-weight: 700; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Lesson panel */
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); font-family: var(--f-mono); font-size: 0.8rem;
+  display: grid; place-items: center; padding: 0;
+}
+.pill.done { background: var(--ok-soft); color: var(--ok); border-color: transparent; font-weight: 600; }
+.pill.current { border: 2px solid var(--accent); color: var(--ink); font-weight: 600; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.panel h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.5rem; line-height: 1.15; margin: 4px 0 0; text-wrap: balance; letter-spacing: -0.01em; }
+.theory { display: grid; gap: 10px; }
+.theory p { margin: 0; }
+code { font-family: var(--f-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre.ex {
+  margin: 0; font-family: var(--f-mono); font-size: 0.84rem; line-height: 1.6;
+  background: var(--code-bg); padding: 10px 12px; border-radius: 8px; overflow-x: auto; white-space: pre;
+}
+pre.ex .c { color: var(--muted); }
+.task { border-left: 3px solid var(--mustard); padding: 4px 0 4px 14px; display: grid; gap: 4px; }
+.task .eyebrow { color: var(--mustard); }
+.task p { margin: 0; }
+.status { font-size: 0.9rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.status.ok { color: var(--ok); font-weight: 700; }
+.hintbox { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; font-size: 0.93rem; }
+.hintbox pre { margin: 8px 0 0; font-family: var(--f-mono); font-size: 0.82rem; white-space: pre; overflow-x: auto; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn {
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  padding: 7px 14px; border-radius: 8px; font-weight: 700; font-size: 0.92rem;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.go { background: var(--ok); border-color: var(--ok); color: var(--paper); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.nav { justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; }
+
+table.cheat { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+table.cheat td { padding: 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.cheat td:first-child { font-family: var(--f-mono); font-size: 0.82rem; white-space: nowrap; padding-right: 12px; }
+.cheat-wrap { overflow-x: auto; }
+
+/* Workspace */
+.work { display: grid; gap: 14px; min-width: 0; }
+.editor-card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; min-width: 0; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.file { font-family: var(--f-mono); font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.file b { color: var(--ink); font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mustard); }
+.kbd { font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted); }
+.editor { display: grid; grid-template-columns: auto minmax(0, 1fr); height: 320px; }
+.gutter {
+  font-family: var(--f-mono); font-size: 0.88rem; line-height: 1.6; color: var(--muted);
+  text-align: right; padding: 12px 10px 12px 14px; user-select: none; overflow: hidden;
+  background: var(--code-bg); font-variant-numeric: tabular-nums; min-width: 44px;
+}
+textarea#code {
+  font-family: var(--f-mono); font-size: 0.88rem; line-height: 1.6; tab-size: 4;
+  border: 0; resize: none; padding: 12px 14px; background: var(--paper); color: var(--ink);
+  white-space: pre; overflow: auto; outline: none; width: 100%; height: 100%;
+}
+textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
+
+.term-card { background: var(--term-bg); border-radius: 14px; overflow: hidden; min-width: 0; border: 1px solid var(--term-line); }
+.term-card .bar { border-color: var(--term-line); }
+.term-card .file { color: var(--term-dim); }
+.term-card .file b { color: var(--term-fg); }
+.tbtn { border: 1px solid var(--term-line); background: transparent; color: var(--term-fg); padding: 5px 12px; border-radius: 7px; font-size: 0.84rem; font-weight: 700; }
+.tbtn:hover { border-color: var(--term-dim); }
+.tbtn.stop { color: var(--term-err); border-color: var(--term-err); }
+#term {
+  font-family: var(--f-mono); font-size: 0.86rem; line-height: 1.6; color: var(--term-fg);
+  padding: 12px 14px 16px; height: 280px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+}
+#term .cmd { color: var(--term-prompt); }
+#term .dim { color: var(--term-dim); }
+#term .err { color: var(--term-err); }
+#term .why { color: var(--term-dim); font-style: italic; font-family: var(--f-body); font-size: 0.9rem; }
+#term .pass { color: var(--term-ok); font-weight: 600; }
+#term .fail { color: var(--term-prompt); }
+#term .typed { color: var(--term-prompt); }
+.term-input {
+  font: inherit; color: var(--term-prompt); background: transparent; border: 0; outline: none;
+  border-bottom: 1px dashed var(--term-dim); min-width: 8ch; width: 50%; padding: 0; caret-color: var(--term-prompt);
+}
+.note { font-size: 0.84rem; color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .btn, .pill, .tabs button { transition: background-color .15s, border-color .15s, color .15s; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Palestra <span>Python</span></h1>
+      <small id="pyver">Python 3 · caricamento…</small>
+    </div>
+    <div class="tabs" role="tablist">
+      <button id="tab-lessons" role="tab" aria-selected="true">Lezioni</button>
+      <button id="tab-free" role="tab" aria-selected="false">Libero</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel" id="panel" aria-live="polite"></section>
+
+    <section class="work">
+      <div class="editor-card">
+        <div class="bar">
+          <div class="file"><span class="dot"></span><b id="fname">lezione.py</b></div>
+          <div class="row">
+            <span class="kbd" id="kbdhint">Ctrl + Invio per eseguire</span>
+            <button class="btn" id="reset">Ripristina</button>
+            <button class="btn primary" id="run" disabled>▶ Esegui</button>
+          </div>
+        </div>
+        <div class="editor">
+          <div class="gutter" id="gutter" aria-hidden="true">1</div>
+          <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Editor del codice Python"></textarea>
+        </div>
+      </div>
+
+      <div class="term-card">
+        <div class="bar">
+          <div class="file"><b>terminale</b> · output del programma</div>
+          <div class="row">
+            <button class="tbtn stop" id="stop" hidden>■ Ferma</button>
+            <button class="tbtn" id="clear">Pulisci</button>
+          </div>
+        </div>
+        <div id="term" role="log" aria-label="Terminale"></div>
+      </div>
+      <p class="note">Il tuo codice Python viene tradotto in JavaScript ed eseguito qui nel browser, senza installare nulla. Le basi del linguaggio ci sono tutte; le librerie esterne come numpy o pandas no.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const LESSONS = [
+  {
+    id: "print", title: "Il tuo primo programma",
+    theory: `<p><code>print()</code> mostra qualcosa sullo schermo. Quello che metti tra le parentesi viene stampato nel terminale.</p>
+<p>Il testo va sempre tra virgolette: in Python si chiama <b>stringa</b>.</p>
+<pre class="ex">print("Buongiorno")
+print(3 + 4)   <span class="c"># stampa 7</span></pre>
+<p>Le righe che iniziano con <code>#</code> sono commenti: Python le ignora, servono a te.</p>`,
+    task: `Stampa esattamente <code>Ciao, mondo!</code>`,
+    starter: `# Scrivi qui sotto il tuo codice, poi premi Esegui\n\n`,
+    solution: `print("Ciao, mondo!")`,
+    hint: `Usa print con il testo tra virgolette: print("..."). Attenzione a virgola, spazio e punto esclamativo.`,
+    check: (o) => o === "Ciao, mondo!"
+  },
+  {
+    id: "var", title: "Variabili",
+    theory: `<p>Una <b>variabile</b> è un nome che contiene un valore. La crei con <code>=</code>, poi la usi al posto del valore.</p>
+<pre class="ex">nome = "Anna"
+print("Mi chiamo", nome)   <span class="c"># Mi chiamo Anna</span></pre>
+<p>Con la virgola dentro <code>print</code> puoi stampare più cose di fila: Python mette uno spazio tra una e l'altra.</p>`,
+    task: `Crea una variabile <code>citta</code> con il nome della tua città e stampa <code>Abito a</code> seguito dalla città, usando la variabile.`,
+    starter: `nome = "Anna"\nprint("Mi chiamo", nome)\n\n# Ora tocca a te:\n`,
+    solution: `citta = "Roma"\nprint("Abito a", citta)`,
+    hint: `Prima scrivi citta = "..." con la tua città, poi print("Abito a", citta). La variabile va senza virgolette.`,
+    check: (o, c) => /\bcitta\s*=/.test(c) && /print\([^)]*\bcitta\b/.test(c) && /(^|\n)Abito a \S/.test(o)
+  },
+  {
+    id: "num", title: "Numeri e operazioni",
+    theory: `<p>Python fa i conti come una calcolatrice.</p>
+<pre class="ex">10 + 3    <span class="c"># 13  somma</span>
+10 - 3    <span class="c"># 7   sottrazione</span>
+10 * 3    <span class="c"># 30  moltiplicazione</span>
+10 / 3    <span class="c"># 3.333…  divisione</span>
+10 // 3   <span class="c"># 3   divisione intera</span>
+10 % 3    <span class="c"># 1   resto</span>
+10 ** 2   <span class="c"># 100 potenza</span></pre>
+<p>Puoi fare i conti anche con le variabili: <code>a * b</code>.</p>`,
+    task: `Usando le variabili <code>a</code> e <code>b</code>, stampa prima il loro prodotto e poi <code>a</code> al quadrato. L'output deve essere <code>42</code> e poi <code>49</code>.`,
+    starter: `a = 7\nb = 6\n\n`,
+    solution: `a = 7\nb = 6\n\nprint(a * b)\nprint(a ** 2)`,
+    hint: `Ti servono due print: uno con a * b e uno con a ** 2.`,
+    check: (o, c) => o === "42\n49" && /\ba\s*\*\s*b\b|\bb\s*\*\s*a\b/.test(c)
+  },
+  {
+    id: "fstr", title: "Testo e numeri insieme",
+    theory: `<p>Per mettere le variabili dentro una frase si usano le <b>f-string</b>: una <code>f</code> prima delle virgolette e le variabili tra graffe <code>{}</code>.</p>
+<pre class="ex">cibo = "pizza"
+pezzi = 3
+print(f"Ho mangiato {pezzi} pezzi di {cibo}")</pre>
+<p>Dentro le graffe puoi anche fare conti: <code>{pezzi * 2}</code>.</p>`,
+    task: `Con una f-string stampa <code>Luca ha 30 anni</code> usando le variabili <code>nome</code> ed <code>eta</code>.`,
+    starter: `nome = "Luca"\neta = 30\n\n`,
+    solution: `nome = "Luca"\neta = 30\n\nprint(f"{nome} ha {eta} anni")`,
+    hint: `Scrivi print(f"...") e dentro la frase metti {nome} e {eta} al posto giusto.`,
+    check: (o, c) => o === "Luca ha 30 anni" && /\bf["']/.test(c)
+  },
+  {
+    id: "input", title: "Chiedere qualcosa all'utente",
+    theory: `<p><code>input()</code> ferma il programma e aspetta che qualcuno scriva qualcosa. Quello che viene scritto finisce in una variabile.</p>
+<pre class="ex">colore = input("Colore preferito? ")
+print(f"Anche a me piace il {colore}")</pre>
+<p>Quando esegui, scrivi la risposta direttamente nel terminale e premi Invio.</p>
+<p>Attenzione: <code>input()</code> restituisce sempre testo. Se ti serve un numero usa <code>int(input(...))</code>.</p>`,
+    task: `Chiedi il nome con <code>input("Come ti chiami? ")</code> e rispondi <code>Piacere, </code> seguito dal nome e da <code>!</code>. Per esempio: <code>Piacere, Marta!</code>`,
+    starter: ``,
+    solution: `nome = input("Come ti chiami? ")\nprint(f"Piacere, {nome}!")`,
+    hint: `Salva la risposta in una variabile (nome = input(...)), poi stampala con una f-string. Ricorda di scrivere il tuo nome nel terminale quando te lo chiede.`,
+    check: (o, c) => /\binput\s*\(/.test(c) && /(^|\n)Piacere, \S.*!$/.test(o)
+  },
+  {
+    id: "if", title: "Prendere decisioni",
+    theory: `<p>Con <code>if</code> il programma sceglie cosa fare. <code>elif</code> aggiunge un'altra condizione, <code>else</code> copre tutti gli altri casi.</p>
+<pre class="ex">temperatura = 28
+if temperatura > 30:
+    print("Fa caldissimo")
+elif temperatura > 20:
+    print("Si sta bene")
+else:
+    print("Prendi la giacca")</pre>
+<p>Due regole: i <b>due punti</b> alla fine della riga, e le righe del blocco <b>rientrate di 4 spazi</b>. L'editor li aggiunge da solo quando vai a capo dopo i due punti.</p>
+<p>Per confrontare: <code>==</code> uguale, <code>!=</code> diverso, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>.</p>`,
+    task: `Stampa <code>Ottimo</code> se il voto è almeno 9, <code>Promosso</code> se è almeno 6, altrimenti <code>Bocciato</code>. Usa <code>if</code>, <code>elif</code> ed <code>else</code>. Prova anche a cambiare il voto per vedere le altre risposte.`,
+    starter: `voto = 7\n\n`,
+    solution: `voto = 7\n\nif voto >= 9:\n    print("Ottimo")\nelif voto >= 6:\n    print("Promosso")\nelse:\n    print("Bocciato")`,
+    hint: `Parti dal caso più alto: if voto >= 9:, poi elif voto >= 6:, poi else:. Ogni print va rientrato di 4 spazi.`,
+    check: (o, c) => /\bif\b/.test(c) && /\belif\b/.test(c) && /\belse\s*:/.test(c) && ["Ottimo", "Promosso", "Bocciato"].includes(o)
+  },
+  {
+    id: "for", title: "Ripetere con for",
+    theory: `<p>Il ciclo <code>for</code> ripete un blocco di codice. Con <code>range()</code> ottieni una sequenza di numeri.</p>
+<pre class="ex">for i in range(3):
+    print("giro", i)   <span class="c"># giro 0, giro 1, giro 2</span></pre>
+<p><code>range(3)</code> conta da 0 a 2: l'ultimo numero è escluso. <code>range(2, 6)</code> conta da 2 a 5.</p>`,
+    task: `Con un ciclo <code>for</code> e <code>range</code>, stampa i numeri da 1 a 5, uno per riga.`,
+    starter: ``,
+    solution: `for numero in range(1, 6):\n    print(numero)`,
+    hint: `range(1, 6) produce 1, 2, 3, 4, 5. Dentro il ciclo basta un print.`,
+    check: (o, c) => o === "1\n2\n3\n4\n5" && /\bfor\s+\w+\s+in\s+range\s*\(/.test(c)
+  },
+  {
+    id: "list", title: "Liste",
+    theory: `<p>Una <b>lista</b> tiene più valori in ordine, tra parentesi quadre.</p>
+<pre class="ex">spesa = ["latte", "pane"]
+spesa.append("uova")    <span class="c"># aggiunge in fondo</span>
+print(spesa[0])         <span class="c"># latte (si conta da 0)</span>
+print(len(spesa))       <span class="c"># 3 elementi</span>
+for cosa in spesa:
+    print("-", cosa)</pre>`,
+    task: `Aggiungi <code>"kiwi"</code> alla lista con <code>append</code>, poi stampa quanti frutti ci sono con <code>len</code>. L'output deve essere <code>4</code>.`,
+    starter: `frutti = ["mela", "pera", "banana"]\n\n`,
+    solution: `frutti = ["mela", "pera", "banana"]\n\nfrutti.append("kiwi")\nprint(len(frutti))`,
+    hint: `Prima frutti.append("kiwi"), poi print(len(frutti)).`,
+    check: (o, c) => o === "4" && /\.append\s*\(/.test(c) && /\blen\s*\(/.test(c)
+  },
+  {
+    id: "while", title: "Ripetere con while",
+    theory: `<p><code>while</code> ripete finché la condizione è vera. Devi cambiare qualcosa dentro il ciclo, altrimenti non finisce mai.</p>
+<pre class="ex">soldi = 10
+while soldi > 0:
+    print("Ho", soldi, "euro")
+    soldi = soldi - 4</pre>
+<p>Se crei per sbaglio un ciclo infinito, premi <b>Ferma</b> nel terminale.</p>`,
+    task: `Fai un conto alla rovescia con <code>while</code>: stampa <code>3</code>, <code>2</code>, <code>1</code> e infine <code>Via!</code>.`,
+    starter: `conta = 3\n\n`,
+    solution: `conta = 3\n\nwhile conta > 0:\n    print(conta)\n    conta = conta - 1\nprint("Via!")`,
+    hint: `while conta > 0: con dentro print(conta) e conta = conta - 1. Il print("Via!") va fuori dal ciclo, senza rientro.`,
+    check: (o, c) => o === "3\n2\n1\nVia!" && /\bwhile\b/.test(c)
+  },
+  {
+    id: "def", title: "Funzioni",
+    theory: `<p>Una <b>funzione</b> è un pezzo di codice con un nome, che puoi riusare. Si crea con <code>def</code>. Con <code>return</code> restituisce un risultato.</p>
+<pre class="ex">def saluta(nome):
+    return f"Ciao {nome}!"
+
+print(saluta("Gianni"))
+print(saluta("Sofia"))</pre>`,
+    task: `Scrivi una funzione <code>doppio(n)</code> che restituisce il doppio del numero. Poi stampa <code>doppio(21)</code>: deve uscire <code>42</code>.`,
+    starter: ``,
+    solution: `def doppio(n):\n    return n * 2\n\nprint(doppio(21))`,
+    hint: `def doppio(n): poi, rientrato, return n * 2. Fuori dalla funzione: print(doppio(21)).`,
+    check: (o, c) => o === "42" && /\bdef\s+doppio\s*\(/.test(c) && /\breturn\b/.test(c)
+  },
+  {
+    id: "dict", title: "Dizionari",
+    theory: `<p>Un <b>dizionario</b> collega delle chiavi a dei valori, come una rubrica. Si scrive tra graffe.</p>
+<pre class="ex">auto = {"marca": "Fiat", "anno": 2019}
+print(auto["marca"])     <span class="c"># Fiat</span>
+auto["anno"] = 2021      <span class="c"># cambia un valore</span>
+auto["colore"] = "rosso" <span class="c"># aggiunge una chiave</span></pre>`,
+    task: `Cambia il voto di Sara in <code>9</code>, poi stampa <code>Sara: 9</code> leggendo i valori dal dizionario.`,
+    starter: `studente = {"nome": "Sara", "voto": 8}\n\n`,
+    solution: `studente = {"nome": "Sara", "voto": 8}\n\nstudente["voto"] = 9\nprint(f"{studente['nome']}: {studente['voto']}")`,
+    hint: `studente["voto"] = 9 cambia il valore. Per stampare puoi usare print(studente["nome"] + ":", studente["voto"]).`,
+    check: (o, c) => o === "Sara: 9" && /studente\s*\[\s*["']voto["']\s*\]\s*=/.test(c)
+  },
+  {
+    id: "try", title: "Gestire gli errori",
+    theory: `<p>Quando qualcosa va storto Python si ferma con un errore. Con <code>try</code> ed <code>except</code> puoi intercettarlo e decidere tu cosa fare.</p>
+<pre class="ex">try:
+    risultato = 10 / 0
+except ZeroDivisionError:
+    print("Non si divide per zero")</pre>
+<p>Molto utile con <code>input()</code>: se l'utente scrive lettere invece di un numero, <code>int()</code> dà un <code>ValueError</code>.</p>`,
+    task: `Prova a convertire <code>testo</code> in numero con <code>int()</code>. Se fallisce, intercetta il <code>ValueError</code> e stampa <code>Non è un numero</code>.`,
+    starter: `testo = "ciao"\n\n`,
+    solution: `testo = "ciao"\n\ntry:\n    numero = int(testo)\n    print(numero)\nexcept ValueError:\n    print("Non è un numero")`,
+    hint: `try: con dentro numero = int(testo), poi except ValueError: con il print. Ricorda i due punti e i rientri.`,
+    check: (o, c) => o === "Non è un numero" && /\btry\s*:/.test(c) && /\bexcept\b/.test(c)
+  }
+];
+
+const FREE_STARTER = `# Modalità libera: scrivi quello che vuoi e premi Esegui.
+# Per iniziare, un piccolo gioco. Provalo e poi modificalo!
+import random
+
+segreto = random.randint(1, 20)
+tentativi = 0
+
+print("Ho pensato un numero tra 1 e 20.")
+while True:
+    risposta = int(input("Il tuo tentativo: "))
+    tentativi += 1
+    if risposta < segreto:
+        print("Più alto!")
+    elif risposta > segreto:
+        print("Più basso!")
+    else:
+        print(f"Indovinato in {tentativi} tentativi!")
+        break
+`;
+
+const ERR_HINTS = {
+  NameError: "Python non conosce questo nome. Controlla di averlo scritto uguale a quando l'hai creato, o che il testo sia tra virgolette.",
+  SyntaxError: "C'è un errore di scrittura. Controlla parentesi e virgolette chiuse, e i due punti alla fine di if, for, while e def.",
+  IndentationError: "Il rientro non torna. Dopo i due punti, le righe del blocco vanno spostate di 4 spazi, tutte allo stesso modo.",
+  TypeError: "Stai mescolando tipi diversi, per esempio testo e numeri. Usa str() per trasformare in testo o int() per trasformare in numero.",
+  ValueError: "Il valore non va bene per questa operazione: per esempio int() su un testo che non è un numero.",
+  ZeroDivisionError: "Non si può dividere per zero.",
+  IndexError: "Stai chiedendo una posizione che non esiste nella lista. Ricorda che si conta da 0.",
+  KeyError: "Questa chiave non c'è nel dizionario. Controlla come l'hai scritta.",
+  AttributeError: "Questo tipo di valore non ha il metodo che stai usando. Controlla il nome dopo il punto.",
+  TimeoutError: "Il programma girava da troppo tempo. Forse c'è un ciclo infinito: controlla che la condizione del while prima o poi diventi falsa.",
+  ImportError: "Questo modulo non è disponibile qui.",
+  ModuleNotFoundError: "Questo modulo non è disponibile qui."
+};
+
+/* ---------- State ---------- */
+const STORE_KEY = "palestra-python-v1";
+let state = { mode: "lessons", current: 0, done: [], code: {}, free: FREE_STARTER, hintOpen: false, solOpen: false };
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if (saved) state = Object.assign(state, saved, { hintOpen: false, solOpen: false });
+} catch (e) {}
+function save() {
+  try {
+    const { hintOpen, solOpen, ...rest } = state;
+    localStorage.setItem(STORE_KEY, JSON.stringify(rest));
+  } catch (e) {}
+}
+
+const $ = (id) => document.getElementById(id);
+const editor = $("code"), gutter = $("gutter"), term = $("term"), panel = $("panel");
+const runBtn = $("run"), stopBtn = $("stop");
+let pyReady = false, running = false, stopReq = false, pendingInput = null, inputSeq = 0, lastChar = "\n";
+
+/* ---------- Editor ---------- */
+function updateGutter() {
+  const n = editor.value.split("\n").length;
+  let s = "";
+  for (let i = 1; i <= n; i++) s += i + "\n";
+  gutter.textContent = s;
+  gutter.scrollTop = editor.scrollTop;
+}
+function insertText(text) {
+  editor.focus();
+  let ok = false;
+  try { ok = document.execCommand("insertText", false, text); } catch (e) {}
+  if (!ok) {
+    editor.setRangeText(text, editor.selectionStart, editor.selectionEnd, "end");
+    editor.dispatchEvent(new Event("input"));
+  }
+}
+editor.addEventListener("scroll", () => { gutter.scrollTop = editor.scrollTop; });
+let saveTimer;
+editor.addEventListener("input", () => {
+  updateGutter();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    if (state.mode === "free") state.free = editor.value;
+    else state.code[LESSONS[state.current].id] = editor.value;
+    save();
+  }, 300);
+});
+editor.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); return; }
+  const v = editor.value, s = editor.selectionStart, end = editor.selectionEnd;
+  const lineStart = v.lastIndexOf("\n", s - 1) + 1;
+  if (e.key === "Tab" && !e.shiftKey && s === end) { e.preventDefault(); insertText("    "); return; }
+  if (e.key === "Tab" && e.shiftKey) {
+    e.preventDefault();
+    const m = v.slice(lineStart).match(/^ {1,4}/);
+    if (m) { editor.setSelectionRange(lineStart, lineStart + m[0].length); insertText(""); editor.setSelectionRange(Math.max(lineStart, s - m[0].length), Math.max(lineStart, s - m[0].length)); }
+    return;
+  }
+  if (e.key === "Enter" && !e.shiftKey && s === end) {
+    e.preventDefault();
+    const line = v.slice(lineStart, s);
+    let indent = line.match(/^\s*/)[0];
+    if (/:\s*(#.*)?$/.test(line)) indent += "    ";
+    insertText("\n" + indent);
+    return;
+  }
+  if (e.key === "Backspace" && s === end && s > lineStart) {
+    const before = v.slice(lineStart, s);
+    if (/^ +$/.test(before) && before.length % 4 === 0) {
+      e.preventDefault();
+      editor.setSelectionRange(s - 4, s);
+      insertText("");
+    }
+  }
+});
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform || "");
+$("kbdhint").textContent = (isMac ? "⌘" : "Ctrl") + " + Invio per eseguire";
+
+/* ---------- Terminal ---------- */
+function termWrite(text, cls) {
+  if (!text) return;
+  if (cls) {
+    const sp = document.createElement("span");
+    sp.className = cls; sp.textContent = text; term.appendChild(sp);
+  } else term.appendChild(document.createTextNode(text));
+  lastChar = text[text.length - 1];
+  while (term.childNodes.length > 5000) term.removeChild(term.firstChild);
+  term.scrollTop = term.scrollHeight;
+}
+function newline() { if (lastChar !== "\n") termWrite("\n"); }
+function termInput(prompt) {
+  return new Promise((resolve, reject) => {
+    if (prompt) termWrite(String(prompt));
+    const inp = document.createElement("input");
+    inp.className = "term-input"; inp.id = "term-input-" + (++inputSeq);
+    inp.setAttribute("autocomplete", "off"); inp.setAttribute("autocapitalize", "off");
+    inp.setAttribute("spellcheck", "false"); inp.setAttribute("aria-label", "Risposta per il programma");
+    term.appendChild(inp);
+    term.scrollTop = term.scrollHeight;
+    inp.focus({ preventScroll: true });
+    pendingInput = { reject, el: inp };
+    inp.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const val = inp.value;
+      const sp = document.createElement("span");
+      sp.className = "typed"; sp.textContent = val;
+      inp.replaceWith(sp);
+      termWrite("\n");
+      pendingInput = null;
+      if (window.Sk) Sk.execStart = Date.now();
+      resolve(val);
+    });
+  });
+}
+term.addEventListener("click", () => {
+  if (pendingInput && window.getSelection().isCollapsed) pendingInput.el.focus();
+});
+$("clear").addEventListener("click", () => {
+  if (running) return;
+  term.textContent = ""; lastChar = "\n";
+});
+
+/* ---------- Python runtime ---------- */
+const SOURCES = [
+  ["https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js", "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"],
+  ["https://unpkg.com/skulpt@1.2.0/dist/skulpt.min.js", "https://unpkg.com/skulpt@1.2.0/dist/skulpt-stdlib.js"]
+];
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error(src));
+    document.head.appendChild(s);
+  });
+}
+async function loadPython() {
+  for (const [a, b] of SOURCES) {
+    try { await loadScript(a); await loadScript(b); if (window.Sk) return true; } catch (e) {}
+  }
+  return false;
+}
+
+function norm(s) {
+  return s.replace(/\r/g, "").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trim();
+}
+
+function setRunning(on) {
+  running = on;
+  runBtn.disabled = on || !pyReady;
+  runBtn.textContent = on ? "In esecuzione…" : "▶ Esegui";
+  stopBtn.hidden = !on;
+}
+
+async function run() {
+  if (!pyReady || running) return;
+  const code = editor.value;
+  const lessonMode = state.mode === "lessons";
+  const lesson = LESSONS[state.current];
+  stopReq = false;
+  setRunning(true);
+  newline();
+  if (term.childNodes.length) termWrite("\n");
+  termWrite("$ python " + (lessonMode ? "lezione.py" : "main.py") + "\n", "cmd");
+
+  let out = "";
+  Sk.configure({
+    output: (t) => { out += t; termWrite(t); },
+    read: (x) => {
+      if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[x] === undefined) throw "File non trovato: '" + x + "'";
+      return Sk.builtinFiles.files[x];
+    },
+    inputfun: (p) => termInput(p),
+    inputfunTakesPrompt: true,
+    __future__: Sk.python3,
+    killableWhile: true,
+    killableFor: true,
+    execLimit: 10000,
+    yieldLimit: 100
+  });
+  Sk.execLimit = 10000;
+  Sk.execStart = Date.now();
+  const t0 = performance.now();
+  let err = null;
+  try {
+    await Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, code, true));
+  } catch (e) { err = e; }
+  const secs = ((performance.now() - t0) / 1000).toFixed(2);
+  if (pendingInput) { pendingInput.el.disabled = true; pendingInput = null; }
+  newline();
+
+  if (stopReq) {
+    termWrite("Esecuzione interrotta.\n", "fail");
+  } else if (err) {
+    const name = (err.tp$name) || (err.constructor && err.constructor.name) || "Errore";
+    let msg;
+    try { msg = err.toString(); } catch (e2) { msg = String(err); }
+    msg = msg.replace(/ on line (\d+)/, " (riga $1)");
+    termWrite(msg + "\n", "err");
+    if (ERR_HINTS[name]) termWrite("→ " + ERR_HINTS[name] + "\n", "why");
+  } else {
+    termWrite("── fine · " + secs + " s\n", "dim");
+  }
+
+  if (lessonMode && !stopReq) {
+    if (!err && lesson.check(norm(out), code)) {
+      const first = !state.done.includes(lesson.id);
+      if (first) { state.done.push(lesson.id); save(); }
+      termWrite("✓ Esercizio superato!" + (state.current < LESSONS.length - 1 ? " Puoi passare alla lezione successiva." : " Hai finito tutte le lezioni.") + "\n", "pass");
+      renderPanel();
+    } else if (!err) {
+      termWrite("✗ Il programma funziona, ma non fa ancora quello che chiede l'esercizio. Rileggi la consegna o apri il suggerimento.\n", "fail");
+    }
+  }
+  setRunning(false);
+}
+runBtn.addEventListener("click", run);
+stopBtn.addEventListener("click", () => {
+  if (!running) return;
+  stopReq = true;
+  if (window.Sk) Sk.execLimit = 1;
+  if (pendingInput) { const p = pendingInput; pendingInput = null; p.el.disabled = true; p.reject(new Error("stop")); }
+});
+
+/* ---------- Panels ---------- */
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function renderPanel() {
+  if (state.mode === "free") return renderFree();
+  const i = state.current, L = LESSONS[i], done = state.done.includes(L.id);
+  const pills = LESSONS.map((l, k) => {
+    const cls = ["pill"]; if (state.done.includes(l.id)) cls.push("done"); if (k === i) cls.push("current");
+    return `<button class="${cls.join(" ")}" data-go="${k}" aria-label="Lezione ${k + 1}: ${esc(l.title)}${state.done.includes(l.id) ? ", completata" : ""}">${state.done.includes(l.id) ? "✓" : k + 1}</button>`;
+  }).join("");
+  panel.innerHTML = `
+    <div class="pills">${pills}</div>
+    <div>
+      <div class="eyebrow">Lezione ${i + 1} di ${LESSONS.length} · ${state.done.length} completate</div>
+      <h2>${L.title}</h2>
+    </div>
+    <div class="theory">${L.theory}</div>
+    <div class="task"><div class="eyebrow">Esercizio</div><p>${L.task}</p></div>
+    <div class="status ${done ? "ok" : ""}">${done ? "✓ Completato" : "Scrivi il codice nell'editor e premi Esegui: la correzione è automatica."}</div>
+    ${state.hintOpen ? `<div class="hintbox"><b>Suggerimento.</b> ${esc(L.hint)}</div>` : ""}
+    ${state.solOpen ? `<div class="hintbox"><b>Una soluzione possibile</b><pre>${esc(L.solution)}</pre><div class="row" style="margin-top:8px"><button class="btn" id="usesol">Copia nell'editor</button></div></div>` : ""}
+    <div class="row">
+      <button class="btn" id="hint">${state.hintOpen ? "Nascondi suggerimento" : "Suggerimento"}</button>
+      <button class="btn" id="sol">${state.solOpen ? "Nascondi soluzione" : "Mostra soluzione"}</button>
+    </div>
+    <div class="row nav">
+      <button class="btn" id="prev" ${i === 0 ? "disabled" : ""}>← Indietro</button>
+      <button class="btn ${done ? "go" : ""}" id="next" ${i === LESSONS.length - 1 ? "disabled" : ""}>Avanti →</button>
+    </div>`;
+  panel.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => goLesson(+b.dataset.go)));
+  $("hint").onclick = () => { state.hintOpen = !state.hintOpen; renderPanel(); };
+  $("sol").onclick = () => { state.solOpen = !state.solOpen; renderPanel(); };
+  $("prev").onclick = () => goLesson(i - 1);
+  $("next").onclick = () => goLesson(i + 1);
+  const use = $("usesol");
+  if (use) use.onclick = () => { editor.value = L.solution + "\n"; editor.dispatchEvent(new Event("input")); editor.focus(); };
+}
+
+function renderFree() {
+  const rows = [
+    ['print("ciao")', "stampa qualcosa"],
+    ['x = 5', "crea una variabile"],
+    ['input("Domanda? ")', "chiede un testo all'utente"],
+    ['int("42")', "trasforma testo in numero"],
+    ['str(42)', "trasforma numero in testo"],
+    ['f"{x} anni"', "variabili dentro una frase"],
+    ['if x > 3:', "condizione"],
+    ['for i in range(5):', "ripete 5 volte"],
+    ['while x > 0:', "ripete finché è vero"],
+    ['lista = [1, 2, 3]', "lista di valori"],
+    ['lista.append(4)', "aggiunge in fondo"],
+    ['len(lista)', "quanti elementi"],
+    ['d = {"a": 1}', "dizionario"],
+    ['def f(n):', "crea una funzione"],
+    ['import random', "numeri casuali"],
+    ['random.randint(1, 6)', "intero a caso da 1 a 6"]
+  ];
+  panel.innerHTML = `
+    <div>
+      <div class="eyebrow">Modalità libera</div>
+      <h2>Il tuo spazio per sperimentare</h2>
+    </div>
+    <div class="theory">
+      <p>Qui non ci sono esercizi: scrivi qualsiasi programma Python e guardalo girare. Il codice resta salvato in questo browser.</p>
+      <p>Nell'editor trovi un gioco già pronto. Eseguilo, poi prova a cambiarlo: per esempio il numero massimo, o un limite di tentativi.</p>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Promemoria</div>
+      <div class="cheat-wrap"><table class="cheat">${rows.map(([a, b]) => `<tr><td>${esc(a)}</td><td>${b}</td></tr>`).join("")}</table></div>
+    </div>
+    <div class="row"><button class="btn" id="back">← Torna alle lezioni</button></div>`;
+  $("back").onclick = () => setMode("lessons");
+}
+
+function loadEditor() {
+  if (state.mode === "free") { editor.value = state.free; $("fname").textContent = "main.py"; }
+  else {
+    const L = LESSONS[state.current];
+    editor.value = state.code[L.id] !== undefined ? state.code[L.id] : L.starter;
+    $("fname").textContent = "lezione.py";
+  }
+  editor.scrollTop = 0;
+  updateGutter();
+}
+
+function goLesson(k) {
+  if (k < 0 || k >= LESSONS.length || running) return;
+  state.current = k; state.hintOpen = false; state.solOpen = false;
+  save(); renderPanel(); loadEditor();
+  if (window.matchMedia("(max-width: 880px)").matches) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function setMode(m) {
+  if (running) return;
+  state.mode = m; save();
+  $("tab-lessons").setAttribute("aria-selected", m === "lessons");
+  $("tab-free").setAttribute("aria-selected", m === "free");
+  renderPanel(); loadEditor();
+}
+$("tab-lessons").onclick = () => setMode("lessons");
+$("tab-free").onclick = () => setMode("free");
+
+$("reset").addEventListener("click", () => {
+  if (running) return;
+  editor.value = state.mode === "free" ? FREE_STARTER : LESSONS[state.current].starter;
+  editor.dispatchEvent(new Event("input"));
+  editor.focus();
+});
+
+/* ---------- Boot ---------- */
+if (state.current >= LESSONS.length) state.current = 0;
+setMode(state.mode === "free" ? "free" : "lessons");
+termWrite("Caricamento di Python…\n", "dim");
+loadPython().then((ok) => {
+  if (ok) {
+    pyReady = true;
+    $("pyver").textContent = "Python 3 · pronto";
+    termWrite("Python è pronto. Scrivi il codice nell'editor e premi Esegui.\n", "dim");
+  } else {
+    $("pyver").textContent = "Python 3 · non disponibile";
+    termWrite("Non riesco a caricare l'interprete Python. Controlla la connessione e ricarica la pagina.\n", "err");
+  }
+  setRunning(false);
+});
+</script>
+</body>
+</html>
