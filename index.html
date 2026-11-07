@@ -1835,6 +1835,20 @@ const UI = {
     testing: "Verifico la soluzione con altri valori…",
     pass: (last) => last ? "✓ Esercizio superato! Hai completato l'ultima lezione." : "✓ Esercizio superato! Puoi passare alla lezione successiva.",
     notYet: "✗ Il programma funziona, ma non fa ancora quello che chiede l'esercizio. Rileggi la consegna o apri il suggerimento.",
+    mismatch: "✗ Quasi! Il programma funziona, ma quello che stampa non è ancora uguale a quello richiesto.",
+    expLabel: "Richiesto", gotLabel: "Stampato",
+    lineOf: (n) => `(riga ${n} dell'output)`,
+    nothing: "Il programma non ha stampato niente. Per far comparire qualcosa nel terminale serve print().",
+    inComment: "La riga con print è dentro un commento (dopo il #), quindi Python la ignora: è quella in grigio. Scrivila su una riga nuova, senza # davanti.",
+    caseHint: "Cambia solo qualche maiuscola o minuscola, ma per Python sono lettere diverse.",
+    spaceHint: "La differenza è negli spazi: controlla quelli prima e dopo la virgola e alla fine.",
+    specialHint: (c) => `Nel punto segnato c'è un carattere speciale che sembra normale ma non lo è (${c}). Di solito lo inserisce la tastiera da sola: cancellalo e riscrivilo.`,
+    fewerLines: "Il programma ha stampato meno righe di quelle richieste.",
+    moreLines: "Il programma ha stampato più righe di quelle richieste.",
+    outputOkCode: "Quello che stampa è giusto, ma l'esercizio chiede di usare un'istruzione precisa: rileggi la consegna.",
+    smartFixed: "Ho sostituito le virgolette tipografiche (“ ” ‘ ’) con quelle dritte (\" '): sono le uniche che Python accetta.",
+    smartErr: "Queste sono virgolette tipografiche (“ ” ‘ ’), che alcune tastiere inseriscono da sole. Python accetta solo quelle dritte: \" e '.",
+    invisibleErr: "Nella riga indicata c'è uno spazio speciale invisibile. Cancella gli spazi di quella riga e riscrivili.",
     testFail: (d) => `✗ Quasi! Con i dati dell'esercizio funziona, ma ho provato un altro caso: ${d}.`,
     lessonOf: (i, n, d) => `Lezione ${i} di ${n} · ${d} completate`,
     lessonAria: (k, title, done) => `Lezione ${k}: ${title}${done ? ", completata" : ""}`,
@@ -1907,6 +1921,20 @@ const UI = {
     testing: "Checking your solution with other values…",
     pass: (last) => last ? "✓ Exercise passed! You finished the last lesson." : "✓ Exercise passed! You can move on to the next lesson.",
     notYet: "✗ The program runs, but it doesn't do what the exercise asks yet. Reread the task or open the hint.",
+    mismatch: "✗ Almost! The program runs, but what it prints doesn't match what's required yet.",
+    expLabel: "Required", gotLabel: "Printed",
+    lineOf: (n) => `(line ${n} of the output)`,
+    nothing: "The program didn't print anything. To show something in the terminal you need print().",
+    inComment: "The line with print is inside a comment (after the #), so Python ignores it: it's the grey one. Write it on a new line, without # in front.",
+    caseHint: "Only some uppercase or lowercase letters differ, but to Python they are different letters.",
+    spaceHint: "The difference is in the spaces: check the ones around the comma and at the end.",
+    specialHint: (c) => `At the marked spot there's a special character that looks normal but isn't (${c}). The keyboard usually adds it by itself: delete it and type it again.`,
+    fewerLines: "The program printed fewer lines than required.",
+    moreLines: "The program printed more lines than required.",
+    outputOkCode: "What it prints is right, but the exercise asks you to use a specific instruction: reread the task.",
+    smartFixed: "I replaced the curly quotes (“ ” ‘ ’) with straight ones (\" '): they are the only ones Python accepts.",
+    smartErr: "These are curly quotes (“ ” ‘ ’), which some keyboards insert by themselves. Python only accepts straight ones: \" and '.",
+    invisibleErr: "There's an invisible special space in that line. Delete the spaces on that line and type them again.",
     testFail: (d) => `✗ Almost! It works with the exercise's data, but I tried another case: ${d}.`,
     lessonOf: (i, n, d) => `Lesson ${i} of ${n} · ${d} completed`,
     lessonAria: (k, title, done) => `Lesson ${k}: ${title}${done ? ", completed" : ""}`,
@@ -1996,6 +2024,109 @@ const ERR_HINTS = {
     ModuleNotFoundError: "This module isn't available here."
   }
 };
+
+/* Exact output each exercise expects, used to show where the learner's output differs */
+const EXPECT = {
+  print: { it: "Ciao, mondo!", en: "Hello, world!" },
+  num: "42\n49",
+  fstr: { it: "Luca ha 30 anni", en: "Luca is 30 years old" },
+  input: {
+    it: (x) => { const n = parseInt(x.inputs[0], 10); return isNaN(n) ? null : `Tra 10 anni avrai ${n + 10} anni`; },
+    en: (x) => { const n = parseInt(x.inputs[0], 10); return isNaN(n) ? null : `In 10 years you will be ${n + 10}`; }
+  },
+  bool: "True",
+  for: "1\n2\n3\n4\n5",
+  list: "4",
+  loop: "20.0",
+  while: { it: "3\n2\n1\nVia!", en: "3\n2\n1\nGo!" },
+  str: { it: "PROGRAMMARE\nPro", en: "PROGRAMMING\nPro" },
+  def: "42",
+  params: "12",
+  dict: "Sara: 9",
+  try: { it: "Non è un numero", en: "Not a number" },
+  mod: "12.0\n3.14",
+  comp: "[1, 4, 9, 16, 25]",
+  class: { it: "Fido dice Bau!", en: "Fido says Woof!" },
+  final: { it: "4", en: "3" },
+  numpy: "21.5"
+};
+for (const item of LESSONS) {
+  const e = EXPECT[item.id];
+  if (e === undefined) continue;
+  for (const lang of ["it", "en"]) {
+    const v = typeof e === "object" ? e[lang] : e;
+    item[lang].expect = typeof v === "function" ? v : () => v;
+  }
+}
+
+/* Keyboards (iPhone, iPad, Mac) can turn " and ' into curly quotes and insert invisible spaces */
+const TYPED_FIX = /[“”„‟‘’‚‛  -‍  ⁠　﻿]/;
+const ODD_SPACE = /[  -   　]/;
+const ZERO_WIDTH = /[​-‍⁠﻿]/;
+const SMART_D = "“”„‟", SMART_S = "‘’‚‛";
+function cleanTyped(s) {
+  return String(s).replace(/[“”„‟]/g, '"').replace(/[‘’‚‛]/g, "'")
+    .replace(/[  -   　]/g, " ").replace(/[​-‍⁠﻿]/g, "");
+}
+/* Fixes curly quotes and odd spaces in code, leaving the text inside normal strings and comments untouched */
+function fixSmartQuotes(src) {
+  let out = "", i = 0;
+  const n = src.length;
+  while (i < n) {
+    const c = src[i];
+    if (c === "#") { let e = src.indexOf("\n", i); if (e < 0) e = n; out += src.slice(i, e); i = e; continue; }
+    let q = null, smart = false;
+    if (c === '"' || c === "'") q = c;
+    else if (SMART_D.includes(c)) { q = '"'; smart = true; }
+    else if (SMART_S.includes(c)) { q = "'"; smart = true; }
+    if (q) {
+      if (!smart && src.startsWith(q + q + q, i)) {
+        const j = src.indexOf(q + q + q, i + 3), e = j < 0 ? n : j + 3;
+        out += src.slice(i, e); i = e; continue;
+      }
+      const same = q === '"' ? SMART_D : SMART_S;
+      out += q; i++;
+      let closed = false, lastSmart = -1;
+      while (i < n) {
+        const d = src[i];
+        if (d === "\\" && i + 1 < n && src[i + 1] !== "\n") { out += d + src[i + 1]; i += 2; continue; }
+        if (d === "\n") break;
+        if (d === q || (smart && same.includes(d))) { out += q; i++; closed = true; break; }
+        if (same.includes(d)) lastSmart = out.length;
+        out += d; i++;
+      }
+      if (!closed && lastSmart >= 0) out = out.slice(0, lastSmart) + q + out.slice(lastSmart + 1);
+      continue;
+    }
+    if (ODD_SPACE.test(c)) out += " ";
+    else if (!ZERO_WIDTH.test(c)) out += c;
+    i++;
+  }
+  return out;
+}
+/* Compares required and printed output; returns what to show in the terminal */
+function describeMismatch(exp, got, src) {
+  const r = { kind: "", line: 0, a: "", b: "", col: 0, hints: [] };
+  if (!got) {
+    r.kind = "nothing";
+    if (/#[^\n]*\bprint\s*\(/.test(src)) r.hints.push("inComment");
+    return r;
+  }
+  const el = exp.split("\n"), gl = got.split("\n");
+  let k = 0;
+  while (k < el.length && k < gl.length && el[k] === gl[k]) k++;
+  if (k === el.length && k < gl.length) { r.kind = "moreLines"; r.line = k + 1; r.b = gl[k]; return r; }
+  if (k === gl.length && k < el.length) { r.kind = "fewerLines"; r.line = k + 1; r.a = el[k]; return r; }
+  const a = el[k], b = gl[k];
+  let col = 0;
+  while (col < a.length && col < b.length && a[col] === b[col]) col++;
+  Object.assign(r, { kind: "diff", line: k + 1, a, b, col, multi: el.length > 1 || gl.length > 1 });
+  const ch = b[col];
+  if (ch && (TYPED_FIX.test(ch) || "«»–—…′″".includes(ch))) r.special = "U+" + ch.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0");
+  else if (a.toLowerCase() === b.toLowerCase()) r.hints.push("caseHint");
+  else if (a.replace(/\s/g, "") === b.replace(/\s/g, "")) r.hints.push("spaceHint");
+  return r;
+}
 
 /* Python syntax highlighting */
 const PY_KW = new Set("and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield".split(" "));
@@ -2255,6 +2386,37 @@ code.addEventListener("keydown", (e) => {
 code.addEventListener("beforeinput", (e) => {
   if (e.inputType === "insertLineBreak" && e.cancelable) { e.preventDefault(); smartNewline(); }
 });
+/* Straight quotes while typing: curly quotes and odd spaces from the keyboard are swapped as they arrive */
+function guardTyping(el) {
+  el.addEventListener("beforeinput", (e) => {
+    if (e.inputType === "insertText" && e.data && TYPED_FIX.test(e.data) && e.cancelable) {
+      e.preventDefault();
+      insertAt(el, cleanTyped(e.data));
+    }
+  });
+  el.addEventListener("input", (e) => {
+    const ty = e.inputType || "";
+    if (!ty.startsWith("insert") || ty === "insertFromPaste" || ty === "insertFromDrop") return;
+    const end = el.selectionEnd;
+    if (end == null || el.selectionStart !== end) return;
+    const start = Math.max(0, end - 40);
+    const chunk = el.value.slice(start, end);
+    if (!TYPED_FIX.test(chunk)) return;
+    const fixed = cleanTyped(chunk);
+    el.setRangeText(fixed, start, end, "end");
+    if (el === code) refreshEditor();
+  }, true);
+  el.addEventListener("paste", (e) => {
+    const cd = e.clipboardData || window.clipboardData;
+    const txt = cd ? cd.getData("text") : "";
+    if (!txt || /\n/.test(txt) && el !== code) return;
+    const fixed = fixSmartQuotes(txt.replace(/\r/g, ""));
+    if (fixed === txt) return;
+    e.preventDefault();
+    insertAt(el, fixed);
+  });
+}
+guardTyping(code);
 
 copyBtn.onclick = () => {
   const done = () => { copyBtn.textContent = t("copied"); setTimeout(() => { copyBtn.textContent = t("copy"); }, 1500); };
@@ -2335,6 +2497,7 @@ function showPrompt(cont = false, prefill = "") {
   const f = document.createElement("form"); f.className = "prow";
   const ps = document.createElement("span"); ps.className = "ps"; ps.textContent = cont ? "... " : ">>> ";
   const inp = makeInput(t("replAria")); inp.id = "repl-in"; inp.value = prefill;
+  guardTyping(inp);
   f.append(ps, inp); term.appendChild(f);
   promptRow = f; replInput = inp;
   f.addEventListener("submit", (ev) => { ev.preventDefault(); submitRepl(); });
@@ -2406,7 +2569,7 @@ function replPaste(e) {
   if (!txt || !/\n/.test(txt)) return;
   e.preventDefault();
   const v = replInput.value;
-  const full = (replBuf.length ? replBuf.join("\n") + "\n" : "") + (v + txt).replace(/\r/g, "").replace(/\s+$/, "");
+  const full = fixSmartQuotes((replBuf.length ? replBuf.join("\n") + "\n" : "") + (v + txt).replace(/\r/g, "").replace(/\s+$/, ""));
   hidePrompt(); replBuf = [];
   full.split("\n").forEach((l, i) => { termWrite(i ? "... " : ">>> ", "ps"); termWrite(l, "typed"); termWrite("\n"); });
   runRepl(full, true);
@@ -2649,7 +2812,9 @@ function report(res, mode, fromEditor) {
   const last = lines.pop();
   if (lines.length) termWrite(lines.join("\n") + "\n", "dim");
   termWrite(last + "\n", "err");
-  const h = ERR_HINTS[S.lang][res.name];
+  let h = ERR_HINTS[S.lang][res.name];
+  if (/[“”„‟‘’‚‛]/.test(last) || /U\+(201[89ABCDEF])/.test(last)) h = t("smartErr");
+  else if (/U\+(00A0|200[0-9AB]|202F|205F|3000|FEFF)/.test(last) || /non-printable/.test(last)) h = t("invisibleErr");
   if (h) termWrite("→ " + h + "\n", "why");
   if (fromEditor && res.line >= 1) { errLine = res.line; renderGutter(); }
   return "error";
@@ -2693,6 +2858,7 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false } =
 }
 async function runRepl(src, refocus) {
   if (!pyReady || running) return;
+  src = fixSmartQuotes(src);
   const word = src.trim().toLowerCase();
   if (!src.includes("\n") && word) { if (hist[hist.length - 1] !== src) hist.push(src); if (hist.length > 100) hist.shift(); }
   histIdx = hist.length; histDraft = "";
@@ -2727,7 +2893,8 @@ async function runPip(args) {
 async function checkLesson(res, src) {
   const L = lesson(), id = LESSONS[S.current].id;
   const ctx = { inputs: res.inputs || [], images: res.images || 0 };
-  if (!L.check(norm(res.out || ""), src, ctx)) { termWrite(t("notYet") + "\n", "fail"); return; }
+  const got = norm(res.out || "");
+  if (!L.check(got, src, ctx)) { explainFail(L, got, src, ctx); return; }
   const tests = L.tests ? L.tests(src) : [];
   if (tests.length) {
     termWrite(t("testing") + "\n", "dim");
@@ -2741,8 +2908,49 @@ async function checkLesson(res, src) {
   termWrite(t("pass", S.current === LESSONS.length - 1) + "\n", "pass");
   renderPanel();
 }
+/* Shows the learner exactly where their output differs from the required one */
+function explainFail(L, got, src, ctx) {
+  const exp = L.expect ? L.expect(ctx) : null;
+  if (exp == null) { termWrite(t("notYet") + "\n", "fail"); return; }
+  if (got === exp) { termWrite(t("notYet") + "\n", "fail"); termWrite("→ " + t("outputOkCode") + "\n", "why"); return; }
+  const d = describeMismatch(exp, got, src);
+  termWrite(t("mismatch") + "\n", "fail");
+  if (d.kind === "nothing") {
+    termWrite("→ " + t("nothing") + "\n", "why");
+  } else {
+    const la = t("expLabel") + ": ", lb = t("gotLabel") + ": ";
+    const w = Math.max(la.length, lb.length);
+    if (d.kind === "diff") {
+      if (d.multi) termWrite(t("lineOf", d.line) + "\n", "dim");
+      termWrite(la.padEnd(w)); termWrite(d.a + "\n", "pass");
+      termWrite(lb.padEnd(w)); termWrite(d.b + "\n", "typed");
+      termWrite(" ".repeat(w + d.col) + "^\n", "err");
+      if (d.special) termWrite("→ " + t("specialHint", d.special) + "\n", "why");
+    } else {
+      termWrite("→ " + t(d.kind) + "\n", "why");
+      if (d.kind === "fewerLines") { termWrite(la.padEnd(w)); termWrite(d.a + "\n", "pass"); }
+      else { termWrite(lb.padEnd(w)); termWrite(d.b + "\n", "typed"); }
+    }
+  }
+  for (const h of d.hints) termWrite("→ " + t(h) + "\n", "why");
+}
+/* Replaces the editor text, keeping undo history where the browser allows it */
+function replaceEditor(text) {
+  const top = code.scrollTop;
+  code.focus(); code.select();
+  insertAt(code, text);
+  code.scrollTop = top;
+  refreshEditor();
+}
 function runEditor() {
   if (S.view === "term") return;
+  const fixed = fixSmartQuotes(code.value);
+  if (fixed !== code.value) {
+    const pos = code.selectionStart;
+    replaceEditor(fixed);
+    code.setSelectionRange(Math.min(pos, fixed.length), Math.min(pos, fixed.length));
+    newline(); termWrite(t("smartFixed") + "\n", "why");
+  }
   persistEditor();
   const label = S.mode === "free" ? activeProgram().name : t("fileLesson");
   runFile(code.value, label, { fromEditor: true, lessonCheck: S.mode === "lessons" });
