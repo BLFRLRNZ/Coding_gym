@@ -687,7 +687,8 @@ body.intro-open { overflow: hidden; }
   .acct-btn .acct-name { display: none; }
 }
 
-/* Every bold text uses the pixel font of the titles. Plain text stays plain; code, the terminal and the recovery code stay monospaced. */
+/* Every bold text uses the pixel font of the titles: buttons, labels, tabs, names, messages, small headings, and bold words in the lessons too.
+   Plain text stays plain; code, the terminal and the recovery code stay monospaced. */
 b, strong, h1, h2, h3, h4,
 .btn, .seg button, .seg.small button, .icon-btn, .tbtn, .acct-btn, .acct-pick, .ff > span,
 .pill.done, .pill.current, .status.ok, .form-err, .set-msg, .rname, .file b, .crumb b,
@@ -5667,7 +5668,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWor
 startIntro();
 termWrite(t("loadingFull") + "\n", "dim");
 /* Installed app: register the offline cache and announce new versions */
-const APP_VERSION = "982a42019a";
+const APP_VERSION = "f27a6f47c4";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 if (IS_APP && "serviceWorker" in navigator) {
   try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}
