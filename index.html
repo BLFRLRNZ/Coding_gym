@@ -622,6 +622,59 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 .rc-box h3 { margin: 0; font-size: 1rem; }
 .rc-box p { margin: 0; font-size: 0.9rem; }
 .rc-code { font-family: var(--f-mono); font-size: 1.5rem !important; font-weight: 600; letter-spacing: 0.08em; color: var(--ink); user-select: all; }
+/* Opening: the mascots' title screen, then the access card */
+body.intro-open { overflow: hidden; }
+.intro {
+  position: fixed; inset: 0; z-index: 80; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column;
+  background: radial-gradient(120% 70% at 50% 0%, #1a2747 0%, #0b1220 62%) #0b1220; color: #e6ebf5;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.intro::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px); }
+.intro.leaving { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.intro-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; position: relative; }
+.intro-lang { display: flex; border: 1px solid #2a3756; border-radius: 999px; padding: 2px; }
+.intro-lang button, .intro-skip { border: 0; background: transparent; color: #8c98b3; font-family: var(--f-mono); font-size: 0.78rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; }
+.intro-lang button[aria-pressed="true"] { background: #f2c14e; color: #15203a; }
+.intro-skip { border: 1px solid #2a3756; }
+.intro-skip:hover, .intro-lang button:hover:not([aria-pressed="true"]) { color: #e6ebf5; }
+.intro-main { flex: 1; width: 100%; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 10px 0 6px; position: relative; }
+.intro-logo { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(2.5rem, 11vw, 4.4rem); line-height: 1; letter-spacing: 0.04em; color: #e6ebf5; opacity: 0; transform: translateY(-16px) scale(0.92); }
+.intro-logo span { color: #f2c14e; }
+.intro-logo .cur { display: inline-block; width: 0.5em; height: 0.12em; background: #f2c14e; margin-left: 0.1em; vertical-align: baseline; }
+.intro-tag { margin: -6px 0 0; font-family: var(--f-mono); font-size: 0.85rem; color: #8c98b3; text-align: center; text-wrap: balance; opacity: 0; }
+.intro.show-logo .intro-logo { opacity: 1; transform: none; transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.2, 1.7, 0.4, 1); }
+.intro.show-logo .intro-tag { opacity: 1; transition: opacity 0.4s ease 0.25s; }
+.intro-win { max-width: 100%; border: 1px solid #222d48; border-radius: 14px; background: #0e1628; overflow: hidden; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45); }
+.intro-bar { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-bottom: 1px solid #222d48; font-family: var(--f-mono); font-size: 0.74rem; color: #7f8aa3; }
+.intro-bar i { width: 9px; height: 9px; border-radius: 50%; background: #e5534b; opacity: 0.75; }
+.intro-bar i:nth-child(2) { background: #f2c14e; }
+.intro-bar i:nth-child(3) { background: #6fd39a; }
+.intro-bar span { margin-left: 6px; }
+.intro-stage { position: relative; cursor: pointer; }
+#intro-cv { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.intro-out { position: absolute; left: 12px; top: 8px; margin: 0; font-family: var(--f-mono); font-size: 0.78rem; line-height: 1.55; color: #c9d2e3; white-space: pre; pointer-events: none; }
+.intro-out .pr { color: #f2c14e; }
+.intro-out .ok { color: #6fd39a; }
+.intro-out .warn { color: #ff8a80; }
+.intro-out .cur2 { display: inline-block; width: 0.6em; height: 1.05em; vertical-align: -0.2em; background: #c9d2e3; margin-left: 1px; }
+.intro-hello { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.5rem; color: #f2c14e; text-align: center; }
+.intro-card { width: min(400px, 100%); background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: grid; gap: 12px; text-align: left; animation: intro-up 0.35s ease-out both; }
+.intro-card .acct-form .row .linkbtn { margin-left: auto; }
+.or-line { display: flex; align-items: center; gap: 10px; color: var(--muted); font-family: var(--f-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.or-line::before, .or-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.intro-alt { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.intro-alt .btn { width: 100%; text-align: center; }
+@keyframes intro-up { from { opacity: 0; transform: translateY(18px); } }
+@media (prefers-reduced-motion: reduce) {
+  .intro-logo, .intro-tag { transition: none !important; transform: none; }
+  .intro-card { animation: none; }
+}
+@media (max-width: 560px) {
+  .intro-main { gap: 12px; justify-content: flex-start; padding-top: 14px; }
+  .intro-card { padding: 16px; }
+}
+@media (max-width: 360px) { .intro-alt { grid-template-columns: 1fr; } }
+
 @media (max-width: 560px) {
   .hright { gap: 8px; width: 100%; }
   .hud .rank { order: 9; flex: 1 1 100%; min-width: 0; }
@@ -695,6 +748,26 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
       </div>
       <p class="note" id="note"></p>
     </section>
+  </div>
+</div>
+
+<div class="intro" id="intro" hidden>
+  <div class="intro-top">
+    <div class="intro-lang" role="group" aria-label="Lingua / Language"><button data-il="it">IT</button><button data-il="en">EN</button></div>
+    <button class="intro-skip" id="intro-skip" data-t="introSkip">Salta ›</button>
+  </div>
+  <div class="intro-main">
+    <h1 class="intro-logo" data-th="brand"></h1>
+    <p class="intro-tag" data-t="introTag"></p>
+    <div class="intro-win">
+      <div class="intro-bar" aria-hidden="true"><i></i><i></i><i></i><span>arcode.py</span></div>
+      <div class="intro-stage">
+        <canvas id="intro-cv" width="300" height="100" role="img" data-ta="introAria"></canvas>
+        <p class="intro-out" id="intro-out" aria-hidden="true"></p>
+      </div>
+    </div>
+    <p class="intro-hello" id="intro-hello" role="status" hidden></p>
+    <section class="intro-card" id="intro-card" aria-labelledby="acct-title" hidden></section>
   </div>
 </div>
 
@@ -3486,6 +3559,44 @@ Object.assign(UI.en, {
   loggedIn: (u) => `Hi, ${u}!`, loggedOut: "You logged out: you're now using Arcode as a guest.", welcomeBack: (u) => `Welcome back, ${u}!`,
   merged: "Progress merged with what you already had."
 });
+
+/* ================= Opening scene ================= */
+/* The bug the mascots chase: drawn like a mascot, so it gets the same outline and shading */
+const BUG_M = { name: "Bug", color: "#e5534b",
+  body: (l) => { pxEll(l, 17, 26, 7.5, 5, "#e5534b"); pxEll(l, 25.5, 25.5, 4, 3.6, "#4a4f68"); },
+  det: (l) => { const K = PX_K; pxRect(l, 12, 23, 2, 2, K); pxRect(l, 16, 22, 2, 2, K); pxRect(l, 14, 27, 2, 2, K); pxRect(l, 19, 26, 2, 2, K); pxRect(l, 11, 25, 9, 1, "#f08a80"); },
+  fc: "#ffffff", hl: false, ck: false, pupil: PX_K, eyes: [24, 27], ey: 23, m: null, sw: [31, 18], bub: null,
+  extra: (F, e) => { const K = PX_K; if (e !== "o") { pxPut(F, 25, 24, K); pxPut(F, 28, 24, K); } pxPut(F, 25, 20, K); pxPut(F, 24, 19, K); pxPut(F, 28, 20, K); pxPut(F, 29, 19, K); } };
+/* Tiny pixel glyphs that fly out of the fight */
+const GLYPHS = {
+  star: ["..#..", "..#..", "##.##", "..#..", "..#.."],
+  "{": [".##", ".#.", "#..", ".#.", ".##"],
+  "}": ["##.", ".#.", "..#", ".#.", "##."],
+  "!": ["##", "##", "##", "..", "##"],
+  "#": [".#.#.", "#####", ".#.#.", "#####", ".#.#."],
+  "<": ["..#", ".#.", "#..", ".#.", "..#"],
+  ">": ["#..", ".#.", "..#", ".#.", "#.."],
+  check: ["........#", ".......##", "#.....##.", "##...##..", ".##.##...", "..###....", "...#....."]
+};
+/* Who runs in first, where they land after the fight, and the order of the line-up */
+const CAST = ["cursy", "bit", "pip", "graffa", "floppy", "papera"];
+const CHASE = ["pip", "bit", "cursy", "graffa", "floppy", "papera"];
+const SCATTER = [-34, 34, -60, 60, -86, 86];
+/* Timeline of the opening, in seconds */
+const TL = { bug0: 0.3, bug1: 1.5, turn: 1.6, enter: 0.5, gap: 0.2, hit: 1.95, poof: 3.1, land: 3.45, fix: 3.75, jump: 4.05, lined: 4.75, logo: 4.55, card: 5.05 };
+
+Object.assign(UI.it, {
+  introTag: "Impara a programmare, un livello alla volta.", introSkip: "Salta ›",
+  introBug: "! un bug è scappato", introFixed: "✓ bug risolto", introReady: "✓ pronto",
+  introAria: "Le mascotte di Arcode inseguono un bug e lo risolvono",
+  or: "oppure", asGuest: "Entra come ospite", setIntro: "Animazione d'apertura", introOn: "Attiva", introOff: "Spenta"
+});
+Object.assign(UI.en, {
+  introTag: "Learn to code, one level at a time.", introSkip: "Skip ›",
+  introBug: "! a bug escaped", introFixed: "✓ bug fixed", introReady: "✓ ready",
+  introAria: "The Arcode mascots chase a bug and fix it",
+  or: "or", asGuest: "Continue as guest", setIntro: "Opening animation", introOn: "On", introOff: "Off"
+});
 </script>
 
 <script>
@@ -3517,7 +3628,7 @@ const storeKey = () => stateKeyFor(ACC.current);
 function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, programs: [], active: null,
-  fontSize: 14, theme: "auto", sound: true, tutorialDone: false, lastBackup: null });
+  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null });
 let S = DEFAULTS();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
@@ -3537,6 +3648,7 @@ function sanitize() {
   if (!(S.fontSize >= 11 && S.fontSize <= 22)) S.fontSize = 14;
   if (!["auto", "light", "dark"].includes(S.theme)) S.theme = "auto";
   S.sound = S.sound !== false;
+  S.intro = S.intro !== false;
   if (!(S.termH >= 120 && S.termH <= 1600)) S.termH = 210;
   if (!S.codeAt || typeof S.codeAt !== "object") S.codeAt = {};
 }
@@ -4818,6 +4930,7 @@ function renderSettings() {
     <div class="set-row"><span>${t("setTheme")}</span>${seg("theme", [["auto", t("themeAuto")], ["light", t("themeLight")], ["dark", t("themeDark")]], S.theme)}</div>
     <div class="set-row"><span>${t("setFont")}</span><div class="row"><button class="btn tiny" id="font-down" aria-label="${t("fontDown")}">A−</button><span class="mono">${S.fontSize}px</span><button class="btn tiny" id="font-up" aria-label="${t("fontUp")}">A+</button></div></div>
     <div class="set-row"><span>${t("setSound")}</span>${seg("sound", [["1", t("on")], ["0", t("off")]], S.sound ? "1" : "0")}</div>
+    <div class="set-row"><span>${t("setIntro")}</span>${seg("intro", [["1", t("introOn")], ["0", t("introOff")]], S.intro ? "1" : "0")}</div>
     <div class="set-save">
       <div class="set-save-head"><div class="fl-m"></div><div><h3>${t("setSave")}</h3><p>${t("saveInfo")}</p><p class="muted">${S.lastBackup ? t("lastBackup", fmtDate(S.lastBackup)) : t("neverBackup")}</p></div></div>
       <div class="row">${CAN_DOWNLOAD ? `<button class="btn primary" id="save-file">${t("saveFile")}</button>` : ""}<label class="btn" for="load-file">${t("loadFile")}</label><input type="file" id="load-file" accept=".json,.txt,application/json,text/plain" hidden></div>
@@ -4835,6 +4948,7 @@ function renderSettings() {
       const k = b.dataset.set, v = b.dataset.v;
       if (k === "lang") setLang(v);
       else if (k === "theme") { S.theme = v; save(); applyTheme(); }
+      else if (k === "intro") { S.intro = v === "1"; save(); }
       else if (k === "sound") { S.sound = v === "1"; save(); if (S.sound) { sfxUnlock(); SFX.right(); } else audioSessionFor(false); applyStatic(); }
       renderSettings();
     };
@@ -4872,7 +4986,7 @@ function renderSettings() {
   const rn = $("reset-n"); if (rn) rn.onclick = () => { ui.settings.confirm = false; renderSettings(); };
   const ry = $("reset-y");
   if (ry) ry.onclick = () => {
-    const keep = { lang: S.lang, programs: S.programs, active: S.active, fontSize: S.fontSize, theme: S.theme, sound: S.sound };
+    const keep = { lang: S.lang, programs: S.programs, active: S.active, fontSize: S.fontSize, theme: S.theme, sound: S.sound, intro: S.intro };
     S = Object.assign(DEFAULTS(), keep); sanitize(); save();
     closeSettings(); ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null;
     applyStatic(); setView("worlds");
@@ -4909,7 +5023,7 @@ function applyProgress(m) {
   for (const k of PROGRESS_KEYS) if (m[k] !== undefined) S[k] = m[k];
   sanitize();
 }
-const prefsOf = (s) => ({ lang: s.lang, theme: s.theme, fontSize: s.fontSize, sound: s.sound, termH: s.termH });
+const prefsOf = (s) => ({ lang: s.lang, theme: s.theme, fontSize: s.fontSize, sound: s.sound, intro: s.intro, termH: s.termH });
 
 /* ---------- Online sync: the base for a free server ----------
    To connect a server, fill REMOTE with pull(user) -> saved progress or null, and push(user, progress).
@@ -4968,8 +5082,9 @@ function closeAccount() { acctEl.hidden = true; }
 function fmtDay(iso) { try { return new Date(iso).toLocaleDateString(S.lang === "it" ? "it-IT" : "en-GB", { dateStyle: "long" }); } catch (e) { return iso; } }
 const field = (id, label, type, ac, val = "", hint = "") => `<label class="ff" for="${id}"><span>${label}</span>
   <input class="field" id="${id}" name="${id}" type="${type}" autocomplete="${ac}" autocapitalize="off" autocorrect="off" spellcheck="false" value="${escHtml(val)}">${hint ? `<small>${hint}</small>` : ""}</label>`;
+const acctHost = () => (ui.acct && ui.acct.intro ? introCard : acctEl.querySelector(".ocard"));
 function renderAccount() {
-  const a = ui.acct, users = Object.keys(ACC.users).sort();
+  const a = ui.acct, users = Object.keys(ACC.users).sort(), intro = !!a.intro;
   const err = a.err ? `<p class="form-err" role="alert">${escHtml(a.err)}</p>` : "";
   const msg = a.msg ? `<p class="set-msg" role="status">${escHtml(a.msg)}</p>` : "";
   const back = `<button class="linkbtn" type="button" id="acct-back">${t("back")}</button>`;
@@ -4977,7 +5092,13 @@ function renderAccount() {
   const others = users.filter((u) => u !== ACC.current);
   const list = others.length ? `<div class="group"><div class="eyebrow">${t("onThisDevice")}</div><div class="acct-list">${others.map((u) => `<button class="acct-pick" data-u="${escHtml(u)}" aria-label="${escHtml(t("loginAs", u))}"><span class="av" aria-hidden="true">${escHtml(u[0].toUpperCase())}</span>${escHtml(u)}</button>`).join("")}</div></div>` : "";
   let body;
-  if (a.mode === "home" && !ACC.current) {
+  if (a.mode === "welcome") {
+    const chips = users.length ? `<div class="acct-list">${users.map((u) => `<button type="button" class="acct-pick" data-u="${escHtml(u)}" aria-label="${escHtml(t("loginAs", u))}"><span class="av" aria-hidden="true">${escHtml(u[0].toUpperCase())}</span>${escHtml(u)}</button>`).join("")}</div>` : "";
+    body = `${chips}<form id="f-login" class="acct-form" novalidate>${field("a-user", t("username"), "text", "username", a.user)}${field("a-pass", t("password"), "password", "current-password")}
+      ${err}<div class="row">${submit(t("login"))}<button class="linkbtn" type="button" id="go-recover">${t("forgot")}</button></div></form>
+      <div class="or-line">${t("or")}</div>
+      <div class="intro-alt"><button class="btn" id="go-create">${t("createAccount")}</button><button class="btn" id="do-guest">${t("asGuest")}</button></div>`;
+  } else if (a.mode === "home" && !ACC.current) {
     body = `<div class="acct-hero"><span class="av big guest" aria-hidden="true">?</span><div><b>${t("guest")}</b><p>${t("acctGuestText")}</p></div></div>
       ${msg}<div class="row"><button class="btn primary" id="go-create">${t("createAccount")}</button><button class="btn" id="go-login">${t("login")}</button></div>${list}`;
   } else if (a.mode === "home") {
@@ -5015,10 +5136,17 @@ function renderAccount() {
     body = `<form id="f-delete" class="acct-form" novalidate><div class="confirm"><p>${t("deleteWarn")}</p></div><input type="text" name="username" autocomplete="username" value="${escHtml(ACC.current)}" hidden>
       ${field("a-old", t("password"), "password", "current-password")}${err}<div class="row">${submit(t("deleteYes"), "danger")}${back}</div></form>`;
   }
-  acctEl.querySelector(".ocard").innerHTML = `<div class="set-head"><h2 id="acct-title">${t("account")}</h2><button class="btn tiny" id="acct-close">${t("close")}</button></div><div class="acct-body">${body}</div>`;
+  const title = intro ? ({ welcome: t("login"), create: t("createAccount"), recover: t("forgot") }[a.mode] || t("account")) : t("account");
+  (intro ? acctEl.querySelector(".ocard") : introCard).innerHTML = ""; /* only one copy of the form at a time */
+  acctHost().innerHTML = `<div class="set-head"><h2 id="acct-title">${title}</h2>${intro ? "" : `<button class="btn tiny" id="acct-close">${t("close")}</button>`}</div><div class="acct-body">${body}</div>`;
   wireAccount();
 }
-const go = (mode, extra = {}) => { ui.acct = Object.assign({ mode, err: "", msg: "", user: "", code: "", busy: false }, extra); renderAccount(); const f = acctEl.querySelector(".acct-body input:not([hidden]), .acct-body button"); if (f) f.focus(); };
+const go = (mode, extra = {}) => {
+  ui.acct = Object.assign({ mode, err: "", msg: "", user: "", code: "", busy: false, intro: !!(ui.acct && ui.acct.intro) }, extra);
+  renderAccount();
+  const h = acctHost(), f = h.querySelector(".acct-body input:not([hidden])") || h.querySelector(".acct-body button");
+  if (f) f.focus({ preventScroll: true });
+};
 const val = (id) => { const el = $(id); return el ? el.value : ""; };
 /* Runs a form action with a busy state; the action returns an error message or nothing */
 function acctForm(id, action) {
@@ -5033,14 +5161,15 @@ function acctForm(id, action) {
     let errMsg = null;
     try { errMsg = await action(); } catch (x) { errMsg = t("errLogin"); }
     ui.acct.busy = false;
-    if (errMsg) { ui.acct.err = errMsg; if (keep["a-user"] !== undefined) ui.acct.user = keep["a-user"]; renderAccount(); const p = acctEl.querySelector("input[type=password]"); if (p) p.focus(); }
+    if (errMsg) { ui.acct.err = errMsg; if (keep["a-user"] !== undefined) ui.acct.user = keep["a-user"]; renderAccount(); const p = acctHost().querySelector("input[type=password]"); if (p) p.focus(); }
   };
 }
 function checkNewPassword(p1, p2) { if (p1.length < 8) return t("errPass"); if (p1 !== p2) return t("errMatch"); return null; }
 function wireAccount() {
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
   on("acct-close", closeAccount);
-  on("acct-back", () => go("home"));
+  on("acct-back", () => go(ui.acct.intro ? "welcome" : "home"));
+  on("do-guest", closeIntro);
   on("go-create", () => go("create"));
   on("go-login", () => go("login"));
   on("go-recover", () => go("recover", { user: val("a-user") }));
@@ -5048,8 +5177,10 @@ function wireAccount() {
   on("go-newrec", () => go("newrec"));
   on("go-delete", () => go("delete"));
   on("do-logout", () => { switchAccount(null); go("home", { msg: t("loggedOut") }); });
-  acctEl.querySelectorAll(".acct-pick").forEach((b) => { b.onclick = () => go("login", { user: b.dataset.u }); });
-  on("rc-done", () => go("home"));
+  acctHost().querySelectorAll(".acct-pick").forEach((b) => {
+    b.onclick = () => { if (ui.acct.mode === "welcome") { $("a-user").value = b.dataset.u; $("a-pass").focus(); } else go("login", { user: b.dataset.u }); };
+  });
+  on("rc-done", () => (ui.acct.intro ? closeIntro() : go("home")));
   on("rc-copy", () => {
     const b = $("rc-copy"), txt = $("rc-code").textContent;
     const sel = () => { const r = document.createRange(); r.selectNodeContents($("rc-code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
@@ -5075,7 +5206,7 @@ function wireAccount() {
     const u = normUser(val("a-user")), rec = ACC.users[u];
     if (!rec || !(await checkPassword(rec, val("a-pass")))) return t("errLogin");
     switchAccount(u);
-    go("home", { msg: t("welcomeBack", u) });
+    if (ui.acct.intro) introDone(u); else go("home", { msg: t("welcomeBack", u) });
   });
   acctForm("f-recover", async () => {
     const u = normUser(val("a-user")), rec = ACC.users[u];
@@ -5085,7 +5216,7 @@ function wireAccount() {
     rec.salt = randB64(16); rec.hash = await hashSecret(val("a-pass"), rec.salt);
     saveAccounts();
     switchAccount(u);
-    go("home", { msg: t("passChanged") });
+    if (ui.acct.intro) introDone(u); else go("home", { msg: t("passChanged") });
   });
   acctForm("f-pass", async () => {
     const rec = ACC.users[ACC.current];
@@ -5200,6 +5331,317 @@ expandBtn.onclick = () => {
   } else { ui.labFocus = "term"; setView("lab"); }
 };
 
+/* ---------- Opening: the mascots chase a bug and fix it, then the access card ---------- */
+const introEl = $("intro"), introCv = $("intro-cv"), introCard = $("intro-card"), introOut = $("intro-out"), introHello = $("intro-hello"), introSkip = $("intro-skip");
+const wrapEl = document.querySelector(".wrap");
+const STAGE_H = 100, GROUND = 90, HOP_ORDER = ["pip", "papera", "bit", "graffa", "cursy", "floppy"];
+const IN = { open: false, on: false, raf: 0, t0: 0, last: 0, W: 300, s: 2, reduce: false, story: true, acct: false, phase: "anim", outKey: "", logo: false, card: false, poke: null, cheer: null, stars: [], floor: [] };
+const introT = () => (performance.now() - IN.t0) / 1000;
+const lerp = (a, b, k) => a + (b - a) * k;
+const clamp01 = (k) => Math.max(0, Math.min(1, k));
+function seeded(n) { let s = (Math.imul(n + 1, 2654435761) >>> 0) || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+
+/* Sprites are drawn once per face and kept */
+const SPR = {}, FEET = {};
+function pxCanvas(F) {
+  const cv = document.createElement("canvas"); cv.width = PX_W; cv.height = PX_H;
+  const c = cv.getContext("2d");
+  for (let i = 0; i < F.length; i++) if (F[i]) { c.fillStyle = F[i]; c.fillRect(i % PX_W, Math.floor(i / PX_W), 1, 1); }
+  return cv;
+}
+/* b: blink for the mascots, leg frame for the bug */
+function sprite(key, e, b) {
+  const id = key + e + b;
+  if (!SPR[id]) {
+    let F;
+    if (key === "bug") { F = pxCompose(BUG_M, e, false); const x0 = b ? 12 : 11; for (const x of [x0, x0 + 4, x0 + 8]) pxRect(F, x, 31, 1, 2, PX_K); }
+    else F = pxCompose(MASCOTS[key], e, !!b);
+    SPR[id] = pxCanvas(F);
+    if (FEET[key] == null) { let r = 0; F.forEach((c, i) => { if (c) r = Math.max(r, Math.floor(i / PX_W)); }); FEET[key] = r + 1; }
+  }
+  return SPR[id];
+}
+function drawSprite(c, key, e, b, x, gy, flip) {
+  const img = sprite(key, e, b ? 1 : 0), dx = Math.round(x) - 19, dy = Math.round(gy) - FEET[key];
+  if (!flip) c.drawImage(img, dx, dy);
+  else { c.save(); c.translate(dx + PX_W, dy); c.scale(-1, 1); c.drawImage(img, 0, 0); c.restore(); }
+}
+function drawGlyph(c, name, x, y, color, alpha = 1) {
+  c.globalAlpha = Math.max(0, alpha); c.fillStyle = color;
+  GLYPHS[name].forEach((row, j) => { for (let i = 0; i < row.length; i++) if (row[i] === "#") c.fillRect(Math.round(x) + i, Math.round(y) + j, 1, 1); });
+  c.globalAlpha = 1;
+}
+function disc(c, x, y, r, color) {
+  if (r <= 0) return;
+  c.fillStyle = color;
+  const R = Math.floor(r), X = Math.round(x), Y = Math.round(y);
+  for (let j = -R; j <= R; j++) { const w = Math.floor(Math.sqrt(r * r - j * j)); c.fillRect(X - w, Y + j, w * 2 + 1, 1); }
+}
+function stroke(c, x0, y0, x1, y1, color) {
+  c.fillStyle = color;
+  const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
+  for (let k = 0; k <= n; k++) c.fillRect(Math.round(lerp(x0, x1, k / n)), Math.round(lerp(y0, y1, k / n)), 2, 2);
+}
+/* Final group photo: one row, or two rows on very narrow phones */
+function lineup(W) {
+  const P = {};
+  if (W >= 236) { const sp = Math.min(46, (W - 18) / 6); CAST.forEach((k, i) => { P[k] = { x: W / 2 + (i - 2.5) * sp, y: GROUND, z: 1 }; }); }
+  else {
+    const sp = Math.min(52, (W - 40) / 4);
+    ["cursy", "pip", "graffa", "papera"].forEach((k, i) => { P[k] = { x: W / 2 + [-1.5, -0.42, 0.42, 1.5][i] * sp, y: GROUND, z: 2 }; });
+    ["bit", "floppy"].forEach((k, i) => { P[k] = { x: W / 2 + (i ? 1 : -1) * sp, y: GROUND - 13, z: 1 }; });
+  }
+  return P;
+}
+/* -1 = standing; otherwise how far into a hop (0..1) */
+function hopOf(key, n, T) {
+  if (IN.reduce) return -1;
+  if (IN.cheer != null && T >= IN.cheer) return ((T - IN.cheer) * 2.4 + n * 0.13) % 1;
+  if (IN.poke && IN.poke.key === key && T - IN.poke.t < 0.42) return (T - IN.poke.t) / 0.42;
+  const per = 1.7, d = T - TL.lined;
+  if (d < per) return -1;
+  const m = Math.floor(d / per), ph = d - m * per;
+  return ph < 0.42 && HOP_ORDER[m % 6] === key ? ph / 0.42 : -1;
+}
+function introLayout() {
+  const main = introEl.querySelector(".intro-main");
+  const avail = Math.max(200, Math.min(main.clientWidth || window.innerWidth - 32, 860) - 2);
+  let s = Math.min(avail / 300, (window.innerHeight - (IN.acct ? 600 : 300)) / STAGE_H);
+  s = Math.max(1.4, Math.min(2.6, s));
+  const W = Math.max(150, Math.min(420, Math.floor(avail / s)));
+  IN.s = s; IN.W = W;
+  introCv.width = W; introCv.height = STAGE_H;
+  introCv.style.width = Math.round(W * s) + "px"; introCv.style.height = Math.round(STAGE_H * s) + "px";
+  const r = seeded(7);
+  /* no stars under the terminal text in the top left corner */
+  IN.stars = Array.from({ length: Math.round(W / 12) }, () => ({ x: Math.floor(r() * W), y: Math.floor(4 + r() * 46), p: r() * 6, big: r() < 0.14 }))
+    .filter((st) => !(st.x < 175 / s + 6 && st.y < 50 / s + 4));
+  const cols = ["#d59ae8", "#8fd19e", "#f2b56b", "#7ea3ee", "#6cc4d9", "#7f8aa3"];
+  IN.floor = [];
+  for (const [y, start] of [[GROUND + 3, 6], [GROUND + 6, 14]]) {
+    let x = start;
+    while (x < W - 10) { const w = Math.min(2 + Math.floor(r() * 8), W - 8 - x); IN.floor.push({ x, y, w, c: cols[Math.floor(r() * cols.length)] }); x += w + 2 + Math.floor(r() * 3); }
+  }
+}
+const FIGHT_COLS = ["#5cc98a", "#b8c2d3", "#3a6fc4", "#8a7fe0", "#f5c542", "#3b5a9a"];
+const SPARK_COLS = ["#f2c14e", "#6fd39a", "#7ea3ee", "#d59ae8", "#ff8a80", "#e6ebf5"];
+const SPARK_GLYPHS = ["star", "{", "}", "#", "<", ">", "!"];
+function drawStage(T) {
+  const c = introCv.getContext("2d"), W = IN.W, G = GROUND, cx = Math.round(W * 0.58), R = 24, cy = G - 14;
+  c.clearRect(0, 0, W, STAGE_H);
+  for (const s of IN.stars) {
+    c.globalAlpha = IN.reduce ? 0.5 : 0.2 + 0.6 * Math.abs(Math.sin(T * 1.3 + s.p));
+    c.fillStyle = "#c9d2e3"; c.fillRect(s.x, s.y, 1, 1);
+    if (s.big) { c.fillRect(s.x - 1, s.y, 3, 1); c.fillRect(s.x, s.y - 1, 1, 3); }
+  }
+  c.globalAlpha = 0.45;
+  for (const f of IN.floor) { c.fillStyle = f.c; c.fillRect(f.x, f.y, f.w, 1); }
+  c.globalAlpha = 1;
+
+  const acts = [], over = [], v = (cx + 14) / (TL.hit - TL.enter), L = lineup(W);
+  const add = (key, x, y, e, flip, z, b) => acts.push({ key, x, y, e, flip, z, b });
+  const scat = (i) => Math.max(20, Math.min(W - 20, cx + SCATTER[i]));
+  CHASE.forEach((key, i) => {
+    const sx = scat(i), st = TL.enter + i * TL.gap;
+    if (T < TL.poof) {
+      /* The chase: everyone runs after the bug, then dives into the fight */
+      if (T < st) return;
+      let x = -22 + (T - st) * v;
+      if (T >= TL.hit && x >= cx - R / 2) return;
+      if (T < TL.hit) x = Math.min(x, cx - 8);
+      add(key, x, G - Math.round(Math.abs(Math.sin((T - st) * 17 + i)) * (key === "papera" ? 2 : 3)), "i", false, 10 - i);
+    } else if (T < TL.land) {
+      /* Out of the cloud, flying */
+      const k = (T - TL.poof) / (TL.land - TL.poof);
+      add(key, lerp(cx, sx, k), lerp(cy + 2, G, k) - Math.sin(Math.PI * k) * 24, "o", sx < cx, 5);
+    } else if (T < TL.jump) {
+      /* Dizzy, then they look at the bug, then cheer */
+      const k = clamp01((T - TL.fix) / (TL.jump - TL.fix));
+      add(key, sx, G - (T >= TL.fix ? Math.sin(Math.PI * k) * 6 : 0), T < TL.fix - 0.15 ? "o" : T < TL.fix ? "t" : "h", sx > cx, 5);
+    } else {
+      const p = L[key], s0 = TL.jump + i * 0.05, k = clamp01((T - s0) / (TL.lined - 0.25 - TL.jump));
+      if (k < 1) add(key, lerp(sx, p.x, k), lerp(G, p.y, k) - Math.sin(Math.PI * k) * 16, "h", p.x < sx, p.z);
+      else {
+        /* Idle: a gentle bob, a blink now and then, one hop at a time */
+        const n = CAST.indexOf(key);
+        let lift = IN.reduce ? 0 : Math.floor(T * 2.2 + n * 0.5) % 2, e = "i", blink = !IN.reduce && (T + n * 0.73) % 3.4 < 0.13;
+        const h = hopOf(key, n, T);
+        if (h >= 0) { lift = Math.sin(Math.PI * h) * 7; e = "h"; blink = false; }
+        add(key, p.x, p.y - lift, e, false, p.z, blink);
+      }
+    }
+  });
+  /* The bug runs, stops, turns around: "!" */
+  if (T >= TL.bug0 && T < TL.hit) {
+    const k = clamp01((T - TL.bug0) / (TL.bug1 - TL.bug0)), x = lerp(-14, cx + 8, 1 - (1 - k) * (1 - k)), turned = T >= TL.turn;
+    add("bug", x, G, turned ? "o" : "i", turned, 20, k < 1 ? Math.floor(T * 16) % 2 : 0);
+    if (turned && Math.floor(T * 8) % 2 === 0) over.push(() => drawGlyph(c, "!", x - 1, G - 23, "#f2c14e"));
+  }
+  /* After the fight the bug lies on its back, legs wiggling */
+  if (T >= TL.poof && T < TL.fix) {
+    acts.push({ key: "bugUp", x: cx, z: 4 });
+    if (T >= TL.poof + 0.15) over.push(() => { for (let q = 0; q < 3; q++) { const a = T * 7 + q * 2.09; drawGlyph(c, "star", cx - 2 + Math.cos(a) * 8, G - 19 + Math.sin(a) * 2.5, q ? "#f2c14e" : "#ffffff"); } });
+  }
+  /* The fight: a dust cloud, someone peeking out, flying symbols */
+  if (T >= TL.hit && T < TL.poof) {
+    const RR = R * clamp01((T - TL.hit) / 0.15), r = seeded(Math.floor(T * 14));
+    const reached = CHASE.filter((key, i) => -22 + (T - (TL.enter + i * TL.gap)) * v >= cx - R / 2).concat(["bug"]);
+    const rp = seeded(Math.floor(T * 7.5) + 99);
+    if (rp() < 0.75) { const who = reached[Math.floor(rp() * reached.length)], side = rp() < 0.5 ? -1 : 1; acts.push({ key: who, x: cx + side * (RR - 2), y: G - Math.round(rp() * 8), e: rp() < 0.5 ? "o" : "h", flip: side < 0, z: 30, b: 0 }); }
+    acts.push({ key: "cloud", z: 40, draw: () => {
+      for (let q = 0; q < 4; q++) {
+        const a = r() * Math.PI * 2, len = RR * 1.05 + 5 + r() * 7, col = FIGHT_COLS[Math.floor(r() * FIGHT_COLS.length)];
+        const ex = cx + Math.cos(a) * len, ey = Math.min(G - 2, cy + Math.sin(a) * len * 0.7);
+        stroke(c, cx + Math.cos(a) * RR * 0.6, cy + Math.sin(a) * RR * 0.42, ex, ey, PX_K);
+        stroke(c, cx + Math.cos(a) * RR * 0.6 - 0.5, cy + Math.sin(a) * RR * 0.42 - 0.5, ex - 0.5, ey - 0.5, col);
+        disc(c, ex, ey, 2, "#ffffff");
+      }
+      const P = [[0, 0, 0.62], [-0.55, 0.12, 0.46], [0.55, 0.12, 0.46], [-0.3, -0.42, 0.44], [0.32, -0.4, 0.44], [0, 0.3, 0.42], [-0.78, -0.1, 0.3], [0.78, -0.12, 0.3]];
+      const pts = P.map(([dx, dy, rr]) => [cx + dx * RR + (r() - 0.5) * 3, cy + dy * RR * 0.8 + (r() - 0.5) * 3, rr * RR]);
+      pts.forEach(([x, y, rr]) => disc(c, x, y, rr + 1, "#5f6c88"));
+      pts.forEach(([x, y, rr]) => disc(c, x, y + 1, rr, "#b8c2d3"));
+      pts.forEach(([x, y, rr]) => disc(c, x, y - 0.5, rr - 1.2, "#eef2f8"));
+    } });
+  }
+  if (T >= TL.hit && T < TL.poof + 0.6) {
+    const s1 = Math.floor(Math.min(T, TL.poof - 0.05) * 16);
+    for (let sl = Math.ceil(TL.hit * 16); sl <= s1; sl++) {
+      const dt = T - sl / 16; if (dt > 0.6) continue;
+      const r = seeded(sl * 31 + 5), a = -Math.PI * (0.1 + r() * 0.8), sp = 45 + r() * 40;
+      const g = SPARK_GLYPHS[Math.floor(r() * SPARK_GLYPHS.length)], col = SPARK_COLS[Math.floor(r() * SPARK_COLS.length)];
+      const x = cx + Math.cos(a) * (R * 0.6 + sp * dt), y = cy + Math.sin(a) * (R * 0.5 + sp * dt) + 90 * dt * dt;
+      over.push(() => drawGlyph(c, g, x - 2, y - 2, col, 1 - dt / 0.6));
+    }
+  }
+  /* Poof: the cloud breaks up */
+  if (T >= TL.poof && T < TL.poof + 0.4) {
+    const k = (T - TL.poof) / 0.4, r = seeded(42);
+    for (let q = 0; q < 12; q++) {
+      const a = (q / 12) * Math.PI * 2 + (r() - 0.5) * 0.6, d = R * (0.3 + r() * 0.4) + k * (18 + r() * 22), size = (3 + r() * 5) * (1 - k);
+      acts.push({ key: "puff", z: 3, draw: () => { disc(c, cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.6, size + 1, "#8792ab"); disc(c, cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.6 - 0.5, size, "#e3e8f1"); } });
+    }
+  }
+  /* Fixed: a green check and sparkles */
+  if (T >= TL.fix && T < TL.fix + 0.8) {
+    const k = (T - TL.fix) / 0.8;
+    over.push(() => {
+      drawGlyph(c, "check", cx - 4, G - 16 - k * 12, "#6fd39a", 1 - k * k);
+      for (let q = 0; q < 6; q++) { const a = (q / 6) * Math.PI * 2 + 0.3, d = 6 + k * 22; drawGlyph(c, "star", cx - 2 + Math.cos(a) * d, G - 14 + Math.sin(a) * d * 0.7, q % 2 ? "#f2c14e" : "#6fd39a", 1 - k); }
+    });
+  }
+  acts.sort((a, b) => a.z - b.z);
+  for (const a of acts) {
+    if (a.draw) a.draw();
+    else if (a.key === "bugUp") { const img = sprite("bug", "o", Math.floor(T * 10) % 2); c.save(); c.translate(Math.round(a.x) - 19, G + 20); c.scale(1, -1); c.drawImage(img, 0, 0); c.restore(); }
+    else drawSprite(c, a.key, a.e, a.b, a.x, a.y, a.flip);
+  }
+  over.forEach((f) => f());
+}
+function introCues(T) {
+  const cmd = "python3 arcode.py", n = Math.max(0, Math.min(cmd.length, Math.floor((T - 0.05) / 0.03)));
+  const l2 = !IN.story ? "introReady" : T >= TL.fix ? "introFixed" : T >= 0.8 ? "introBug" : "";
+  const key = n + l2 + S.lang;
+  if (key !== IN.outKey) {
+    IN.outKey = key;
+    introOut.innerHTML = `<span class="pr">$</span> ${escHtml(cmd.slice(0, n))}${n < cmd.length ? '<span class="cur2"></span>' : ""}${l2 ? `\n<span class="${l2 === "introBug" ? "warn" : "ok"}">${escHtml(t(l2))}</span>` : ""}`;
+  }
+  if (T >= TL.logo && !IN.logo) { IN.logo = true; introEl.classList.add("show-logo"); }
+  if (T >= TL.card && !IN.card) { IN.card = true; showIntroCard(); }
+}
+function introFrame(now) {
+  if (!IN.on) return;
+  IN.raf = requestAnimationFrame(introFrame);
+  const T = (now - IN.t0) / 1000;
+  if (T > TL.lined + 0.3 && now - IN.last < 32) return; /* idle: about 30 frames a second is plenty */
+  IN.last = now;
+  drawStage(T); introCues(T);
+}
+function markIntroLang() { introEl.querySelectorAll("[data-il]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.il === S.lang)); }
+function showIntroCard() {
+  IN.phase = "idle";
+  introSkip.hidden = true;
+  if (ACC.current) {
+    /* Already logged in: a quick hello and into the app */
+    introHello.textContent = t("welcomeBack", ACC.current); introHello.hidden = false;
+    setTimeout(closeIntro, IN.reduce ? 900 : 1500);
+    return;
+  }
+  ui.acct = { mode: "welcome", intro: true, err: "", msg: "", user: "", code: "", busy: false };
+  introCard.hidden = false;
+  renderAccount();
+  if (!coarse) { const f = $("a-user"); if (f) f.focus({ preventScroll: true }); }
+}
+/* Shown every time the app opens. Logged in: the scene, then straight in. Not logged in: the scene, then the access card. */
+function startIntro() {
+  const motion = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const story = motion && S.intro !== false;
+  if (!story && ACC.current) return;
+  Object.assign(IN, { open: true, acct: !ACC.current, reduce: !motion, story, phase: story ? "anim" : "idle", outKey: "", logo: false, card: false, poke: null, cheer: null });
+  introEl.hidden = false; introEl.classList.remove("leaving", "show-logo");
+  introCard.hidden = true; introHello.hidden = true; introSkip.hidden = !story;
+  document.body.classList.add("intro-open"); wrapEl.inert = true;
+  markIntroLang();
+  introLayout();
+  IN.t0 = performance.now() - (story ? 0 : (TL.card + 0.01) * 1000);
+  if (motion) { IN.on = true; IN.raf = requestAnimationFrame(introFrame); }
+  else { IN.on = false; drawStage(introT()); introCues(introT()); }
+}
+function skipIntro() {
+  if (!IN.open) return;
+  if (ACC.current && introCard.hidden) { closeIntro(); return; }
+  if (IN.phase !== "anim") return;
+  IN.t0 = performance.now() - TL.card * 1000 - 20;
+  introCues(introT());
+}
+function closeIntro() {
+  if (!IN.open) return;
+  IN.open = false; IN.on = false; cancelAnimationFrame(IN.raf);
+  document.body.classList.remove("intro-open"); wrapEl.inert = false;
+  introEl.classList.add("leaving");
+  setTimeout(() => {
+    if (IN.open) return;
+    introEl.hidden = true; introEl.classList.remove("leaving", "show-logo");
+    introCard.innerHTML = ""; introCard.hidden = true; introHello.hidden = true;
+  }, IN.reduce ? 0 : 320);
+  requestAnimationFrame(measureWork);
+}
+/* Logged in from the welcome card: everyone cheers, then into the app */
+function introDone(u) {
+  introCard.hidden = true;
+  introHello.textContent = t("welcomeBack", u); introHello.hidden = false;
+  IN.cheer = introT();
+  if (S.sound) { sfxUnlock(); SFX.pass(); }
+  setTimeout(closeIntro, IN.reduce ? 700 : 1300);
+}
+/* Tap a mascot on the welcome screen and it hops */
+function pokeMascot(e) {
+  const r = introCv.getBoundingClientRect(), x = (e.clientX - r.left) / IN.s, y = (e.clientY - r.top) / IN.s, L = lineup(IN.W);
+  let best = null, bd = 1e9;
+  for (const k of CAST) { const p = L[k], d = Math.abs(p.x - x) + Math.abs(p.y - 15 - y) * 0.6; if (d < bd) { bd = d; best = k; } }
+  if (best && bd < 40) { IN.poke = { key: best, t: introT() }; if (S.sound) { sfxUnlock(); SFX.star(CAST.indexOf(best)); } }
+}
+introSkip.onclick = (e) => { e.stopPropagation(); skipIntro(); };
+introEl.addEventListener("click", (e) => {
+  if (!IN.open || e.target.closest(".intro-card, .intro-top")) return;
+  if (IN.phase === "anim" || (ACC.current && introCard.hidden)) { skipIntro(); return; }
+  if (e.target.closest(".intro-stage") && IN.on) pokeMascot(e);
+});
+document.addEventListener("keydown", (e) => {
+  if (!IN.open) return;
+  if (IN.phase === "anim" && ["Enter", " ", "Escape"].includes(e.key)) { e.preventDefault(); skipIntro(); }
+  else if (e.key === "Escape" && ACC.current && introCard.hidden) closeIntro();
+});
+introEl.querySelectorAll("[data-il]").forEach((b) => {
+  b.onclick = () => {
+    const typed = $("a-user") ? $("a-user").value : "";
+    setLang(b.dataset.il); markIntroLang(); IN.outKey = "";
+    if (!introCard.hidden && ui.acct && ui.acct.intro) { ui.acct.user = typed; ui.acct.err = ""; renderAccount(); }
+    if (!introHello.hidden && ACC.current) introHello.textContent = t("welcomeBack", ACC.current);
+    if (!IN.on) introCues(introT());
+  };
+});
+window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
+
 /* ---------- Boot ---------- */
 applyTheme();
 applyFont();
@@ -5208,9 +5650,10 @@ if (S.view === "map" || S.view === "worlds") loadEditor();
 applyStatic();
 measureWork();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWork);
+startIntro();
 termWrite(t("loadingFull") + "\n", "dim");
 /* Installed app: register the offline cache and announce new versions */
-const APP_VERSION = "e8d9ec521b";
+const APP_VERSION = "80beae5845";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 if (IS_APP && "serviceWorker" in navigator) {
   try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}

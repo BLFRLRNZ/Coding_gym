@@ -28,6 +28,7 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 
 ### Il percorso a livelli
 
+- **Schermata d'apertura**: all'avvio le mascotte inseguono un bug, se lo litigano in una nuvola di polvere e lo risolvono, poi si mettono in posa. Si salta con un tocco, e dalle impostazioni si può spegnere. Chi non ha fatto l'accesso trova subito **Accedi**, e sotto **Crea account** o **Entra come ospite**; chi è già dentro riceve un saluto ed entra da solo.
 - **Esplora file** del mondo Python: 8 cartelle numerate (`00_inizio`, `01_basi`, …) con 34 file `.py` da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte.
 - **la cartella 00_inizio**: come ragiona Python, regole di scrittura, commenti, leggere un errore, blocchi e rientro.
 - **Un boss per cartella**: un programma pieno di bug da correggere, guidato da Papera, la paperella del debug, che risponde con domande invece che con soluzioni.
@@ -73,6 +74,7 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 
 ### The level path
 
+- **Opening screen**: when the app starts, the mascots chase a bug, scuffle over it in a dust cloud and fix it, then pose for a group photo. Tap to skip, or turn it off in Settings. If you're not logged in you get **Log in**, with **Create account** and **Continue as guest** below; if you are, you get a hello and go straight in.
 - **File explorer** of the Python world: 8 numbered folders (`00_start`, `01_basics`, …) with 34 `.py` files opened in order. Each folder has its own `README.md` with the mascot.
 - **the 00_start folder**: how Python thinks, writing rules, comments, reading an error, blocks and indentation.
 - **One boss per folder**: a buggy program to fix, guided by Papera, the debugging duck, who answers with questions instead of solutions.
