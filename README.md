@@ -1,4 +1,4 @@
-# Palestra Python · Python Gym
+# Arcode
 
 🇮🇹 [Italiano](#italiano) · 🇬🇧 [English](#english)
 
@@ -6,7 +6,11 @@
 
 ## Italiano
 
-Un terminale Python che gira direttamente nel browser, con lezioni guidate per imparare a programmare da zero. Interfaccia e lezioni in **italiano e inglese**.
+Un arcade per imparare a programmare: ogni **mondo** è un linguaggio di programmazione, ogni mondo ha le sue **cartelle** di livelli e ogni livello è un **file** da superare. Si gioca nel browser con un terminale vero. Interfaccia e lezioni in **italiano e inglese**.
+
+### I mondi
+
+In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, TypeScript, Go, Java, C, C++ e Rust (in arrivo).
 
 ### Cosa c'è dentro
 
@@ -24,10 +28,10 @@ Un terminale Python che gira direttamente nel browser, con lezioni guidate per i
 
 ### Il percorso a livelli
 
-- **Esplora file**: ogni mondo è una cartella e ogni livello un file `.py`, da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte. I mondi sono 8, per 34 livelli: Prima di iniziare, Le basi, Decisioni, Ripetere, Testo e funzioni, Strumenti, Oggetti e Bonus.
-- **Mondo 0 "Prima di iniziare"**: come ragiona Python, regole di scrittura, commenti, leggere un errore, blocchi e rientro.
-- **Un boss per mondo**: un programma pieno di bug da correggere, guidato da Papera, la paperella del debug, che risponde con domande invece che con soluzioni.
-- **Mascotte in pixel art** che guidano i mondi e reagiscono al tuo codice: Cursy, Bit, Graffa, Pip, Floppy e Papera.
+- **Esplora file** del mondo Python: 8 cartelle numerate (`00_inizio`, `01_basi`, …) con 34 file `.py` da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte.
+- **la cartella 00_inizio**: come ragiona Python, regole di scrittura, commenti, leggere un errore, blocchi e rientro.
+- **Un boss per cartella**: un programma pieno di bug da correggere, guidato da Papera, la paperella del debug, che risponde con domande invece che con soluzioni.
+- **Mascotte in pixel art** che guidano le cartelle e reagiscono al tuo codice: Cursy, Bit, Graffa, Pip, Floppy e Papera.
 - **La quest** di ogni livello sta in un riquadro sopra l'editor, separata dalla spiegazione.
 - **Stelle**: ★★★ senza aiuti, ★★ con il suggerimento, ★ con la soluzione. Puoi rigiocare un livello per prenderle tutte.
 - **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice.
@@ -45,7 +49,11 @@ Per metterla online gratis: su GitHub vai in **Settings → Pages**, scegli il b
 
 ## English
 
-A Python terminal that runs right in the browser, with guided lessons to learn programming from scratch. Interface and lessons in **English and Italian**.
+An arcade for learning to code: every **world** is a programming language, every world has its own **folders** of levels and every level is a **file** to beat. It runs in the browser with a real terminal. Interface and lessons in **English and Italian**.
+
+### The worlds
+
+Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScript, Go, Java, C, C++ and Rust (coming soon).
 
 ### What's inside
 
@@ -63,10 +71,10 @@ A Python terminal that runs right in the browser, with guided lessons to learn p
 
 ### The level path
 
-- **File explorer**: every world is a folder and every level a `.py` file, opened in order. Each folder has its own `README.md` with the mascot. There are 8 worlds and 34 levels: Before you start, The basics, Decisions, Repeating, Text and functions, Tools, Objects and Bonus.
-- **World 0 "Before you start"**: how Python thinks, writing rules, comments, reading an error, blocks and indentation.
-- **One boss per world**: a buggy program to fix, guided by Papera, the debugging duck, who answers with questions instead of solutions.
-- **Pixel-art mascots** that guide each world and react to your code: Cursy, Bit, Graffa, Pip, Floppy and Papera.
+- **File explorer** of the Python world: 8 numbered folders (`00_start`, `01_basics`, …) with 34 `.py` files opened in order. Each folder has its own `README.md` with the mascot.
+- **the 00_start folder**: how Python thinks, writing rules, comments, reading an error, blocks and indentation.
+- **One boss per folder**: a buggy program to fix, guided by Papera, the debugging duck, who answers with questions instead of solutions.
+- **Pixel-art mascots** that guide each folder and react to your code: Cursy, Bit, Graffa, Pip, Floppy and Papera.
 - **The quest** of each level sits in its own box above the editor, apart from the explanation.
 - **Stars**: ★★★ with no help, ★★ with the hint, ★ with the solution. Replay a level to collect them all.
 - **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master.

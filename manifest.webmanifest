@@ -1,7 +1,7 @@
 {
-  "name": "Palestra Python",
-  "short_name": "Palestra Python",
-  "description": "Impara Python da zero con un terminale vero, livelli e mascotte.",
+  "name": "Arcode",
+  "short_name": "Arcode",
+  "description": "Arcade di linguaggi di programmazione: impara a programmare livello dopo livello, con un terminale vero.",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
@@ -9,8 +9,23 @@
   "background_color": "#15203a",
   "theme_color": "#15203a",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
