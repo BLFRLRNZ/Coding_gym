@@ -250,12 +250,9 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .note { font-size: 0.84rem; color: var(--muted); margin: 0; }
 
 /* Terminal page: terminal takes the wide column, guide sits beside it */
-.grid.termview { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); }
-.grid.termview .work { order: -1; }
 .grid.termview #editor-card { display: none; }
 .grid.termview #term { height: max(380px, calc(100vh - 230px)); height: max(380px, calc(100dvh - 230px)); }
 @media (max-width: 900px) {
-  .grid.termview { grid-template-columns: minmax(0, 1fr); }
   .grid.termview #term { height: max(340px, calc(100vh - 300px)); height: max(340px, calc(100dvh - 300px)); }
   .thint { display: none; }
 }
@@ -507,6 +504,49 @@ header.hud { background: var(--term-bg); color: var(--term-fg); border: 1px soli
   .cart:not(.soon) { transition: transform 0.15s; }
   .cart:not(.soon):hover { transform: translateY(-3px); }
 }
+
+/* Lab: dark side bar in the same style as the explorer */
+.grid.labview { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); }
+.grid.labview #term { height: 360px; }
+.grid.labview.termview #term { height: max(420px, calc(100vh - 210px)); height: max(420px, calc(100dvh - 210px)); }
+@media (max-width: 900px) {
+  .grid.labview { grid-template-columns: minmax(0, 1fr); }
+  .grid.labview .work { order: -1; }
+  .grid.labview.termview #term { height: max(340px, calc(100dvh - 300px)); }
+}
+.panel.side {
+  background: var(--term-bg); color: var(--term-fg); border-color: var(--term-line); padding: 0 0 8px; gap: 0; align-content: start;
+  --ink: var(--term-fg); --muted: var(--term-dim); --line: var(--term-line); --code-bg: rgba(255, 255, 255, 0.06); --paper: var(--term-bg);
+  --accent: var(--term-prompt); --accent-ink: #15203a; --accent-soft: rgba(242, 193, 78, 0.14); --ok: var(--term-ok); --ok-soft: rgba(111, 211, 154, 0.14);
+  --err-soft: rgba(255, 138, 128, 0.12); --wc: var(--term-prompt);
+  --syn-k: #d59ae8; --syn-s: #8fd19e; --syn-n: #f2b56b; --syn-c: #7f8aa3; --syn-b: #6cc4d9; --syn-f: #7ea3ee;
+}
+.side-top { padding: 12px 16px; border-bottom: 1px solid var(--term-line); }
+.side-intro { margin: 0; padding: 12px 16px; font-size: 0.9rem; color: var(--term-dim); border-bottom: 1px solid var(--term-line); }
+.side-sec { border-bottom: 1px solid var(--term-line); }
+.side-sec:last-child { border-bottom: 0; }
+.side-head { display: flex; align-items: center; }
+.side-toggle { flex: 1; display: flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--term-fg); font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 14px; text-align: left; }
+.side-toggle .chev { color: var(--term-dim); flex: none; }
+.side-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.side-toggle:hover, .side-add:hover { background: rgba(255, 255, 255, 0.05); }
+.side-add { border: 0; background: none; color: var(--term-dim); font-size: 1.25rem; line-height: 1; width: 40px; height: 40px; }
+.side-add:hover { color: var(--term-fg); }
+.side-body { padding: 0 0 14px; display: grid; gap: 10px; }
+.side-body > :not(.tree) { margin-left: 16px; margin-right: 16px; }
+.side .tree { border: 0; padding: 0; font-size: 0.86rem; }
+.side .tr-file { padding-left: 34px; }
+.side .tr-file.cur { background: rgba(242, 193, 78, 0.12); }
+.side .tr-file .tr-ic { color: var(--term-prompt); }
+.side-p { margin: 0; font-size: 0.88rem; color: var(--term-dim); }
+.side .btn { background: transparent; color: var(--term-fg); border-color: var(--term-line); box-shadow: none; }
+.side .btn.primary { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); }
+.side .btn.danger { background: var(--term-err); border-color: var(--term-err); color: #15203a; }
+.side .field { background: rgba(255, 255, 255, 0.05); color: var(--term-fg); border-color: var(--term-line); }
+.side .tutcard { border-color: var(--term-line); background: rgba(255, 255, 255, 0.03); }
+.side .tutcard .tutlabel { color: var(--term-prompt); }
+.side table.cheat td { border-bottom-color: var(--term-line); }
+.side .theory a { color: var(--term-prompt); }
 </style>
 </head>
 <body>
@@ -519,8 +559,7 @@ header.hud { background: var(--term-bg); color: var(--term-fg); border: 1px soli
     <div class="hright">
       <div class="seg" role="tablist">
         <button id="tab-lessons" role="tab" aria-selected="true" data-t="tabLessons">Mondi</button>
-        <button id="tab-free" role="tab" aria-selected="false" data-t="tabFree">Libero</button>
-        <button id="tab-term" role="tab" aria-selected="false" data-t="tabTerm">Terminale</button>
+        <button id="tab-lab" role="tab" aria-selected="false" data-t="tabLab">Lab</button>
       </div>
       <div class="rank" id="rank"><span class="rname" id="rank-name"></span><span class="rbar" aria-hidden="true"><i id="rank-bar"></i></span><span class="rbytes" id="rank-bytes"></span></div>
       <button class="icon-btn" id="sound" aria-pressed="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 7.5v5h3.2L10.5 16V4L6.2 7.5z" fill="currentColor"/><path class="waves" d="M13 7.2a3.6 3.6 0 0 1 0 5.6M15.3 4.8a7 7 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path class="mute" d="M13.2 7.5l4.5 5M17.7 7.5l-4.5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
@@ -564,7 +603,7 @@ header.hud { background: var(--term-bg); color: var(--term-fg); border: 1px soli
             <button class="tbtn" id="tut-btn" data-t="tutorialBtn">▶ Tutorial</button>
             <button class="tbtn" id="restart" data-t="restart">Riavvia</button>
             <button class="tbtn" id="clear" data-t="clear">Pulisci</button>
-            <button class="tbtn" id="expand" data-t="expand" data-ta="expandAria">⤢ Schermo intero</button>
+            <button class="tbtn" id="expand">⤢ Schermo intero</button>
           </div>
         </div>
         <div id="term" role="log" data-ta="termAria"></div>
@@ -3162,6 +3201,10 @@ function decodeSave(text) {
 
 Object.assign(UI.it, {
   tabLessons: "Mondi",
+  tabLab: "Lab", labIntro: "Il tuo spazio libero: scrivi programmi nell'editor, oppure comandi nel terminale dopo >>>.",
+  secFiles: "I tuoi file", secExamples: "Esempi", secTerm: "Terminale", secCheat: "Promemoria", secLibs: "Librerie",
+  labTermIntro: "Scrivi un comando dopo >>> e premi Invio: Python lo esegue subito. Dopo i due punti il terminale aspetta altre righe; premi Invio su una riga vuota per eseguire.",
+  focusTerm: "⤢ Solo terminale", focusBoth: "⤡ Editor e terminale",
   tabWorlds: "Mondi", selectWorld: "SELEZIONA MONDO", worldsTitle: "Scegli il tuo linguaggio",
   worldsSub: "Ogni mondo è un linguaggio di programmazione, con le sue cartelle di livelli. Sono in ordine di difficoltà, dal più facile al più difficile.",
   worldNum: (n) => `MONDO ${String(n).padStart(2, "0")}`, diffLabel: (d) => `Difficoltà: ${d}`, soon: "IN ARRIVO", pressStart: "▶ PREMI START",
@@ -3198,6 +3241,10 @@ Object.assign(UI.it, {
 });
 Object.assign(UI.en, {
   tabLessons: "Worlds",
+  tabLab: "Lab", labIntro: "Your free space: write programs in the editor, or commands in the terminal after >>>.",
+  secFiles: "Your files", secExamples: "Examples", secTerm: "Terminal", secCheat: "Cheat sheet", secLibs: "Libraries",
+  labTermIntro: "Type a command after >>> and press Enter: Python runs it right away. After a colon the terminal waits for more lines; press Enter on an empty line to run.",
+  focusTerm: "⤢ Terminal only", focusBoth: "⤡ Editor and terminal",
   tabWorlds: "Worlds", selectWorld: "SELECT WORLD", worldsTitle: "Choose your language",
   worldsSub: "Every world is a programming language, with its own folders of levels. They're sorted by difficulty, from the easiest to the hardest.",
   worldNum: (n) => `WORLD ${String(n).padStart(2, "0")}`, diffLabel: (d) => `Difficulty: ${d}`, soon: "COMING SOON", pressStart: "▶ PRESS START",
@@ -3259,7 +3306,8 @@ let S = DEFAULTS();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
   if (!["lessons", "free"].includes(S.mode)) S.mode = "lessons";
-  if (!["worlds", "map", "lessons", "free", "term"].includes(S.view)) S.view = "worlds";
+  if (S.view === "free" || S.view === "term") S.view = "lab";
+  if (!["worlds", "map", "lessons", "lab"].includes(S.view)) S.view = "worlds";
   if (!LANGS.some((l) => l.id === S.world && l.ready)) S.world = "python";
   for (const k of ["stars", "attempt", "code"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
   for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
@@ -3292,6 +3340,7 @@ const item = () => LESSON_BY_ID[level().id];
 const lesson = () => item()[S.lang];
 const isQuiz = () => S.mode === "lessons" && item().kind === "quiz";
 const activeProgram = () => S.programs.find((p) => p.id === S.active) || S.programs[0];
+const termFocus = () => S.view === "lab" && ui.labFocus === "term";
 function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && S.stars[LEVELS[i].id]) i++; return i; }
 const unlocked = (k) => k <= maxUnlocked();
 const worldMascot = (lv) => lv.boss ? "papera" : WORLDS[lv.w].mascot;
@@ -3499,7 +3548,7 @@ symbar.addEventListener("mousedown", (e) => { if (e.target.closest("button")) e.
 symbar.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   let el = lastField && document.body.contains(lastField) && !lastField.disabled ? lastField : null;
-  if (!el) el = S.view === "term" ? (pendingInput ? pendingInput.el : replInput) : code;
+  if (!el) el = termFocus() ? (pendingInput ? pendingInput.el : replInput) : code;
   if (el) insertAt(el, b.dataset.s === "⇥" ? "    " : b.dataset.s);
 });
 
@@ -3890,8 +3939,10 @@ function updateRunUI() {
   runBtn.textContent = running ? t("running") : t("run");
   stopBtn.hidden = !running;
   resetBtn.hidden = S.mode === "free" || isQuiz();
-  expandBtn.hidden = S.view === "term";
-  tutBtn.hidden = S.view !== "term" || tut.active;
+  expandBtn.textContent = S.view === "lab" ? t(termFocus() ? "focusBoth" : "focusTerm") : t("expand");
+  expandBtn.setAttribute("aria-label", S.view === "lab" ? expandBtn.textContent : t("expandAria"));
+  expandBtn.title = expandBtn.getAttribute("aria-label");
+  tutBtn.hidden = S.view !== "lab" || tut.active;
 }
 function stopRun() {
   if (!running) return;
@@ -4006,7 +4057,7 @@ function replaceEditor(text) {
   refreshEditor();
 }
 function runEditor() {
-  if (S.view === "term" || isQuiz()) return;
+  if (termFocus() || isQuiz()) return;
   sfxUnlock();
   const fixed = fixSmartQuotes(code.value);
   if (fixed !== code.value) {
@@ -4026,7 +4077,8 @@ function tutSay(text) { newline(); termWrite(text + "\n", "tut"); }
 function tutShowStep() { tutSay(`[${tut.step + 1}/${TUTORIAL.length}] ${TUTORIAL[tut.step][S.lang].say}`); }
 function startTutorial() {
   if (running || !pyReady) return;
-  if (S.view !== "term") setView("term");
+  ui.labFocus = "term";
+  if (S.view !== "lab") setView("lab"); else { updateLayout(); updateRunUI(); placeSymbols(); }
   tut = { active: true, step: 0 };
   hidePrompt(); replBuf = []; newline(); termWrite("\n");
   tutSay(t("tutIntro"));
@@ -4042,7 +4094,7 @@ function tutAdvance(msg) {
     tutSay(t("tutFinished"));
   } else tutShowStep();
   updateRunUI();
-  if (S.view === "term") renderPanel();
+  if (S.view === "lab") renderPanel();
 }
 function tutOnResult(r) {
   const st = TUTORIAL[tut.step];
@@ -4054,7 +4106,7 @@ function tutSkip() { if (running) return; hidePrompt(); tutAdvance(t("tutSkipped
 function tutExit() {
   if (running) return;
   hidePrompt(); tut.active = false; tutSay(t("tutExited"));
-  updateRunUI(); if (S.view === "term") renderPanel();
+  updateRunUI(); if (S.view === "lab") renderPanel();
   showPrompt(); focusPrompt();
 }
 tutBtn.onclick = startTutorial;
@@ -4063,8 +4115,7 @@ tutBtn.onclick = startTutorial;
 function renderPanel() {
   if (S.view === "worlds") renderWorlds();
   else if (S.view === "map") renderMap();
-  else if (S.view === "term") renderTermPanel();
-  else if (S.mode === "free") renderFree();
+  else if (S.view === "lab") renderLab();
   else renderLevel();
 }
 
@@ -4080,38 +4131,61 @@ function addProgram(name, src) {
   S.programs.push(p); S.active = p.id; ui.renaming = false; ui.confirmDel = false;
   save(); renderPanel(); loadEditor();
 }
-function renderFree() {
+/* Lab: the free space. A dark side bar like the explorer, then editor and terminal */
+function renderLab() {
   const act = activeProgram();
-  const progs = S.programs.map((p) => `<button class="prog ${p.id === act.id ? "active" : ""}" data-p="${p.id}">${escHtml(p.name)}</button>`).join("");
+  const o = ui.labOpen || (ui.labOpen = { files: true, examples: true, term: true, cheat: false, libs: false });
+  const sec = (key, title, body, extra = "") => `<section class="side-sec">
+    <div class="side-head"><button class="side-toggle" data-sec="${key}" aria-expanded="${!!o[key]}">${svgChev}<span>${title}</span></button>${extra}</div>
+    ${o[key] ? `<div class="side-body">${body}</div>` : ""}</section>`;
+  const files = S.programs.map((p) => `<button class="tr-row tr-file ${p.id === act.id ? "cur" : "open"}" data-p="${p.id}" ${p.id === act.id ? 'aria-current="true"' : ""}>
+      <span class="tr-ic">${svgFile}</span><span class="tr-name">${escHtml(p.name)}</span>${p.id === act.id ? `<span class="tr-meta"><span class="tr-cur">●</span></span>` : ""}</button>`).join("");
   let tools;
-  if (ui.renaming) tools = `<form class="row" id="ren-f"><input class="field" id="ren-in" value="${escHtml(act.name)}" aria-label="${t("rename")}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn primary" type="submit">${t("save")}</button><button class="btn" type="button" id="ren-x">${t("cancel")}</button></form>`;
-  else if (ui.confirmDel) tools = `<div class="confirm"><p>${t("confirmDel", escHtml(act.name))}</p><div class="row"><button class="btn danger" id="del-y">${t("yesDel")}</button><button class="btn" id="del-n">${t("cancel")}</button></div></div>`;
-  else tools = `<div class="row"><button class="btn" id="p-new">${t("newProgram")}</button><button class="btn" id="p-ren">${t("rename")}</button><button class="btn" id="p-del">${t("del")}</button></div>`;
-  const exs = EXAMPLES.map((ex, k) => `<li><div><b>${ex[S.lang].title}</b><span>${ex[S.lang].desc}</span></div><button class="btn tiny" data-open="${k}">${t("open")}</button></li>`).join("");
+  if (ui.renaming) tools = `<form class="row" id="ren-f"><input class="field" id="ren-in" value="${escHtml(act.name)}" aria-label="${t("rename")}" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn primary tiny" type="submit">${t("save")}</button><button class="btn tiny" type="button" id="ren-x">${t("cancel")}</button></form>`;
+  else if (ui.confirmDel) tools = `<div class="confirm"><p>${t("confirmDel", escHtml(act.name))}</p><div class="row"><button class="btn danger tiny" id="del-y">${t("yesDel")}</button><button class="btn tiny" id="del-n">${t("cancel")}</button></div></div>`;
+  else tools = `<div class="row"><button class="tbtn" id="p-ren">${t("rename")}</button><button class="tbtn" id="p-del">${t("del")}</button></div>`;
+  const exs = EXAMPLES.map((ex, k) => `<button class="tr-row tr-file open" data-open="${k}" title="${escHtml(ex[S.lang].desc)}">
+      <span class="tr-ic">${svgFile}</span><span class="tr-name">${ex[S.lang].file}</span><span class="tr-title">${ex[S.lang].title}</span><span class="tr-meta">+</span></button>`).join("");
+  const N = TUTORIAL.length;
+  const tutHtml = tut.active
+    ? `<div class="eyebrow">${t("tutStep", tut.step + 1, N)}</div>
+       <div class="progress" aria-hidden="true"><i style="width:${(tut.step / N) * 100}%"></i></div>
+       <p class="tutnow">${escHtml(TUTORIAL[tut.step][S.lang].say)}</p>
+       <div class="row"><button class="tbtn" id="tut-skip">${t("tutSkip")}</button><button class="tbtn" id="tut-exit">${t("tutExit")}</button></div>`
+    : `<p>${t("tutDesc", N)}</p>
+       ${S.tutorialDone ? `<div class="status ok">${t("tutDoneBadge")}</div>` : ""}
+       <div class="row"><button class="btn ${S.tutorialDone ? "" : "primary"} tiny" id="tut-start" ${pyReady ? "" : "disabled"}>${S.tutorialDone ? t("tutRestart") : t("tutStart")}</button></div>`;
+  const cmds = t("cmds").map(([k, d]) => `<tr><td>${escHtml(k)}</td><td>${escHtml(d)}</td></tr>`).join("");
   const cheat = CHEAT.map((r) => `<tr><td>${highlight(r[0])}</td><td>${S.lang === "it" ? r[1] : r[2]}</td></tr>`).join("");
-  panel.innerHTML = `
-    <div>
-      <div class="eyebrow">${t("freeEyebrow")}</div>
-      <h2>${t("freeTitle")}</h2>
-    </div>
-    <div class="theory">${t("freeText")}</div>
-    <div class="group"><div class="eyebrow">${t("myPrograms")}</div><div class="plist">${progs}</div>${tools}</div>
-    <div class="group"><div class="eyebrow">${t("examples")}</div><ul class="exlist">${exs}</ul></div>
-    <div class="group"><div class="eyebrow">${t("cheat")}</div><div class="cheat-wrap"><table class="cheat">${cheat}</table></div></div>`;
+  const lib = engine === "pyodide" ? t("libFull") : engine === "skulpt" ? t("libBasic") : `<p>${t("py_loading")}</p>`;
+  panel.innerHTML = `<div class="side-top"><span class="ide-title">LAB <span>~/lab</span></span></div>
+    <p class="side-intro">${t("labIntro")}</p>
+    ${sec("files", t("secFiles"), `<div class="tree">${files}</div>${tools}`, `<button class="side-add" id="p-new" aria-label="${t("newProgram")}" title="${t("newProgram")}">+</button>`)}
+    ${sec("examples", t("secExamples"), `<div class="tree">${exs}</div>`)}
+    ${sec("term", t("secTerm"), `<p class="side-p">${t("labTermIntro")}</p><div class="tutcard"><div class="eyebrow tutlabel">${t("tutTitle")}</div>${tutHtml}</div><div class="cheat-wrap"><table class="cheat">${cmds}</table></div>`)}
+    ${sec("cheat", t("secCheat"), `<div class="cheat-wrap"><table class="cheat">${cheat}</table></div>`)}
+    ${sec("libs", t("secLibs"), `<div class="theory">${lib}</div>`)}`;
+  panel.querySelectorAll(".side-toggle").forEach((b) => { b.onclick = () => { o[b.dataset.sec] = !o[b.dataset.sec]; renderLab(); const again = panel.querySelector(`.side-toggle[data-sec="${b.dataset.sec}"]`); if (again) again.focus(); }; });
   panel.querySelectorAll("[data-p]").forEach((b) => {
     b.onclick = () => {
       if (running || b.dataset.p === S.active) return;
       persistEditor(); S.active = b.dataset.p; ui.renaming = false; ui.confirmDel = false;
+      if (termFocus()) { ui.labFocus = "both"; updateLayout(); updateRunUI(); placeSymbols(); }
       save(); renderPanel(); loadEditor();
     };
   });
   panel.querySelectorAll("[data-open]").forEach((b) => {
-    b.onclick = () => { if (running) return; const ex = EXAMPLES[+b.dataset.open][S.lang]; addProgram(ex.file, ex.code); };
+    b.onclick = () => {
+      if (running) return;
+      const ex = EXAMPLES[+b.dataset.open][S.lang];
+      if (termFocus()) { ui.labFocus = "both"; updateLayout(); updateRunUI(); placeSymbols(); }
+      addProgram(ex.file, ex.code);
+    };
   });
-  const pn = $("p-new");
-  if (pn) pn.onclick = () => {
+  $("p-new").onclick = () => {
     if (running) return;
     let k = 1; while (S.programs.some((p) => p.name === t("newName", k))) k++;
+    if (termFocus()) { ui.labFocus = "both"; updateLayout(); updateRunUI(); placeSymbols(); }
     addProgram(t("newName", k), "");
     code.focus();
   };
@@ -4137,29 +4211,6 @@ function renderFree() {
     S.active = S.programs[0].id; ui.confirmDel = false;
     save(); renderPanel(); loadEditor();
   };
-}
-
-function renderTermPanel() {
-  const N = TUTORIAL.length;
-  const tutHtml = tut.active
-    ? `<div class="eyebrow">${t("tutStep", tut.step + 1, N)}</div>
-       <div class="progress" aria-hidden="true"><i style="width:${(tut.step / N) * 100}%"></i></div>
-       <p class="tutnow">${escHtml(TUTORIAL[tut.step][S.lang].say)}</p>
-       <div class="row"><button class="btn" id="tut-skip">${t("tutSkip")}</button><button class="btn" id="tut-exit">${t("tutExit")}</button></div>`
-    : `<p>${t("tutDesc", N)}</p>
-       ${S.tutorialDone ? `<div class="status ok">${t("tutDoneBadge")}</div>` : ""}
-       <div class="row"><button class="btn ${S.tutorialDone ? "" : "primary"}" id="tut-start" ${pyReady ? "" : "disabled"}>${S.tutorialDone ? t("tutRestart") : t("tutStart")}</button></div>`;
-  const cmds = t("cmds").map(([k, d]) => `<tr><td>${escHtml(k)}</td><td>${escHtml(d)}</td></tr>`).join("");
-  const lib = engine === "pyodide" ? t("libFull") : engine === "skulpt" ? t("libBasic") : "";
-  panel.innerHTML = `
-    <div>
-      <div class="eyebrow">${t("termEyebrow")}</div>
-      <h2>${t("termHeading")}</h2>
-    </div>
-    <div class="theory">${t("termIntro")}</div>
-    <div class="tutcard"><div class="eyebrow tutlabel">${t("tutTitle")}</div>${tutHtml}</div>
-    <div class="group"><div class="eyebrow">${t("cmdTitle")}</div><div class="cheat-wrap"><table class="cheat">${cmds}</table></div></div>
-    ${lib ? `<div class="group"><div class="eyebrow">${t("libTitle")}</div><div class="theory">${lib}</div></div>` : ""}`;
   const ts = $("tut-start"); if (ts) ts.onclick = startTutorial;
   const tk = $("tut-skip"); if (tk) tk.onclick = tutSkip;
   const tx = $("tut-exit"); if (tx) tx.onclick = tutExit;
@@ -4583,7 +4634,7 @@ function restoreFrom(text) {
     save();
     ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null;
     applyTheme(); applyFont(); applyStatic();
-    setView(S.view === "term" || S.view === "free" ? S.view : "worlds");
+    setView(S.view === "lab" ? "lab" : "worlds");
     ui.settings = { code: false, confirm: false, msg: t("restored") };
   } catch (e) {
     ui.settings.msg = t("restoreFail");
@@ -4613,36 +4664,46 @@ function updateLayout() {
   worldsEl.hidden = v !== "worlds";
   mapEl.hidden = v !== "map";
   grid.hidden = v === "map" || v === "worlds";
-  grid.classList.toggle("termview", v === "term");
+  grid.classList.toggle("labview", v === "lab");
+  grid.classList.toggle("termview", termFocus());
+  panel.classList.toggle("side", v === "lab");
   grid.classList.toggle("quizmode", v === "lessons" && isQuiz());
   questEl.hidden = v !== "lessons";
 }
+function placeSymbols() { (termFocus() ? termCard : editorCard).appendChild(symbar); }
 function setView(v, initial) {
-  if (!initial && running && v !== "term" && S.view !== "term") return;
-  if (!initial && (S.view === "lessons" || S.view === "free")) persistEditor();
+  if (!initial && running && !(v === "lab" && ui.labFocus === "term") && !termFocus()) return;
+  if (!initial && (S.view === "lessons" || S.view === "lab")) persistEditor();
   S.view = v;
-  if (v === "lessons" || v === "free") S.mode = v;
+  if (v === "lessons") S.mode = "lessons";
+  if (v === "lab") S.mode = "free";
   ui.renaming = false; ui.confirmDel = false;
   save();
   updateLayout();
   $("tab-lessons").setAttribute("aria-selected", v === "lessons" || v === "map" || v === "worlds");
-  $("tab-free").setAttribute("aria-selected", v === "free");
-  $("tab-term").setAttribute("aria-selected", v === "term");
-  (v === "term" ? termCard : editorCard).appendChild(symbar);
+  $("tab-lab").setAttribute("aria-selected", v === "lab");
+  placeSymbols();
   updateRunUI(); renderPanel();
-  if (v === "lessons" || v === "free") loadEditor();
-  else if (v === "term") { scrollTerm(); if (!coarse && !initial) focusPrompt(); }
+  if (v === "lessons" || v === "lab") loadEditor();
+  if (termFocus()) { scrollTerm(); if (!coarse && !initial) focusPrompt(); }
 }
 $("tab-lessons").onclick = () => setView("worlds");
-$("tab-free").onclick = () => setView("free");
-$("tab-term").onclick = () => setView("term");
-expandBtn.onclick = () => setView("term");
+$("tab-lab").onclick = () => setView("lab");
+expandBtn.onclick = () => {
+  if (S.view === "lab") {
+    if (running) return;
+    persistEditor();
+    ui.labFocus = termFocus() ? "both" : "term";
+    updateLayout(); updateRunUI(); placeSymbols();
+    if (termFocus()) { scrollTerm(); if (!coarse) focusPrompt(); } else code.focus();
+  } else { ui.labFocus = "term"; setView("lab"); }
+};
 
 /* ---------- Boot ---------- */
 applyTheme();
 applyFont();
 setView(S.view, true);
-if (S.view === "term" || S.view === "map" || S.view === "worlds") loadEditor();
+if (S.view === "map" || S.view === "worlds") loadEditor();
 applyStatic();
 termWrite(t("loadingFull") + "\n", "dim");
 if (document.querySelector('link[rel="manifest"]') && "serviceWorker" in navigator) {
