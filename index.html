@@ -24,6 +24,10 @@ img { max-width: 100%; }
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:ital,wght@0,400;1,400&display=swap">
 <style>
+/* Pixelify Sans with a more open C (only that letter), so it doesn't look like O or 0. SIL Open Font License. */
+@font-face { font-family: "Arcode C"; src: url(data:font/ttf;base64,AAEAAAAPAIAAAwBwR0RFRgAPAAIAAAfAAAAAFEdQT1NEdkx1AAAH1AAAACBHU1VCuPq49AAAB/QAAAAqT1MvMmFXW6QAAAF4AAAAYFNUQVR5k2tJAAAIIAAAACpjbWFwAAwAlgAAAeAAAAA0Z2FzcAAAABAAAAe4AAAACGdseWbOs/JCAAACHAAAADpoZWFkKabEPAAAAPwAAAA2aGhlYQX1Af8AAAE0AAAAJGhtdHgFMgChAAAB2AAAAAhsb2NhAB0AAAAAAhQAAAAGbWF4cAAEABUAAAFYAAAAIG5hbWWNFLAdAAACWAAABUBwb3N0/7gAMgAAB5gAAAAgAAEAAAABAABDKVu+Xw889QADA+gAAAAA4R9yMAAAAADnFQ62AD3/9QIeAn4AAAAGAAIAAAAAAAAAAQAAA5j+6AAAAtcAPQA9Ah4AAQAAAAAAAAAAAAAAAAAAAAIAAQAAAAIAFAABAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAEAksCvAAFAAACvAKKAAAAjAK8AooAAAHdADIA+gAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAABOT05FAMAAQwBDA5j+6AAAA5oBIQAAAAEAAAAAAdMCvAAAACAAAwLXAGQCWwA9AAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAABD//8AAABD////vgABAAAAAAAAAAAAHQAAAAEAPf/1Ah4CfgATAABXNSMRMzUhFTMVIzUjETM1MxUjFZVYWAEwWYDi4oBZC1UB3lZWl2T+iGaZVQAAAAAAEQDSAAMAAQQJAAAAtAAAAAMAAQQJAAEAEAC0AAMAAQQJAAIADgDEAAMAAQQJAAMAPgDSAAMAAQQJAAQAEAC0AAMAAQQJAAUAGgEQAAMAAQQJAAYAFgEqAAMAAQQJAAcAmgFAAAMAAQQJAAgALAHaAAMAAQQJAAkAIgIGAAMAAQQJAAsAhAIoAAMAAQQJAAwAPgKsAAMAAQQJAA0BIgLqAAMAAQQJAA4ANgQMAAMAAQQJABkAGARCAAMAAQQJAQAADARaAAMAAQQJAQQACARmAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADIAMQAgAFQAaABlACAAUABpAHgAZQBsAGkAZgB5ACAAUwBhAG4AcwAgAFAAcgBvAGoAZQBjAHQAIABBAHUAdABoAG8AcgBzACAAKABoAHQAdABwAHMAOgAvAC8AZwBpAHQAaAB1AGIALgBjAG8AbQAvAGUAaQBmAGUAdAB4AC8AUABpAHgAZQBsAGkAZgB5AC0AUwBhAG4AcwApAEEAcgBjAG8AZABlACAAQwBSAGUAZwB1AGwAYQByADEALgAwADAAMAA7AE4ATwBOAEUAOwBQAGkAeABlAGwAaQBmAHkAUwBhAG4AcwAtAFIAZQBnAHUAbABhAHIAVgBlAHIAcwBpAG8AbgAgADEALgAwADAAMABBAHIAYwBvAGQAZQBDAC0ANwAwADAAUABpAHgAZQBsAGkAZgB5ACAAUwBhAG4AcwAgAGkAcwAgAGEAIAB0AHIAYQBkAGUAbQBhAHIAawAgAG8AZgAgAFMAdABlAGYAaQBlACAASgB1AHMAdABwAHIAaQBuAGMAZQAuACgAaAB0AHQAcABzADoALwAvAGcAaQB0AGgAdQBiAC4AYwBvAG0ALwBlAGkAZgBlAHQAeAApAFQAeQBwAGUAYwBhAGwAaQBzAG0AIABGAG8AdQBuAGQAcgB5AGwAaQBuAGUAUwB0AGUAZgBpAGUAIABKAHUAcwB0AHAAcgBpAG4AYwBlAGgAdAB0AHAAcwA6AC8ALwB3AHcAdwAuAG0AeQBmAG8AbgB0AHMALgBjAG8AbQAvAGMAbwBsAGwAZQBjAHQAaQBvAG4AcwAvAHQAeQBwAGUAYwBhAGwAaQBzAG0ALQBmAG8AdQBuAGQAcgB5AGwAaQBuAGUALQBmAG8AdQBuAGQAcgB5AGgAdAB0AHAAcwA6AC8ALwBlAGkAZgBlAHQAcwB0AHkAcABlAC4AZwB1AG0AcgBvAGEAZAAuAGMAbwBtAC8AVABoAGkAcwAgAEYAbwBuAHQAIABTAG8AZgB0AHcAYQByAGUAIABpAHMAIABsAGkAYwBlAG4AcwBlAGQAIAB1AG4AZABlAHIAIAB0AGgAZQAgAFMASQBMACAATwBwAGUAbgAgAEYAbwBuAHQAIABMAGkAYwBlAG4AcwBlACwAIABWAGUAcgBzAGkAbwBuACAAMQAuADEALgAgAFQAaABpAHMAIABsAGkAYwBlAG4AcwBlACAAaQBzACAAYQB2AGEAaQBsAGEAYgBsAGUAIAB3AGkAdABoACAAYQAgAEYAQQBRACAAYQB0ADoAIABoAHQAdABwAHMAOgAvAC8AcwBjAHIAaQBwAHQAcwAuAHMAaQBsAC4AbwByAGcALwBPAEYATABoAHQAdABwAHMAOgAvAC8AcwBjAHIAaQBwAHQAcwAuAHMAaQBsAC4AbwByAGcALwBPAEYATABQAGkAeABlAGwAaQBmAHkAUwBhAG4AcwBXAGUAaQBnAGgAdABCAG8AbABkAAMAAAAAAAD/tQAyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAB//8ADwABAAAADAAAAAAAAAABAAEAAQABAAEAAAAKABwAHgABREZMVAAIAAQAAAAA//8AAAAAAAAAAQAAAAoAJgAoAAJERkxUAA5sYXRuABgABAAAAAD//wAAAAAAAAAAAAAAAAABAAEACAABAAAAFAABAAAAHAACd2dodAEAAAAAAgABAAAAAAEEArwAAAAA) format("truetype"); font-weight: 600 900; unicode-range: U+0043; font-display: swap; }
+@font-face { font-family: "Arcode C"; src: url(data:font/ttf;base64,AAEAAAAPAIAAAwBwR0RFRgAPAAIAAAfEAAAAFEdQT1NEdkx1AAAH2AAAACBHU1VCuPq49AAAB/gAAAAqT1MvMmCPW40AAAF4AAAAYFNUQVR5kWqBAAAIJAAAACpjbWFwAAwAlgAAAeAAAAA0Z2FzcAAAABAAAAe8AAAACGdseWanzdgbAAACHAAAADpoZWFkKZrENgAAAPwAAAA2aGhlYQXpAe4AAAE0AAAAJGhtdHgFFgCgAAAB2AAAAAhsb2NhAB0AAAAAAhQAAAAGbWF4cAAEABUAAAFYAAAAIG5hbWWNiLCJAAACWAAABURwb3N0/7gAMgAAB5wAAAAgAAEAAAABAACSCZEGXw889QADA+gAAAAA4R9yMAAAAADnFQ62ADz/9AITAnkAAAAGAAIAAAAAAAAAAQAAA5j+6AAAAsYAPAA9AhMAAQAAAAAAAAAAAAAAAAAAAAIAAQAAAAIAFAABAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAEAj8B9AAFAAACvAKKAAAAjAK8AooAAAHdADIA+gAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAABOT05FAMAAQwBDA5j+6AAAA5oBIQAAAAEAAAAAAcgCvAAAACAAAwLGAGQCUAA8AAAAAgAAAAMAAAAUAAMAAQAAABQABAAgAAAABAAEAAEAAABD//8AAABD////vgABAAAAAAAAAAAAHQAAAAEAPP/0AhMCeQATAABXNSMRMzUhFTMVIzUjETM1MxUjFZZaWgEiW2/6+m9bDFkB01lZgmr+XG2EWQAAAAAAEQDSAAMAAQQJAAAAtAAAAAMAAQQJAAEAEAC0AAMAAQQJAAIADgDEAAMAAQQJAAMAPgDSAAMAAQQJAAQAEAC0AAMAAQQJAAUAGgEQAAMAAQQJAAYAFgEqAAMAAQQJAAcAmgFAAAMAAQQJAAgALAHaAAMAAQQJAAkAIgIGAAMAAQQJAAsAhAIoAAMAAQQJAAwAPgKsAAMAAQQJAA0BIgLqAAMAAQQJAA4ANgQMAAMAAQQJABkAGARCAAMAAQQJAQAADARaAAMAAQQJAQIADARmAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADIAMQAgAFQAaABlACAAUABpAHgAZQBsAGkAZgB5ACAAUwBhAG4AcwAgAFAAcgBvAGoAZQBjAHQAIABBAHUAdABoAG8AcgBzACAAKABoAHQAdABwAHMAOgAvAC8AZwBpAHQAaAB1AGIALgBjAG8AbQAvAGUAaQBmAGUAdAB4AC8AUABpAHgAZQBsAGkAZgB5AC0AUwBhAG4AcwApAEEAcgBjAG8AZABlACAAQwBSAGUAZwB1AGwAYQByADEALgAwADAAMAA7AE4ATwBOAEUAOwBQAGkAeABlAGwAaQBmAHkAUwBhAG4AcwAtAFIAZQBnAHUAbABhAHIAVgBlAHIAcwBpAG8AbgAgADEALgAwADAAMABBAHIAYwBvAGQAZQBDAC0ANQAwADAAUABpAHgAZQBsAGkAZgB5ACAAUwBhAG4AcwAgAGkAcwAgAGEAIAB0AHIAYQBkAGUAbQBhAHIAawAgAG8AZgAgAFMAdABlAGYAaQBlACAASgB1AHMAdABwAHIAaQBuAGMAZQAuACgAaAB0AHQAcABzADoALwAvAGcAaQB0AGgAdQBiAC4AYwBvAG0ALwBlAGkAZgBlAHQAeAApAFQAeQBwAGUAYwBhAGwAaQBzAG0AIABGAG8AdQBuAGQAcgB5AGwAaQBuAGUAUwB0AGUAZgBpAGUAIABKAHUAcwB0AHAAcgBpAG4AYwBlAGgAdAB0AHAAcwA6AC8ALwB3AHcAdwAuAG0AeQBmAG8AbgB0AHMALgBjAG8AbQAvAGMAbwBsAGwAZQBjAHQAaQBvAG4AcwAvAHQAeQBwAGUAYwBhAGwAaQBzAG0ALQBmAG8AdQBuAGQAcgB5AGwAaQBuAGUALQBmAG8AdQBuAGQAcgB5AGgAdAB0AHAAcwA6AC8ALwBlAGkAZgBlAHQAcwB0AHkAcABlAC4AZwB1AG0AcgBvAGEAZAAuAGMAbwBtAC8AVABoAGkAcwAgAEYAbwBuAHQAIABTAG8AZgB0AHcAYQByAGUAIABpAHMAIABsAGkAYwBlAG4AcwBlAGQAIAB1AG4AZABlAHIAIAB0AGgAZQAgAFMASQBMACAATwBwAGUAbgAgAEYAbwBuAHQAIABMAGkAYwBlAG4AcwBlACwAIABWAGUAcgBzAGkAbwBuACAAMQAuADEALgAgAFQAaABpAHMAIABsAGkAYwBlAG4AcwBlACAAaQBzACAAYQB2AGEAaQBsAGEAYgBsAGUAIAB3AGkAdABoACAAYQAgAEYAQQBRACAAYQB0ADoAIABoAHQAdABwAHMAOgAvAC8AcwBjAHIAaQBwAHQAcwAuAHMAaQBsAC4AbwByAGcALwBPAEYATABoAHQAdABwAHMAOgAvAC8AcwBjAHIAaQBwAHQAcwAuAHMAaQBsAC4AbwByAGcALwBPAEYATABQAGkAeABlAGwAaQBmAHkAUwBhAG4AcwBXAGUAaQBnAGgAdABNAGUAZABpAHUAbQADAAAAAAAA/7UAMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAf//AA8AAQAAAAwAAAAAAAAAAQABAAEAAQABAAAACgAcAB4AAURGTFQACAAEAAAAAP//AAAAAAAAAAEAAAAKACYAKAACREZMVAAObGF0bgAYAAQAAAAA//8AAAAAAAAAAAAAAAAAAQABAAgAAQAAABQAAQAAABwAAndnaHQBAAAAAAIAAQAAAAABAgH0AAAAAA==) format("truetype"); font-weight: 400 599; unicode-range: U+0043; font-display: swap; }
+
 /* Layout: lesson notebook on the left, editor + always-dark terminal on the right; stacks on phones */
 :root {
   --bg: #eef1f6;
@@ -57,7 +61,7 @@ img { max-width: 100%; }
   --term-tut: #8fd3ff;
   --plot-bg: #ffffff;
   --code-size: 14px;
-  --f-display: "Pixelify Sans", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-display: "Arcode C", "Pixelify Sans", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
@@ -82,6 +86,7 @@ img { max-width: 100%; }
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+html { touch-action: manipulation; }
 body {
   background: var(--bg); color: var(--ink);
   font-family: var(--f-body); font-size: 16px; line-height: 1.55;
@@ -3399,6 +3404,17 @@ function setLang(l) {
   if (S.view === "lessons") loadEditor();
 }
 
+/* ---------- Zoom ---------- */
+/* Double-tap zoom is off everywhere (CSS touch-action). Pinch zoom stays allowed only on the terminal. */
+const inTerminal = (e) => !!(e.target && e.target.closest && e.target.closest("#term-card"));
+document.addEventListener("gesturestart", (e) => { if (!inTerminal(e)) e.preventDefault(); }, { passive: false });
+document.addEventListener("touchmove", (e) => { if (e.touches && e.touches.length > 1 && !inTerminal(e)) e.preventDefault(); }, { passive: false });
+/* iPhone zooms in when you tap a text field with small text: a maximum scale stops that, and pinching still works on iPhone */
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+  const vp = document.querySelector('meta[name="viewport"]');
+  if (vp && !/maximum-scale/.test(vp.content)) vp.content += ", maximum-scale=1";
+}
+
 /* ---------- Editor ---------- */
 function refreshEditor() { hl.innerHTML = highlight(code.value) + "\n"; renderGutter(); syncScroll(); }
 function renderGutter() {
@@ -4273,17 +4289,30 @@ setInterval(() => {
 
 /* ---------- Sounds: soft, short, and only after a click ---------- */
 let actx = null;
+/* Sounds need a tap to start on phones. Every tap keeps the audio awake (iPhones pause it when the app goes to the background). */
 function sfxUnlock() {
   if (!S.sound) return null;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === "suspended") actx.resume();
+    if (actx.state !== "running") actx.resume().catch(() => {});
+    if (!actx.__primed) {
+      const b = actx.createBuffer(1, 1, 22050), src = actx.createBufferSource();
+      src.buffer = b; src.connect(actx.destination); src.start(0);
+      actx.__primed = true;
+    }
     return actx;
   } catch (e) { return null; }
 }
+/* On iPhone the silent switch mutes web sounds unless the page asks for "playback" audio */
+function audioSessionFor(play) {
+  try { if ("audioSession" in navigator) navigator.audioSession.type = play ? "playback" : "auto"; } catch (e) {}
+}
+["pointerdown", "touchend", "keydown"].forEach((ev) => document.addEventListener(ev, () => { if (S.sound) sfxUnlock(); }, { passive: true, capture: true }));
 function tone(f, at, dur, vol = 0.05, type = "sine") {
   if (!S.sound || !actx) return;
   try {
+    audioSessionFor(true);
+    if (actx.state !== "running") actx.resume().catch(() => {});
     const o = actx.createOscillator(), g = actx.createGain(), s = actx.currentTime + at;
     o.type = type; o.frequency.value = f;
     g.gain.setValueAtTime(0.0001, s);
@@ -4294,12 +4323,12 @@ function tone(f, at, dur, vol = 0.05, type = "sine") {
   } catch (e) {}
 }
 const SFX = {
-  pass: () => { tone(523.25, 0, 0.35); tone(659.25, 0.12, 0.5); },
-  star: (i) => tone(880 + i * 110, 0, 0.18, 0.03, "triangle"),
-  rank: () => { tone(523.25, 0, 0.3); tone(659.25, 0.1, 0.3); tone(783.99, 0.2, 0.6); },
-  right: () => tone(659.25, 0, 0.25, 0.04)
+  pass: () => { tone(523.25, 0, 0.35, 0.09); tone(659.25, 0.12, 0.5, 0.09); },
+  star: (i) => tone(880 + i * 110, 0, 0.18, 0.05, "triangle"),
+  rank: () => { tone(523.25, 0, 0.3, 0.09); tone(659.25, 0.1, 0.3, 0.09); tone(783.99, 0.2, 0.6, 0.09); },
+  right: () => tone(659.25, 0, 0.25, 0.07)
 };
-$("sound").onclick = () => { S.sound = !S.sound; save(); if (S.sound) { sfxUnlock(); SFX.right(); } applyStatic(); };
+$("sound").onclick = () => { S.sound = !S.sound; save(); if (S.sound) { sfxUnlock(); SFX.right(); } else audioSessionFor(false); applyStatic(); };
 
 /* ---------- Rank in the header ---------- */
 function renderRank() {
@@ -4589,7 +4618,7 @@ function renderSettings() {
       const k = b.dataset.set, v = b.dataset.v;
       if (k === "lang") setLang(v);
       else if (k === "theme") { S.theme = v; save(); applyTheme(); }
-      else if (k === "sound") { S.sound = v === "1"; save(); if (S.sound) { sfxUnlock(); SFX.right(); } applyStatic(); }
+      else if (k === "sound") { S.sound = v === "1"; save(); if (S.sound) { sfxUnlock(); SFX.right(); } else audioSessionFor(false); applyStatic(); }
       renderSettings();
     };
   });
@@ -4713,7 +4742,7 @@ if (S.view === "map" || S.view === "worlds") loadEditor();
 applyStatic();
 termWrite(t("loadingFull") + "\n", "dim");
 /* Installed app: register the offline cache and announce new versions */
-const APP_VERSION = "0700ef6a3c";
+const APP_VERSION = "fc5b448525";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 if (IS_APP && "serviceWorker" in navigator) {
   try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}

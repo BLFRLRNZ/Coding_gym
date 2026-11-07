@@ -91,3 +91,8 @@ To put it online for free: on GitHub go to **Settings → Pages**, pick the `mai
 Python runs in the browser through [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly), inside a Web Worker so the page stays responsive. When Pyodide can't load, [Skulpt](https://skulpt.org) is used as a fallback: it covers the language basics but not external libraries.
 
 **Online:** https://blfrlrnz.github.io/Coding_gym/
+
+---
+
+Font dei titoli: [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), SIL Open Font License 1.1 (`fonts/OFL-PixelifySans.txt`). La lettera C è servita da un piccolo font derivato, "Arcode C", con l'apertura più larga per non confonderla con O e 0.
+Headings font: Pixelify Sans, SIL Open Font License 1.1. The letter C comes from a tiny derived font, "Arcode C", with a wider opening so it isn't mistaken for O and 0.
