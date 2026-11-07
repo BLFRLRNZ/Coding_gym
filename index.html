@@ -547,6 +547,10 @@ header.hud { background: var(--term-bg); color: var(--term-fg); border: 1px soli
 .side .tutcard .tutlabel { color: var(--term-prompt); }
 .side table.cheat td { border-bottom-color: var(--term-line); }
 .side .theory a { color: var(--term-prompt); }
+
+/* New version banner (installed app) */
+.update-bar { position: fixed; z-index: 70; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: min(520px, calc(100% - 32px)); display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--term-bg); color: var(--term-fg); border: 1px solid var(--term-prompt); border-radius: 12px; padding: 10px 12px 10px 16px; font-size: 0.92rem; }
+.update-bar .btn.primary { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; flex: none; }
 </style>
 </head>
 <body>
@@ -3201,6 +3205,7 @@ function decodeSave(text) {
 
 Object.assign(UI.it, {
   tabLessons: "Mondi",
+  updateReady: "È disponibile una nuova versione di Arcode.", updateNow: "Aggiorna",
   tabLab: "Lab", labIntro: "Il tuo spazio libero: scrivi programmi nell'editor, oppure comandi nel terminale dopo >>>.",
   secFiles: "I tuoi file", secExamples: "Esempi", secTerm: "Terminale", secCheat: "Promemoria", secLibs: "Librerie",
   labTermIntro: "Scrivi un comando dopo >>> e premi Invio: Python lo esegue subito. Dopo i due punti il terminale aspetta altre righe; premi Invio su una riga vuota per eseguire.",
@@ -3241,6 +3246,7 @@ Object.assign(UI.it, {
 });
 Object.assign(UI.en, {
   tabLessons: "Worlds",
+  updateReady: "A new version of Arcode is available.", updateNow: "Update",
   tabLab: "Lab", labIntro: "Your free space: write programs in the editor, or commands in the terminal after >>>.",
   secFiles: "Your files", secExamples: "Examples", secTerm: "Terminal", secCheat: "Cheat sheet", secLibs: "Libraries",
   labTermIntro: "Type a command after >>> and press Enter: Python runs it right away. After a colon the terminal waits for more lines; press Enter on an empty line to run.",
@@ -4706,9 +4712,35 @@ setView(S.view, true);
 if (S.view === "map" || S.view === "worlds") loadEditor();
 applyStatic();
 termWrite(t("loadingFull") + "\n", "dim");
-if (document.querySelector('link[rel="manifest"]') && "serviceWorker" in navigator) {
-  try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
+/* Installed app: register the offline cache and announce new versions */
+const APP_VERSION = "0700ef6a3c";
+const IS_APP = !!document.querySelector('link[rel="manifest"]');
+if (IS_APP && "serviceWorker" in navigator) {
+  try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}
 }
+let updateShown = false;
+function checkUpdate() {
+  if (!IS_APP || updateShown || !navigator.onLine) return;
+  fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { if (j && j.version && j.version !== APP_VERSION) showUpdate(); })
+    .catch(() => {});
+}
+function showUpdate() {
+  updateShown = true;
+  const bar = document.createElement("div");
+  bar.className = "update-bar"; bar.setAttribute("role", "status");
+  bar.innerHTML = `<span>${t("updateReady")}</span><button class="btn primary tiny" id="do-update">${t("updateNow")}</button>`;
+  document.body.appendChild(bar);
+  $("do-update").onclick = async () => {
+    persistEditor();
+    try { const r = await navigator.serviceWorker.getRegistration(); if (r) await r.update(); } catch (e) {}
+    location.reload();
+  };
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) checkUpdate(); });
+setTimeout(checkUpdate, 4000);
+setInterval(checkUpdate, 15 * 60 * 1000);
 (async () => {
   let ok = false;
   for (const url of PYODIDE_URLS) { workerURL = url; ok = await startWorker(url); if (ok) break; }
