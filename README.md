@@ -24,7 +24,7 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 - **Correzione automatica** degli esercizi, con verifiche extra su altri valori per evitare risposte "a memoria", più suggerimento e soluzione.
 - **Errori in stile Python** (traceback con riga e codice) con una spiegazione in italiano, e la riga sbagliata evidenziata nell'editor.
 - **Barra dei simboli** sul telefono per scrivere `( ) : " [ ] { } =` senza cercarli sulla tastiera.
-- Tema chiaro/scuro, dimensione del testo regolabile, progressi salvati nel browser.
+- Tema chiaro/scuro, dimensione del testo regolabile.
 
 ### Il percorso a livelli
 
@@ -36,7 +36,9 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 - **Stelle**: ★★★ senza aiuti, ★★ con il suggerimento, ★ con la soluzione. Puoi rigiocare un livello per prenderle tutte.
 - **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice.
 - **Suoni morbidi** quando superi un livello, disattivabili.
-- **Salvataggio**: i progressi restano sul dispositivo; dalle impostazioni puoi salvarli in un file o in un codice da copiare, e ripristinarli anche su un altro dispositivo.
+- **Account**: scegli un nome utente e una password; i progressi di ogni account sono separati e restano sul dispositivo. Puoi usare l'app anche come ospite, avere più account sullo stesso dispositivo, cambiare la password ed eliminare l'account. Alla creazione ricevi un **codice di recupero** (mostrato una sola volta) per rientrare se dimentichi la password. Password e codice non vengono mai salvati in chiaro (PBKDF2).
+- **Salvataggio**: dalle impostazioni puoi salvare i progressi in un file o in un codice da copiare, e ripristinarli anche su un altro dispositivo; il ripristino unisce i progressi invece di sovrascriverli.
+- **Pronta per la sincronizzazione**: il codice ha già il punto di aggancio per un server gratuito (oggetto `REMOTE` e unione dei progressi `mergeStates`), da collegare in seguito.
 - **App installabile**: aggiungila alla schermata Home; dopo la prima apertura funziona anche offline.
 
 ### Come usarla
@@ -67,7 +69,7 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 - **Automatic checking** of exercises, with extra checks on other values so answers can't be hard-coded, plus a hint and a solution.
 - **Python-style errors** (traceback with line and code) with a plain-language explanation, and the wrong line highlighted in the editor.
 - **Symbol bar** on phones to type `( ) : " [ ] { } =` without hunting for them on the keyboard.
-- Light/dark theme, adjustable text size, progress saved in the browser.
+- Light/dark theme, adjustable text size.
 
 ### The level path
 
@@ -79,7 +81,9 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 - **Stars**: ★★★ with no help, ★★ with the hint, ★ with the solution. Replay a level to collect them all.
 - **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master.
 - **Soft sounds** when you pass a level, and you can turn them off.
-- **Saving**: progress stays on the device; from Settings you can save it to a file or a copyable code, and restore it, even on another device.
+- **Accounts**: pick a username and a password; each account's progress is kept separate and stays on the device. You can also play as a guest, keep several accounts on one device, change the password and delete the account. When you sign up you get a **recovery code** (shown only once) to get back in if you forget the password. Passwords and codes are never stored in clear text (PBKDF2).
+- **Saving**: from Settings you can save progress to a file or a copyable code, and restore it, even on another device; restoring merges progress instead of overwriting it.
+- **Ready for sync**: the code already has the hook for a free server (the `REMOTE` object and the `mergeStates` progress merge), to be connected later.
 - **Installable app**: add it to your home screen; after the first visit it also works offline.
 
 ### How to use it

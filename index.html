@@ -592,6 +592,44 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
   .term-card .bar .row::-webkit-scrollbar { display: none; }
   .tbtn { padding: 4px 9px; font-size: 0.78rem; white-space: nowrap; }
 }
+
+/* Account */
+.acct-btn { display: flex; align-items: center; gap: 8px; border: 1px solid var(--term-line); background: transparent; color: var(--term-fg); border-radius: 999px; padding: 3px 12px 3px 3px; font-weight: 700; font-size: 0.85rem; max-width: 170px; }
+.acct-btn:hover { border-color: var(--term-prompt); }
+.acct-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.av { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; background: var(--term-prompt); color: #15203a; font-family: var(--f-display); font-weight: 700; font-size: 0.95rem; }
+.av.guest { background: var(--term-line); color: var(--term-dim); }
+.av.big { width: 56px; height: 56px; font-size: 1.6rem; }
+.acct-body { display: grid; gap: 14px; }
+.acct-hero { display: flex; gap: 14px; align-items: flex-start; }
+.acct-hero p { margin: 4px 0 0; font-size: 0.92rem; }
+.acct-hero .muted { color: var(--muted); font-family: var(--f-mono); font-size: 0.82rem; }
+.acct-form { display: grid; gap: 12px; }
+.ff { display: grid; gap: 4px; font-size: 0.9rem; font-weight: 700; }
+.ff .field { width: 100%; font-size: 16px; padding: 9px 11px; font-weight: 400; }
+.ff small { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+.ck { display: flex; gap: 8px; align-items: flex-start; font-size: 0.9rem; }
+.ck input { margin-top: 3px; }
+.form-err { margin: 0; color: var(--err); font-weight: 700; font-size: 0.9rem; }
+.acct-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.acct-pick { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 4px 12px 4px 4px; font-weight: 700; }
+.acct-pick:hover { border-color: var(--accent); }
+.acct-pick .av { background: var(--accent-soft); color: var(--accent); }
+.sync-box { background: var(--code-bg); border-radius: 12px; padding: 12px 14px; }
+.sync-box h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.sync-box p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.rc-box { display: grid; gap: 10px; background: var(--accent-soft); border-radius: 12px; padding: 14px; }
+.rc-box h3 { margin: 0; font-size: 1rem; }
+.rc-box p { margin: 0; font-size: 0.9rem; }
+.rc-code { font-family: var(--f-mono); font-size: 1.5rem !important; font-weight: 600; letter-spacing: 0.08em; color: var(--ink); user-select: all; }
+@media (max-width: 560px) {
+  .hright { gap: 8px; width: 100%; }
+  .hud .rank { order: 9; flex: 1 1 100%; min-width: 0; }
+  .hud .rname { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .hud .rbar { flex: 1 1 30px; width: 30px; min-width: 24px; }
+  .acct-btn { padding: 3px; max-width: none; margin-left: auto; }
+  .acct-btn .acct-name { display: none; }
+}
 </style>
 </head>
 <body>
@@ -607,6 +645,7 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
         <button id="tab-lab" role="tab" aria-selected="false" data-t="tabLab">Lab</button>
       </div>
       <div class="rank" id="rank"><span class="rname" id="rank-name"></span><span class="rbar" aria-hidden="true"><i id="rank-bar"></i></span><span class="rbytes" id="rank-bytes"></span></div>
+      <button class="acct-btn" id="acct-btn"></button>
       <button class="icon-btn" id="sound" aria-pressed="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 7.5v5h3.2L10.5 16V4L6.2 7.5z" fill="currentColor"/><path class="waves" d="M13 7.2a3.6 3.6 0 0 1 0 5.6M15.3 4.8a7 7 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path class="mute" d="M13.2 7.5l4.5 5M17.7 7.5l-4.5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
       <button class="icon-btn" id="open-settings"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 6h7M14 6h3M3 14h3M10 14h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="6" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="14" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
     </div>
@@ -660,6 +699,7 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 </div>
 
 <div class="overlay" id="cele" hidden><div class="ocard cele" role="dialog" aria-modal="true" aria-labelledby="cele-title"></div></div>
+<div class="overlay" id="acct" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="acct-title"></div></div>
 <div class="overlay" id="settings" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="set-title"></div></div>
 
 <script type="text/x-python" id="py-runner">
@@ -3333,6 +3373,119 @@ Object.assign(UI.en, {
   resetAll: "Start over", confirmResetAll: "Delete all progress, stars and bytes? Playground programs are kept.", yesResetAll: "Yes, delete everything", close: "Close",
   bossLabel: (n) => `Boss · ${n}`, mascotSays: (n) => `${n} says`
 });
+
+/* ================= Accounts (stored on the device; ready for an online sync later) ================= */
+const ACCOUNTS_KEY = "arcode-accounts", GUEST_KEY = "palestra-python-v3";
+const stateKeyFor = (user) => user ? "arcode-state:" + user : GUEST_KEY;
+const normUser = (u) => String(u || "").trim().toLowerCase();
+const validUser = (u) => /^[a-z0-9_]{3,20}$/.test(u);
+const b64 = (bytes) => { let s = ""; new Uint8Array(bytes).forEach((b) => { s += String.fromCharCode(b); }); return btoa(s); };
+const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+function randB64(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return b64(a); }
+/* Passwords are never stored: only a slow salted hash (PBKDF2-SHA256) */
+async function hashSecret(secret, saltB64, iter = 150000) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(secret)), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: unb64(saltB64), iterations: iter }, key, 256);
+  return b64(bits);
+}
+/* Constant-time comparison of two hashes */
+function sameHash(a, b) { if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }
+const RC_ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function makeRecoveryCode() {
+  const a = new Uint8Array(12); crypto.getRandomValues(a);
+  const s = Array.from(a, (x) => RC_ALPHA[x % RC_ALPHA.length]).join("");
+  return s.slice(0, 4) + "-" + s.slice(4, 8) + "-" + s.slice(8, 12);
+}
+const normCode = (c) => String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+async function makeAccount(user, password) {
+  const salt = randB64(16), rsalt = randB64(16), recovery = makeRecoveryCode();
+  return {
+    record: { salt, hash: await hashSecret(password, salt), rsalt, rhash: await hashSecret(normCode(recovery), rsalt), created: new Date().toISOString(), remote: null },
+    recovery
+  };
+}
+async function checkPassword(rec, password) { return !!rec && sameHash(await hashSecret(password, rec.salt), rec.hash); }
+async function checkRecovery(rec, code) { return !!rec && sameHash(await hashSecret(normCode(code), rec.rsalt), rec.rhash); }
+async function newRecovery(rec) { const code = makeRecoveryCode(); rec.rsalt = randB64(16); rec.rhash = await hashSecret(normCode(code), rec.rsalt); return code; }
+
+/* Joins two copies of the progress without losing anything: best stars win, files are kept, newer code wins.
+   Used when importing a save code today, and by the online sync tomorrow. */
+function totalBytes(stars) {
+  let b = 0;
+  for (const lv of LEVELS) if (stars[lv.id]) b += bytesFor(lv, stars[lv.id], 0);
+  return b;
+}
+function mergeStates(local, incoming) {
+  const out = JSON.parse(JSON.stringify(local || {}));
+  const inc = incoming || {};
+  out.stars = Object.assign({}, out.stars || {});
+  for (const id in inc.stars || {}) if (LESSON_BY_ID[id]) out.stars[id] = Math.max(out.stars[id] || 0, Math.min(3, inc.stars[id] || 0));
+  out.bytes = Math.max(totalBytes(out.stars), 0);
+  out.code = Object.assign({}, out.code || {});
+  out.codeAt = Object.assign({}, out.codeAt || {});
+  for (const k in inc.code || {}) {
+    const mine = out.codeAt[k] || 0, theirs = (inc.codeAt || {})[k] || 0;
+    if (out.code[k] === undefined || theirs > mine) { out.code[k] = inc.code[k]; out.codeAt[k] = theirs; }
+  }
+  const progs = new Map((out.programs || []).map((p) => [p.id, p]));
+  for (const p of inc.programs || []) {
+    if (!p || typeof p.code !== "string") continue;
+    const mine = progs.get(p.id);
+    if (!mine || (p.mtime || 0) > (mine.mtime || 0)) progs.set(p.id, Object.assign({}, p));
+  }
+  out.programs = [...progs.values()];
+  out.tutorialDone = !!(out.tutorialDone || inc.tutorialDone);
+  out.lastBackup = [out.lastBackup, inc.lastBackup].filter(Boolean).sort().pop() || null;
+  out.updatedAt = Math.max(out.updatedAt || 0, inc.updatedAt || 0);
+  return out;
+}
+
+Object.assign(UI.it, {
+  guest: "Ospite", account: "Account", acctAria: (n) => `Account: ${n}`,
+  acctGuestText: "Stai usando Arcode come ospite: i progressi restano su questo dispositivo. Con un account ognuno ha i suoi progressi, anche se usate lo stesso dispositivo. Presto potrai anche ritrovarli su altri dispositivi.",
+  createAccount: "Crea account", login: "Accedi", logout: "Esci", loginAs: (u) => `Accedi come ${u}`, onThisDevice: "Account su questo dispositivo",
+  username: "Nome utente", password: "Password", password2: "Ripeti la password", newPassword: "Nuova password", oldPassword: "Password attuale",
+  userRule: "Da 3 a 20 caratteri: lettere, numeri e _", passRule: "Almeno 8 caratteri.",
+  carry: "Sposta nell'account i progressi di questo dispositivo",
+  errUser: "Il nome utente deve avere da 3 a 20 caratteri tra lettere, numeri e _.", errTaken: "Su questo dispositivo esiste già un account con questo nome.",
+  errPass: "La password deve avere almeno 8 caratteri.", errMatch: "Le due password non coincidono.",
+  errLogin: "Nome utente o password non corretti.", errRecovery: "Codice di recupero non corretto.", errNoAccount: "Non c'è un account con questo nome su questo dispositivo.",
+  errCrypto: "Questo browser non permette di proteggere le password. Apri Arcode dal link https.",
+  created: "Account creato!", recoveryTitle: "Il tuo codice di recupero",
+  recoveryText: "Ti serve se dimentichi la password: senza, non c'è modo di rientrare. Copialo o scrivilo in un posto sicuro: per sicurezza non lo mostreremo più. Se lo perdi, dal tuo account puoi crearne uno nuovo.",
+  copy2: "Copia", copied2: "Copiato", continue: "Continua", forgot: "Password dimenticata?", recoveryCode: "Codice di recupero",
+  resetPass: "Imposta la nuova password", passChanged: "Password cambiata.", changePass: "Cambia password",
+  newRecoveryBtn: "Nuovo codice di recupero", newRecoveryInfo: "Il vecchio codice smetterà di funzionare.",
+  since: (d) => `Su questo dispositivo dal ${d}`, acctStats: (s, b) => `★ ${s} · ${b}`,
+  deleteAcct: "Elimina account da questo dispositivo", deleteWarn: "Verranno cancellati da questo dispositivo l'account e tutti i suoi progressi. Se non li hai salvati con il codice di salvataggio, non potrai recuperarli.",
+  deleteYes: "Elimina definitivamente", back: "← Indietro",
+  syncTitle: "Sincronizzazione online", syncSoon: "In arrivo: accedendo con questo account da un altro dispositivo ritroverai i tuoi progressi. Per ora puoi spostarli con il codice di salvataggio, nelle impostazioni.",
+  loggedIn: (u) => `Ciao, ${u}!`, loggedOut: "Sei uscito: ora stai usando Arcode come ospite.", welcomeBack: (u) => `Bentornato, ${u}!`,
+  merged: "Progressi uniti a quelli che avevi già."
+});
+Object.assign(UI.en, {
+  guest: "Guest", account: "Account", acctAria: (n) => `Account: ${n}`,
+  acctGuestText: "You're using Arcode as a guest: progress stays on this device. With an account everyone keeps their own progress, even on a shared device. Soon you'll also find it on your other devices.",
+  createAccount: "Create account", login: "Log in", logout: "Log out", loginAs: (u) => `Log in as ${u}`, onThisDevice: "Accounts on this device",
+  username: "Username", password: "Password", password2: "Repeat the password", newPassword: "New password", oldPassword: "Current password",
+  userRule: "3 to 20 characters: letters, numbers and _", passRule: "At least 8 characters.",
+  carry: "Move this device's progress into the account",
+  errUser: "The username must have 3 to 20 characters among letters, numbers and _.", errTaken: "There's already an account with this name on this device.",
+  errPass: "The password must have at least 8 characters.", errMatch: "The two passwords don't match.",
+  errLogin: "Wrong username or password.", errRecovery: "Wrong recovery code.", errNoAccount: "There's no account with this name on this device.",
+  errCrypto: "This browser can't protect passwords. Open Arcode from its https link.",
+  created: "Account created!", recoveryTitle: "Your recovery code",
+  recoveryText: "You'll need it if you forget your password: without it there's no way back in. Copy it or write it somewhere safe: for safety we won't show it again. If you lose it, you can create a new one from your account.",
+  copy2: "Copy", copied2: "Copied", continue: "Continue", forgot: "Forgot your password?", recoveryCode: "Recovery code",
+  resetPass: "Set the new password", passChanged: "Password changed.", changePass: "Change password",
+  newRecoveryBtn: "New recovery code", newRecoveryInfo: "The old code will stop working.",
+  since: (d) => `On this device since ${d}`, acctStats: (s, b) => `★ ${s} · ${b}`,
+  deleteAcct: "Delete account from this device", deleteWarn: "The account and all its progress will be deleted from this device. If you haven't saved them with the save code, you won't be able to get them back.",
+  deleteYes: "Delete for good", back: "← Back",
+  syncTitle: "Online sync", syncSoon: "Coming soon: logging in with this account on another device, you'll find your progress there. For now you can move it with the save code, in Settings.",
+  loggedIn: (u) => `Hi, ${u}!`, loggedOut: "You logged out: you're now using Arcode as a guest.", welcomeBack: (u) => `Welcome back, ${u}!`,
+  merged: "Progress merged with what you already had."
+});
 </script>
 
 <script>
@@ -3352,7 +3505,16 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const rnd = () => Math.floor(Math.random() * 1e9);
 
 /* ---------- State ---------- */
-const STORE = "palestra-python-v3";
+/* Every account has its own progress on this device; without an account you play as a guest */
+function loadAccounts() {
+  try { const a = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "null"); if (a && a.users && typeof a.users === "object") return a; } catch (e) {}
+  return { current: null, users: {} };
+}
+let ACC = loadAccounts();
+if (ACC.current && !ACC.users[ACC.current]) ACC.current = null;
+function saveAccounts() { try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(ACC)); } catch (e) {} }
+const storeKey = () => stateKeyFor(ACC.current);
+function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, programs: [], active: null,
   fontSize: 14, theme: "auto", sound: true, tutorialDone: false, lastBackup: null });
@@ -3376,17 +3538,23 @@ function sanitize() {
   if (!["auto", "light", "dark"].includes(S.theme)) S.theme = "auto";
   S.sound = S.sound !== false;
   if (!(S.termH >= 120 && S.termH <= 1600)) S.termH = 210;
+  if (!S.codeAt || typeof S.codeAt !== "object") S.codeAt = {};
 }
 (function loadState() {
   try {
-    const v3 = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (v3 && typeof v3 === "object") { Object.assign(S, v3); return; }
+    const v3 = readState(storeKey());
+    if (v3) { Object.assign(S, v3); return; }
+    if (ACC.current) return;
     /* Older versions: keep only the Playground programs and the preferences */
     const v2 = JSON.parse(localStorage.getItem("palestra-python-v2") || "null");
     if (v2 && typeof v2 === "object") for (const k of ["lang", "programs", "active", "fontSize", "theme", "tutorialDone"]) if (v2[k] !== undefined) S[k] = v2[k];
   } catch (e) {}
 })();
-function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
+function save(fromSync) {
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(storeKey(), JSON.stringify(S)); } catch (e) {}
+  if (!fromSync) scheduleSync();
+}
 
 const ui = { hint: false, sol: false, renaming: false, confirmDel: false, quiz: null, mexpr: "i", msay: "", settings: { code: false, confirm: false, msg: "" } };
 const t = (k, ...a) => { const v = UI[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
@@ -3430,6 +3598,7 @@ function applyStatic() {
   $("open-settings").title = t("settings");
   $("open-settings").setAttribute("aria-label", t("settings"));
   renderRank();
+  renderAcctBtn();
   $("note").textContent = engine === "pyodide" ? t("noteFull") : t("note");
   updateRunUI();
   updateFileName();
@@ -3506,8 +3675,11 @@ function loadEditor() {
   updateFileName();
 }
 function persistEditor() {
-  if (S.mode === "free") { const p = activeProgram(); if (p) p.code = code.value; }
-  else if (!isQuiz()) S.code[S.lang + ":" + level().id] = code.value;
+  if (S.mode === "free") { const p = activeProgram(); if (p && p.code !== code.value) { p.code = code.value; p.mtime = Date.now(); } }
+  else if (!isQuiz()) {
+    const k = S.lang + ":" + level().id;
+    if (S.code[k] !== code.value) { S.code[k] = code.value; S.codeAt[k] = Date.now(); }
+  }
   save();
 }
 let saveTimer;
@@ -4709,13 +4881,13 @@ function renderSettings() {
 function restoreFrom(text) {
   try {
     const o = decodeSave(text);
-    S = Object.assign(DEFAULTS(), o.state); sanitize();
+    applyProgress(mergeStates(S, o.state));
     S.lastBackup = o.date || new Date().toISOString();
     save();
     ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null;
     applyTheme(); applyFont(); applyStatic();
     setView(S.view === "lab" ? "lab" : "worlds");
-    ui.settings = { code: false, confirm: false, msg: t("restored") };
+    ui.settings = { code: false, confirm: false, msg: t("merged") };
   } catch (e) {
     ui.settings.msg = t("restoreFail");
   }
@@ -4727,7 +4899,220 @@ document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!cele.hidden) closeCele();
   else if (!setEl.hidden) closeSettings();
+  else if (!acctEl.hidden) closeAccount();
 });
+
+
+/* ---------- Progress fields (what an account owns) ---------- */
+const PROGRESS_KEYS = ["stars", "bytes", "code", "codeAt", "programs", "tutorialDone", "lastBackup", "updatedAt"];
+function applyProgress(m) {
+  for (const k of PROGRESS_KEYS) if (m[k] !== undefined) S[k] = m[k];
+  sanitize();
+}
+const prefsOf = (s) => ({ lang: s.lang, theme: s.theme, fontSize: s.fontSize, sound: s.sound, termH: s.termH });
+
+/* ---------- Online sync: the base for a free server ----------
+   To connect a server, fill REMOTE with pull(user) -> saved progress or null, and push(user, progress).
+   Progress is merged with mergeStates on both sides, so two devices never overwrite each other. */
+const REMOTE = { enabled: false, pull: null, push: null };
+let syncTimer = null, syncing = false;
+function scheduleSync() {
+  if (!REMOTE.enabled || !ACC.current) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 4000);
+}
+async function syncNow() {
+  if (!REMOTE.enabled || !ACC.current || syncing) return;
+  syncing = true;
+  try {
+    const remote = await REMOTE.pull(ACC.current);
+    if (remote) { applyProgress(mergeStates(S, remote)); save(true); renderRank(); if (!running) renderPanel(); }
+    const mine = {}; for (const k of PROGRESS_KEYS) mine[k] = S[k];
+    await REMOTE.push(ACC.current, mine);
+  } catch (e) {}
+  syncing = false;
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) syncNow(); });
+
+/* ---------- Switching account ---------- */
+function switchAccount(user, carried, opts = {}) {
+  if (!opts.noSave) persistEditor();
+  const prefs = prefsOf(S);
+  ACC.current = user || null;
+  saveAccounts();
+  S = carried ? Object.assign(DEFAULTS(), carried, prefs) : Object.assign(DEFAULTS(), prefs, readState(storeKey()) || {});
+  sanitize(); save();
+  ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null; ui.hint = false; ui.sol = false; ui.labOpen = null;
+  applyTheme(); applyFont(); root.style.setProperty("--term-h", S.termH + "px");
+  applyStatic();
+  setView("worlds");
+  syncNow();
+}
+
+/* ---------- Account window ---------- */
+const acctEl = $("acct"), acctBtn = $("acct-btn");
+function renderAcctBtn() {
+  const name = ACC.current || t("guest");
+  acctBtn.innerHTML = `<span class="av ${ACC.current ? "" : "guest"}" aria-hidden="true">${ACC.current ? escHtml(ACC.current[0].toUpperCase()) : "?"}</span><span class="acct-name">${escHtml(name)}</span>`;
+  acctBtn.setAttribute("aria-label", t("acctAria", name));
+  acctBtn.title = t("acctAria", name);
+}
+function openAccount(mode) {
+  if (running) return;
+  ui.acct = { mode: mode || "home", err: "", msg: "", user: "", code: "", busy: false };
+  renderAccount();
+  acctEl.hidden = false;
+  const f = acctEl.querySelector(".acct-body input, .acct-body button"); if (f) f.focus();
+}
+function closeAccount() { acctEl.hidden = true; }
+function fmtDay(iso) { try { return new Date(iso).toLocaleDateString(S.lang === "it" ? "it-IT" : "en-GB", { dateStyle: "long" }); } catch (e) { return iso; } }
+const field = (id, label, type, ac, val = "", hint = "") => `<label class="ff" for="${id}"><span>${label}</span>
+  <input class="field" id="${id}" name="${id}" type="${type}" autocomplete="${ac}" autocapitalize="off" autocorrect="off" spellcheck="false" value="${escHtml(val)}">${hint ? `<small>${hint}</small>` : ""}</label>`;
+function renderAccount() {
+  const a = ui.acct, users = Object.keys(ACC.users).sort();
+  const err = a.err ? `<p class="form-err" role="alert">${escHtml(a.err)}</p>` : "";
+  const msg = a.msg ? `<p class="set-msg" role="status">${escHtml(a.msg)}</p>` : "";
+  const back = `<button class="linkbtn" type="button" id="acct-back">${t("back")}</button>`;
+  const submit = (label, cls = "primary") => `<button class="btn ${cls}" type="submit" ${a.busy ? "disabled" : ""}>${a.busy ? "…" : label}</button>`;
+  const others = users.filter((u) => u !== ACC.current);
+  const list = others.length ? `<div class="group"><div class="eyebrow">${t("onThisDevice")}</div><div class="acct-list">${others.map((u) => `<button class="acct-pick" data-u="${escHtml(u)}" aria-label="${escHtml(t("loginAs", u))}"><span class="av" aria-hidden="true">${escHtml(u[0].toUpperCase())}</span>${escHtml(u)}</button>`).join("")}</div></div>` : "";
+  let body;
+  if (a.mode === "home" && !ACC.current) {
+    body = `<div class="acct-hero"><span class="av big guest" aria-hidden="true">?</span><div><b>${t("guest")}</b><p>${t("acctGuestText")}</p></div></div>
+      ${msg}<div class="row"><button class="btn primary" id="go-create">${t("createAccount")}</button><button class="btn" id="go-login">${t("login")}</button></div>${list}`;
+  } else if (a.mode === "home") {
+    const rec = ACC.users[ACC.current], got = LEVELS.reduce((x, l) => x + (S.stars[l.id] || 0), 0);
+    body = `<div class="acct-hero"><span class="av big" aria-hidden="true">${escHtml(ACC.current[0].toUpperCase())}</span><div><b>${escHtml(ACC.current)}</b>
+        <p>${t("since", fmtDay(rec.created))}</p><p class="muted">${t("acctStats", got, fmtBytes(S.bytes))} · ${RANKS[rankOf(S.bytes)][S.lang]}</p></div></div>
+      ${msg}
+      <div class="sync-box"><h3>${t("syncTitle")}</h3><p>${t("syncSoon")}</p></div>
+      <div class="row"><button class="btn" id="go-pass">${t("changePass")}</button><button class="btn" id="go-newrec">${t("newRecoveryBtn")}</button><button class="btn" id="do-logout">${t("logout")}</button></div>
+      ${list}
+      <div><button class="linkbtn" id="go-delete">${t("deleteAcct")}</button></div>`;
+  } else if (a.mode === "create") {
+    body = `<form id="f-create" class="acct-form" novalidate>${field("a-user", t("username"), "text", "username", a.user, t("userRule"))}
+      ${field("a-pass", t("password"), "password", "new-password", "", t("passRule"))}${field("a-pass2", t("password2"), "password", "new-password")}
+      ${ACC.current ? "" : `<label class="ck"><input type="checkbox" id="a-carry" checked> ${t("carry")}</label>`}
+      ${err}<div class="row">${submit(t("createAccount"))}${back}</div></form>`;
+  } else if (a.mode === "login") {
+    body = `<form id="f-login" class="acct-form" novalidate>${field("a-user", t("username"), "text", "username", a.user)}${field("a-pass", t("password"), "password", "current-password")}
+      ${err}<div class="row">${submit(t("login"))}${back}</div><button class="linkbtn" type="button" id="go-recover">${t("forgot")}</button></form>`;
+  } else if (a.mode === "recover") {
+    body = `<form id="f-recover" class="acct-form" novalidate>${field("a-user", t("username"), "text", "username", a.user)}${field("a-code", t("recoveryCode"), "text", "off")}
+      ${field("a-pass", t("newPassword"), "password", "new-password", "", t("passRule"))}${field("a-pass2", t("password2"), "password", "new-password")}
+      ${err}<div class="row">${submit(t("resetPass"))}${back}</div></form>`;
+  } else if (a.mode === "recovery") {
+    body = `${msg}<div class="rc-box"><h3>${t("recoveryTitle")}</h3><p class="rc-code" id="rc-code">${escHtml(a.code)}</p><p>${t("recoveryText")}</p>
+      <div class="row"><button class="btn" id="rc-copy">${t("copy2")}</button><button class="btn primary" id="rc-done">${t("continue")}</button></div></div>`;
+  } else if (a.mode === "pass") {
+    body = `<form id="f-pass" class="acct-form" novalidate><input type="text" name="username" autocomplete="username" value="${escHtml(ACC.current)}" hidden>
+      ${field("a-old", t("oldPassword"), "password", "current-password")}${field("a-pass", t("newPassword"), "password", "new-password", "", t("passRule"))}${field("a-pass2", t("password2"), "password", "new-password")}
+      ${err}<div class="row">${submit(t("changePass"))}${back}</div></form>`;
+  } else if (a.mode === "newrec") {
+    body = `<form id="f-newrec" class="acct-form" novalidate><p>${t("newRecoveryInfo")}</p><input type="text" name="username" autocomplete="username" value="${escHtml(ACC.current)}" hidden>
+      ${field("a-old", t("password"), "password", "current-password")}${err}<div class="row">${submit(t("newRecoveryBtn"))}${back}</div></form>`;
+  } else if (a.mode === "delete") {
+    body = `<form id="f-delete" class="acct-form" novalidate><div class="confirm"><p>${t("deleteWarn")}</p></div><input type="text" name="username" autocomplete="username" value="${escHtml(ACC.current)}" hidden>
+      ${field("a-old", t("password"), "password", "current-password")}${err}<div class="row">${submit(t("deleteYes"), "danger")}${back}</div></form>`;
+  }
+  acctEl.querySelector(".ocard").innerHTML = `<div class="set-head"><h2 id="acct-title">${t("account")}</h2><button class="btn tiny" id="acct-close">${t("close")}</button></div><div class="acct-body">${body}</div>`;
+  wireAccount();
+}
+const go = (mode, extra = {}) => { ui.acct = Object.assign({ mode, err: "", msg: "", user: "", code: "", busy: false }, extra); renderAccount(); const f = acctEl.querySelector(".acct-body input:not([hidden]), .acct-body button"); if (f) f.focus(); };
+const val = (id) => { const el = $(id); return el ? el.value : ""; };
+/* Runs a form action with a busy state; the action returns an error message or nothing */
+function acctForm(id, action) {
+  const f = $(id); if (!f) return;
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    if (ui.acct.busy) return;
+    if (!(window.crypto && crypto.subtle)) { ui.acct.err = t("errCrypto"); renderAccount(); return; }
+    const keep = {}; f.querySelectorAll("input:not([type=password]):not([type=checkbox])").forEach((i) => { keep[i.id] = i.value; });
+    ui.acct.busy = true; ui.acct.err = "";
+    const btn = f.querySelector("[type=submit]"); if (btn) { btn.disabled = true; btn.textContent = "…"; }
+    let errMsg = null;
+    try { errMsg = await action(); } catch (x) { errMsg = t("errLogin"); }
+    ui.acct.busy = false;
+    if (errMsg) { ui.acct.err = errMsg; if (keep["a-user"] !== undefined) ui.acct.user = keep["a-user"]; renderAccount(); const p = acctEl.querySelector("input[type=password]"); if (p) p.focus(); }
+  };
+}
+function checkNewPassword(p1, p2) { if (p1.length < 8) return t("errPass"); if (p1 !== p2) return t("errMatch"); return null; }
+function wireAccount() {
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
+  on("acct-close", closeAccount);
+  on("acct-back", () => go("home"));
+  on("go-create", () => go("create"));
+  on("go-login", () => go("login"));
+  on("go-recover", () => go("recover", { user: val("a-user") }));
+  on("go-pass", () => go("pass"));
+  on("go-newrec", () => go("newrec"));
+  on("go-delete", () => go("delete"));
+  on("do-logout", () => { switchAccount(null); go("home", { msg: t("loggedOut") }); });
+  acctEl.querySelectorAll(".acct-pick").forEach((b) => { b.onclick = () => go("login", { user: b.dataset.u }); });
+  on("rc-done", () => go("home"));
+  on("rc-copy", () => {
+    const b = $("rc-copy"), txt = $("rc-code").textContent;
+    const sel = () => { const r = document.createRange(); r.selectNodeContents($("rc-code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try { navigator.clipboard.writeText(txt).then(() => { b.textContent = t("copied2"); }, sel); } catch (e) { sel(); }
+  });
+  acctForm("f-create", async () => {
+    const u = normUser(val("a-user")), p1 = val("a-pass"), p2 = val("a-pass2");
+    if (!validUser(u)) return t("errUser");
+    if (ACC.users[u]) return t("errTaken");
+    const bad = checkNewPassword(p1, p2); if (bad) return bad;
+    const carry = !ACC.current && $("a-carry") && $("a-carry").checked;
+    const { record, recovery } = await makeAccount(u, p1);
+    ACC.users[u] = record;
+    if (carry) {
+      persistEditor();
+      const carried = JSON.parse(JSON.stringify(S)), prefs = prefsOf(S);
+      switchAccount(u, carried, { noSave: true });
+      try { localStorage.setItem(GUEST_KEY, JSON.stringify(prefs)); } catch (e) {}
+    } else switchAccount(u);
+    go("recovery", { code: recovery, msg: t("created") });
+  });
+  acctForm("f-login", async () => {
+    const u = normUser(val("a-user")), rec = ACC.users[u];
+    if (!rec || !(await checkPassword(rec, val("a-pass")))) return t("errLogin");
+    switchAccount(u);
+    go("home", { msg: t("welcomeBack", u) });
+  });
+  acctForm("f-recover", async () => {
+    const u = normUser(val("a-user")), rec = ACC.users[u];
+    if (!rec) return t("errNoAccount");
+    if (!(await checkRecovery(rec, val("a-code")))) return t("errRecovery");
+    const bad = checkNewPassword(val("a-pass"), val("a-pass2")); if (bad) return bad;
+    rec.salt = randB64(16); rec.hash = await hashSecret(val("a-pass"), rec.salt);
+    saveAccounts();
+    switchAccount(u);
+    go("home", { msg: t("passChanged") });
+  });
+  acctForm("f-pass", async () => {
+    const rec = ACC.users[ACC.current];
+    if (!(await checkPassword(rec, val("a-old")))) return t("errLogin");
+    const bad = checkNewPassword(val("a-pass"), val("a-pass2")); if (bad) return bad;
+    rec.salt = randB64(16); rec.hash = await hashSecret(val("a-pass"), rec.salt);
+    saveAccounts();
+    go("home", { msg: t("passChanged") });
+  });
+  acctForm("f-newrec", async () => {
+    const rec = ACC.users[ACC.current];
+    if (!(await checkPassword(rec, val("a-old")))) return t("errLogin");
+    const code = await newRecovery(rec);
+    saveAccounts();
+    go("recovery", { code });
+  });
+  acctForm("f-delete", async () => {
+    const u = ACC.current, rec = ACC.users[u];
+    if (!(await checkPassword(rec, val("a-old")))) return t("errLogin");
+    try { localStorage.removeItem(stateKeyFor(u)); } catch (e) {}
+    delete ACC.users[u];
+    switchAccount(null, null, { noSave: true });
+    go("home");
+  });
+}
+acctBtn.onclick = () => openAccount();
+acctEl.addEventListener("click", (e) => { if (e.target === acctEl) closeAccount(); });
 
 /* ---------- Workbench sizes: drag the handle between editor and terminal ---------- */
 const split = $("split"), workEl = document.querySelector(".work");
@@ -4825,7 +5210,7 @@ measureWork();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWork);
 termWrite(t("loadingFull") + "\n", "dim");
 /* Installed app: register the offline cache and announce new versions */
-const APP_VERSION = "642f8eacaa";
+const APP_VERSION = "e8d9ec521b";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 if (IS_APP && "serviceWorker" in navigator) {
   try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}
