@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#15203a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Palestra Python">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 html { color-scheme: light; }
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -264,6 +272,139 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 @media (prefers-reduced-motion: no-preference) {
   .btn, .pill, .seg button, .prog, .progress i { transition: background-color .15s, border-color .15s, color .15s, width .3s; }
 }
+
+/* Header rank */
+.rank { display: flex; align-items: center; gap: 8px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 0.82rem; }
+.rname { font-weight: 700; }
+.rbytes { font-family: var(--f-mono); font-size: 0.76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rbar { width: 54px; height: 6px; border-radius: 99px; background: var(--code-bg); overflow: hidden; }
+.rbar i { display: block; height: 100%; background: var(--mustard); border-radius: 99px; }
+#sound .mute { display: none; }
+#sound.muted .mute { display: inline; }
+#sound.muted .waves { display: none; }
+.px { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+
+/* Map */
+.map { display: grid; gap: 16px; }
+.map-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.map-head h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.9rem; margin: 2px 0 0; letter-spacing: -0.02em; }
+.worlds { display: grid; gap: 12px; }
+.world { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+.world.locked .wm, .world.locked .wbody > :not(.path) { opacity: 0.55; }
+.world.locked .wm .px { filter: grayscale(1); }
+.wm { width: 114px; height: 102px; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--wc) 14%, transparent); }
+.wm .px { width: 114px; height: 102px; }
+.wbody { display: grid; gap: 6px; min-width: 0; }
+.whead { display: flex; justify-content: space-between; gap: 10px; font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+.wstars { color: var(--mustard); font-variant-numeric: tabular-nums; }
+.world h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.01em; }
+.wtag { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.path { display: flex; flex-wrap: wrap; align-items: flex-start; row-gap: 8px; margin-top: 6px; }
+.node { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 46px; }
+.link { width: 16px; height: 3px; background: var(--line); margin-top: 21px; border-radius: 2px; }
+.link.on { background: var(--wc); }
+.lvl { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line); background: var(--paper); color: var(--muted); font-family: var(--f-mono); font-weight: 600; font-size: 0.95rem; display: grid; place-items: center; padding: 0; }
+.lvl.done { background: var(--wc); border-color: var(--wc); color: #fff; }
+.lvl.open { border-color: var(--wc); color: var(--ink); }
+.lvl.cur { border-color: var(--wc); color: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--wc) 28%, transparent); }
+.lvl.lock { border-style: dashed; cursor: not-allowed; }
+.lvl.boss { border-radius: 50%; }
+.lvl.boss:not(.lock) { color: #d9573b; border-color: #d9573b; }
+.lvl.boss.done { background: #d9573b; color: #fff; }
+.lvl:not(.lock):hover { transform: translateY(-2px); }
+.nst { font-size: 0.66rem; letter-spacing: 1px; color: var(--mustard); height: 1em; line-height: 1; }
+.wnext { justify-self: start; margin-top: 4px; border: 0; background: none; color: var(--accent); font-weight: 700; padding: 2px 0; font-size: 0.92rem; text-align: left; }
+.wnext:hover { text-decoration: underline; }
+@media (max-width: 560px) {
+  .world { grid-template-columns: 76px minmax(0, 1fr); column-gap: 12px; row-gap: 4px; padding: 14px; align-items: start; }
+  .wbody { display: contents; }
+  .wm { width: 76px; height: 68px; grid-row: 1 / span 3; }
+  .wm .px { width: 76px; height: 68px; }
+  .whead, .world h3, .wtag { grid-column: 2; }
+  .world h3 { font-size: 1.15rem; }
+  .path, .wnext { grid-column: 1 / -1; }
+  .node { min-width: 38px; }
+  .lvl { width: 38px; height: 38px; border-radius: 10px; font-size: 0.88rem; }
+  .lvl.boss svg { width: 20px; height: 20px; }
+  .link { width: 10px; margin-top: 18px; }
+  .lv-mascot .px { width: 76px; height: 68px; }
+}
+
+/* Level panel */
+.lv-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.lv-mascot { display: flex; align-items: center; gap: 12px; }
+.lv-mascot .px { width: 95px; height: 85px; flex: none; }
+.bubble { position: relative; flex: 1; min-width: 0; background: color-mix(in srgb, var(--wc) 12%, var(--paper)); border: 1px solid color-mix(in srgb, var(--wc) 40%, var(--line)); border-radius: 12px; padding: 8px 12px; }
+.bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px; background: inherit; border-left: inherit; border-bottom: inherit; transform: translateY(-50%) rotate(45deg); }
+.bubble .who { font-family: var(--f-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.bubble p { margin: 2px 0 0; font-size: 0.95rem; }
+.lv-stars { display: flex; gap: 2px; font-size: 1.15rem; color: var(--line); margin-top: 2px; }
+.lv-stars .on { color: var(--mustard); }
+.rule { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.theory ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.qopts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.qopt { text-align: left; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 10px; padding: 8px 10px; }
+.qopt pre { margin: 0; font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.5; white-space: pre; overflow-x: auto; }
+.qopt:not(:disabled):hover { border-color: var(--accent); }
+.qopt.right { border-color: var(--ok); background: var(--ok-soft); }
+.qopt.wrong { border-style: dashed; opacity: 0.55; text-decoration: line-through; }
+.qfb { margin: 0; font-size: 0.92rem; }
+.qfb.good { color: var(--ok); }
+.qfb.bad { color: var(--muted); }
+.grid.quizmode #editor-card { display: none; }
+
+/* Overlays */
+.overlay { position: fixed; inset: 0; z-index: 50; background: rgba(10, 16, 29, 0.55); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.ocard { background: var(--paper); color: var(--ink); border-radius: 18px; border: 1px solid var(--line); width: min(440px, 100%); padding: 22px; display: grid; gap: 12px; }
+.cele { text-align: center; justify-items: center; }
+.cele h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.02em; }
+.cele-m .px { width: 152px; height: 136px; }
+.cele-lv { margin: -6px 0 0; color: var(--muted); }
+.cele-stars { display: flex; gap: 8px; font-size: 2.4rem; line-height: 1; }
+.cele-stars .st { color: var(--line); }
+.cele-stars .st.on { color: var(--mustard); }
+.cele-bytes { font-family: var(--f-mono); font-weight: 600; font-size: 1.1rem; color: var(--ok); }
+.cele-rank { margin: 0; font-weight: 700; color: var(--accent); }
+.cele-world { margin: 0; font-weight: 700; }
+.cele-note { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.cele-floppy { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; text-align: left; background: var(--code-bg); border-radius: 12px; padding: 10px 12px; width: 100%; }
+.cele-floppy .px, .set-save .px { width: 57px; height: 51px; }
+.cele-floppy p { margin: 0; font-size: 0.9rem; }
+.cele-floppy .btn { grid-column: 2; justify-self: start; }
+.cele-actions { justify-content: center; }
+.setcard { width: min(520px, 100%); }
+.set-head { display: flex; justify-content: space-between; align-items: center; }
+.set-head h2 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.4rem; }
+.set-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.mono { font-family: var(--f-mono); font-size: 0.85rem; }
+.set-save { display: grid; gap: 10px; background: var(--code-bg); border-radius: 12px; padding: 12px; }
+.set-save-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; }
+.set-save h3 { margin: 0; font-size: 1rem; }
+.set-save p { margin: 4px 0 0; font-size: 0.88rem; }
+.set-save .muted { color: var(--muted); }
+.codebox { width: 100%; font-family: var(--f-mono); font-size: 0.75rem; border: 1px solid var(--line); border-radius: 8px; padding: 8px; background: var(--paper); color: var(--ink); resize: vertical; word-break: break-all; }
+.set-msg { margin: 0; font-weight: 700; color: var(--accent); }
+label.btn { cursor: pointer; }
+@keyframes starpop { 0% { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--wc) 28%, transparent); } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--wc) 12%, transparent); } }
+@media (prefers-reduced-motion: no-preference) {
+  .cele-stars .st.on { animation: starpop 0.45s ease-out both; }
+  .lvl.cur { animation: pulse 2s ease-in-out infinite; }
+  .lvl { transition: transform 0.15s; }
+}
+
+@keyframes bob { 50% { transform: translateY(-3px); } }
+@keyframes hop { 0%, 55%, 100% { transform: translateY(0); } 25% { transform: translateY(-7px); } }
+@keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes shake { 0%, 60%, 100% { transform: translateX(0); } 10%, 30%, 50% { transform: translateX(-2px); } 20%, 40% { transform: translateX(2px); } }
+@keyframes curs { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.55; } }
+@media (prefers-reduced-motion: no-preference) {
+  .a-bob { animation: bob 2.4s ease-in-out infinite; }
+  .a-hop { animation: hop 1.3s ease-in-out infinite; }
+  .a-sway { animation: sway 2.6s ease-in-out infinite; }
+  .a-shake { animation: shake 1.8s ease-in-out infinite; }
+  .a-curs { animation: bob 2.4s ease-in-out infinite, curs 1.1s steps(1) infinite; }
+}
 </style>
 </head>
 <body>
@@ -275,19 +416,17 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
     </div>
     <div class="hright">
       <div class="seg" role="tablist">
-        <button id="tab-lessons" role="tab" aria-selected="true" data-t="tabLessons">Lezioni</button>
+        <button id="tab-lessons" role="tab" aria-selected="true" data-t="tabLessons">Percorso</button>
         <button id="tab-free" role="tab" aria-selected="false" data-t="tabFree">Libero</button>
         <button id="tab-term" role="tab" aria-selected="false" data-t="tabTerm">Terminale</button>
       </div>
-      <div class="seg small" role="group" data-ta="langLabel">
-        <button id="lang-it" aria-pressed="true">IT</button>
-        <button id="lang-en" aria-pressed="false">EN</button>
-      </div>
-      <button class="icon-btn" id="font-down" data-ta="fontDown">A−</button>
-      <button class="icon-btn" id="font-up" data-ta="fontUp">A+</button>
-      <button class="icon-btn" id="theme"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor"/></svg></button>
+      <div class="rank" id="rank"><span class="rname" id="rank-name"></span><span class="rbar" aria-hidden="true"><i id="rank-bar"></i></span><span class="rbytes" id="rank-bytes"></span></div>
+      <button class="icon-btn" id="sound" aria-pressed="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 7.5v5h3.2L10.5 16V4L6.2 7.5z" fill="currentColor"/><path class="waves" d="M13 7.2a3.6 3.6 0 0 1 0 5.6M15.3 4.8a7 7 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path class="mute" d="M13.2 7.5l4.5 5M17.7 7.5l-4.5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+      <button class="icon-btn" id="open-settings"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 6h7M14 6h3M3 14h3M10 14h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="6" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="14" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
     </div>
   </header>
+
+  <section class="map" id="map" hidden></section>
 
   <div class="grid" id="grid">
     <section class="panel" id="panel" aria-live="polite"></section>
@@ -330,6 +469,9 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
     </section>
   </div>
 </div>
+
+<div class="overlay" id="cele" hidden><div class="ocard cele" role="dialog" aria-modal="true" aria-labelledby="cele-title"></div></div>
+<div class="overlay" id="settings" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="set-title"></div></div>
 
 <script type="text/x-python" id="py-runner">
 import sys, ast, builtins, traceback, linecache, random, json, io, os, base64
@@ -1602,6 +1744,473 @@ plt.show()`,
     check: (o, c, x) => x.images > 0 && /\.bar\s*\(/.test(c)
   }
 }
+,
+{
+  id: "how", kind: "quiz",
+  it: {
+    title: "Come ragiona Python",
+    theory: [
+`<p>Un programma è una lista di istruzioni. Python le legge <b>dall'alto in basso</b>, una riga alla volta, e fa <b>esattamente</b> quello che c'è scritto: niente di più, niente di meno.</p>
+<p>Scrivi il codice nell'<b>editor</b> e premi <b>▶ Esegui</b>: il risultato compare nel <b>terminale</b>, il riquadro scuro.</p>`,
+{ code: `print("Prima riga")
+print("Seconda riga")
+print(10 + 5)` },
+`<p>Il testo tra virgolette viene stampato così com'è. Senza virgolette, invece, Python lo considera un calcolo o un nome.</p>`],
+    task: `Leggi il codice qui sotto e indovina cosa stampa, prima di eseguirlo.`,
+    quiz: {
+      code: `print("Buongiorno")
+print(2 + 3)
+print("2 + 3")`,
+      options: ["Buongiorno\n5\n2 + 3", "Buongiorno\n5\n5", "Buongiorno\n2 + 3\n2 + 3", "2 + 3\n5\nBuongiorno"],
+      correct: 0,
+      explain: "Python esegue le righe in ordine. 2 + 3 senza virgolette è un calcolo e dà 5; tra virgolette è testo e viene stampato così com'è."
+    }
+  },
+  en: {
+    title: "How Python thinks",
+    theory: [
+`<p>A program is a list of instructions. Python reads them <b>from top to bottom</b>, one line at a time, and does <b>exactly</b> what's written: nothing more, nothing less.</p>
+<p>Write code in the <b>editor</b> and press <b>▶ Run</b>: the result appears in the <b>terminal</b>, the dark box.</p>`,
+{ code: `print("First line")
+print("Second line")
+print(10 + 5)` },
+`<p>Text between quotes is printed as it is. Without quotes, Python treats it as a calculation or a name.</p>`],
+    task: `Read the code below and guess what it prints, before running it.`,
+    quiz: {
+      code: `print("Good morning")
+print(2 + 3)
+print("2 + 3")`,
+      options: ["Good morning\n5\n2 + 3", "Good morning\n5\n5", "Good morning\n2 + 3\n2 + 3", "2 + 3\n5\nGood morning"],
+      correct: 0,
+      explain: "Python runs the lines in order. 2 + 3 without quotes is a calculation and gives 5; in quotes it's text and is printed as it is."
+    }
+  }
+},
+{
+  id: "rules",
+  it: {
+    title: "Le regole di scrittura",
+    theory: [
+`<p>Python è precisissimo. Quattro regole da ricordare sempre:</p>
+<ul>
+<li><b>Maiuscole e minuscole contano</b>: <code>print</code> funziona, <code>Print</code> no.</li>
+<li><b>Le parentesi vanno sempre in coppia</b>: ogni <code>(</code> ha la sua <code>)</code>.</li>
+<li><b>Il testo va tra virgolette dritte</b>, <code>"ciao"</code> oppure <code>'ciao'</code>, aperte e chiuse con lo stesso tipo.</li>
+<li><b>Gli spazi dentro le virgolette contano</b>, quelli fuori quasi mai: <code>print( "ciao" )</code> funziona come <code>print("ciao")</code>.</li>
+</ul>`,
+{ code: `print("Ciao")
+print( "Ciao" )
+print("C i a o")` }],
+    task: `Questo programma ha due errori. Correggili in modo che stampi le due frasi. Premi Esegui per vedere cosa ti dice Python.`,
+    starter: `Print("Python è preciso")\nprint("e anche tu lo sarai"\n`,
+    solution: `print("Python è preciso")
+print("e anche tu lo sarai")`,
+    hint: `Guarda la prima lettera della prima riga, e conta le parentesi della seconda.`,
+    check: (o) => o === "Python è preciso\ne anche tu lo sarai"
+  },
+  en: {
+    title: "The writing rules",
+    theory: [
+`<p>Python is extremely precise. Four rules to always remember:</p>
+<ul>
+<li><b>Uppercase and lowercase matter</b>: <code>print</code> works, <code>Print</code> doesn't.</li>
+<li><b>Parentheses always come in pairs</b>: every <code>(</code> has its <code>)</code>.</li>
+<li><b>Text goes between straight quotes</b>, <code>"hi"</code> or <code>'hi'</code>, opened and closed with the same kind.</li>
+<li><b>Spaces inside quotes matter</b>, outside them almost never: <code>print( "hi" )</code> works like <code>print("hi")</code>.</li>
+</ul>`,
+{ code: `print("Hello")
+print( "Hello" )
+print("H e l l o")` }],
+    task: `This program has two mistakes. Fix them so it prints both sentences. Press Run to see what Python tells you.`,
+    starter: `Print("Python is precise")\nprint("and so will you be"\n`,
+    solution: `print("Python is precise")
+print("and so will you be")`,
+    hint: `Look at the first letter of the first line, and count the parentheses on the second.`,
+    check: (o) => o === "Python is precise\nand so will you be"
+  }
+},
+{
+  id: "comments",
+  it: {
+    title: "I commenti",
+    theory: [
+`<p>Tutto quello che sta dopo un <code>#</code> è un <b>commento</b>: Python lo ignora. Nell'editor i commenti sono in grigio.</p>
+<p>Servono a due cose: lasciare <b>note</b> per chi leggerà il codice (anche per te, tra un mese) e <b>spegnere</b> una riga senza cancellarla.</p>`,
+{ code: `# Questo programma saluta
+print("Ciao!")  # anche qui, dopo il #, è un commento
+# print("Questa riga non parte")` }],
+    task: `Spegni la seconda riga trasformandola in un commento, così che il programma stampi solo la prima e la terza frase.`,
+    starter: `print("Questa riga resta")\nprint("Questa riga va spenta")\nprint("Anche questa resta")\n`,
+    solution: `print("Questa riga resta")
+# print("Questa riga va spenta")
+print("Anche questa resta")`,
+    hint: `Metti un # all'inizio della seconda riga.`,
+    check: (o, c) => o === "Questa riga resta\nAnche questa resta" && /#\s*print\s*\(\s*"Questa riga va spenta"/.test(c)
+  },
+  en: {
+    title: "Comments",
+    theory: [
+`<p>Everything after a <code>#</code> is a <b>comment</b>: Python ignores it. In the editor, comments are grey.</p>
+<p>They're useful for two things: leaving <b>notes</b> for whoever reads the code (including you, a month from now) and <b>switching off</b> a line without deleting it.</p>`,
+{ code: `# This program says hello
+print("Hello!")  # here too, after the #, it's a comment
+# print("This line doesn't run")` }],
+    task: `Switch off the second line by turning it into a comment, so the program prints only the first and third sentences.`,
+    starter: `print("This line stays")\nprint("This line must go")\nprint("This one stays too")\n`,
+    solution: `print("This line stays")
+# print("This line must go")
+print("This one stays too")`,
+    hint: `Put a # at the start of the second line.`,
+    check: (o, c) => o === "This line stays\nThis one stays too" && /#\s*print\s*\(\s*"This line must go"/.test(c)
+  }
+},
+{
+  id: "errors",
+  it: {
+    title: "Leggere un errore",
+    theory: [
+`<p>Quando Python trova un problema si ferma e mostra un <b>errore</b>. Non è una bocciatura: è Python che ti dice dove guardare.</p>
+<p>Leggilo dal basso: l'<b>ultima riga</b> dice che tipo di errore è e perché, la riga con <code>line</code> dice <b>dove</b>. Prova questo esempio:</p>`,
+{ code: `prezzo = 10
+print("Totale:", prezo)`, error: true },
+`<p>L'ultima riga dice <code>NameError: name 'prezo' is not defined</code>: Python non conosce il nome <code>prezo</code>, perché la variabile si chiama <code>prezzo</code>. E l'errore è alla riga 2.</p>`],
+    task: `Esegui il programma, leggi l'errore e correggilo. Deve stampare Ciao e poi Ada.`,
+    starter: `nome = "Ada"\nprint("Ciao")\nprint(nme)\n`,
+    solution: `nome = "Ada"
+print("Ciao")
+print(nome)`,
+    hint: `L'ultima riga dell'errore dice quale nome Python non conosce. Confrontalo con la prima riga.`,
+    check: (o) => o === "Ciao\nAda"
+  },
+  en: {
+    title: "Reading an error",
+    theory: [
+`<p>When Python finds a problem it stops and shows an <b>error</b>. It's not a fail: it's Python telling you where to look.</p>
+<p>Read it from the bottom: the <b>last line</b> says what kind of error it is and why, the line with <code>line</code> says <b>where</b>. Try this example:</p>`,
+{ code: `price = 10
+print("Total:", prce)`, error: true },
+`<p>The last line says <code>NameError: name 'prce' is not defined</code>: Python doesn't know the name <code>prce</code>, because the variable is called <code>price</code>. And the error is on line 2.</p>`],
+    task: `Run the program, read the error and fix it. It must print Hello and then Ada.`,
+    starter: `name = "Ada"\nprint("Hello")\nprint(nme)\n`,
+    solution: `name = "Ada"
+print("Hello")
+print(name)`,
+    hint: `The last line of the error says which name Python doesn't know. Compare it with the first line.`,
+    check: (o) => o === "Hello\nAda"
+  }
+},
+{
+  id: "blocks",
+  it: {
+    title: "Blocchi e rientro",
+    theory: [
+`<p>Alcune istruzioni comandano un gruppo di righe, chiamato <b>blocco</b>. Si riconoscono perché finiscono con i <b>due punti</b> <code>:</code></p>
+<p>Le righe del blocco vanno <b>rientrate di 4 spazi</b>: è così che Python capisce cosa sta dentro e cosa sta fuori. Il blocco finisce quando torni a scrivere dall'inizio della riga.</p>`,
+{ code: `for i in range(3):
+    print("dentro: si ripete")
+print("fuori: una volta sola")` },
+`<p>Qui <code>for</code> ripete il suo blocco 3 volte (lo vedrai meglio più avanti). Nell'editor, se premi Invio dopo i due punti il rientro si aggiunge da solo; con Tab e Maiusc+Tab sposti le righe.</p>`],
+    task: `Il rientro è sbagliato. Sistemalo in modo che Allenamento venga stampato 3 volte e Fine una volta sola.`,
+    starter: `for i in range(3):\nprint("Allenamento")\n    print("Fine")\n`,
+    solution: `for i in range(3):
+    print("Allenamento")
+print("Fine")`,
+    hint: `La riga subito dopo i due punti va spostata a destra di 4 spazi; quella che deve stare fuori parte dall'inizio della riga.`,
+    check: (o) => o === "Allenamento\nAllenamento\nAllenamento\nFine"
+  },
+  en: {
+    title: "Blocks and indentation",
+    theory: [
+`<p>Some instructions control a group of lines, called a <b>block</b>. You can spot them because they end with a <b>colon</b> <code>:</code></p>
+<p>The lines of the block must be <b>indented by 4 spaces</b>: that's how Python knows what's inside and what's outside. The block ends when you go back to writing from the start of the line.</p>`,
+{ code: `for i in range(3):
+    print("inside: repeats")
+print("outside: just once")` },
+`<p>Here <code>for</code> repeats its block 3 times (you'll see it better later). In the editor, pressing Enter after a colon adds the indentation by itself; Tab and Shift+Tab move lines.</p>`],
+    task: `The indentation is wrong. Fix it so Training is printed 3 times and Done just once.`,
+    starter: `for i in range(3):\nprint("Training")\n    print("Done")\n`,
+    solution: `for i in range(3):
+    print("Training")
+print("Done")`,
+    hint: `The line right after the colon must move 4 spaces to the right; the one that stays outside starts at the beginning of the line.`,
+    check: (o) => o === "Training\nTraining\nTraining\nDone"
+  }
+},
+{
+  id: "boss0", boss: true,
+  it: {
+    title: "Il bug del benvenuto",
+    theory: [
+`<p>Questo programma ha <b>tre bug</b>, uno per ogni regola che hai imparato in questo mondo. Python ti mostra un errore alla volta: correggilo, esegui di nuovo e passa al successivo.</p>`],
+    task: `Fai in modo che il programma stampi il benvenuto, tre righe di allenamento numerate e Pronto!`,
+    starter: `# Programma di benvenuto\nPrint("Benvenuto nella Palestra!")\nfor i in range(3):\nprint("Allenamento", i + 1)\nprint("Pronto!"\n`,
+    solution: `# Programma di benvenuto
+print("Benvenuto nella Palestra!")
+for i in range(3):
+    print("Allenamento", i + 1)
+print("Pronto!")`,
+    hint: `Su quale riga si ferma Python? Che cosa le manca, rispetto alle regole di scrittura?`,
+    check: (o) => o === "Benvenuto nella Palestra!\nAllenamento 1\nAllenamento 2\nAllenamento 3\nPronto!"
+  },
+  en: {
+    title: "The welcome bug",
+    theory: [
+`<p>This program has <b>three bugs</b>, one for each rule you learned in this world. Python shows you one error at a time: fix it, run again and move on to the next.</p>`],
+    task: `Make the program print the welcome, three numbered training lines and Ready!`,
+    starter: `# Welcome program\nPrint("Welcome to the Gym!")\nfor i in range(3):\nprint("Training", i + 1)\nprint("Ready!"\n`,
+    solution: `# Welcome program
+print("Welcome to the Gym!")
+for i in range(3):
+    print("Training", i + 1)
+print("Ready!")`,
+    hint: `Which line does Python stop at? What is it missing, compared to the writing rules?`,
+    check: (o) => o === "Welcome to the Gym!\nTraining 1\nTraining 2\nTraining 3\nReady!"
+  }
+},
+{
+  id: "boss1", boss: true, testInputs: ["Ada", "20"],
+  it: {
+    title: "Il calcolo che non torna",
+    theory: [
+`<p>Un bug classico: Python si blocca quando provi a sommare un testo e un numero. Esegui il programma, rispondi alle domande e guarda cosa succede.</p>`],
+    task: `Correggi il programma: deve salutare per nome e dire quanti anni avrai tra 5 anni.`,
+    starter: `nome = input("Come ti chiami? ")\nanni = input("Quanti anni hai? ")\nprint("Ciao " + nome)\nprint("Tra 5 anni avrai", anni + 5, "anni")\n`,
+    solution: `nome = input("Come ti chiami? ")
+anni = int(input("Quanti anni hai? "))
+print("Ciao " + nome)
+print("Tra 5 anni avrai", anni + 5, "anni")`,
+    hint: `Che tipo di valore restituisce sempre input()? E come si trasforma un testo in un numero?`,
+    check: (o, c, x) => { const n = parseInt(x.inputs[1], 10); return !isNaN(n) && o === `Ciao ${x.inputs[0]}\nTra 5 anni avrai ${n + 5} anni`; }
+  },
+  en: {
+    title: "The math that doesn't add up",
+    theory: [
+`<p>A classic bug: Python gets stuck when you try to add text and a number. Run the program, answer the questions and see what happens.</p>`],
+    task: `Fix the program: it must greet by name and say how old you'll be in 5 years.`,
+    starter: `name = input("What's your name? ")\nage = input("How old are you? ")\nprint("Hi " + name)\nprint("In 5 years you will be", age + 5)\n`,
+    solution: `name = input("What's your name? ")
+age = int(input("How old are you? "))
+print("Hi " + name)
+print("In 5 years you will be", age + 5)`,
+    hint: `What kind of value does input() always give back? And how do you turn text into a number?`,
+    check: (o, c, x) => { const n = parseInt(x.inputs[1], 10); return !isNaN(n) && o === `Hi ${x.inputs[0]}\nIn 5 years you will be ${n + 5}`; }
+  }
+},
+{
+  id: "boss2", boss: true,
+  it: {
+    title: "Il termometro confuso",
+    theory: [
+`<p>Due bug: uno di scrittura e uno di <b>logica</b>. Il secondo è più subdolo, perché il programma funziona ma dà la risposta sbagliata.</p>`],
+    task: `Correggi il programma: con 35 gradi deve dire Fa caldo, con 20 Si sta bene e con 5 Fa freddo. Lo proverò con più temperature.`,
+    starter: `temperatura = 35\n\nif temperatura > 15:\n    print("Si sta bene")\nelif temperatura > 30\n    print("Fa caldo")\nelse:\n    print("Fa freddo")\n`,
+    solution: `temperatura = 35
+
+if temperatura > 30:
+    print("Fa caldo")
+elif temperatura > 15:
+    print("Si sta bene")
+else:
+    print("Fa freddo")`,
+    hint: `Python controlla le condizioni dall'alto e si ferma alla prima vera. 35 è maggiore di 15?`,
+    check: (o) => o === "Fa caldo",
+    tests: (c) => !/temperatura\s*=\s*\d+/.test(c) ? [] : [[20, "Si sta bene"], [5, "Fa freddo"], [31, "Fa caldo"]].map(([v, e]) =>
+      ({ code: c.replace(/temperatura\s*=\s*\d+/, "temperatura = " + v), ok: (o) => o === e, desc: `con temperatura = ${v} doveva stampare ${e}` }))
+  },
+  en: {
+    title: "The confused thermometer",
+    theory: [
+`<p>Two bugs: one in the writing and one in the <b>logic</b>. The second is sneakier, because the program runs but gives the wrong answer.</p>`],
+    task: `Fix the program: with 35 degrees it must say It's hot, with 20 Nice weather and with 5 It's cold. I'll test it with more temperatures.`,
+    starter: `temperature = 35\n\nif temperature > 15:\n    print("Nice weather")\nelif temperature > 30\n    print("It's hot")\nelse:\n    print("It's cold")\n`,
+    solution: `temperature = 35
+
+if temperature > 30:
+    print("It's hot")
+elif temperature > 15:
+    print("Nice weather")
+else:
+    print("It's cold")`,
+    hint: `Python checks conditions from the top and stops at the first true one. Is 35 greater than 15?`,
+    check: (o) => o === "It's hot",
+    tests: (c) => !/temperature\s*=\s*\d+/.test(c) ? [] : [[20, "Nice weather"], [5, "It's cold"], [31, "It's hot"]].map(([v, e]) =>
+      ({ code: c.replace(/temperature\s*=\s*\d+/, "temperature = " + v), ok: (o) => o === e, desc: `with temperature = ${v} it should print ${e}` }))
+  }
+},
+{
+  id: "boss3", boss: true,
+  it: {
+    title: "Lo scontrino sbagliato",
+    theory: [
+`<p>Lo scontrino salta un prodotto e il totale non torna. I bug sono due, ed entrambi riguardano il ciclo.</p>`],
+    task: `Correggi il programma: deve elencare tutti e tre i prodotti con il prezzo e stampare il totale giusto.`,
+    starter: `spesa = ["pane", "latte", "uova"]\nprezzi = [1.5, 1.2, 2.3]\ntotale = 0\n\nfor i in range(len(spesa) - 1):\n    print(spesa[i], prezzi[i])\ntotale = totale + prezzi[i]\n\nprint("Totale:", totale)\n`,
+    solution: `spesa = ["pane", "latte", "uova"]
+prezzi = [1.5, 1.2, 2.3]
+totale = 0
+
+for i in range(len(spesa)):
+    print(spesa[i], prezzi[i])
+    totale = totale + prezzi[i]
+
+print("Totale:", totale)`,
+    hint: `Quanti giri fa il ciclo, e quanti prodotti ci sono? La riga del totale sta dentro o fuori dal ciclo?`,
+    check: (o) => o === "pane 1.5\nlatte 1.2\nuova 2.3\nTotale: 5.0",
+    tests: (c) => !/prezzi\s*=\s*\[[^\]]*\]/.test(c) ? [] : [
+      { code: c.replace(/prezzi\s*=\s*\[[^\]]*\]/, "prezzi = [1, 2, 3]"), ok: (o) => o.split("\n").pop() === "Totale: 6", desc: "con prezzi = [1, 2, 3] il totale doveva essere 6" }]
+  },
+  en: {
+    title: "The wrong receipt",
+    theory: [
+`<p>The receipt skips a product and the total is wrong. There are two bugs, and both are about the loop.</p>`],
+    task: `Fix the program: it must list all three products with their price and print the right total.`,
+    starter: `shopping = ["bread", "milk", "eggs"]\nprices = [1.5, 1.2, 2.3]\ntotal = 0\n\nfor i in range(len(shopping) - 1):\n    print(shopping[i], prices[i])\ntotal = total + prices[i]\n\nprint("Total:", total)\n`,
+    solution: `shopping = ["bread", "milk", "eggs"]
+prices = [1.5, 1.2, 2.3]
+total = 0
+
+for i in range(len(shopping)):
+    print(shopping[i], prices[i])
+    total = total + prices[i]
+
+print("Total:", total)`,
+    hint: `How many times does the loop run, and how many products are there? Is the total line inside or outside the loop?`,
+    check: (o) => o === "bread 1.5\nmilk 1.2\neggs 2.3\nTotal: 5.0",
+    tests: (c) => !/prices\s*=\s*\[[^\]]*\]/.test(c) ? [] : [
+      { code: c.replace(/prices\s*=\s*\[[^\]]*\]/, "prices = [1, 2, 3]"), ok: (o) => o.split("\n").pop() === "Total: 6", desc: "with prices = [1, 2, 3] the total should be 6" }]
+  }
+},
+{
+  id: "boss4", boss: true,
+  it: {
+    title: "Le funzioni distratte",
+    theory: [
+`<p>Due funzioni, due bug. Una lavora ma non consegna il risultato, l'altra prende la lettera sbagliata.</p>`],
+    task: `Correggi il programma: deve stampare Ciao, Ada! e poi le iniziali AL.`,
+    starter: `def saluta(nome):\n    messaggio = "Ciao, " + nome + "!"\n\ndef iniziali(nome, cognome):\n    return nome[1] + cognome[1]\n\nprint(saluta("Ada"))\nprint(iniziali("Ada", "Lovelace"))\n`,
+    solution: `def saluta(nome):
+    messaggio = "Ciao, " + nome + "!"
+    return messaggio
+
+def iniziali(nome, cognome):
+    return nome[0] + cognome[0]
+
+print(saluta("Ada"))
+print(iniziali("Ada", "Lovelace"))`,
+    hint: `Cosa restituisce una funzione che non ha return? E da quale numero si comincia a contare le lettere?`,
+    check: (o) => o === "Ciao, Ada!\nAL",
+    tests: (c) => [{ code: c + '\nprint(saluta("Bob"))\nprint(iniziali("Grace", "Hopper"))', ok: (o) => o.split("\n").slice(-2).join(",") === "Ciao, Bob!,GH", desc: 'saluta("Bob") doveva dare Ciao, Bob! e iniziali("Grace", "Hopper") GH' }]
+  },
+  en: {
+    title: "The absent-minded functions",
+    theory: [
+`<p>Two functions, two bugs. One does the work but doesn't hand back the result, the other picks the wrong letter.</p>`],
+    task: `Fix the program: it must print Hi, Ada! and then the initials AL.`,
+    starter: `def greet(name):\n    message = "Hi, " + name + "!"\n\ndef initials(name, surname):\n    return name[1] + surname[1]\n\nprint(greet("Ada"))\nprint(initials("Ada", "Lovelace"))\n`,
+    solution: `def greet(name):
+    message = "Hi, " + name + "!"
+    return message
+
+def initials(name, surname):
+    return name[0] + surname[0]
+
+print(greet("Ada"))
+print(initials("Ada", "Lovelace"))`,
+    hint: `What does a function without return give back? And from which number do you start counting letters?`,
+    check: (o) => o === "Hi, Ada!\nAL",
+    tests: (c) => [{ code: c + '\nprint(greet("Bob"))\nprint(initials("Grace", "Hopper"))', ok: (o) => o.split("\n").slice(-2).join(",") === "Hi, Bob!,GH", desc: 'greet("Bob") should give Hi, Bob! and initials("Grace", "Hopper") GH' }]
+  }
+},
+{
+  id: "boss5", boss: true,
+  it: {
+    title: "La rubrica capricciosa",
+    theory: [
+`<p>Tre bug, tutti con la stessa causa. Ricorda la prima regola di scrittura del Mondo 0.</p>`],
+    task: `Correggi il programma: deve stampare il numero di Ada, i nomi che iniziano con A e la metà dei contatti arrotondata per difetto.`,
+    starter: `import Math\n\nrubrica = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}\n\ntry:\n    print(rubrica["ada"])\nexcept KeyError:\n    print("Contatto non trovato")\n\ncon_a = [nome for nome in rubrica if nome.startswith("a")]\nprint(con_a)\nprint("Metà:", Math.floor(len(rubrica) / 2))\n`,
+    solution: `import math
+
+rubrica = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}
+
+try:
+    print(rubrica["Ada"])
+except KeyError:
+    print("Contatto non trovato")
+
+con_a = [nome for nome in rubrica if nome.startswith("A")]
+print(con_a)
+print("Metà:", math.floor(len(rubrica) / 2))`,
+    hint: `Il modulo si chiama Math o math? La chiave è "ada" o "Ada"? E i nomi iniziano con "a" o con "A"?`,
+    check: (o) => o === "333 111\n['Ada', 'Alan']\nMetà: 1"
+  },
+  en: {
+    title: "The moody phone book",
+    theory: [
+`<p>Three bugs, all with the same cause. Remember the first writing rule from World 0.</p>`],
+    task: `Fix the program: it must print Ada's number, the names starting with A and half the contacts rounded down.`,
+    starter: `import Math\n\nphonebook = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}\n\ntry:\n    print(phonebook["ada"])\nexcept KeyError:\n    print("Contact not found")\n\nwith_a = [name for name in phonebook if name.startswith("a")]\nprint(with_a)\nprint("Half:", Math.floor(len(phonebook) / 2))\n`,
+    solution: `import math
+
+phonebook = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}
+
+try:
+    print(phonebook["Ada"])
+except KeyError:
+    print("Contact not found")
+
+with_a = [name for name in phonebook if name.startswith("A")]
+print(with_a)
+print("Half:", math.floor(len(phonebook) / 2))`,
+    hint: `Is the module called Math or math? Is the key "ada" or "Ada"? And do the names start with "a" or "A"?`,
+    check: (o) => o === "333 111\n['Ada', 'Alan']\nHalf: 1"
+  }
+},
+{
+  id: "boss6", boss: true,
+  it: {
+    title: "Il contatore rotto",
+    theory: [
+`<p>L'ultimo boss. Una classe con due bug: uno nel metodo, uno nel nome dell'attributo.</p>`],
+    task: `Correggi il programma: il contatore parte da 0, aumenta due volte e deve stampare 2.`,
+    starter: `class Contatore:\n    def __init__(self):\n        self.valore = 0\n\n    def aumenta():\n        self.valore += 1\n\nc = Contatore()\nc.aumenta()\nc.aumenta()\nprint(c.Valore)\n`,
+    solution: `class Contatore:
+    def __init__(self):
+        self.valore = 0
+
+    def aumenta(self):
+        self.valore += 1
+
+c = Contatore()
+c.aumenta()
+c.aumenta()
+print(c.valore)`,
+    hint: `Che parametro ricevono sempre i metodi come primo? E l'attributo si chiama valore o Valore?`,
+    check: (o) => o === "2",
+    tests: (c) => [{ code: c + "\nc.aumenta()\nprint(c.valore)", ok: (o) => o.split("\n").pop() === "3", desc: "dopo un altro aumenta() il valore doveva essere 3" }]
+  },
+  en: {
+    title: "The broken counter",
+    theory: [
+`<p>The last boss. A class with two bugs: one in the method, one in the attribute's name.</p>`],
+    task: `Fix the program: the counter starts at 0, goes up twice and must print 2.`,
+    starter: `class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def increase():\n        self.value += 1\n\nc = Counter()\nc.increase()\nc.increase()\nprint(c.Value)\n`,
+    solution: `class Counter:
+    def __init__(self):
+        self.value = 0
+
+    def increase(self):
+        self.value += 1
+
+c = Counter()
+c.increase()
+c.increase()
+print(c.value)`,
+    hint: `Which parameter do methods always receive first? And is the attribute called value or Value?`,
+    check: (o) => o === "2",
+    tests: (c) => [{ code: c + "\nc.increase()\nprint(c.value)", ok: (o) => o.split("\n").pop() === "3", desc: "after one more increase() the value should be 3" }]
+  }
+}
 ];
 
 /* Guided tour that runs inside the terminal. check(r, lang) returns true (passed), false (show hint) or null (keep waiting). */
@@ -1833,7 +2442,7 @@ const UI = {
     replReset: "La sessione è stata reimpostata: le variabili create prima non ci sono più.",
     restarted: "=== RIAVVIO: variabili azzerate ===",
     testing: "Verifico la soluzione con altri valori…",
-    pass: (last) => last ? "✓ Esercizio superato! Hai completato l'ultima lezione." : "✓ Esercizio superato! Puoi passare alla lezione successiva.",
+    pass: (last) => last ? "✓ Livello superato! Era l'ultimo del percorso." : "✓ Livello superato!",
     notYet: "✗ Il programma funziona, ma non fa ancora quello che chiede l'esercizio. Rileggi la consegna o apri il suggerimento.",
     mismatch: "✗ Quasi! Il programma funziona, ma quello che stampa non è ancora uguale a quello richiesto.",
     expLabel: "Richiesto", gotLabel: "Stampato",
@@ -1919,7 +2528,7 @@ const UI = {
     replReset: "The session was reset: variables created earlier are gone.",
     restarted: "=== RESTART: variables cleared ===",
     testing: "Checking your solution with other values…",
-    pass: (last) => last ? "✓ Exercise passed! You finished the last lesson." : "✓ Exercise passed! You can move on to the next lesson.",
+    pass: (last) => last ? "✓ Level passed! It was the last one on the path." : "✓ Level passed!",
     notYet: "✗ The program runs, but it doesn't do what the exercise asks yet. Reread the task or open the hint.",
     mismatch: "✗ Almost! The program runs, but what it prints doesn't match what's required yet.",
     expLabel: "Required", gotLabel: "Printed",
@@ -2048,7 +2657,21 @@ const EXPECT = {
   comp: "[1, 4, 9, 16, 25]",
   class: { it: "Fido dice Bau!", en: "Fido says Woof!" },
   final: { it: "4", en: "3" },
-  numpy: "21.5"
+  numpy: "21.5",
+  rules: { it: "Python è preciso\ne anche tu lo sarai", en: "Python is precise\nand so will you be" },
+  comments: { it: "Questa riga resta\nAnche questa resta", en: "This line stays\nThis one stays too" },
+  errors: { it: "Ciao\nAda", en: "Hello\nAda" },
+  blocks: { it: "Allenamento\nAllenamento\nAllenamento\nFine", en: "Training\nTraining\nTraining\nDone" },
+  boss0: { it: "Benvenuto nella Palestra!\nAllenamento 1\nAllenamento 2\nAllenamento 3\nPronto!", en: "Welcome to the Gym!\nTraining 1\nTraining 2\nTraining 3\nReady!" },
+  boss1: {
+    it: (x) => { const n = parseInt(x.inputs[1], 10); return isNaN(n) ? null : `Ciao ${x.inputs[0]}\nTra 5 anni avrai ${n + 5} anni`; },
+    en: (x) => { const n = parseInt(x.inputs[1], 10); return isNaN(n) ? null : `Hi ${x.inputs[0]}\nIn 5 years you will be ${n + 5}`; }
+  },
+  boss2: { it: "Fa caldo", en: "It's hot" },
+  boss3: { it: "pane 1.5\nlatte 1.2\nuova 2.3\nTotale: 5.0", en: "bread 1.5\nmilk 1.2\neggs 2.3\nTotal: 5.0" },
+  boss4: { it: "Ciao, Ada!\nAL", en: "Hi, Ada!\nAL" },
+  boss5: { it: "333 111\n['Ada', 'Alan']\nMetà: 1", en: "333 111\n['Ada', 'Alan']\nHalf: 1" },
+  boss6: "2"
 };
 for (const item of LESSONS) {
   const e = EXPECT[item.id];
@@ -2177,6 +2800,273 @@ function bracketDepth(src) {
   for (const ch of clean) { if ("([{".includes(ch)) d++; else if (")]}".includes(ch)) d--; }
   return d + triples;
 }
+
+/* ================= Game: worlds, mascots, ranks (no DOM access) ================= */
+const WORLDS = [
+  { id: "w0", dir: "~/mondo_0", mascot: "cursy", levels: ["how", "rules", "comments", "errors", "blocks", "boss0"],
+    it: { name: "Prima di iniziare", tag: "Le regole del gioco" }, en: { name: "Before you start", tag: "The rules of the game" } },
+  { id: "w1", dir: "~/basi", mascot: "bit", levels: ["print", "var", "num", "fstr", "input", "boss1"],
+    it: { name: "Le basi", tag: "Stampare, ricordare, chiedere" }, en: { name: "The basics", tag: "Print, remember, ask" } },
+  { id: "w2", dir: "~/decisioni", mascot: "graffa", levels: ["bool", "if", "boss2"],
+    it: { name: "Decisioni", tag: "Vero, falso e if" }, en: { name: "Decisions", tag: "True, false and if" } },
+  { id: "w3", dir: "~/cicli", mascot: "pip", levels: ["for", "list", "loop", "while", "boss3"],
+    it: { name: "Ripetere", tag: "Cicli e liste" }, en: { name: "Repeating", tag: "Loops and lists" } },
+  { id: "w4", dir: "~/funzioni", mascot: "graffa", levels: ["str", "def", "params", "boss4"],
+    it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
+  { id: "w5", dir: "~/strumenti", mascot: "floppy", levels: ["dict", "try", "mod", "comp", "boss5"],
+    it: { name: "Strumenti", tag: "Dizionari, errori e moduli" }, en: { name: "Tools", tag: "Dictionaries, errors and modules" } },
+  { id: "w6", dir: "~/oggetti", mascot: "pip", levels: ["class", "final", "boss6"],
+    it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
+  { id: "bonus", dir: "~/bonus", mascot: "bit", levels: ["numpy", "plot"],
+    it: { name: "Bonus", tag: "Numeri e grafici" }, en: { name: "Bonus", tag: "Numbers and charts" } }
+];
+const LESSON_BY_ID = {};
+for (const l of LESSONS) LESSON_BY_ID[l.id] = l;
+const LEVELS = [];
+WORLDS.forEach((w, wi) => w.levels.forEach((id, n) => LEVELS.push({ id, w: wi, n, boss: !!LESSON_BY_ID[id].boss })));
+
+/* Bytes: the XP of the gym */
+const STAR_BYTES = 32, FIRST_BYTES = 64, BOSS_BYTES = 128;
+function bytesFor(level, newStars, oldStars) {
+  const extra = Math.max(0, newStars - oldStars) * STAR_BYTES;
+  return extra + (oldStars ? 0 : (level.boss ? BOSS_BYTES : FIRST_BYTES));
+}
+const RANKS = [
+  { at: 0, it: "Principiante", en: "Beginner" },
+  { at: 300, it: "Apprendista", en: "Apprentice" },
+  { at: 800, it: "Debugger", en: "Debugger" },
+  { at: 1600, it: "Sviluppatore", en: "Developer" },
+  { at: 3000, it: "Pythonista", en: "Pythonista" },
+  { at: 5000, it: "Maestro del codice", en: "Code master" }
+];
+function rankOf(bytes) { let r = 0; RANKS.forEach((x, i) => { if (bytes >= x.at) r = i; }); return r; }
+function fmtBytes(b) { return b >= 1024 ? (b / 1024).toFixed(1).replace(/\.0$/, "") + " KB" : b + " B"; }
+function starsFor(kind, att) {
+  if (kind === "quiz") return att.wrong ? (att.wrong === 1 ? 2 : 1) : 3;
+  return att.sol ? 1 : att.hint ? 2 : 3;
+}
+
+/* Pixel mascots: shapes are filled, then outlined and shaded automatically */
+const PX_W = 38, PX_H = 34, PX_K = "#1b2433", PX_PINK = "#f19c9c", PX_WHITE = "#ffffff";
+const pxHex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const pxMix = (h, t, a) => { const c = pxHex(h), d = pxHex(t); return "#" + c.map((v, i) => Math.round(v + (d[i] - v) * a).toString(16).padStart(2, "0")).join(""); };
+const pxNew = () => new Array(PX_W * PX_H).fill(null);
+function pxPut(l, x, y, c) { x = Math.floor(x); y = Math.floor(y); if (x >= 0 && y >= 0 && x < PX_W && y < PX_H) l[y * PX_W + x] = c; }
+function pxAt(l, x, y) { return x < 0 || y < 0 || x >= PX_W || y >= PX_H ? null : l[y * PX_W + x]; }
+function pxRect(l, x, y, w, h, c) { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) pxPut(l, i, j, c); }
+function pxEll(l, cx, cy, rx, ry, c) { for (let y = 0; y < PX_H; y++) for (let x = 0; x < PX_W; x++) { const a = (x + 0.5 - cx) / rx, b = (y + 0.5 - cy) / ry; if (a * a + b * b <= 1) pxPut(l, x, y, c); } }
+function pxRR(l, x, y, w, h, r, c) { for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) { const dx = Math.max(x + r - i - 0.5, i + 0.5 - (x + w - r), 0), dy = Math.max(y + r - j - 0.5, j + 0.5 - (y + h - r), 0); if (dx * dx + dy * dy <= r * r) pxPut(l, i, j, c); } }
+function pxLine(l, x0, y0, x1, y1, c) { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2 || 1; for (let k = 0; k <= n; k++) { const x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n; pxRect(l, Math.round(x - 1), Math.round(y - 1), 2, 2, c); } }
+const MASCOTS = {
+  cursy: { name: "Cursy", color: "#3f9e68", blinkBody: true,
+    body: (l) => { const G = "#5cc98a"; pxRR(l, 10, 4, 14, 20, 3, G); pxRR(l, 5, 13, 6, 3, 1, G); pxRR(l, 23, 13, 6, 3, 1, G); pxRect(l, 12, 23, 4, 5, G); pxRect(l, 18, 23, 4, 5, G); },
+    det: (l) => { pxRect(l, 12, 6, 2, 5, "#a4e8c0"); pxRect(l, 13, 21, 8, 1, "#3f9e68"); },
+    eyes: [13, 19], ey: 9, m: [16, 15], sw: [27, 4], bub: [28, 8] },
+  bit: { name: "Bit", color: "#2f8f8f",
+    body: (l) => { const S = "#b8c2d3"; pxRR(l, 3, 4, 27, 20, 3, S); pxRect(l, 13, 24, 7, 3, S); pxRR(l, 8, 27, 17, 3, 1, S); },
+    det: (l) => { pxRR(l, 6, 7, 21, 14, 1, "#15203a"); for (let y = 8; y < 20; y += 2) pxRect(l, 7, y, 19, 1, "#1b2846"); pxPut(l, 26, 22, "#6fd39a"); pxPut(l, 24, 22, "#8592ad"); },
+    fc: "#6fd39a", pupil: "#15203a", hl: false, ck: false, eyes: [11, 20], ey: 11, m: [15, 16], sw: [32, 6], bub: null,
+    extra: (F, e) => { if (e === "t") { pxPut(F, 21, 17, "#6fd39a"); pxPut(F, 23, 17, "#6fd39a"); pxPut(F, 25, 17, "#6fd39a"); } } },
+  graffa: { name: "Graffa", color: "#7a6ee0",
+    body: (l) => { const V = "#8a7fe0"; const br = (s) => { const X = (x) => s ? 35 - x : x; pxLine(l, X(10), 5, X(8), 6, V); pxLine(l, X(8), 6, X(8), 14, V); pxLine(l, X(8), 14, X(5), 17, V); pxLine(l, X(5), 17, X(8), 20, V); pxLine(l, X(8), 20, X(8), 28, V); pxLine(l, X(8), 28, X(10), 29, V); }; br(0); br(1); pxEll(l, 17.5, 17, 8.2, 8.2, "#fff4e0"); },
+    eyes: [13, 20], ey: 15, m: [16, 20], sw: [31, 9], bub: [30, 10] },
+  pip: { name: "Pip", color: "#c98a12",
+    body: (l) => { const B = "#3a6fc4", Y = "#f2c14e"; pxEll(l, 16, 27, 12, 5, B); pxEll(l, 28.5, 22.5, 2.6, 2.6, B); pxRect(l, 12, 15, 8, 11, B); pxEll(l, 16, 11, 9.5, 8.5, B); pxEll(l, 16, 27.5, 8.5, 1.8, Y); pxRect(l, 14, 18, 4, 8, Y); },
+    det: (l) => { const D = "#2c58a3"; pxRect(l, 9, 7, 2, 2, D); pxRect(l, 21, 5, 2, 2, D); pxPut(l, 23, 9, D); },
+    eyes: [12, 19], ey: 9, m: [15, 15], sw: [28, 5], bub: [27, 8],
+    extra: (F, e) => { if (e === "h") { const r = "#e5534b"; pxRect(F, 15, 18, 2, 2, r); pxPut(F, 14, 20, r); pxPut(F, 17, 20, r); } } },
+  floppy: { name: "Floppy", color: "#3b5a9a",
+    body: (l) => { const D = "#3b5a9a"; pxRR(l, 5, 3, 24, 26, 2, D); pxPut(l, 28, 3, null); pxPut(l, 27, 3, null); pxPut(l, 28, 4, null); pxRect(l, 9, 29, 4, 2, D); pxRect(l, 21, 29, 4, 2, D); },
+    det: (l) => { pxRect(l, 11, 3, 12, 9, "#c7cfdb"); pxRect(l, 19, 5, 2, 5, "#7d879a"); pxRR(l, 8, 15, 18, 12, 1, "#ffffff"); pxRect(l, 10, 25, 14, 1, "#e3e8f1"); },
+    eyes: [12, 20], ey: 18, m: [16, 22], sw: [31, 6], bub: [30, 9] },
+  papera: { name: "Papera", color: "#d9573b",
+    body: (l) => { const Y = "#f5c542"; pxEll(l, 15, 24.5, 12, 6.5, Y); pxEll(l, 26, 19, 3.6, 3.4, Y); pxEll(l, 13, 12, 7.5, 7.2, Y); pxEll(l, 22, 14.5, 4.6, 2.3, "#f08a3c"); },
+    det: (l) => { pxEll(l, 16, 24, 6.5, 3, "#e0aa2e"); pxRect(l, 18, 14, 7, 1, "#d2702a"); },
+    eyes: [9, 15], ey: 9, m: null, ckp: [[7, 13], [14, 14]], sw: [22, 3], bub: [22, 6],
+    extra: (F, e) => { if (e === "h") pxRect(F, 19, 15, 6, 1, PX_K); if (e === "o") { pxRect(F, 19, 14, 6, 2, PX_K); pxRect(F, 20, 15, 4, 1, "#e5534b"); } } }
+};
+/* e: "i" idle, "h" happy, "t" thinking, "o" oops; blink closes the eyes */
+function pxCompose(m, e, blink) {
+  const B = pxNew(); m.body(B);
+  const F = pxNew();
+  for (let y = 0; y < PX_H; y++) for (let x = 0; x < PX_W; x++) {
+    const c = pxAt(B, x, y);
+    if (c) {
+      let v = c;
+      if (!pxAt(B, x, y + 1)) v = pxMix(c, "#000000", 0.25);
+      else if (!pxAt(B, x, y + 2)) v = pxMix(c, "#000000", 0.12);
+      else if (!pxAt(B, x, y - 1) || !pxAt(B, x - 1, y)) v = pxMix(c, "#ffffff", 0.25);
+      pxPut(F, x, y, v);
+    } else if (pxAt(B, x - 1, y) || pxAt(B, x + 1, y) || pxAt(B, x, y - 1) || pxAt(B, x, y + 1)) pxPut(F, x, y, PX_K);
+  }
+  if (m.det) m.det(F);
+  const fc = m.fc || PX_K, [a, b] = m.eyes, ey = m.ey;
+  for (const x of [a, b]) {
+    if (e === "h") { pxPut(F, x - 1, ey + 2, fc); pxPut(F, x, ey + 1, fc); pxPut(F, x + 1, ey + 1, fc); pxPut(F, x + 2, ey + 2, fc); }
+    else if (blink) pxRect(F, x, ey + 2, 2, 1, fc);
+    else if (e === "t") pxRect(F, x + 1, ey, 2, 2, fc);
+    else if (e === "o") { pxRect(F, x, ey, 3, 3, fc); pxPut(F, x + 1, ey + 1, m.pupil || PX_WHITE); }
+    else { pxRect(F, x, ey, 2, 3, fc); if (m.hl !== false) pxPut(F, x + 1, ey, PX_WHITE); }
+  }
+  if (m.ck !== false && (e === "h" || e === "i")) (m.ckp || [[a - 2, ey + 4], [b + 2, ey + 4]]).forEach(([x, y]) => pxRect(F, x, y, 2, 1, PX_PINK));
+  if (m.m) {
+    const [mx, my] = m.m;
+    if (e === "h") { pxRect(F, mx - 2, my, 6, 1, fc); pxPut(F, mx - 1, my + 1, fc); pxRect(F, mx, my + 1, 2, 1, PX_PINK); pxPut(F, mx + 2, my + 1, fc); pxRect(F, mx, my + 2, 2, 1, fc); }
+    else if (e === "t") pxRect(F, mx + 1, my + 1, 3, 1, fc);
+    else if (e === "o") [[-2, 1], [-1, 0], [0, 1], [1, 0], [2, 1], [3, 0]].forEach(([dx, dy]) => pxPut(F, mx + dx, my + dy, fc));
+    else { pxPut(F, mx - 1, my, fc); pxRect(F, mx, my + 1, 2, 1, fc); pxPut(F, mx + 2, my, fc); }
+  }
+  if (m.extra) m.extra(F, e);
+  if (e === "h") { const s = "#f2c14e"; pxPut(F, 33, 3, s); pxPut(F, 32, 3, s); pxPut(F, 34, 3, s); pxPut(F, 33, 2, s); pxPut(F, 33, 4, s); pxPut(F, 35, 7, s); }
+  if (e === "t" && m.bub) { const s = "#9aa5b8", [x, y] = m.bub; pxPut(F, x, y, s); pxRect(F, x + 2, y - 3, 2, 2, s); pxRect(F, x + 4, y - 6, 3, 2, s); }
+  if (e === "o") { const s = "#6fb8ef", [x, y] = m.sw; pxPut(F, x, y, s); pxRect(F, x - 1, y + 1, 3, 1, s); pxPut(F, x, y + 2, s); }
+  return F;
+}
+
+/* What each mascot says. Papera speaks on every boss. */
+const MASCOT_LINES = {
+  cursy: {
+    it: { hello: ["Lampeggio da un pezzo. Scriviamo qualcosa?", "Ogni programma comincia da un cursore che lampeggia. Cioè da me.", "Pronto? Io sono sempre pronto: è il mio lavoro."],
+      run: ["Vediamo cosa succede…", "Esecuzione in corso…"],
+      pass: ["Visto? Bastava scriverlo giusto.", "Perfetto. Lampeggio di gioia.", "Avanti il prossimo!"],
+      fail: ["Quasi! Guarda dove punta il segno ^ nel terminale.", "Ci siamo quasi. Un carattere alla volta."],
+      error: ["Un errore! Leggi l'ultima riga: è lì che Python spiega.", "Niente panico: gli errori sono indicazioni, non bocciature."] },
+    en: { hello: ["I've been blinking for ages. Shall we write something?", "Every program starts from a blinking cursor. That's me.", "Ready? I'm always ready: it's my job."],
+      run: ["Let's see what happens…", "Running…"],
+      pass: ["See? You just had to write it right.", "Perfect. I'm blinking with joy.", "On to the next one!"],
+      fail: ["Almost! Look where the ^ points in the terminal.", "Nearly there. One character at a time."],
+      error: ["An error! Read the last line: that's where Python explains.", "Don't panic: errors are directions, not fails."] } },
+  bit: {
+    it: { hello: ["> sistema pronto. In attesa del tuo codice.", "Il mio schermo è tutto per te. Stampiamo qualcosa?", "Benvenuto nel terminale: qui si parla Python."],
+      run: ["> esecuzione…", "Elaboro…"],
+      pass: ["> test superato. Bip bip!", "Output perfetto. Lo incornicio.", "Che bello quando le righe tornano."],
+      fail: ["> output diverso dal previsto. Guarda il confronto.", "Ci manca poco: controlla riga per riga."],
+      error: ["> errore rilevato. Leggiamo insieme l'ultima riga.", "Il mio schermo dice errore, ma tu sai già dove guardare."] },
+    en: { hello: ["> system ready. Waiting for your code.", "My screen is all yours. Shall we print something?", "Welcome to the terminal: we speak Python here."],
+      run: ["> running…", "Processing…"],
+      pass: ["> test passed. Beep beep!", "Perfect output. I'm framing it.", "I love it when the lines add up."],
+      fail: ["> output differs from expected. Check the comparison.", "Almost there: check line by line."],
+      error: ["> error detected. Let's read the last line together.", "My screen says error, but you already know where to look."] } },
+  graffa: {
+    it: { hello: ["Due punti, quattro spazi. Mettiamo ordine.", "Ogni blocco al suo posto, ogni condizione al suo turno.", "Oggi si decide. Con metodo."],
+      run: ["Controllo che tutto sia in ordine…", "Vediamo…"],
+      pass: ["Impeccabile. Tutto in ordine.", "Che pulizia! Mi piace.", "Ecco come si fa: preciso."],
+      fail: ["Quasi. Controlla l'ordine delle cose.", "Qualcosa è fuori posto. Lo trovi?"],
+      error: ["Un rientro storto? Lo sento da qui.", "Errore! Controlla due punti e spazi."] },
+    en: { hello: ["Colon, four spaces. Let's tidy up.", "Every block in its place, every condition in its turn.", "Today we decide. With method."],
+      run: ["Checking everything is in order…", "Let's see…"],
+      pass: ["Flawless. Everything in order.", "So tidy! I like it.", "That's how it's done: precisely."],
+      fail: ["Almost. Check the order of things.", "Something's out of place. Can you find it?"],
+      error: ["Crooked indentation? I can feel it from here.", "Error! Check colons and spaces."] } },
+  pip: {
+    it: { hello: ["Sssalve. Oggi si gira in tondo, come piace a me.", "Un passo alla volta… e poi di nuovo.", "Calma. Ogni ciclo ha la sua fine."],
+      run: ["Sss… vediamo.", "Giro dopo giro…"],
+      pass: ["Sssplendido.", "Un altro giro completato.", "Ottimo lavoro, giovane pitone."],
+      fail: ["Quasi. Conta bene i giri.", "Ssseguimi: guarda dove si ferma il ciclo."],
+      error: ["Sss… un errore. Respira e leggi l'ultima riga.", "Anche i pitoni sbagliano strada. Torniamo indietro."] },
+    en: { hello: ["Hisss there. Today we go round in circles, just how I like it.", "One step at a time… and then again.", "Easy. Every loop has an end."],
+      run: ["Sss… let's see.", "Round after round…"],
+      pass: ["Sssplendid.", "Another lap completed.", "Great work, young python."],
+      fail: ["Almost. Count the laps carefully.", "Follow me: see where the loop stops."],
+      error: ["Sss… an error. Breathe and read the last line.", "Even pythons take wrong turns. Let's go back."] } },
+  floppy: {
+    it: { hello: ["Benvenuto nell'archivio. Qui ogni cosa ha la sua etichetta.", "Ho tutto in memoria, anche i tuoi progressi.", "Strumenti pronti. Cosa archiviamo oggi?"],
+      run: ["Lettura in corso…", "Cerco nell'archivio…"],
+      pass: ["Salvato! Questo te lo ricordo io.", "Archiviato con cura.", "Ottimo, lo metto in memoria."],
+      fail: ["Quasi: confronta con quello richiesto.", "Ci siamo quasi. Controlla le etichette."],
+      error: ["Errore di lettura! Vediamo l'ultima riga.", "Un settore difettoso. Niente che non si possa sistemare."] },
+    en: { hello: ["Welcome to the archive. Everything here has a label.", "I keep everything in memory, your progress too.", "Tools ready. What are we filing today?"],
+      run: ["Reading…", "Searching the archive…"],
+      pass: ["Saved! I'll remember this one.", "Filed with care.", "Great, putting it in memory."],
+      fail: ["Almost: compare it with what's required.", "Nearly there. Check the labels."],
+      error: ["Read error! Let's see the last line.", "A bad sector. Nothing we can't fix."] } },
+  papera: {
+    it: { hello: ["Qua! C'è un bug da queste parti. Lo cerchiamo insieme?", "Spiegami il codice riga per riga: di solito il bug salta fuori da solo.", "Non ti dirò dov'è. Ma ti farò le domande giuste."],
+      run: ["Qua… vediamo.", "Occhi aperti…"],
+      pass: ["Qua qua! Bug schiacciato!", "Visto? Spiegandolo l'hai trovato.", "Un bug in meno nel mondo."],
+      fail: ["Funziona, ma non fa quello che deve. Cosa ti aspettavi che stampasse?", "Hmm. Quale riga produce la differenza?"],
+      error: ["Ecco un indizio! Su che riga si è fermato Python?", "Leggi l'ultima riga dell'errore ad alta voce. Cosa dice?"] },
+    en: { hello: ["Quack! There's a bug around here. Shall we hunt it together?", "Explain the code to me line by line: the bug usually jumps out by itself.", "I won't tell you where it is. But I'll ask the right questions."],
+      run: ["Quack… let's see.", "Eyes open…"],
+      pass: ["Quack quack! Bug squashed!", "See? Explaining it, you found it.", "One less bug in the world."],
+      fail: ["It runs, but doesn't do what it should. What did you expect it to print?", "Hmm. Which line makes the difference?"],
+      error: ["A clue! Which line did Python stop at?", "Read the last line of the error out loud. What does it say?"] } }
+};
+
+/* Saved progress travels as a file or as a text code */
+const SAVE_TAG = "PP3:";
+function encodeSave(obj) {
+  const json = JSON.stringify({ app: "palestra-python", v: 3, date: new Date().toISOString(), state: obj });
+  const bytes = new TextEncoder().encode(json);
+  let bin = ""; bytes.forEach((b) => { bin += String.fromCharCode(b); });
+  return SAVE_TAG + btoa(bin);
+}
+function decodeSave(text) {
+  let s = String(text || "").trim();
+  let json;
+  if (s.startsWith(SAVE_TAG)) {
+    const bin = atob(s.slice(SAVE_TAG.length).replace(/\s+/g, ""));
+    json = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+  } else json = s;
+  const o = JSON.parse(json);
+  if (!o || o.app !== "palestra-python" || !o.state || typeof o.state !== "object") throw new Error("bad save");
+  return o;
+}
+
+Object.assign(UI.it, {
+  tabLessons: "Percorso",
+  mapTitle: "Il tuo percorso", mapStars: (s, t) => `★ ${s} su ${t}`, continueBtn: "▶ Continua",
+  levelLocked: "Si sblocca superando il livello precedente.", worldLocked: "Si sblocca finendo il mondo precedente.",
+  levelOf: (n, N) => `livello ${n} di ${N}`, bossTag: "boss", backMap: "← Mappa",
+  starRule: "Senza aiuti ★★★ · con suggerimento ★★ · con soluzione ★",
+  quizStar: "Al primo colpo ★★★ · al secondo ★★ · poi ★",
+  bossHint: "Chiedi a Papera", quizQ: "Cosa stampa?", quizRight: "Esatto!", quizWrong: "Non è questa. Rileggi il codice riga per riga e riprova.",
+  quizRun: "▶ Esegui il codice", quizFile: "quiz.py",
+  celeLevel: "Livello superato!", celeBoss: "Boss sconfitto!", celeWorld: (n) => `Hai completato il mondo ${n}!`,
+  celeNext: "Prossimo livello →", celeMap: "Mappa", celeRank: (r) => `Nuovo grado: ${r}`, celeEnd: "Hai completato tutto il percorso!",
+  celeReplay: "Puoi rigiocarlo quando vuoi per prendere tutte le stelle.",
+  celeBackup: "Floppy dice: è il momento giusto per salvare i progressi.", celeBackupBtn: "Salva progressi",
+  rankNext: (b) => `${b} al prossimo grado`, rankMax: "grado massimo",
+  settings: "Impostazioni", soundOn: "Suoni attivi", soundOff: "Suoni spenti",
+  setLang: "Lingua", setTheme: "Tema", themeAuto: "Automatico", themeLight: "Chiaro", themeDark: "Scuro",
+  setFont: "Testo del codice", setSound: "Suoni", on: "Attivi", off: "Spenti",
+  setSave: "Salvataggio",
+  saveInfo: "I progressi restano su questo dispositivo. Ogni tanto salvali in un file o copia il codice: ti serviranno per ripristinarli se cancelli i dati del browser, o per passarli a un altro dispositivo.",
+  saveFile: "Salva su file", loadFile: "Carica da file", showCode: "Mostra codice di salvataggio", hideCode: "Nascondi codice",
+  copyCode: "Copia codice", pasteCode: "Incolla qui un codice di salvataggio", restore: "Ripristina",
+  lastBackup: (d) => `Ultimo salvataggio: ${d}`, neverBackup: "Non hai ancora salvato i progressi.",
+  restored: "Progressi ripristinati.", restoreFail: "Questo file o codice non è valido. Controlla di averlo copiato per intero.",
+  fileSaved: "File creato: lo trovi nei download.",
+  resetAll: "Ricomincia da zero", confirmResetAll: "Vuoi cancellare tutti i progressi, le stelle e i byte? I programmi della modalità Libero restano.", yesResetAll: "Sì, cancella tutto", close: "Chiudi",
+  bossLabel: (n) => `Boss · ${n}`, mascotSays: (n) => `${n} dice`
+});
+Object.assign(UI.en, {
+  tabLessons: "Path",
+  mapTitle: "Your path", mapStars: (s, t) => `★ ${s} of ${t}`, continueBtn: "▶ Continue",
+  levelLocked: "Unlocks when you pass the previous level.", worldLocked: "Unlocks when you finish the previous world.",
+  levelOf: (n, N) => `level ${n} of ${N}`, bossTag: "boss", backMap: "← Map",
+  starRule: "No help ★★★ · with hint ★★ · with solution ★",
+  quizStar: "First try ★★★ · second ★★ · then ★",
+  bossHint: "Ask Papera", quizQ: "What does it print?", quizRight: "Right!", quizWrong: "Not this one. Reread the code line by line and try again.",
+  quizRun: "▶ Run the code", quizFile: "quiz.py",
+  celeLevel: "Level passed!", celeBoss: "Boss defeated!", celeWorld: (n) => `You completed the world ${n}!`,
+  celeNext: "Next level →", celeMap: "Map", celeRank: (r) => `New rank: ${r}`, celeEnd: "You completed the whole path!",
+  celeReplay: "You can replay it anytime to get all the stars.",
+  celeBackup: "Floppy says: it's a good moment to save your progress.", celeBackupBtn: "Save progress",
+  rankNext: (b) => `${b} to the next rank`, rankMax: "top rank",
+  settings: "Settings", soundOn: "Sounds on", soundOff: "Sounds off",
+  setLang: "Language", setTheme: "Theme", themeAuto: "Automatic", themeLight: "Light", themeDark: "Dark",
+  setFont: "Code text", setSound: "Sounds", on: "On", off: "Off",
+  setSave: "Saving",
+  saveInfo: "Your progress stays on this device. Now and then save it to a file or copy the code: you'll need it to restore your progress if you clear the browser's data, or to move it to another device.",
+  saveFile: "Save to file", loadFile: "Load from file", showCode: "Show save code", hideCode: "Hide code",
+  copyCode: "Copy code", pasteCode: "Paste a save code here", restore: "Restore",
+  lastBackup: (d) => `Last saved: ${d}`, neverBackup: "You haven't saved your progress yet.",
+  restored: "Progress restored.", restoreFail: "This file or code isn't valid. Check that you copied all of it.",
+  fileSaved: "File created: you'll find it in your downloads.",
+  resetAll: "Start over", confirmResetAll: "Delete all progress, stars and bytes? Playground programs are kept.", yesResetAll: "Yes, delete everything", close: "Close",
+  bossLabel: (n) => `Boss · ${n}`, mascotSays: (n) => `${n} says`
+});
 </script>
 
 <script>
@@ -2196,43 +3086,51 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const rnd = () => Math.floor(Math.random() * 1e9);
 
 /* ---------- State ---------- */
-const STORE = "palestra-python-v2";
-const V1_ORDER = ["print", "var", "num", "fstr", "input", "if", "for", "list", "while", "def", "dict", "try"];
+const STORE = "palestra-python-v3";
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
-let S = { lang: defaultLang(), mode: "lessons", view: "lessons", current: 0, done: [], code: {}, programs: [], active: null, fontSize: 14, theme: "auto", tutorialDone: false };
+const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "map", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, programs: [], active: null,
+  fontSize: 14, theme: "auto", sound: true, tutorialDone: false, lastBackup: null });
+let S = DEFAULTS();
+function sanitize() {
+  if (!["it", "en"].includes(S.lang)) S.lang = "it";
+  if (!["lessons", "free"].includes(S.mode)) S.mode = "lessons";
+  if (!["map", "lessons", "free", "term"].includes(S.view)) S.view = "map";
+  for (const k of ["stars", "attempt", "code"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
+  for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
+  if (!(S.bytes >= 0)) S.bytes = 0;
+  if (!(S.current >= 0 && S.current < LEVELS.length)) S.current = 0;
+  if (S.current > maxUnlocked()) S.current = maxUnlocked();
+  if (!Array.isArray(S.programs)) S.programs = [];
+  S.programs = S.programs.filter((p) => p && typeof p.code === "string" && typeof p.name === "string");
+  if (!S.programs.length) { const ex = EXAMPLES[0][S.lang]; S.programs.push({ id: uid(), name: ex.file, code: ex.code }); }
+  if (!S.programs.some((p) => p.id === S.active)) S.active = S.programs[0].id;
+  if (!(S.fontSize >= 11 && S.fontSize <= 22)) S.fontSize = 14;
+  if (!["auto", "light", "dark"].includes(S.theme)) S.theme = "auto";
+  S.sound = S.sound !== false;
+}
 (function loadState() {
   try {
-    const v2 = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (v2 && typeof v2 === "object") { Object.assign(S, v2); if (!v2.view) S.view = S.mode; return; }
-    const v1 = JSON.parse(localStorage.getItem("palestra-python-v1") || "null");
-    if (v1 && typeof v1 === "object") {
-      S.lang = "it";
-      S.mode = S.view = v1.mode === "free" ? "free" : "lessons";
-      S.done = Array.isArray(v1.done) ? v1.done.filter((id) => LESSONS.some((l) => l.id === id)) : [];
-      for (const k in (v1.code || {})) S.code["it:" + k] = v1.code[k];
-      const idx = LESSONS.findIndex((l) => l.id === V1_ORDER[v1.current]);
-      if (idx >= 0) S.current = idx;
-      if (typeof v1.free === "string" && v1.free.trim()) S.programs = [{ id: uid(), name: "main.py", code: v1.free }];
-    }
+    const v3 = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (v3 && typeof v3 === "object") { Object.assign(S, v3); return; }
+    /* Older versions: keep only the Playground programs and the preferences */
+    const v2 = JSON.parse(localStorage.getItem("palestra-python-v2") || "null");
+    if (v2 && typeof v2 === "object") for (const k of ["lang", "programs", "active", "fontSize", "theme", "tutorialDone"]) if (v2[k] !== undefined) S[k] = v2[k];
   } catch (e) {}
 })();
-if (!["it", "en"].includes(S.lang)) S.lang = "it";
-if (!["lessons", "free"].includes(S.mode)) S.mode = "lessons";
-if (!["lessons", "free", "term"].includes(S.view)) S.view = S.mode;
-if (!Array.isArray(S.done)) S.done = [];
-if (!S.code || typeof S.code !== "object") S.code = {};
-if (!(S.current >= 0 && S.current < LESSONS.length)) S.current = 0;
-if (!Array.isArray(S.programs)) S.programs = [];
-if (!S.programs.length) { const ex = EXAMPLES[0][S.lang]; S.programs.push({ id: uid(), name: ex.file, code: ex.code }); }
-if (!S.programs.some((p) => p.id === S.active)) S.active = S.programs[0].id;
-if (!(S.fontSize >= 11 && S.fontSize <= 22)) S.fontSize = 14;
-if (!["auto", "light", "dark"].includes(S.theme)) S.theme = "auto";
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
 
-const ui = { hint: false, sol: false, confirmReset: false, renaming: false, confirmDel: false };
+const ui = { hint: false, sol: false, renaming: false, confirmDel: false, quiz: null, mexpr: "i", msay: "", settings: { code: false, confirm: false, msg: "" } };
 const t = (k, ...a) => { const v = UI[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
-const lesson = () => LESSONS[S.current][S.lang];
+const level = () => LEVELS[S.current];
+const item = () => LESSON_BY_ID[level().id];
+const lesson = () => item()[S.lang];
+const isQuiz = () => S.mode === "lessons" && item().kind === "quiz";
 const activeProgram = () => S.programs.find((p) => p.id === S.active) || S.programs[0];
+function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && S.stars[LEVELS[i].id]) i++; return i; }
+const unlocked = (k) => k <= maxUnlocked();
+const worldMascot = (lv) => lv.boss ? "papera" : WORLDS[lv.w].mascot;
+const attempt = (id) => (S.attempt[id] = S.attempt[id] || {});
+sanitize();
 
 /* ---------- Runtime state ---------- */
 let pyReady = false, pyStatus = "loading", engine = null, pyVersion = "", running = false, stopReq = false;
@@ -2253,12 +3151,15 @@ function applyStatic() {
     el.setAttribute("aria-label", t(el.dataset.ta));
     if (el.tagName === "BUTTON") el.title = t(el.dataset.ta);
   });
-  $("lang-it").setAttribute("aria-pressed", S.lang === "it");
-  $("lang-en").setAttribute("aria-pressed", S.lang === "en");
   $("kbdhint").textContent = t("kbd", isMac);
   $("pyver").textContent = pyStatus === "full" ? t("py_full", pyVersion) : pyStatus === "basic" ? t("py_basic") : t("py_" + pyStatus);
-  $("theme").title = t("theme_" + S.theme);
-  $("theme").setAttribute("aria-label", t("theme_" + S.theme));
+  $("sound").setAttribute("aria-pressed", S.sound);
+  $("sound").title = t(S.sound ? "soundOn" : "soundOff");
+  $("sound").setAttribute("aria-label", t(S.sound ? "soundOn" : "soundOff"));
+  $("sound").classList.toggle("muted", !S.sound);
+  $("open-settings").title = t("settings");
+  $("open-settings").setAttribute("aria-label", t("settings"));
+  renderRank();
   $("note").textContent = engine === "pyodide" ? t("noteFull") : t("note");
   updateRunUI();
   updateFileName();
@@ -2268,21 +3169,14 @@ function applyTheme() {
   else root.setAttribute("data-theme", S.theme);
 }
 function applyFont() { root.style.setProperty("--code-size", S.fontSize + "px"); }
-$("theme").onclick = () => {
-  S.theme = { auto: "light", light: "dark", dark: "auto" }[S.theme];
-  save(); applyTheme(); applyStatic();
-};
-$("font-down").onclick = () => { S.fontSize = Math.max(11, S.fontSize - 1); save(); applyFont(); syncScroll(); };
-$("font-up").onclick = () => { S.fontSize = Math.min(22, S.fontSize + 1); save(); applyFont(); syncScroll(); };
 function setLang(l) {
   if (l === S.lang) return;
   persistEditor();
   S.lang = l; save();
+  ui.msay = "";
   applyStatic(); renderPanel();
   if (S.view === "lessons") loadEditor();
 }
-$("lang-it").onclick = () => setLang("it");
-$("lang-en").onclick = () => setLang("en");
 
 /* ---------- Editor ---------- */
 function refreshEditor() { hl.innerHTML = highlight(code.value) + "\n"; renderGutter(); syncScroll(); }
@@ -2320,8 +3214,9 @@ function updateFileName() {
 }
 function loadEditor() {
   if (S.mode === "free") code.value = activeProgram().code;
+  else if (isQuiz()) code.value = lesson().quiz.code;
   else {
-    const key = S.lang + ":" + LESSONS[S.current].id;
+    const key = S.lang + ":" + level().id;
     code.value = S.code[key] !== undefined ? S.code[key] : lesson().starter;
   }
   errLine = 0;
@@ -2331,7 +3226,7 @@ function loadEditor() {
 }
 function persistEditor() {
   if (S.mode === "free") { const p = activeProgram(); if (p) p.code = code.value; }
-  else S.code[S.lang + ":" + LESSONS[S.current].id] = code.value;
+  else if (!isQuiz()) S.code[S.lang + ":" + level().id] = code.value;
   save();
 }
 let saveTimer;
@@ -2424,7 +3319,7 @@ copyBtn.onclick = () => {
   try { navigator.clipboard.writeText(code.value).then(done, fallback); } catch (e) { fallback(); }
 };
 resetBtn.onclick = () => {
-  if (running || S.mode === "free") return;
+  if (running || S.mode === "free" || isQuiz()) return;
   code.focus(); code.select();
   insertAt(code, lesson().starter);
   persistEditor();
@@ -2828,7 +3723,7 @@ function updateRunUI() {
   runBtn.disabled = running || !pyReady;
   runBtn.textContent = running ? t("running") : t("run");
   stopBtn.hidden = !running;
-  resetBtn.hidden = S.mode === "free";
+  resetBtn.hidden = S.mode === "free" || isQuiz();
   expandBtn.hidden = S.view === "term";
   tutBtn.hidden = S.view !== "term" || tut.active;
 }
@@ -2845,6 +3740,7 @@ stopBtn.onclick = stopRun;
 async function runFile(src, label, { fromEditor = false, lessonCheck = false } = {}) {
   if (!pyReady || running) return;
   begin();
+  if (S.view === "lessons") mascotReact("run");
   newline();
   if (term.childNodes.length) termWrite("\n");
   termWrite("$ python " + label + "\n", "cmd");
@@ -2854,6 +3750,8 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false } =
   const status = report(res, "file", fromEditor);
   if (status === "ok") termWrite(t("done", secs) + "\n", "dim");
   if (lessonCheck && status === "ok") await checkLesson(res, src);
+  else if (lessonCheck && status === "error") mascotReact("error");
+  else if (S.view === "lessons" && ui.mexpr === "t") mascotReact(null);
   end(false);
 }
 async function runRepl(src, refocus) {
@@ -2891,22 +3789,21 @@ async function runPip(args) {
   end(true);
 }
 async function checkLesson(res, src) {
-  const L = lesson(), id = LESSONS[S.current].id;
+  const L = lesson(), id = level().id;
   const ctx = { inputs: res.inputs || [], images: res.images || 0 };
   const got = norm(res.out || "");
-  if (!L.check(got, src, ctx)) { explainFail(L, got, src, ctx); return; }
+  if (!L.check(got, src, ctx)) { explainFail(L, got, src, ctx); mascotReact("fail"); return; }
   const tests = L.tests ? L.tests(src) : [];
   if (tests.length) {
     termWrite(t("testing") + "\n", "dim");
     for (const tc of tests) {
       const r = await engineRun(tc.code, "test.py", "test", { silent: true });
       if (stopReq) return;
-      if (r.status !== "ok" || !tc.ok(norm(r.out || ""))) { newline(); termWrite(t("testFail", tc.desc) + "\n", "fail"); return; }
+      if (r.status !== "ok" || !tc.ok(norm(r.out || ""))) { newline(); termWrite(t("testFail", tc.desc) + "\n", "fail"); mascotReact("fail"); return; }
     }
   }
-  if (!S.done.includes(id)) { S.done.push(id); save(); }
-  termWrite(t("pass", S.current === LESSONS.length - 1) + "\n", "pass");
-  renderPanel();
+  termWrite(t("pass", S.current === LEVELS.length - 1) + "\n", "pass");
+  completeLevel();
 }
 /* Shows the learner exactly where their output differs from the required one */
 function explainFail(L, got, src, ctx) {
@@ -2943,7 +3840,8 @@ function replaceEditor(text) {
   refreshEditor();
 }
 function runEditor() {
-  if (S.view === "term") return;
+  if (S.view === "term" || isQuiz()) return;
+  sfxUnlock();
   const fixed = fixSmartQuotes(code.value);
   if (fixed !== code.value) {
     const pos = code.selectionStart;
@@ -2997,67 +3895,10 @@ tutBtn.onclick = startTutorial;
 
 /* ---------- Panels ---------- */
 function renderPanel() {
-  if (S.view === "term") renderTermPanel();
+  if (S.view === "map") renderMap();
+  else if (S.view === "term") renderTermPanel();
   else if (S.mode === "free") renderFree();
-  else renderLessons();
-}
-
-function renderLessons() {
-  const i = S.current, item = LESSONS[i], L = item[S.lang], n = LESSONS.length;
-  const done = S.done.includes(item.id);
-  const doneCount = LESSONS.filter((l) => S.done.includes(l.id)).length;
-  const pills = LESSONS.map((l, k) => {
-    const d = S.done.includes(l.id);
-    const cls = ["pill"]; if (d) cls.push("done"); if (k === i) cls.push("current"); if (l.needs) cls.push("bonus");
-    return `<button class="${cls.join(" ")}" data-go="${k}" aria-label="${escHtml(t("lessonAria", k + 1, l[S.lang].title, d))}" title="${escHtml(l[S.lang].title)}">${d ? "✓" : k + 1}</button>`;
-  }).join("");
-  const theory = L.theory.map((b, k) => typeof b === "string" ? b :
-    `<div class="ex"><pre>${highlight(b.code)}</pre><div class="ex-foot"><button class="btn tiny" data-ex="${k}">${t("tryIt")}</button></div></div>`).join("");
-  const needs = item.needs === "full" && engine === "skulpt" ? `<div class="notice">${t("needsFull")}</div>` : "";
-  const hintBox = ui.hint ? `<div class="hintbox"><div><b>${t("hint")}.</b> ${escHtml(L.hint)}</div></div>` : "";
-  const solBox = ui.sol ? `<div class="hintbox"><b>${t("solTitle")}</b><pre>${highlight(L.solution)}</pre><div class="row"><button class="btn tiny" id="usesol">${t("useSol")}</button></div></div>` : "";
-  const celebrate = doneCount === n ? `<div class="celebrate"><p>${t("allDone")}</p><div class="row"><button class="btn go" id="gofree">${t("goFree")}</button></div></div>` : "";
-  const resetArea = ui.confirmReset
-    ? `<div class="confirm"><p>${t("confirmReset", doneCount)}</p><div class="row"><button class="btn danger" id="reset-y">${t("yesReset")}</button><button class="btn" id="reset-n">${t("cancel")}</button></div></div>`
-    : `<div><button class="linkbtn" id="reset-p">${t("resetProgress")}</button></div>`;
-  panel.innerHTML = `
-    <div class="pills">${pills}</div>
-    <div class="progress" aria-hidden="true"><i style="width:${(doneCount / n) * 100}%"></i></div>
-    <div>
-      <div class="eyebrow">${t("lessonOf", i + 1, n, doneCount)}</div>
-      <h2>${L.title}</h2>
-    </div>
-    ${needs}
-    <div class="theory">${theory}</div>
-    <div class="task"><div class="eyebrow">${t("exercise")}</div><p>${L.task}</p></div>
-    <div class="status ${done ? "ok" : ""}">${done ? t("statusDone") : t("statusTodo")}</div>
-    ${hintBox}${solBox}
-    <div class="row">
-      <button class="btn" id="hint">${ui.hint ? t("hideHint") : t("hint")}</button>
-      <button class="btn" id="sol">${ui.sol ? t("hideSol") : t("sol")}</button>
-    </div>
-    <div class="row nav">
-      <button class="btn" id="prev" ${i === 0 ? "disabled" : ""}>${t("prev")}</button>
-      <button class="btn ${done ? "go" : ""}" id="next" ${i === n - 1 ? "disabled" : ""}>${t("next")}</button>
-    </div>
-    ${celebrate}
-    ${resetArea}`;
-  panel.querySelectorAll("[data-go]").forEach((b) => { b.onclick = () => goLesson(+b.dataset.go); });
-  panel.querySelectorAll("[data-ex]").forEach((b) => { b.onclick = () => runFile(L.theory[+b.dataset.ex].code, t("fileExample")); });
-  $("hint").onclick = () => { ui.hint = !ui.hint; renderPanel(); };
-  $("sol").onclick = () => { ui.sol = !ui.sol; renderPanel(); };
-  $("prev").onclick = () => goLesson(i - 1);
-  $("next").onclick = () => goLesson(i + 1);
-  const use = $("usesol");
-  if (use) use.onclick = () => { code.focus(); code.select(); insertAt(code, L.solution + "\n"); persistEditor(); };
-  const gf = $("gofree"); if (gf) gf.onclick = () => setView("free");
-  const rp = $("reset-p"); if (rp) rp.onclick = () => { ui.confirmReset = true; renderPanel(); };
-  const rn = $("reset-n"); if (rn) rn.onclick = () => { ui.confirmReset = false; renderPanel(); };
-  const ry = $("reset-y");
-  if (ry) ry.onclick = () => {
-    S.done = []; S.code = {}; S.current = 0; ui.confirmReset = false; ui.hint = false; ui.sol = false;
-    save(); renderPanel(); loadEditor();
-  };
+  else renderLevel();
 }
 
 function uniqueName(base) {
@@ -3157,30 +3998,399 @@ function renderTermPanel() {
   const tx = $("tut-exit"); if (tx) tx.onclick = tutExit;
 }
 
+/* ---------- Mascots on canvas ---------- */
+function paintMascot(cv, key, e, blink) {
+  const c = cv.getContext("2d");
+  c.clearRect(0, 0, PX_W, PX_H);
+  const F = pxCompose(MASCOTS[key], e, blink);
+  for (let i = 0; i < F.length; i++) if (F[i]) { c.fillStyle = F[i]; c.fillRect(i % PX_W, Math.floor(i / PX_W), 1, 1); }
+}
+function mascotCanvas(key, e, cls) {
+  const cv = document.createElement("canvas");
+  cv.width = PX_W; cv.height = PX_H;
+  cv.className = "px " + (cls || "");
+  cv.setAttribute("role", "img");
+  cv.setAttribute("aria-label", MASCOTS[key].name);
+  paintMascot(cv, key, e, false);
+  return cv;
+}
+const ANIM = { i: "a-bob", h: "a-hop", t: "a-sway", o: "a-shake" };
+function pickLine(key, kind, seed) {
+  const arr = MASCOT_LINES[key][S.lang][kind];
+  const i = seed == null ? Math.floor(Math.random() * arr.length) : Math.abs(seed) % arr.length;
+  return arr[i];
+}
+function hashStr(s) { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) | 0; return h; }
+/* kind: run | pass | fail | error | null (back to idle) */
+function mascotReact(kind) {
+  if (S.view !== "lessons" || S.mode !== "lessons") return;
+  const key = worldMascot(level());
+  ui.mexpr = { run: "t", pass: "h", fail: "o", error: "o" }[kind] || "i";
+  if (kind) ui.msay = pickLine(key, kind);
+  drawLevelMascot();
+}
+function drawLevelMascot() {
+  const cv = $("lv-mascot"), say = $("lv-say");
+  if (!cv) return;
+  const key = worldMascot(level());
+  paintMascot(cv, key, ui.mexpr, false);
+  cv.className = "px " + (ui.mexpr === "i" && MASCOTS[key].blinkBody ? "a-curs" : ANIM[ui.mexpr]);
+  if (say) say.textContent = ui.msay;
+}
+setInterval(() => {
+  if (document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = $("lv-mascot");
+  if (cv && ui.mexpr === "i") {
+    const key = worldMascot(level());
+    paintMascot(cv, key, "i", true);
+    setTimeout(() => { if (ui.mexpr === "i" && $("lv-mascot") === cv) paintMascot(cv, key, "i", false); }, 140);
+  }
+}, 3600);
+
+/* ---------- Sounds: soft, short, and only after a click ---------- */
+let actx = null;
+function sfxUnlock() {
+  if (!S.sound) return null;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  } catch (e) { return null; }
+}
+function tone(f, at, dur, vol = 0.05, type = "sine") {
+  if (!S.sound || !actx) return;
+  try {
+    const o = actx.createOscillator(), g = actx.createGain(), s = actx.currentTime + at;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, s);
+    g.gain.exponentialRampToValueAtTime(vol, s + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(s); o.stop(s + dur + 0.05);
+  } catch (e) {}
+}
+const SFX = {
+  pass: () => { tone(523.25, 0, 0.35); tone(659.25, 0.12, 0.5); },
+  star: (i) => tone(880 + i * 110, 0, 0.18, 0.03, "triangle"),
+  rank: () => { tone(523.25, 0, 0.3); tone(659.25, 0.1, 0.3); tone(783.99, 0.2, 0.6); },
+  right: () => tone(659.25, 0, 0.25, 0.04)
+};
+$("sound").onclick = () => { S.sound = !S.sound; save(); if (S.sound) { sfxUnlock(); SFX.right(); } applyStatic(); };
+
+/* ---------- Rank in the header ---------- */
+function renderRank() {
+  const r = rankOf(S.bytes), next = RANKS[r + 1];
+  $("rank-name").textContent = RANKS[r][S.lang];
+  $("rank-bytes").textContent = fmtBytes(S.bytes);
+  const pct = next ? ((S.bytes - RANKS[r].at) / (next.at - RANKS[r].at)) * 100 : 100;
+  $("rank-bar").style.width = Math.max(4, Math.min(100, pct)) + "%";
+  $("rank").title = next ? t("rankNext", fmtBytes(next.at - S.bytes)) : t("rankMax");
+}
+
+/* ---------- Completing a level ---------- */
+function completeLevel() {
+  const lv = level(), id = lv.id, att = attempt(id);
+  const got = starsFor(item().kind, att), old = S.stars[id] || 0, best = Math.max(old, got);
+  const gained = bytesFor(lv, best, old);
+  const r0 = rankOf(S.bytes);
+  S.stars[id] = best; S.bytes += gained;
+  delete S.attempt[id];
+  ui.hint = false; ui.sol = false;
+  const worldDone = !old && WORLDS[lv.w].levels[WORLDS[lv.w].levels.length - 1] === id;
+  save();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  mascotReact("pass");
+  renderPanel(); renderRank();
+  celebrate({ lv, got, best, gained, rankUp: rankOf(S.bytes) > r0 ? rankOf(S.bytes) : -1, worldDone });
+}
+
+/* ---------- Celebration ---------- */
+const cele = $("cele");
+function celebrate(o) {
+  sfxUnlock();
+  const next = S.current + 1 < LEVELS.length ? S.current + 1 : -1;
+  const w = WORLDS[o.lv.w], key = worldMascot(o.lv);
+  const stars = [0, 1, 2].map((i) => `<span class="st ${i < o.got ? "on" : ""}" style="animation-delay:${0.25 + i * 0.22}s">★</span>`).join("");
+  cele.querySelector(".ocard").innerHTML = `
+    <div class="cele-m"></div>
+    <h2 id="cele-title">${o.lv.boss ? t("celeBoss") : t("celeLevel")}</h2>
+    <p class="cele-lv">${escHtml(lesson().title)}</p>
+    <div class="cele-stars" aria-label="${o.got}/3">${stars}</div>
+    ${o.gained ? `<div class="cele-bytes">+${fmtBytes(o.gained)}</div>` : ""}
+    ${o.rankUp >= 0 ? `<p class="cele-rank">${t("celeRank", RANKS[o.rankUp][S.lang])}</p>` : ""}
+    ${o.worldDone ? `<p class="cele-world">${next < 0 ? t("celeEnd") : t("celeWorld", w[S.lang].name)}</p>` : ""}
+    ${o.worldDone ? `<div class="cele-floppy"><div class="fl-m"></div><p>${t("celeBackup")}</p><button class="btn" id="cele-save">${t("celeBackupBtn")}</button></div>` : ""}
+    ${o.got < 3 ? `<p class="cele-note">${t("celeReplay")}</p>` : ""}
+    <div class="row cele-actions">
+      <button class="btn" id="cele-map">${t("celeMap")}</button>
+      ${next >= 0 ? `<button class="btn primary" id="cele-next">${t("celeNext")}</button>` : ""}
+    </div>`;
+  cele.querySelector(".cele-m").appendChild(mascotCanvas(key, "h", "a-hop"));
+  const fl = cele.querySelector(".fl-m"); if (fl) fl.appendChild(mascotCanvas("floppy", "i", "a-bob"));
+  cele.hidden = false;
+  SFX.pass();
+  for (let i = 0; i < o.got; i++) setTimeout(() => SFX.star(i), 450 + i * 220);
+  if (o.rankUp >= 0) setTimeout(SFX.rank, 1300);
+  const nb = $("cele-next");
+  (nb || $("cele-map")).focus();
+  if (nb) nb.onclick = () => { closeCele(); goLesson(next); };
+  $("cele-map").onclick = () => { closeCele(); setView("map"); };
+  const sv = $("cele-save"); if (sv) sv.onclick = () => { closeCele(); openSettings(); };
+}
+function closeCele() { cele.hidden = true; }
+cele.addEventListener("click", (e) => { if (e.target === cele) closeCele(); });
+
+/* ---------- Map ---------- */
+const mapEl = $("map");
+function renderMap() {
+  const cur = maxUnlocked();
+  const total = LEVELS.length * 3, got = LEVELS.reduce((a, l) => a + (S.stars[l.id] || 0), 0);
+  let html = `<div class="map-head"><div><div class="eyebrow">${t("mapStars", got, total)}</div><h2>${t("mapTitle")}</h2></div>
+    <button class="btn primary" id="map-go">${t("continueBtn")}</button></div><div class="worlds">`;
+  WORLDS.forEach((w, wi) => {
+    const lvIdx = LEVELS.map((l, i) => i).filter((i) => LEVELS[i].w === wi);
+    const wLocked = !unlocked(lvIdx[0]);
+    const wStars = lvIdx.reduce((a, i) => a + (S.stars[LEVELS[i].id] || 0), 0);
+    const nodes = lvIdx.map((i, k) => {
+      const lv = LEVELS[i], st = S.stars[lv.id] || 0, L = LESSON_BY_ID[lv.id][S.lang];
+      const state = st ? "done" : i === cur ? "cur" : unlocked(i) ? "open" : "lock";
+      const label = `${lv.boss ? t("bossLabel", L.title) : (k + 1) + ". " + L.title}${state === "lock" ? " · " + t("levelLocked") : ""}`;
+      const inner = lv.boss ? BUG_SVG : state === "lock" ? LOCK_SVG : String(k + 1);
+      const starsHtml = st ? "★".repeat(st) + "☆".repeat(3 - st) : "";
+      return `${k ? `<span class="link ${st || state === "cur" ? "on" : ""}" aria-hidden="true"></span>` : ""}<div class="node"><button class="lvl ${state} ${lv.boss ? "boss" : ""}" data-lv="${i}" ${state === "lock" ? 'aria-disabled="true"' : ""} aria-label="${escHtml(label)}" title="${escHtml(label)}">${inner}</button><span class="nst" aria-hidden="true">${starsHtml}</span></div>`;
+    }).join("");
+    const curHere = LEVELS[cur].w === wi && !S.stars[LEVELS[cur].id];
+    const nextTitle = curHere ? LESSON_BY_ID[LEVELS[cur].id][S.lang].title : "";
+    html += `<section class="world ${wLocked ? "locked" : ""}" style="--wc:${MASCOTS[w.mascot].color}" aria-label="${escHtml(w[S.lang].name)}">
+      <div class="wm" data-m="${w.mascot}" data-e="${wLocked ? "i" : wStars === lvIdx.length * 3 ? "h" : "i"}"></div>
+      <div class="wbody">
+        <div class="whead"><span class="wdir">${w.dir}</span><span class="wstars">★ ${wStars}/${lvIdx.length * 3}</span></div>
+        <h3>${w[S.lang].name}</h3>
+        <p class="wtag">${wLocked ? t("worldLocked") : w[S.lang].tag}</p>
+        <div class="path">${nodes}</div>
+        ${curHere ? `<button class="wnext" data-lv="${cur}">▶ ${escHtml(nextTitle)}</button>` : ""}
+      </div></section>`;
+  });
+  mapEl.innerHTML = html + "</div>";
+  mapEl.querySelectorAll(".wm").forEach((d) => d.appendChild(mascotCanvas(d.dataset.m, d.dataset.e, d.dataset.e === "h" ? "a-hop" : "")));
+  mapEl.querySelectorAll("[data-lv]").forEach((b) => { b.onclick = () => { const i = +b.dataset.lv; if (unlocked(i)) goLesson(i); }; });
+  $("map-go").onclick = () => goLesson(cur);
+}
+const LOCK_SVG = `<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="4" y="9" width="12" height="9" rx="2" fill="currentColor"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
+const BUG_SVG = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><ellipse cx="12" cy="14" rx="5.5" ry="6.5" fill="currentColor"/><circle cx="12" cy="6.5" r="3" fill="currentColor"/><path d="M6.5 11H3M6.5 15H2.5M7 19l-3 2M17.5 11H21M17.5 15h4M17 19l3 2M10 4L8 1.5M14 4l2-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 9v11" stroke="var(--paper)" stroke-width="1.2"/></svg>`;
+
+/* ---------- Level panel ---------- */
+function renderLevel() {
+  const lv = level(), it = item(), L = it[S.lang], w = WORLDS[lv.w], key = worldMascot(lv);
+  const st = S.stars[lv.id] || 0, att = attempt(lv.id), quiz = it.kind === "quiz";
+  if (!ui.msay) { ui.msay = pickLine(key, "hello", hashStr(lv.id + S.lang)); ui.mexpr = "i"; }
+  const wl = w.levels.length;
+  const theory = L.theory.map((b, k) => typeof b === "string" ? b :
+    `<div class="ex"><pre>${highlight(b.code)}</pre><div class="ex-foot"><button class="btn tiny" data-ex="${k}">${t("tryIt")}</button></div></div>`).join("");
+  const needs = it.needs === "full" && engine === "skulpt" ? `<div class="notice">${t("needsFull")}</div>` : "";
+  let work = "";
+  if (quiz) {
+    const q = L.quiz, qs = ui.quiz || (ui.quiz = { wrong: [], solved: false });
+    const opts = q.options.map((o, i) => {
+      const cls = qs.solved && i === q.correct ? "right" : qs.wrong.includes(i) ? "wrong" : "";
+      return `<button class="qopt ${cls}" data-q="${i}" ${qs.solved || qs.wrong.includes(i) ? "disabled" : ""}><pre>${escHtml(o)}</pre></button>`;
+    }).join("");
+    work = `<div class="task"><div class="eyebrow">${t("exercise")}</div><p>${L.task}</p></div>
+      <div class="ex"><pre>${highlight(q.code)}</pre></div>
+      <div class="eyebrow">${t("quizQ")}</div>
+      <div class="qopts">${opts}</div>
+      ${qs.wrong.length && !qs.solved ? `<p class="qfb bad">${t("quizWrong")}</p>` : ""}
+      ${qs.solved ? `<p class="qfb good">${t("quizRight")} ${escHtml(q.explain)}</p><div class="row"><button class="btn" id="q-run">${t("quizRun")}</button></div>` : ""}
+      <p class="rule">${t("quizStar")}</p>`;
+  } else {
+    const hintBox = ui.hint ? `<div class="hintbox"><div><b>${lv.boss ? t("bossHint") : t("hint")}.</b> ${escHtml(L.hint)}</div></div>` : "";
+    const solBox = ui.sol ? `<div class="hintbox"><b>${t("solTitle")}</b><pre>${highlight(L.solution)}</pre><div class="row"><button class="btn tiny" id="usesol">${t("useSol")}</button></div></div>` : "";
+    work = `<div class="task"><div class="eyebrow">${t("exercise")}</div><p>${L.task}</p></div>
+      <div class="status ${st ? "ok" : ""}">${st ? t("statusDone") : t("statusTodo")}</div>
+      ${hintBox}${solBox}
+      <div class="row">
+        <button class="btn" id="hint">${ui.hint ? t("hideHint") : lv.boss ? t("bossHint") : t("hint")}</button>
+        <button class="btn" id="sol">${ui.sol ? t("hideSol") : t("sol")}</button>
+      </div>
+      <p class="rule">${t("starRule")}</p>`;
+  }
+  const prevOk = S.current > 0, nextOk = S.current + 1 < LEVELS.length && unlocked(S.current + 1);
+  panel.innerHTML = `
+    <div class="lv-top"><button class="linkbtn" id="to-map">${t("backMap")}</button><span class="eyebrow">${w.dir} · ${lv.boss ? t("bossTag") : t("levelOf", lv.n + 1, wl)}</span></div>
+    <div class="lv-mascot" style="--wc:${MASCOTS[key].color}"><canvas id="lv-mascot" class="px" width="${PX_W}" height="${PX_H}" role="img" aria-label="${MASCOTS[key].name}"></canvas>
+      <div class="bubble"><span class="who">${t("mascotSays", MASCOTS[key].name)}</span><p id="lv-say" aria-live="polite"></p></div></div>
+    <div><h2>${lv.boss ? t("bossLabel", L.title) : L.title}</h2>
+      <div class="lv-stars" aria-label="${st}/3">${[0, 1, 2].map((i) => `<span class="${i < st ? "on" : ""}">★</span>`).join("")}</div></div>
+    ${needs}
+    <div class="theory">${theory}</div>
+    ${work}
+    <div class="row nav">
+      <button class="btn" id="prev" ${prevOk ? "" : "disabled"}>${t("prev")}</button>
+      <button class="btn ${st ? "go" : ""}" id="next" ${nextOk ? "" : "disabled"}>${t("next")}</button>
+    </div>`;
+  drawLevelMascot();
+  panel.querySelectorAll("[data-ex]").forEach((b) => { b.onclick = () => runFile(L.theory[+b.dataset.ex].code, t("fileExample")); });
+  $("to-map").onclick = () => setView("map");
+  $("prev").onclick = () => goLesson(S.current - 1);
+  $("next").onclick = () => goLesson(S.current + 1);
+  if (quiz) {
+    panel.querySelectorAll("[data-q]").forEach((b) => { b.onclick = () => answerQuiz(+b.dataset.q); });
+    const qr = $("q-run"); if (qr) qr.onclick = () => runFile(L.quiz.code, t("quizFile"));
+  } else {
+    $("hint").onclick = () => { ui.hint = !ui.hint; if (ui.hint) { att.hint = true; save(); } renderPanel(); };
+    $("sol").onclick = () => { ui.sol = !ui.sol; if (ui.sol) { att.sol = true; save(); } renderPanel(); };
+    const use = $("usesol");
+    if (use) use.onclick = () => { code.focus(); code.select(); insertAt(code, L.solution + "\n"); persistEditor(); };
+  }
+}
+function answerQuiz(i) {
+  const q = lesson().quiz, qs = ui.quiz, att = attempt(level().id);
+  sfxUnlock();
+  if (qs.solved || qs.wrong.includes(i)) return;
+  if (i === q.correct) {
+    qs.solved = true;
+    SFX.right();
+    setTimeout(() => { if (S.view === "lessons" && ui.quiz === qs) completeLevel(); }, 900);
+    renderPanel(); mascotReact("pass");
+  } else {
+    qs.wrong.push(i); att.wrong = (att.wrong || 0) + 1; save();
+    renderPanel(); mascotReact("fail");
+  }
+}
+
+/* ---------- Settings ---------- */
+const setEl = $("settings");
+/* The installable version can hand over a file; inside a preview frame only the save code works */
+const CAN_DOWNLOAD = !!document.querySelector('link[rel="manifest"]');
+function openSettings() { ui.settings = { code: false, confirm: false, msg: "" }; renderSettings(); setEl.hidden = false; setEl.querySelector(".ocard button").focus(); }
+function closeSettings() { setEl.hidden = true; }
+function fmtDate(iso) { try { return new Date(iso).toLocaleString(S.lang === "it" ? "it-IT" : "en-GB", { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return iso; } }
+function renderSettings() {
+  const st = ui.settings;
+  const seg = (name, opts, cur) => `<div class="seg small" role="group" aria-label="${escHtml(name)}">${opts.map(([v, l]) => `<button data-set="${name}" data-v="${v}" aria-pressed="${v === cur}">${l}</button>`).join("")}</div>`;
+  setEl.querySelector(".ocard").innerHTML = `
+    <div class="set-head"><h2 id="set-title">${t("settings")}</h2><button class="btn tiny" id="set-close">${t("close")}</button></div>
+    <div class="set-row"><span>${t("setLang")}</span>${seg("lang", [["it", "Italiano"], ["en", "English"]], S.lang)}</div>
+    <div class="set-row"><span>${t("setTheme")}</span>${seg("theme", [["auto", t("themeAuto")], ["light", t("themeLight")], ["dark", t("themeDark")]], S.theme)}</div>
+    <div class="set-row"><span>${t("setFont")}</span><div class="row"><button class="btn tiny" id="font-down" aria-label="${t("fontDown")}">A−</button><span class="mono">${S.fontSize}px</span><button class="btn tiny" id="font-up" aria-label="${t("fontUp")}">A+</button></div></div>
+    <div class="set-row"><span>${t("setSound")}</span>${seg("sound", [["1", t("on")], ["0", t("off")]], S.sound ? "1" : "0")}</div>
+    <div class="set-save">
+      <div class="set-save-head"><div class="fl-m"></div><div><h3>${t("setSave")}</h3><p>${t("saveInfo")}</p><p class="muted">${S.lastBackup ? t("lastBackup", fmtDate(S.lastBackup)) : t("neverBackup")}</p></div></div>
+      <div class="row">${CAN_DOWNLOAD ? `<button class="btn primary" id="save-file">${t("saveFile")}</button>` : ""}<label class="btn" for="load-file">${t("loadFile")}</label><input type="file" id="load-file" accept=".json,.txt,application/json,text/plain" hidden></div>
+      <div class="row"><button class="btn" id="show-code">${st.code ? t("hideCode") : t("showCode")}</button></div>
+      ${st.code ? `<textarea id="save-code" class="codebox" readonly rows="4">${escHtml(encodeSave(S))}</textarea><div class="row"><button class="btn tiny" id="copy-code">${t("copyCode")}</button></div>` : ""}
+      <textarea id="paste-code" class="codebox" rows="3" placeholder="${escHtml(t("pasteCode"))}" aria-label="${escHtml(t("pasteCode"))}"></textarea>
+      <div class="row"><button class="btn" id="restore">${t("restore")}</button></div>
+      ${st.msg ? `<p class="set-msg" role="status">${escHtml(st.msg)}</p>` : ""}
+    </div>
+    ${st.confirm ? `<div class="confirm"><p>${t("confirmResetAll")}</p><div class="row"><button class="btn danger" id="reset-y">${t("yesResetAll")}</button><button class="btn" id="reset-n">${t("cancel")}</button></div></div>`
+      : `<div><button class="linkbtn" id="reset-all">${t("resetAll")}</button></div>`}`;
+  setEl.querySelector(".fl-m").appendChild(mascotCanvas("floppy", "i", ""));
+  setEl.querySelectorAll("[data-set]").forEach((b) => {
+    b.onclick = () => {
+      const k = b.dataset.set, v = b.dataset.v;
+      if (k === "lang") setLang(v);
+      else if (k === "theme") { S.theme = v; save(); applyTheme(); }
+      else if (k === "sound") { S.sound = v === "1"; save(); if (S.sound) { sfxUnlock(); SFX.right(); } applyStatic(); }
+      renderSettings();
+    };
+  });
+  $("set-close").onclick = closeSettings;
+  $("font-down").onclick = () => { S.fontSize = Math.max(11, S.fontSize - 1); save(); applyFont(); syncScroll(); renderSettings(); };
+  $("font-up").onclick = () => { S.fontSize = Math.min(22, S.fontSize + 1); save(); applyFont(); syncScroll(); renderSettings(); };
+  if (CAN_DOWNLOAD) $("save-file").onclick = () => {
+    persistEditor();
+    const date = new Date().toISOString();
+    const blob = new Blob([JSON.stringify({ app: "palestra-python", v: 3, date, state: S }, null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `palestra-python-${date.slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    S.lastBackup = date; save();
+    ui.settings.msg = t("fileSaved"); renderSettings();
+  };
+  $("load-file").onchange = (e) => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => restoreFrom(String(r.result));
+    r.readAsText(f);
+  };
+  $("show-code").onclick = () => { ui.settings.code = !ui.settings.code; ui.settings.msg = ""; renderSettings(); };
+  const cc = $("copy-code");
+  if (cc) cc.onclick = () => {
+    const box = $("save-code");
+    const ok = () => { S.lastBackup = new Date().toISOString(); save(); cc.textContent = t("copied"); };
+    try { navigator.clipboard.writeText(box.value).then(ok, () => { box.focus(); box.select(); }); } catch (e) { box.focus(); box.select(); }
+  };
+  $("restore").onclick = () => restoreFrom($("paste-code").value);
+  const ra = $("reset-all"); if (ra) ra.onclick = () => { ui.settings.confirm = true; renderSettings(); };
+  const rn = $("reset-n"); if (rn) rn.onclick = () => { ui.settings.confirm = false; renderSettings(); };
+  const ry = $("reset-y");
+  if (ry) ry.onclick = () => {
+    const keep = { lang: S.lang, programs: S.programs, active: S.active, fontSize: S.fontSize, theme: S.theme, sound: S.sound };
+    S = Object.assign(DEFAULTS(), keep); sanitize(); save();
+    closeSettings(); ui.msay = ""; ui.quiz = null;
+    applyStatic(); setView("map");
+  };
+}
+function restoreFrom(text) {
+  try {
+    const o = decodeSave(text);
+    S = Object.assign(DEFAULTS(), o.state); sanitize();
+    S.lastBackup = o.date || new Date().toISOString();
+    save();
+    ui.msay = ""; ui.quiz = null;
+    applyTheme(); applyFont(); applyStatic();
+    setView(S.view === "term" || S.view === "free" ? S.view : "map");
+    ui.settings = { code: false, confirm: false, msg: t("restored") };
+  } catch (e) {
+    ui.settings.msg = t("restoreFail");
+  }
+  renderSettings();
+}
+$("open-settings").onclick = openSettings;
+setEl.addEventListener("click", (e) => { if (e.target === setEl) closeSettings(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!cele.hidden) closeCele();
+  else if (!setEl.hidden) closeSettings();
+});
+
+/* ---------- Navigation ---------- */
 function goLesson(k) {
-  if (k < 0 || k >= LESSONS.length || running) return;
-  persistEditor();
-  S.current = k; ui.hint = false; ui.sol = false; ui.confirmReset = false;
-  save(); renderPanel(); loadEditor();
-  if (window.matchMedia("(max-width: 900px)").matches) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (k < 0 || k >= LEVELS.length || running || !unlocked(k)) return;
+  if (S.view === "lessons") persistEditor();
+  S.current = k; ui.hint = false; ui.sol = false; ui.quiz = null; ui.msay = ""; ui.mexpr = "i";
+  save();
+  if (S.view !== "lessons") setView("lessons");
+  else { updateLayout(); updateRunUI(); renderPanel(); loadEditor(); }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function updateLayout() {
+  const v = S.view;
+  mapEl.hidden = v !== "map";
+  grid.hidden = v === "map";
+  grid.classList.toggle("termview", v === "term");
+  grid.classList.toggle("quizmode", v === "lessons" && isQuiz());
 }
 function setView(v, initial) {
   if (!initial && running && v !== "term" && S.view !== "term") return;
-  if (!initial && S.view !== "term") persistEditor();
+  if (!initial && (S.view === "lessons" || S.view === "free")) persistEditor();
   S.view = v;
-  if (v !== "term") S.mode = v;
-  ui.renaming = false; ui.confirmDel = false; ui.confirmReset = false;
+  if (v === "lessons" || v === "free") S.mode = v;
+  ui.renaming = false; ui.confirmDel = false;
   save();
-  grid.classList.toggle("termview", v === "term");
-  $("tab-lessons").setAttribute("aria-selected", v === "lessons");
+  updateLayout();
+  $("tab-lessons").setAttribute("aria-selected", v === "lessons" || v === "map");
   $("tab-free").setAttribute("aria-selected", v === "free");
   $("tab-term").setAttribute("aria-selected", v === "term");
   (v === "term" ? termCard : editorCard).appendChild(symbar);
   updateRunUI(); renderPanel();
-  if (v !== "term") loadEditor();
-  else { scrollTerm(); if (!coarse && !initial) focusPrompt(); }
+  if (v === "lessons" || v === "free") loadEditor();
+  else if (v === "term") { scrollTerm(); if (!coarse && !initial) focusPrompt(); }
 }
-$("tab-lessons").onclick = () => setView("lessons");
+$("tab-lessons").onclick = () => setView("map");
 $("tab-free").onclick = () => setView("free");
 $("tab-term").onclick = () => setView("term");
 expandBtn.onclick = () => setView("term");
@@ -3189,9 +4399,12 @@ expandBtn.onclick = () => setView("term");
 applyTheme();
 applyFont();
 setView(S.view, true);
-if (S.view === "term") loadEditor();
+if (S.view === "term" || S.view === "map") loadEditor();
 applyStatic();
 termWrite(t("loadingFull") + "\n", "dim");
+if (document.querySelector('link[rel="manifest"]') && "serviceWorker" in navigator) {
+  try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
+}
 (async () => {
   let ok = false;
   for (const url of PYODIDE_URLS) { workerURL = url; ok = await startWorker(url); if (ok) break; }
