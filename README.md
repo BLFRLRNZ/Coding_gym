@@ -102,5 +102,5 @@ Python runs in the browser through [Pyodide](https://pyodide.org) (CPython compi
 
 ---
 
-Font dei titoli: [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), SIL Open Font License 1.1 (`fonts/OFL-PixelifySans.txt`). La lettera C è servita da un piccolo font derivato, "Arcode C", con l'apertura più larga per non confonderla con O e 0.
-Headings font: Pixelify Sans, SIL Open Font License 1.1. The letter C comes from a tiny derived font, "Arcode C", with a wider opening so it isn't mistaken for O and 0.
+Font dei titoli e di tutte le scritte in grassetto (pulsanti, etichette, schede): [Pixelify Sans](https://github.com/eifetx/Pixelify-Sans), SIL Open Font License 1.1 (`fonts/OFL-PixelifySans.txt`). La lettera C è servita da un piccolo font derivato, "Arcode C", con l'apertura più larga per non confonderla con O e 0.
+Font for headings and every bold text (buttons, labels, tabs): Pixelify Sans, SIL Open Font License 1.1. The letter C comes from a tiny derived font, "Arcode C", with a wider opening so it isn't mistaken for O and 0.

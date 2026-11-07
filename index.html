@@ -586,6 +586,9 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 @media (max-width: 560px) {
   .kbd { display: none; }
   .editor-card .bar { flex-wrap: nowrap; }
+  .editor-card .bar .row { flex-wrap: nowrap; gap: 6px; flex: none; }
+  .editor-card .bar .btn { padding: 6px 10px; font-size: 0.84rem; }
+  .editor-card .bar .file { min-width: 0; }
   .term-card .bar { flex-wrap: nowrap; padding: 6px 8px 6px 12px; gap: 6px; }
   .term-card .file b { display: none; }
   .term-card .bar .row { flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: none; }
@@ -683,6 +686,17 @@ body.intro-open { overflow: hidden; }
   .acct-btn { padding: 3px; max-width: none; margin-left: auto; }
   .acct-btn .acct-name { display: none; }
 }
+
+/* Every bold text uses the pixel font of the titles. Plain text stays plain; code, the terminal and the recovery code stay monospaced. */
+b, strong, h1, h2, h3, h4,
+.btn, .seg button, .seg.small button, .icon-btn, .tbtn, .acct-btn, .acct-pick, .ff > span,
+.pill.done, .pill.current, .status.ok, .form-err, .set-msg, .rname, .file b, .crumb b,
+.cele-rank, .cele-world, .cele-bytes, .cart-start, .q-tag, .intro-lang button, .intro-skip { font-family: var(--f-display); }
+.btn, .seg button, .tbtn, .acct-btn, .acct-pick, .ff > span, .form-err, .set-msg, .intro-lang button, .intro-skip { letter-spacing: 0.01em; }
+/* The pixel font has shorter lowercase letters: match the height of the body text */
+b, strong, h3, h4, .btn, .seg button, .seg.small button, .icon-btn, .tbtn, .acct-btn, .acct-pick, .ff > span, .pill.done, .pill.current, .status.ok, .form-err, .set-msg, .rname, .file b, .crumb b,
+.cele-rank, .cele-world, .cele-bytes, .cart-start, .q-tag, .intro-lang button, .intro-skip { font-size-adjust: 0.5; }
+code b, pre b, #term b { font-family: inherit; }
 </style>
 </head>
 <body>
@@ -5653,7 +5667,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWor
 startIntro();
 termWrite(t("loadingFull") + "\n", "dim");
 /* Installed app: register the offline cache and announce new versions */
-const APP_VERSION = "80beae5845";
+const APP_VERSION = "982a42019a";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 if (IS_APP && "serviceWorker" in navigator) {
   try { navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}); } catch (e) {}
