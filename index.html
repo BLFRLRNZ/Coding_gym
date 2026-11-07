@@ -284,51 +284,79 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 #sound.muted .waves { display: none; }
 .px { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
 
-/* Map */
-.map { display: grid; gap: 16px; }
-.map-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.map-head h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.9rem; margin: 2px 0 0; letter-spacing: -0.02em; }
-.worlds { display: grid; gap: 12px; }
-.world { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
-.world.locked .wm, .world.locked .wbody > :not(.path) { opacity: 0.55; }
-.world.locked .wm .px { filter: grayscale(1); }
-.wm { width: 114px; height: 102px; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--wc) 14%, transparent); }
-.wm .px { width: 114px; height: 102px; }
-.wbody { display: grid; gap: 6px; min-width: 0; }
-.whead { display: flex; justify-content: space-between; gap: 10px; font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
-.wstars { color: var(--mustard); font-variant-numeric: tabular-nums; }
-.world h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -0.01em; }
-.wtag { margin: 0; color: var(--muted); font-size: 0.92rem; }
-.path { display: flex; flex-wrap: wrap; align-items: flex-start; row-gap: 8px; margin-top: 6px; }
-.node { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 46px; }
-.link { width: 16px; height: 3px; background: var(--line); margin-top: 21px; border-radius: 2px; }
-.link.on { background: var(--wc); }
-.lvl { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line); background: var(--paper); color: var(--muted); font-family: var(--f-mono); font-weight: 600; font-size: 0.95rem; display: grid; place-items: center; padding: 0; }
-.lvl.done { background: var(--wc); border-color: var(--wc); color: #fff; }
-.lvl.open { border-color: var(--wc); color: var(--ink); }
-.lvl.cur { border-color: var(--wc); color: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--wc) 28%, transparent); }
-.lvl.lock { border-style: dashed; cursor: not-allowed; }
-.lvl.boss { border-radius: 50%; }
-.lvl.boss:not(.lock) { color: #d9573b; border-color: #d9573b; }
-.lvl.boss.done { background: #d9573b; color: #fff; }
-.lvl:not(.lock):hover { transform: translateY(-2px); }
-.nst { font-size: 0.66rem; letter-spacing: 1px; color: var(--mustard); height: 1em; line-height: 1; }
-.wnext { justify-self: start; margin-top: 4px; border: 0; background: none; color: var(--accent); font-weight: 700; padding: 2px 0; font-size: 0.92rem; text-align: left; }
-.wnext:hover { text-decoration: underline; }
-@media (max-width: 560px) {
-  .world { grid-template-columns: 76px minmax(0, 1fr); column-gap: 12px; row-gap: 4px; padding: 14px; align-items: start; }
-  .wbody { display: contents; }
-  .wm { width: 76px; height: 68px; grid-row: 1 / span 3; }
-  .wm .px { width: 76px; height: 68px; }
-  .whead, .world h3, .wtag { grid-column: 2; }
-  .world h3 { font-size: 1.15rem; }
-  .path, .wnext { grid-column: 1 / -1; }
-  .node { min-width: 38px; }
-  .lvl { width: 38px; height: 38px; border-radius: 10px; font-size: 0.88rem; }
-  .lvl.boss svg { width: 20px; height: 20px; }
-  .link { width: 10px; margin-top: 18px; }
-  .lv-mascot .px { width: 76px; height: 68px; }
+/* Explorer: an editor-style file tree with a README preview */
+.ide { background: var(--term-bg); color: var(--term-fg); border: 1px solid var(--term-line); border-radius: 14px; overflow: hidden; }
+.ide-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--term-line); }
+.ide-title { font-family: var(--f-mono); font-size: 0.76rem; letter-spacing: 0.1em; color: var(--term-dim); }
+.ide-title span { color: var(--term-fg); letter-spacing: 0; margin-left: 6px; }
+.ide-stars { font-family: var(--f-mono); font-size: 0.8rem; color: var(--term-prompt); margin-left: auto; font-variant-numeric: tabular-nums; }
+.ide-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); min-height: 540px; }
+.tree { padding: 8px 0 16px; border-right: 1px solid var(--term-line); font-family: var(--f-mono); font-size: 0.88rem; }
+.tr-row { width: 100%; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--term-fg); text-align: left; padding: 6px 14px; font: inherit; min-height: 36px; }
+.tr-row:hover { background: rgba(255, 255, 255, 0.05); }
+.tr-row:focus-visible { outline: 2px solid var(--term-prompt); outline-offset: -2px; }
+.tr-folder .chev { color: var(--term-dim); flex: none; }
+.tr-folder[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.tr-ic { display: flex; flex: none; }
+.tr-folder .tr-ic { color: color-mix(in srgb, var(--wc) 72%, #ffffff); }
+.tr-folder.sel { background: rgba(255, 255, 255, 0.07); }
+.tr-folder.locked, .tr-folder.locked .tr-ic { color: var(--term-dim); }
+.tr-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; max-width: 60%; }
+.tr-title { color: var(--term-dim); font-family: var(--f-body); font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.tr-meta { margin-left: auto; color: var(--term-dim); font-size: 0.78rem; display: flex; align-items: center; gap: 4px; white-space: nowrap; flex: none; font-variant-numeric: tabular-nums; }
+.tr-files { position: relative; }
+.tr-files::before { content: ""; position: absolute; left: 21px; top: 0; bottom: 8px; width: 1px; background: var(--term-line); }
+.tr-file { padding-left: 38px; }
+.tr-file .tr-ic { color: color-mix(in srgb, var(--wc) 65%, #ffffff); }
+.tr-file.lock { color: var(--term-dim); cursor: not-allowed; }
+.tr-file.lock .tr-ic { color: var(--term-dim); }
+.tr-file.lock .tr-title { opacity: 0.55; }
+.tr-file.cur { background: color-mix(in srgb, var(--wc) 24%, transparent); }
+.tr-file.boss:not(.lock) .tr-ic { color: #ff8a6b; }
+.tr-st { color: var(--term-prompt); letter-spacing: 1px; }
+.tr-st i { font-style: normal; color: var(--term-dim); opacity: 0.45; }
+.tr-cur { color: var(--term-ok); }
+.readme { background: var(--paper); color: var(--ink); display: flex; flex-direction: column; min-width: 0; }
+.rm-tab { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); padding: 9px 16px; border-bottom: 1px solid var(--line); background: var(--code-bg); }
+.rm-body { padding: 20px; display: grid; gap: 12px; align-content: start; }
+.rm-hero { display: flex; gap: 14px; align-items: center; }
+.rm-m { width: 114px; height: 102px; border-radius: 12px; background: color-mix(in srgb, var(--wc) 14%, transparent); display: grid; place-items: center; flex: none; }
+.rm-m .px { width: 114px; height: 102px; }
+.readme.locked .rm-m .px { filter: grayscale(1); opacity: 0.6; }
+.rm-hd { min-width: 0; }
+.rm-dir { font-family: var(--f-mono); font-size: 0.8rem; color: var(--muted); }
+.readme h2 { margin: 2px 0 0; font-family: var(--f-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.01em; text-wrap: balance; }
+.readme h3 { margin: 4px 0 0; font-size: 1rem; }
+.md { color: var(--muted); font-family: var(--f-mono); font-weight: 400; }
+.rm-tag { margin: 4px 0 0; color: var(--muted); }
+.rm-quote { margin: 0; border-left: 3px solid var(--wc); padding: 8px 12px; background: var(--code-bg); font-size: 0.95rem; }
+.rm-bar { height: 8px; border-radius: 99px; background: var(--code-bg); overflow: hidden; }
+.rm-bar i { display: block; height: 100%; background: var(--wc); border-radius: 99px; }
+.rm-stars { margin: 0; font-family: var(--f-mono); color: var(--mustard); }
+.rm-note { margin: 0; color: var(--muted); }
+#rm-open { justify-self: start; }
+@media (max-width: 760px) {
+  .ide-body { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .readme { order: -1; border-bottom: 1px solid var(--term-line); }
+  .tree { border-right: 0; }
+  .rm-body { padding: 14px; gap: 10px; }
+  .rm-m, .rm-m .px { width: 76px; height: 68px; }
+  .readme h2 { font-size: 1.25rem; }
+  .tr-title { display: none; }
+  .tr-name { max-width: none; flex: 1; }
 }
+
+/* Quest: what to do, right above the editor */
+.quest { background: var(--paper); border: 2px solid var(--mustard); border-radius: 14px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.q-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-tag { font-family: var(--f-mono); font-size: 0.8rem; font-weight: 600; color: var(--mustard); }
+.q-file { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+.q-stars { margin-left: auto; display: flex; gap: 2px; color: var(--line); font-size: 1.05rem; }
+.q-stars .on { color: var(--mustard); }
+.q-task { margin: 0; font-size: 1.05rem; line-height: 1.5; }
+.q-actions .rule { margin-left: auto; }
+.crumb { font-family: var(--f-mono); font-size: 0.8rem; color: var(--muted); overflow-wrap: anywhere; }
+.crumb b { color: var(--ink); font-weight: 600; }
 
 /* Level panel */
 .lv-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
@@ -432,6 +460,7 @@ label.btn { cursor: pointer; }
     <section class="panel" id="panel" aria-live="polite"></section>
 
     <section class="work">
+      <section class="quest" id="quest" aria-live="polite" hidden></section>
       <div class="editor-card" id="editor-card">
         <div class="bar">
           <div class="file"><span class="dot"></span><b id="fname">lezione.py</b></div>
@@ -2803,23 +2832,41 @@ function bracketDepth(src) {
 
 /* ================= Game: worlds, mascots, ranks (no DOM access) ================= */
 const WORLDS = [
-  { id: "w0", dir: "~/mondo_0", mascot: "cursy", levels: ["how", "rules", "comments", "errors", "blocks", "boss0"],
+  { id: "w0", dir: { it: "mondo_0", en: "world_0" }, mascot: "cursy", levels: ["how", "rules", "comments", "errors", "blocks", "boss0"],
     it: { name: "Prima di iniziare", tag: "Le regole del gioco" }, en: { name: "Before you start", tag: "The rules of the game" } },
-  { id: "w1", dir: "~/basi", mascot: "bit", levels: ["print", "var", "num", "fstr", "input", "boss1"],
+  { id: "w1", dir: { it: "basi", en: "basics" }, mascot: "bit", levels: ["print", "var", "num", "fstr", "input", "boss1"],
     it: { name: "Le basi", tag: "Stampare, ricordare, chiedere" }, en: { name: "The basics", tag: "Print, remember, ask" } },
-  { id: "w2", dir: "~/decisioni", mascot: "graffa", levels: ["bool", "if", "boss2"],
+  { id: "w2", dir: { it: "decisioni", en: "decisions" }, mascot: "graffa", levels: ["bool", "if", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso e if" }, en: { name: "Decisions", tag: "True, false and if" } },
-  { id: "w3", dir: "~/cicli", mascot: "pip", levels: ["for", "list", "loop", "while", "boss3"],
+  { id: "w3", dir: { it: "cicli", en: "loops" }, mascot: "pip", levels: ["for", "list", "loop", "while", "boss3"],
     it: { name: "Ripetere", tag: "Cicli e liste" }, en: { name: "Repeating", tag: "Loops and lists" } },
-  { id: "w4", dir: "~/funzioni", mascot: "graffa", levels: ["str", "def", "params", "boss4"],
+  { id: "w4", dir: { it: "funzioni", en: "functions" }, mascot: "graffa", levels: ["str", "def", "params", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
-  { id: "w5", dir: "~/strumenti", mascot: "floppy", levels: ["dict", "try", "mod", "comp", "boss5"],
+  { id: "w5", dir: { it: "strumenti", en: "tools" }, mascot: "floppy", levels: ["dict", "try", "mod", "comp", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori e moduli" }, en: { name: "Tools", tag: "Dictionaries, errors and modules" } },
-  { id: "w6", dir: "~/oggetti", mascot: "pip", levels: ["class", "final", "boss6"],
+  { id: "w6", dir: { it: "oggetti", en: "objects" }, mascot: "pip", levels: ["class", "final", "boss6"],
     it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
-  { id: "bonus", dir: "~/bonus", mascot: "bit", levels: ["numpy", "plot"],
+  { id: "bonus", dir: { it: "bonus", en: "bonus" }, mascot: "bit", levels: ["numpy", "plot"],
     it: { name: "Bonus", tag: "Numeri e grafici" }, en: { name: "Bonus", tag: "Numbers and charts" } }
 ];
+
+/* Every level is a file inside its world's folder */
+const FILES = {
+  how: ["01_come_ragiona.py", "01_how_it_thinks.py"], rules: ["02_regole.py", "02_rules.py"], comments: ["03_commenti.py", "03_comments.py"],
+  errors: ["04_errori.py", "04_errors.py"], blocks: ["05_blocchi.py", "05_blocks.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"],
+  print: ["01_print.py", "01_print.py"], var: ["02_variabili.py", "02_variables.py"], num: ["03_numeri.py", "03_numbers.py"],
+  fstr: ["04_fstring.py", "04_fstrings.py"], input: ["05_input.py", "05_input.py"], boss1: ["boss_calcolo.py", "boss_math.py"],
+  bool: ["01_vero_falso.py", "01_true_false.py"], if: ["02_if.py", "02_if.py"], boss2: ["boss_termometro.py", "boss_thermometer.py"],
+  for: ["01_for.py", "01_for.py"], list: ["02_liste.py", "02_lists.py"], loop: ["03_scorrere.py", "03_looping.py"],
+  while: ["04_while.py", "04_while.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
+  str: ["01_testo.py", "01_text.py"], def: ["02_def.py", "02_def.py"], params: ["03_parametri.py", "03_parameters.py"], boss4: ["boss_funzioni.py", "boss_functions.py"],
+  dict: ["01_dizionari.py", "01_dicts.py"], try: ["02_try.py", "02_try.py"], mod: ["03_moduli.py", "03_modules.py"],
+  comp: ["04_liste_veloci.py", "04_comprehensions.py"], boss5: ["boss_rubrica.py", "boss_phonebook.py"],
+  class: ["01_classi.py", "01_classes.py"], final: ["02_sfida_finale.py", "02_final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
+  numpy: ["01_numpy.py", "01_numpy.py"], plot: ["02_grafici.py", "02_charts.py"]
+};
+const fileName = (id, lang) => FILES[id][lang === "en" ? 1 : 0];
+const dirName = (w, lang) => w.dir[lang] || w.dir.it;
 const LESSON_BY_ID = {};
 for (const l of LESSONS) LESSON_BY_ID[l.id] = l;
 const LEVELS = [];
@@ -3015,6 +3062,10 @@ function decodeSave(text) {
 
 Object.assign(UI.it, {
   tabLessons: "Percorso",
+  explorer: "Esplora", treeRoot: "palestra", backExplorer: "← Esplora", filesDone: (d, n) => `${d} di ${n} file completati`,
+  openFile: (f) => `▶ Apri ${f}`, replayFolder: "Cartella completata. Puoi riaprire un file per migliorare le stelle.",
+  questTag: "# QUEST", inProgress: "in corso", folderLocked: (d) => `Si sblocca finendo ~/${d}.`,
+
   mapTitle: "Il tuo percorso", mapStars: (s, t) => `★ ${s} su ${t}`, continueBtn: "▶ Continua",
   levelLocked: "Si sblocca superando il livello precedente.", worldLocked: "Si sblocca finendo il mondo precedente.",
   levelOf: (n, N) => `livello ${n} di ${N}`, bossTag: "boss", backMap: "← Mappa",
@@ -3042,6 +3093,10 @@ Object.assign(UI.it, {
 });
 Object.assign(UI.en, {
   tabLessons: "Path",
+  explorer: "Explorer", treeRoot: "gym", backExplorer: "← Explorer", filesDone: (d, n) => `${d} of ${n} files completed`,
+  openFile: (f) => `▶ Open ${f}`, replayFolder: "Folder completed. Reopen a file to improve your stars.",
+  questTag: "# QUEST", inProgress: "in progress", folderLocked: (d) => `Unlocks when you finish ~/${d}.`,
+
   mapTitle: "Your path", mapStars: (s, t) => `★ ${s} of ${t}`, continueBtn: "▶ Continue",
   levelLocked: "Unlocks when you pass the previous level.", worldLocked: "Unlocks when you finish the previous world.",
   levelOf: (n, N) => `level ${n} of ${N}`, bossTag: "boss", backMap: "← Map",
@@ -3210,7 +3265,7 @@ function insertAt(el, text) {
   }
 }
 function updateFileName() {
-  $("fname").textContent = S.mode === "free" ? activeProgram().name : t("fileLesson");
+  $("fname").textContent = S.mode === "free" ? activeProgram().name : curFile();
 }
 function loadEditor() {
   if (S.mode === "free") code.value = activeProgram().code;
@@ -3850,7 +3905,7 @@ function runEditor() {
     newline(); termWrite(t("smartFixed") + "\n", "why");
   }
   persistEditor();
-  const label = S.mode === "free" ? activeProgram().name : t("fileLesson");
+  const label = S.mode === "free" ? activeProgram().name : curFile();
   runFile(code.value, label, { fromEditor: true, lessonCheck: S.mode === "lessons" });
 }
 runBtn.onclick = runEditor;
@@ -4140,90 +4195,100 @@ function celebrate(o) {
 function closeCele() { cele.hidden = true; }
 cele.addEventListener("click", (e) => { if (e.target === cele) closeCele(); });
 
-/* ---------- Map ---------- */
+/* ---------- Explorer: worlds are folders, levels are files ---------- */
 const mapEl = $("map");
+const svgLock = (s) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" aria-hidden="true"><rect x="4" y="9" width="12" height="9" rx="2" fill="currentColor"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
+const svgBug = (s) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true"><ellipse cx="12" cy="14" rx="5.5" ry="6.5" fill="currentColor"/><circle cx="12" cy="6.5" r="3" fill="currentColor"/><path d="M6.5 11H3M6.5 15H2.5M7 19l-3 2M17.5 11H21M17.5 15h4M17 19l3 2M10 4L8 1.5M14 4l2-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+const svgChev = `<svg class="chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const svgFolder = (open) => open
+  ? `<svg viewBox="0 0 20 16" width="20" height="16" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h4l1.6 1.8H17a1.5 1.5 0 0 1 1.5 1.5V6H5.2a1.5 1.5 0 0 0-1.4 1L1.5 13z" fill="currentColor" opacity=".55"/><path d="M4 7h15l-2.3 7H1.5z" fill="currentColor"/></svg>`
+  : `<svg viewBox="0 0 20 16" width="20" height="16" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h4l1.6 1.8H17a1.5 1.5 0 0 1 1.5 1.5v8.2A1.5 1.5 0 0 1 17 15H3a1.5 1.5 0 0 1-1.5-1.5z" fill="currentColor"/></svg>`;
+const svgFile = `<svg viewBox="0 0 16 18" width="14" height="16" aria-hidden="true"><path d="M2 1.5h7.5L14 6v10.5H2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 1.5V6H14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4.8 10.5h6.4M4.8 13.3h4.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+const levelsOf = (wi) => LEVELS.map((l, i) => i).filter((i) => LEVELS[i].w === wi);
+const curFile = () => fileName(level().id, S.lang);
+
 function renderMap() {
-  const cur = maxUnlocked();
+  const cur = maxUnlocked(), curW = LEVELS[cur].w;
+  if (!ui.open) ui.open = new Set();
+  if (ui.autoW !== curW) { ui.open.add(curW); ui.sel = curW; ui.autoW = curW; }
   const total = LEVELS.length * 3, got = LEVELS.reduce((a, l) => a + (S.stars[l.id] || 0), 0);
-  let html = `<div class="map-head"><div><div class="eyebrow">${t("mapStars", got, total)}</div><h2>${t("mapTitle")}</h2></div>
-    <button class="btn primary" id="map-go">${t("continueBtn")}</button></div><div class="worlds">`;
-  WORLDS.forEach((w, wi) => {
-    const lvIdx = LEVELS.map((l, i) => i).filter((i) => LEVELS[i].w === wi);
-    const wLocked = !unlocked(lvIdx[0]);
-    const wStars = lvIdx.reduce((a, i) => a + (S.stars[LEVELS[i].id] || 0), 0);
-    const nodes = lvIdx.map((i, k) => {
-      const lv = LEVELS[i], st = S.stars[lv.id] || 0, L = LESSON_BY_ID[lv.id][S.lang];
+  const tree = WORLDS.map((w, wi) => {
+    const idx = levelsOf(wi), locked = !unlocked(idx[0]), open = ui.open.has(wi);
+    const wStars = idx.reduce((a, i) => a + (S.stars[LEVELS[i].id] || 0), 0);
+    const head = `<button class="tr-row tr-folder ${locked ? "locked" : ""} ${ui.sel === wi ? "sel" : ""}" data-w="${wi}" aria-expanded="${open}">
+      ${svgChev}<span class="tr-ic">${svgFolder(open)}</span><span class="tr-name">${dirName(w, S.lang)}/</span>
+      <span class="tr-meta">${locked ? svgLock(13) : `★ ${wStars}/${idx.length * 3}`}</span></button>`;
+    const files = !open ? "" : `<div class="tr-files" role="group">${idx.map((i) => {
+      const lv = LEVELS[i], st = S.stars[lv.id] || 0, L = LESSON_BY_ID[lv.id][S.lang], fn = fileName(lv.id, S.lang);
       const state = st ? "done" : i === cur ? "cur" : unlocked(i) ? "open" : "lock";
-      const label = `${lv.boss ? t("bossLabel", L.title) : (k + 1) + ". " + L.title}${state === "lock" ? " · " + t("levelLocked") : ""}`;
-      const inner = lv.boss ? BUG_SVG : state === "lock" ? LOCK_SVG : String(k + 1);
-      const starsHtml = st ? "★".repeat(st) + "☆".repeat(3 - st) : "";
-      return `${k ? `<span class="link ${st || state === "cur" ? "on" : ""}" aria-hidden="true"></span>` : ""}<div class="node"><button class="lvl ${state} ${lv.boss ? "boss" : ""}" data-lv="${i}" ${state === "lock" ? 'aria-disabled="true"' : ""} aria-label="${escHtml(label)}" title="${escHtml(label)}">${inner}</button><span class="nst" aria-hidden="true">${starsHtml}</span></div>`;
-    }).join("");
-    const curHere = LEVELS[cur].w === wi && !S.stars[LEVELS[cur].id];
-    const nextTitle = curHere ? LESSON_BY_ID[LEVELS[cur].id][S.lang].title : "";
-    html += `<section class="world ${wLocked ? "locked" : ""}" style="--wc:${MASCOTS[w.mascot].color}" aria-label="${escHtml(w[S.lang].name)}">
-      <div class="wm" data-m="${w.mascot}" data-e="${wLocked ? "i" : wStars === lvIdx.length * 3 ? "h" : "i"}"></div>
-      <div class="wbody">
-        <div class="whead"><span class="wdir">${w.dir}</span><span class="wstars">★ ${wStars}/${lvIdx.length * 3}</span></div>
-        <h3>${w[S.lang].name}</h3>
-        <p class="wtag">${wLocked ? t("worldLocked") : w[S.lang].tag}</p>
-        <div class="path">${nodes}</div>
-        ${curHere ? `<button class="wnext" data-lv="${cur}">▶ ${escHtml(nextTitle)}</button>` : ""}
-      </div></section>`;
+      const meta = state === "lock" ? svgLock(13)
+        : st ? `<span class="tr-st">${"★".repeat(st)}<i>${"★".repeat(3 - st)}</i></span>`
+        : state === "cur" ? `<span class="tr-cur">● ${t("inProgress")}</span>` : "";
+      const label = `${fn} · ${L.title}${state === "lock" ? " · " + t("levelLocked") : ""}`;
+      return `<button class="tr-row tr-file ${state} ${lv.boss ? "boss" : ""}" data-lv="${i}" ${state === "lock" ? 'aria-disabled="true"' : ""} aria-label="${escHtml(label)}" title="${escHtml(L.title)}">
+        <span class="tr-ic">${lv.boss ? svgBug(15) : svgFile}</span><span class="tr-name">${fn}</span><span class="tr-title">${escHtml(L.title)}</span><span class="tr-meta">${meta}</span></button>`;
+    }).join("")}</div>`;
+    return `<div class="tr-node" style="--wc:${MASCOTS[w.mascot].color}">${head}${files}</div>`;
+  }).join("");
+  mapEl.innerHTML = `<div class="ide">
+    <div class="ide-bar"><span class="ide-title">${t("explorer").toUpperCase()} <span>~/${t("treeRoot")}</span></span>
+      <span class="ide-stars">${t("mapStars", got, total)}</span><button class="btn primary" id="map-go">${t("continueBtn")}</button></div>
+    <div class="ide-body"><nav class="tree" aria-label="${escHtml(t("explorer"))}">${tree}</nav><article class="readme" id="readme"></article></div></div>`;
+  renderReadme();
+  mapEl.querySelectorAll(".tr-folder").forEach((b) => {
+    b.onclick = () => {
+      const wi = +b.dataset.w;
+      if (ui.open.has(wi) && ui.sel === wi) ui.open.delete(wi); else ui.open.add(wi);
+      ui.sel = wi;
+      renderMap();
+      const again = mapEl.querySelector(`.tr-folder[data-w="${wi}"]`); if (again) again.focus();
+    };
   });
-  mapEl.innerHTML = html + "</div>";
-  mapEl.querySelectorAll(".wm").forEach((d) => d.appendChild(mascotCanvas(d.dataset.m, d.dataset.e, d.dataset.e === "h" ? "a-hop" : "")));
-  mapEl.querySelectorAll("[data-lv]").forEach((b) => { b.onclick = () => { const i = +b.dataset.lv; if (unlocked(i)) goLesson(i); }; });
+  mapEl.querySelectorAll(".tr-file").forEach((b) => { b.onclick = () => { const i = +b.dataset.lv; if (unlocked(i)) goLesson(i); }; });
   $("map-go").onclick = () => goLesson(cur);
 }
-const LOCK_SVG = `<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="4" y="9" width="12" height="9" rx="2" fill="currentColor"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
-const BUG_SVG = `<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><ellipse cx="12" cy="14" rx="5.5" ry="6.5" fill="currentColor"/><circle cx="12" cy="6.5" r="3" fill="currentColor"/><path d="M6.5 11H3M6.5 15H2.5M7 19l-3 2M17.5 11H21M17.5 15h4M17 19l3 2M10 4L8 1.5M14 4l2-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 9v11" stroke="var(--paper)" stroke-width="1.2"/></svg>`;
+function renderReadme() {
+  const wi = ui.sel, w = WORLDS[wi], idx = levelsOf(wi), cur = maxUnlocked();
+  const locked = !unlocked(idx[0]), done = idx.filter((i) => S.stars[LEVELS[i].id]).length;
+  const wStars = idx.reduce((a, i) => a + (S.stars[LEVELS[i].id] || 0), 0);
+  const nextIdx = idx.find((i) => !S.stars[LEVELS[i].id] && unlocked(i));
+  const prev = wi > 0 ? dirName(WORLDS[wi - 1], S.lang) : "";
+  const el = $("readme");
+  el.style.setProperty("--wc", MASCOTS[w.mascot].color);
+  el.innerHTML = `<div class="rm-tab">README.md</div>
+    <div class="rm-body">
+      <div class="rm-hero"><div class="rm-m"></div><div class="rm-hd"><div class="rm-dir">~/${dirName(w, S.lang)}/</div><h2><span class="md">#</span> ${w[S.lang].name}</h2><p class="rm-tag">${locked ? t("folderLocked", prev) : w[S.lang].tag}</p></div></div>
+      <blockquote class="rm-quote"><span class="md">&gt;</span> <b>${MASCOTS[w.mascot].name}:</b> ${escHtml(pickLine(w.mascot, "hello", hashStr(w.id + S.lang)))}</blockquote>
+      <h3><span class="md">##</span> ${t("filesDone", done, idx.length)}</h3>
+      <div class="rm-bar" aria-hidden="true"><i style="width:${(done / idx.length) * 100}%"></i></div>
+      <p class="rm-stars">★ ${wStars}/${idx.length * 3}</p>
+      ${nextIdx !== undefined ? `<button class="btn primary" id="rm-open">${t("openFile", fileName(LEVELS[nextIdx].id, S.lang))}</button>`
+        : done === idx.length ? `<p class="rm-note">${t("replayFolder")}</p>` : ""}
+    </div>`;
+  const e = locked ? "i" : done === idx.length ? "h" : "i";
+  el.querySelector(".rm-m").appendChild(mascotCanvas(w.mascot, e, locked ? "" : e === "h" ? "a-hop" : w.mascot === "cursy" ? "a-curs" : "a-bob"));
+  el.classList.toggle("locked", locked);
+  const ob = $("rm-open"); if (ob) ob.onclick = () => goLesson(nextIdx);
+}
 
-/* ---------- Level panel ---------- */
+/* ---------- Level: explanation on the left, quest above the editor ---------- */
+const questEl = $("quest");
 function renderLevel() {
   const lv = level(), it = item(), L = it[S.lang], w = WORLDS[lv.w], key = worldMascot(lv);
-  const st = S.stars[lv.id] || 0, att = attempt(lv.id), quiz = it.kind === "quiz";
+  const st = S.stars[lv.id] || 0;
   if (!ui.msay) { ui.msay = pickLine(key, "hello", hashStr(lv.id + S.lang)); ui.mexpr = "i"; }
-  const wl = w.levels.length;
   const theory = L.theory.map((b, k) => typeof b === "string" ? b :
     `<div class="ex"><pre>${highlight(b.code)}</pre><div class="ex-foot"><button class="btn tiny" data-ex="${k}">${t("tryIt")}</button></div></div>`).join("");
   const needs = it.needs === "full" && engine === "skulpt" ? `<div class="notice">${t("needsFull")}</div>` : "";
-  let work = "";
-  if (quiz) {
-    const q = L.quiz, qs = ui.quiz || (ui.quiz = { wrong: [], solved: false });
-    const opts = q.options.map((o, i) => {
-      const cls = qs.solved && i === q.correct ? "right" : qs.wrong.includes(i) ? "wrong" : "";
-      return `<button class="qopt ${cls}" data-q="${i}" ${qs.solved || qs.wrong.includes(i) ? "disabled" : ""}><pre>${escHtml(o)}</pre></button>`;
-    }).join("");
-    work = `<div class="task"><div class="eyebrow">${t("exercise")}</div><p>${L.task}</p></div>
-      <div class="ex"><pre>${highlight(q.code)}</pre></div>
-      <div class="eyebrow">${t("quizQ")}</div>
-      <div class="qopts">${opts}</div>
-      ${qs.wrong.length && !qs.solved ? `<p class="qfb bad">${t("quizWrong")}</p>` : ""}
-      ${qs.solved ? `<p class="qfb good">${t("quizRight")} ${escHtml(q.explain)}</p><div class="row"><button class="btn" id="q-run">${t("quizRun")}</button></div>` : ""}
-      <p class="rule">${t("quizStar")}</p>`;
-  } else {
-    const hintBox = ui.hint ? `<div class="hintbox"><div><b>${lv.boss ? t("bossHint") : t("hint")}.</b> ${escHtml(L.hint)}</div></div>` : "";
-    const solBox = ui.sol ? `<div class="hintbox"><b>${t("solTitle")}</b><pre>${highlight(L.solution)}</pre><div class="row"><button class="btn tiny" id="usesol">${t("useSol")}</button></div></div>` : "";
-    work = `<div class="task"><div class="eyebrow">${t("exercise")}</div><p>${L.task}</p></div>
-      <div class="status ${st ? "ok" : ""}">${st ? t("statusDone") : t("statusTodo")}</div>
-      ${hintBox}${solBox}
-      <div class="row">
-        <button class="btn" id="hint">${ui.hint ? t("hideHint") : lv.boss ? t("bossHint") : t("hint")}</button>
-        <button class="btn" id="sol">${ui.sol ? t("hideSol") : t("sol")}</button>
-      </div>
-      <p class="rule">${t("starRule")}</p>`;
-  }
   const prevOk = S.current > 0, nextOk = S.current + 1 < LEVELS.length && unlocked(S.current + 1);
   panel.innerHTML = `
-    <div class="lv-top"><button class="linkbtn" id="to-map">${t("backMap")}</button><span class="eyebrow">${w.dir} · ${lv.boss ? t("bossTag") : t("levelOf", lv.n + 1, wl)}</span></div>
+    <div class="lv-top"><button class="linkbtn" id="to-map">${t("backExplorer")}</button><span class="crumb">~/${dirName(w, S.lang)}/<b>${curFile()}</b></span></div>
     <div class="lv-mascot" style="--wc:${MASCOTS[key].color}"><canvas id="lv-mascot" class="px" width="${PX_W}" height="${PX_H}" role="img" aria-label="${MASCOTS[key].name}"></canvas>
       <div class="bubble"><span class="who">${t("mascotSays", MASCOTS[key].name)}</span><p id="lv-say" aria-live="polite"></p></div></div>
     <div><h2>${lv.boss ? t("bossLabel", L.title) : L.title}</h2>
       <div class="lv-stars" aria-label="${st}/3">${[0, 1, 2].map((i) => `<span class="${i < st ? "on" : ""}">★</span>`).join("")}</div></div>
     ${needs}
     <div class="theory">${theory}</div>
-    ${work}
     <div class="row nav">
       <button class="btn" id="prev" ${prevOk ? "" : "disabled"}>${t("prev")}</button>
       <button class="btn ${st ? "go" : ""}" id="next" ${nextOk ? "" : "disabled"}>${t("next")}</button>
@@ -4233,12 +4298,43 @@ function renderLevel() {
   $("to-map").onclick = () => setView("map");
   $("prev").onclick = () => goLesson(S.current - 1);
   $("next").onclick = () => goLesson(S.current + 1);
-  if (quiz) {
-    panel.querySelectorAll("[data-q]").forEach((b) => { b.onclick = () => answerQuiz(+b.dataset.q); });
-    const qr = $("q-run"); if (qr) qr.onclick = () => runFile(L.quiz.code, t("quizFile"));
+  renderQuest();
+}
+function renderQuest() {
+  const lv = level(), it = item(), L = it[S.lang], st = S.stars[lv.id] || 0, att = attempt(lv.id);
+  const stars = `<span class="q-stars" aria-label="${st}/3">${[0, 1, 2].map((i) => `<span class="${i < st ? "on" : ""}">★</span>`).join("")}</span>`;
+  let body;
+  if (it.kind === "quiz") {
+    const q = L.quiz, qs = ui.quiz || (ui.quiz = { wrong: [], solved: false });
+    const opts = q.options.map((o, i) => {
+      const cls = qs.solved && i === q.correct ? "right" : qs.wrong.includes(i) ? "wrong" : "";
+      return `<button class="qopt ${cls}" data-q="${i}" ${qs.solved || qs.wrong.includes(i) ? "disabled" : ""}><pre>${escHtml(o)}</pre></button>`;
+    }).join("");
+    body = `<div class="ex"><pre>${highlight(q.code)}</pre></div>
+      <div class="eyebrow">${t("quizQ")}</div>
+      <div class="qopts">${opts}</div>
+      ${qs.wrong.length && !qs.solved ? `<p class="qfb bad">${t("quizWrong")}</p>` : ""}
+      ${qs.solved ? `<p class="qfb good">${t("quizRight")} ${escHtml(q.explain)}</p><div class="row"><button class="btn" id="q-run">${t("quizRun")}</button></div>` : ""}
+      <p class="rule">${t("quizStar")}</p>`;
   } else {
-    $("hint").onclick = () => { ui.hint = !ui.hint; if (ui.hint) { att.hint = true; save(); } renderPanel(); };
-    $("sol").onclick = () => { ui.sol = !ui.sol; if (ui.sol) { att.sol = true; save(); } renderPanel(); };
+    const hintBox = ui.hint ? `<div class="hintbox"><div><b>${lv.boss ? t("bossHint") : t("hint")}.</b> ${escHtml(L.hint)}</div></div>` : "";
+    const solBox = ui.sol ? `<div class="hintbox"><b>${t("solTitle")}</b><pre>${highlight(L.solution)}</pre><div class="row"><button class="btn tiny" id="usesol">${t("useSol")}</button></div></div>` : "";
+    body = `<div class="status ${st ? "ok" : ""}">${st ? t("statusDone") : t("statusTodo")}</div>
+      ${hintBox}${solBox}
+      <div class="row q-actions">
+        <button class="btn" id="hint">${ui.hint ? t("hideHint") : lv.boss ? t("bossHint") : t("hint")}</button>
+        <button class="btn" id="sol">${ui.sol ? t("hideSol") : t("sol")}</button>
+        <span class="rule">${t("starRule")}</span>
+      </div>`;
+  }
+  questEl.innerHTML = `<div class="q-head"><span class="q-tag">${t("questTag")}</span><span class="q-file">${curFile()}</span>${stars}</div>
+    <p class="q-task">${L.task}</p>${body}`;
+  if (it.kind === "quiz") {
+    questEl.querySelectorAll("[data-q]").forEach((b) => { b.onclick = () => answerQuiz(+b.dataset.q); });
+    const qr = $("q-run"); if (qr) qr.onclick = () => runFile(L.quiz.code, curFile());
+  } else {
+    $("hint").onclick = () => { ui.hint = !ui.hint; if (ui.hint) { att.hint = true; save(); } renderQuest(); };
+    $("sol").onclick = () => { ui.sol = !ui.sol; if (ui.sol) { att.sol = true; save(); } renderQuest(); };
     const use = $("usesol");
     if (use) use.onclick = () => { code.focus(); code.select(); insertAt(code, L.solution + "\n"); persistEditor(); };
   }
@@ -4251,10 +4347,10 @@ function answerQuiz(i) {
     qs.solved = true;
     SFX.right();
     setTimeout(() => { if (S.view === "lessons" && ui.quiz === qs) completeLevel(); }, 900);
-    renderPanel(); mascotReact("pass");
+    renderQuest(); mascotReact("pass");
   } else {
     qs.wrong.push(i); att.wrong = (att.wrong || 0) + 1; save();
-    renderPanel(); mascotReact("fail");
+    renderQuest(); mascotReact("fail");
   }
 }
 
@@ -4330,7 +4426,7 @@ function renderSettings() {
   if (ry) ry.onclick = () => {
     const keep = { lang: S.lang, programs: S.programs, active: S.active, fontSize: S.fontSize, theme: S.theme, sound: S.sound };
     S = Object.assign(DEFAULTS(), keep); sanitize(); save();
-    closeSettings(); ui.msay = ""; ui.quiz = null;
+    closeSettings(); ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null;
     applyStatic(); setView("map");
   };
 }
@@ -4340,7 +4436,7 @@ function restoreFrom(text) {
     S = Object.assign(DEFAULTS(), o.state); sanitize();
     S.lastBackup = o.date || new Date().toISOString();
     save();
-    ui.msay = ""; ui.quiz = null;
+    ui.msay = ""; ui.quiz = null; ui.open = null; ui.autoW = null;
     applyTheme(); applyFont(); applyStatic();
     setView(S.view === "term" || S.view === "free" ? S.view : "map");
     ui.settings = { code: false, confirm: false, msg: t("restored") };
@@ -4373,6 +4469,7 @@ function updateLayout() {
   grid.hidden = v === "map";
   grid.classList.toggle("termview", v === "term");
   grid.classList.toggle("quizmode", v === "lessons" && isQuiz());
+  questEl.hidden = v !== "lessons";
 }
 function setView(v, initial) {
   if (!initial && running && v !== "term" && S.view !== "term") return;

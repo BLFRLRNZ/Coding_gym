@@ -24,10 +24,11 @@ Un terminale Python che gira direttamente nel browser, con lezioni guidate per i
 
 ### Il percorso a livelli
 
-- **8 mondi, 34 livelli** da superare in ordine: Prima di iniziare, Le basi, Decisioni, Ripetere, Testo e funzioni, Strumenti, Oggetti e Bonus.
+- **Esplora file**: ogni mondo è una cartella e ogni livello un file `.py`, da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte. I mondi sono 8, per 34 livelli: Prima di iniziare, Le basi, Decisioni, Ripetere, Testo e funzioni, Strumenti, Oggetti e Bonus.
 - **Mondo 0 "Prima di iniziare"**: come ragiona Python, regole di scrittura, commenti, leggere un errore, blocchi e rientro.
 - **Un boss per mondo**: un programma pieno di bug da correggere, guidato da Papera, la paperella del debug, che risponde con domande invece che con soluzioni.
 - **Mascotte in pixel art** che guidano i mondi e reagiscono al tuo codice: Cursy, Bit, Graffa, Pip, Floppy e Papera.
+- **La quest** di ogni livello sta in un riquadro sopra l'editor, separata dalla spiegazione.
 - **Stelle**: ★★★ senza aiuti, ★★ con il suggerimento, ★ con la soluzione. Puoi rigiocare un livello per prenderle tutte.
 - **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice.
 - **Suoni morbidi** quando superi un livello, disattivabili.
@@ -62,10 +63,11 @@ A Python terminal that runs right in the browser, with guided lessons to learn p
 
 ### The level path
 
-- **8 worlds, 34 levels** unlocked in order: Before you start, The basics, Decisions, Repeating, Text and functions, Tools, Objects and Bonus.
+- **File explorer**: every world is a folder and every level a `.py` file, opened in order. Each folder has its own `README.md` with the mascot. There are 8 worlds and 34 levels: Before you start, The basics, Decisions, Repeating, Text and functions, Tools, Objects and Bonus.
 - **World 0 "Before you start"**: how Python thinks, writing rules, comments, reading an error, blocks and indentation.
 - **One boss per world**: a buggy program to fix, guided by Papera, the debugging duck, who answers with questions instead of solutions.
 - **Pixel-art mascots** that guide each world and react to your code: Cursy, Bit, Graffa, Pip, Floppy and Papera.
+- **The quest** of each level sits in its own box above the editor, apart from the explanation.
 - **Stars**: ★★★ with no help, ★★ with the hint, ★ with the solution. Replay a level to collect them all.
 - **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master.
 - **Soft sounds** when you pass a level, and you can turn them off.
