@@ -44,6 +44,7 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 - **Salvataggio**: dalle impostazioni puoi salvare i progressi in un file o in un codice da copiare, e ripristinarli anche su un altro dispositivo; il ripristino unisce i progressi invece di sovrascriverli.
 - **Pronta per la sincronizzazione**: il codice ha già il punto di aggancio per un server gratuito (oggetto `REMOTE` e unione dei progressi `mergeStates`), da collegare in seguito.
 - **App installabile**: aggiungila alla schermata Home; dopo la prima apertura funziona anche offline.
+- **Aggiornamenti**: nelle impostazioni vedi la data della versione che stai usando e puoi cercare gli aggiornamenti. Quando ne esce una nuova compare anche un avviso in basso; con **Aggiorna ora** l'app si ricarica già aggiornata e i progressi restano.
 
 ### Come usarla
 
@@ -93,6 +94,7 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 - **Saving**: from Settings you can save progress to a file or a copyable code, and restore it, even on another device; restoring merges progress instead of overwriting it.
 - **Ready for sync**: the code already has the hook for a free server (the `REMOTE` object and the `mergeStates` progress merge), to be connected later.
 - **Installable app**: add it to your home screen; after the first visit it also works offline.
+- **Updates**: Settings show the date of the version you're using and let you check for updates. When a new one is out, a strip at the bottom says so too; **Update now** reloads the app already updated, and your progress stays.
 
 ### How to use it
 
