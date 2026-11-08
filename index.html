@@ -1081,9 +1081,9 @@ self.onmessage = async (e) => {
    lessons, a "predict" quiz, a review that mixes old and new, a "build" level (one game that grows
    folder after folder) and a boss to debug. Kinds: "code" (default), "quiz", "order" (put the lines
    in order and set the indentation). Hints come in two steps: a question, then the plan in words. */
-const COURSE_VER = 5;
+const COURSE_VER = 6;
 /* Levels whose task changed in a version: saved drafts and attempts of these levels are dropped (stars stay) */
-const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"] };
+const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"], 6: ["str"] };
 
 /* Python's int() accepts spaces around the number, a sign and _ between digits */
 const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
@@ -1648,7 +1648,7 @@ print(2 + 3 * 4) # 14: prima la moltiplicazione
 print(1.5 * 2)   # 3.0` },
 `<p>Come in matematica, <code>*</code> e <code>/</code> vengono prima di <code>+</code> e <code>-</code>; con le parentesi decidi tu l'ordine: <code>(2 + 3) * 4</code> fa 20. I numeri con la virgola si scrivono con il <b>punto</b>, e la divisione <code>/</code> dà sempre un numero con la virgola: <code>10 / 2</code> fa <code>5.0</code>.</p>
 <p>Puoi fare i conti anche con le variabili.</p>`],
-    task: `Un rettangolo è largo <code>base</code> e alto <code>altezza</code>. Usando le variabili, stampa su quattro righe: l'area (base per altezza), il perimetro (il doppio di base più altezza), metà dell'area e il quadrato della base. Con i valori dati deve uscire <code>42</code>, <code>26</code>, <code>21.0</code> e <code>49</code>. Proverò anche con altre misure.`,
+    task: `Un rettangolo è largo <code>base</code> e alto <code>altezza</code>. Usando le variabili, stampa su quattro righe: l'area (base per altezza), il perimetro (la somma dei quattro lati: base più altezza, il tutto moltiplicato per 2), metà dell'area e il quadrato della base. Con i valori dati deve uscire <code>42</code>, <code>26</code>, <code>21.0</code> e <code>49</code>. Proverò anche con altre misure.`,
     starter: `base = 7\naltezza = 6\n\n`,
     solution: `base = 7
 altezza = 6
@@ -1658,7 +1658,7 @@ print(2 * (base + altezza))
 print(base * altezza / 2)
 print(base ** 2)`,
     hints: ["Quale operazione ti serve per ognuna delle quattro righe? Nel perimetro, cosa deve succedere prima: la somma o la moltiplicazione?",
-      "Area: base per altezza. Perimetro: 2 per base più altezza, con la somma tra parentesi. Metà dell'area: l'area divisa per 2. Quadrato: base elevato alla 2."],
+      "Area: base per altezza. Perimetro: prima la somma di base e altezza, tra parentesi, poi per 2. Metà dell'area: l'area divisa per 2. Quadrato: base elevato alla 2."],
     check: (o, c) => o === "42\n26\n21.0\n49" && /\bbase\b[^\n]*\*/.test(c) && /\baltezza\b/.test(c) && !/print\s*\(\s*(42|26|21\.0|49)\s*\)/.test(c),
     tests: (c) => tlist(tcase(swapRe(c, /base\s*=\s*7/, "base = 5") && c.replace(/base\s*=\s*7/, "base = 5").replace(/altezza\s*=\s*6/, "altezza = 2"),
       (o) => o === "10\n14\n5.0\n25", "con base = 5 e altezza = 2 doveva stampare 10, 14, 5.0 e 25")),
@@ -1676,7 +1676,7 @@ print(2 + 3 * 4) # 14: multiplication first
 print(1.5 * 2)   # 3.0` },
 `<p>As in math, <code>*</code> and <code>/</code> come before <code>+</code> and <code>-</code>; with parentheses you choose the order: <code>(2 + 3) * 4</code> is 20. Decimal numbers use a <b>dot</b>, and division <code>/</code> always gives a decimal number: <code>10 / 2</code> is <code>5.0</code>.</p>
 <p>You can do math with variables too.</p>`],
-    task: `A rectangle is <code>width</code> wide and <code>height</code> tall. Using the variables, print on four lines: the area (width times height), the perimeter (twice width plus height), half the area and the square of the width. With the given values the output must be <code>42</code>, <code>26</code>, <code>21.0</code> and <code>49</code>. I'll also try other sizes.`,
+    task: `A rectangle is <code>width</code> wide and <code>height</code> tall. Using the variables, print on four lines: the area (width times height), the perimeter (the sum of the four sides: width plus height, all times 2), half the area and the square of the width. With the given values the output must be <code>42</code>, <code>26</code>, <code>21.0</code> and <code>49</code>. I'll also try other sizes.`,
     starter: `width = 7\nheight = 6\n\n`,
     solution: `width = 7
 height = 6
@@ -1686,7 +1686,7 @@ print(2 * (width + height))
 print(width * height / 2)
 print(width ** 2)`,
     hints: ["Which operation do you need for each of the four lines? For the perimeter, what must happen first: the sum or the multiplication?",
-      "Area: width times height. Perimeter: 2 times width plus height, with the sum in parentheses. Half the area: the area divided by 2. Square: width to the power of 2."],
+      "Area: width times height. Perimeter: first the sum of width and height, in parentheses, then times 2. Half the area: the area divided by 2. Square: width to the power of 2."],
     check: (o, c) => o === "42\n26\n21.0\n49" && /\bwidth\b[^\n]*\*/.test(c) && /\bheight\b/.test(c) && !/print\s*\(\s*(42|26|21\.0|49)\s*\)/.test(c),
     tests: (c) => tlist(tcase(swapRe(c, /width\s*=\s*7/, "width = 5") && c.replace(/width\s*=\s*7/, "width = 5").replace(/height\s*=\s*6/, "height = 2"),
       (o) => o === "10\n14\n5.0\n25", "with width = 5 and height = 2 it had to print 10, 14, 5.0 and 25")),
@@ -3747,20 +3747,25 @@ print(parola[-1])      # n
 print(parola[1:4])     # yth
 print(parola[:2])      # Py: dall'inizio
 print("th" in parola)  # True` },
-`<p>E con <code>for</code> puoi scorrere le lettere una alla volta: <code>for lettera in parola:</code>.</p>`],
-    task: `Il codice di un biglietto è fatto così: le prime 3 lettere sono la città, poi 4 cifre per l'anno, poi il posto. Stampa, una per riga, la città, l'anno, il posto (dall'indice 7 alla fine) e quanti caratteri ha il codice. Deve uscire <code>ROM</code>, <code>2026</code>, <code>A12</code> e <code>10</code>. Proverò anche con un altro codice.`,
+`<p>Una differenza importante dalle liste: le lettere di una stringa <b>non si possono cambiare</b>. Se provi ad assegnarne una, come faresti con una lista, Python si ferma:</p>`,
+{ code: `parola = "Python"
+parola[0] = "J"`, error: true },
+`<p>L'errore è <code>TypeError: 'str' object does not support item assignment</code>: una stringa non accetta assegnazioni alle sue posizioni. Per avere un testo diverso se ne crea uno <b>nuovo</b>, unendo dei pezzi con <code>+</code>: <code>"J" + parola[1:]</code> dà <code>Jython</code>, e <code>parola</code> resta com'era.</p>
+<p>E con <code>for</code> puoi scorrere le lettere una alla volta: <code>for lettera in parola:</code>.</p>`],
+    task: `Il codice di un biglietto è fatto così: le prime 3 lettere sono la città, poi 4 cifre per l'anno, poi il posto. Stampa, una per riga, la città, l'anno, il posto (dall'indice 7 alla fine) e quanti caratteri ha il codice. Poi il biglietto cambia città: stampa il codice nuovo, con <code>TOR</code> al posto della città. Deve uscire <code>ROM</code>, <code>2026</code>, <code>A12</code>, <code>10</code> e <code>TOR2026A12</code>. Proverò anche con un altro codice.`,
     starter: `codice = "ROM2026A12"\n\n`,
     solution: `codice = "ROM2026A12"
 
 print(codice[0:3])
 print(codice[3:7])
 print(codice[7:])
-print(len(codice))`,
-    hints: ["Contando da 0, in che posizione comincia l'anno e dove finisce? Ricorda che il secondo numero della fetta è escluso.",
-      "Tre fette: dall'inizio a 3, da 3 a 7, e da 7 senza secondo numero, che vuol dire fino alla fine. Poi len() del codice."],
-    check: (o, c) => o === "ROM\n2026\nA12\n10" && /codice\s*\[\s*\d*\s*:/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /codice\s*=\s*"ROM2026A12"/, 'codice = "MIL2027B7"'), (o) => o === "MIL\n2027\nB7\n9", 'con codice = "MIL2027B7" doveva stampare MIL, 2027, B7 e 9')),
-    expect: "ROM\n2026\nA12\n10"
+print(len(codice))
+print("TOR" + codice[3:])`,
+    hints: ["Contando da 0, in che posizione comincia l'anno e dove finisce? E per il codice nuovo: puoi cambiare le lettere della stringa, o ti serve un testo nuovo?",
+      "Tre fette: dall'inizio a 3, da 3 a 7, e da 7 senza secondo numero, che vuol dire fino alla fine. Poi len() del codice. Per il codice nuovo unisci con + il testo TOR e la fetta che parte dall'indice 3."],
+    check: (o, c) => o === "ROM\n2026\nA12\n10\nTOR2026A12" && /codice\s*\[\s*\d*\s*:/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /codice\s*=\s*"ROM2026A12"/, 'codice = "MIL2027B7"'), (o) => o === "MIL\n2027\nB7\n9\nTOR2027B7", 'con codice = "MIL2027B7" doveva stampare MIL, 2027, B7, 9 e TOR2027B7')),
+    expect: "ROM\n2026\nA12\n10\nTOR2026A12"
   },
   en: {
     title: "Text is a row of letters",
@@ -3773,20 +3778,25 @@ print(word[-1])      # n
 print(word[1:4])     # yth
 print(word[:2])      # Py: from the start
 print("th" in word)  # True` },
-`<p>And with <code>for</code> you can go through the letters one at a time: <code>for letter in word:</code>.</p>`],
-    task: `A ticket code works like this: the first 3 letters are the city, then 4 digits for the year, then the seat. Print, one per line, the city, the year, the seat (from index 7 to the end) and how many characters the code has. The output must be <code>LON</code>, <code>2026</code>, <code>A12</code> and <code>10</code>. I'll also try another code.`,
+`<p>One big difference from lists: the letters of a string <b>can't be changed</b>. If you try to assign one, as you would with a list, Python stops:</p>`,
+{ code: `word = "Python"
+word[0] = "J"`, error: true },
+`<p>The error is <code>TypeError: 'str' object does not support item assignment</code>: a string doesn't accept assignments to its positions. To get a different text you make a <b>new</b> one, joining pieces with <code>+</code>: <code>"J" + word[1:]</code> gives <code>Jython</code>, and <code>word</code> stays as it was.</p>
+<p>And with <code>for</code> you can go through the letters one at a time: <code>for letter in word:</code>.</p>`],
+    task: `A ticket code works like this: the first 3 letters are the city, then 4 digits for the year, then the seat. Print, one per line, the city, the year, the seat (from index 7 to the end) and how many characters the code has. Then the ticket changes city: print the new code, with <code>NYC</code> instead of the city. The output must be <code>LON</code>, <code>2026</code>, <code>A12</code>, <code>10</code> and <code>NYC2026A12</code>. I'll also try another code.`,
     starter: `code = "LON2026A12"\n\n`,
     solution: `code = "LON2026A12"
 
 print(code[0:3])
 print(code[3:7])
 print(code[7:])
-print(len(code))`,
-    hints: ["Counting from 0, where does the year start and where does it end? Remember the slice's second number is left out.",
-      "Three slices: from the start to 3, from 3 to 7, and from 7 with no second number, which means to the end. Then len() of the code."],
-    check: (o, c) => o === "LON\n2026\nA12\n10" && /code\s*\[\s*\d*\s*:/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /code\s*=\s*"LON2026A12"/, 'code = "PAR2027B7"'), (o) => o === "PAR\n2027\nB7\n9", 'with code = "PAR2027B7" it had to print PAR, 2027, B7 and 9')),
-    expect: "LON\n2026\nA12\n10"
+print(len(code))
+print("NYC" + code[3:])`,
+    hints: ["Counting from 0, where does the year start and where does it end? And for the new code: can you change the string's letters, or do you need a new text?",
+      "Three slices: from the start to 3, from 3 to 7, and from 7 with no second number, which means to the end. Then len() of the code. For the new code join with + the text NYC and the slice starting at index 3."],
+    check: (o, c) => o === "LON\n2026\nA12\n10\nNYC2026A12" && /code\s*\[\s*\d*\s*:/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /code\s*=\s*"LON2026A12"/, 'code = "PAR2027B7"'), (o) => o === "PAR\n2027\nB7\n9\nNYC2027B7", 'with code = "PAR2027B7" it had to print PAR, 2027, B7, 9 and NYC2027B7')),
+    expect: "LON\n2026\nA12\n10\nNYC2026A12"
   }
 },
 {
@@ -4220,7 +4230,7 @@ def descrivi(n):
 
 print(descrivi(4))
 print(descrivi(7))` }],
-    task: `Scrivi <code>conta_vocali(testo)</code> che restituisce quante vocali ha il testo (maiuscole comprese). Poi scrivi <code>piu_vocali(a, b)</code> che, usando <code>conta_vocali</code>, restituisce la parola con più vocali (la prima, se sono pari). Stampa <code>piu_vocali("cane", "elefante")</code>: deve uscire <code>elefante</code>. Proverò anche le funzioni con altre parole.`,
+    task: `Scrivi <code>conta_vocali(testo)</code> che restituisce quante vocali ha il testo (maiuscole comprese). Poi scrivi <code>piu_vocali(a, b)</code> che, usando <code>conta_vocali</code>, restituisce la parola con più vocali (la prima, se ne hanno lo stesso numero). Stampa <code>piu_vocali("cane", "elefante")</code>: deve uscire <code>elefante</code>. Proverò anche le funzioni con altre parole.`,
     starter: `# Due funzioni: la seconda usa la prima\n\n`,
     solution: `def conta_vocali(testo):
     conta = 0
@@ -4256,7 +4266,7 @@ def describe(n):
 
 print(describe(4))
 print(describe(7))` }],
-    task: `Write <code>count_vowels(text)</code> that gives back how many vowels the text has (capitals included). Then write <code>more_vowels(a, b)</code> that, using <code>count_vowels</code>, gives back the word with more vowels (the first one, if they're equal). Print <code>more_vowels("cat", "elephant")</code>: the output must be <code>elephant</code>. I'll also try the functions with other words.`,
+    task: `Write <code>count_vowels(text)</code> that gives back how many vowels the text has (capitals included). Then write <code>more_vowels(a, b)</code> that, using <code>count_vowels</code>, gives back the word with more vowels (the first one, if they have the same number). Print <code>more_vowels("cat", "elephant")</code>: the output must be <code>elephant</code>. I'll also try the functions with other words.`,
     starter: `# Two functions: the second uses the first\n\n`,
     solution: `def count_vowels(text):
     count = 0
@@ -10014,7 +10024,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "80739f82e0", APP_BUILT = "2026-11-08T22:12Z";
+const APP_VERSION = "dc4fc0a679", APP_BUILT = "2026-11-08T22:23Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
