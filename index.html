@@ -1370,8 +1370,16 @@ print("Questa riga resta")
 print("Anche questa resta")`,
     hints: ["Come fa Python a ignorare una riga senza che tu la cancelli? E dove si scrive una nota per chi legge?",
       "Metti un # all'inizio della seconda riga. Poi aggiungi una riga nuova in cima, che comincia con # e contiene la tua spiegazione."],
-    check: (o, c) => { const first = c.trim().split("\n")[0]; return o === "Questa riga resta\nAnche questa resta" && /#\s*print\(\s*"Questa riga va spenta"\s*\)/.test(c) && /^#/.test(first) && !/print/.test(first); },
-    why: (o, c) => (o === "Questa riga resta\nAnche questa resta" && !/^#/.test(c.trim().split("\n")[0]) ? "L'output è giusto: manca il commento in cima che spiega il programma." : null),
+    check: (o, c) => { const first = c.trim().split("\n")[0]; return o === "Questa riga resta\nAnche questa resta" && /#\s*print\(\s*"Questa riga va spenta"\s*\)/.test(c) && /^#\s*\S/.test(first) && !/^#\s*print\s*\(/.test(first); },
+    why: (o, c) => {
+      const first = c.trim().split("\n")[0];
+      if (o !== "Questa riga resta\nAnche questa resta") return null;
+      if (!/^#/.test(first)) return "L'output è giusto: manca il commento in cima che spiega il programma.";
+      if (/^#\s*print\s*\(/.test(first)) return "L'output è giusto, ma in cima c'è una riga di codice spenta: il commento in cima deve spiegare a parole cosa fa il programma.";
+      if (!/^#\s*\S/.test(first)) return "Il commento in cima è vuoto: dopo il # scrivi cosa fa il programma.";
+      if (!/#\s*print\(\s*"Questa riga va spenta"\s*\)/.test(c)) return "L'output è giusto, ma la seconda riga va spenta mettendole un # davanti, non cancellata.";
+      return null;
+    },
     expect: "Questa riga resta\nAnche questa resta"
   },
   en: {
@@ -1390,8 +1398,16 @@ print("This line stays")
 print("This one stays too")`,
     hints: ["How can Python ignore a line without you deleting it? And where do you write a note for the reader?",
       "Put a # at the start of the second line. Then add a new line at the top that starts with # and holds your explanation."],
-    check: (o, c) => { const first = c.trim().split("\n")[0]; return o === "This line stays\nThis one stays too" && /#\s*print\(\s*"This line must go"\s*\)/.test(c) && /^#/.test(first) && !/print/.test(first); },
-    why: (o, c) => (o === "This line stays\nThis one stays too" && !/^#/.test(c.trim().split("\n")[0]) ? "The output is right: the comment at the top that explains the program is missing." : null),
+    check: (o, c) => { const first = c.trim().split("\n")[0]; return o === "This line stays\nThis one stays too" && /#\s*print\(\s*"This line must go"\s*\)/.test(c) && /^#\s*\S/.test(first) && !/^#\s*print\s*\(/.test(first); },
+    why: (o, c) => {
+      const first = c.trim().split("\n")[0];
+      if (o !== "This line stays\nThis one stays too") return null;
+      if (!/^#/.test(first)) return "The output is right: the comment at the top that explains the program is missing.";
+      if (/^#\s*print\s*\(/.test(first)) return "The output is right, but at the top there's a switched-off line of code: the comment at the top must explain in words what the program does.";
+      if (!/^#\s*\S/.test(first)) return "The comment at the top is empty: after the # write what the program does.";
+      if (!/#\s*print\(\s*"This line must go"\s*\)/.test(c)) return "The output is right, but the second line must be switched off with a # in front, not deleted.";
+      return null;
+    },
     expect: "This line stays\nThis one stays too"
   }
 },
@@ -3197,7 +3213,7 @@ spesa.append("uova")     # ["latte", "pane", "uova"]
 spesa.remove("latte")    # ["pane", "uova"]
 spesa[0] = "pane nero"   # ["pane nero", "uova"]
 print(spesa)` }],
-    task: `Prepara lo zaino per l'avventura: sostituisci la <code>corda</code> con una <code>torcia</code> usando l'indice, aggiungi una <code>bussola</code> in fondo e togli la <code>mela</code>. Poi stampa lo zaino: <code>['torcia', 'mappa', 'bussola']</code>.`,
+    task: `Prepara lo zaino per l'avventura: sostituisci la <code>corda</code> con una <code>torcia</code> usando l'indice, aggiungi una <code>bussola</code> in fondo e togli la <code>mela</code>. Poi stampa lo zaino: <code>['torcia', 'mappa', 'bussola']</code>. Le tre modifiche puoi farle nell'ordine che vuoi. Proverò anche con uno zaino diverso.`,
     starter: `zaino = ["mela", "corda", "mappa"]\n\n`,
     solution: `zaino = ["mela", "corda", "mappa"]
 
@@ -3207,7 +3223,9 @@ zaino.remove("mela")
 print(zaino)`,
     hints: ["In che posizione si trova la corda, contando da 0? Quale strumento aggiunge in fondo e quale toglie?",
       "Prima la sostituzione con l'indice della corda, poi append con la bussola, poi remove con la mela; infine stampa la lista."],
-    check: (o, c) => o === "['torcia', 'mappa', 'bussola']" && /zaino\s*\[\s*1\s*\]\s*=/.test(c) && /\.append\s*\(/.test(c) && /\.remove\s*\(/.test(c),
+    check: (o, c) => o === "['torcia', 'mappa', 'bussola']" && /zaino\s*\[\s*-?\d+\s*\]\s*=/.test(c) && /\.append\s*\(/.test(c) && /\.remove\s*\(/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /zaino\s*=\s*\["mela", "corda", "mappa"\]/, 'zaino = ["mela", "corda", "mappa", "pane"]'), (o) => o === "['torcia', 'mappa', 'pane', 'bussola']",
+      'con zaino = ["mela", "corda", "mappa", "pane"] doveva stampare [\'torcia\', \'mappa\', \'pane\', \'bussola\']')),
     expect: "['torcia', 'mappa', 'bussola']"
   },
   en: {
@@ -3219,7 +3237,7 @@ shopping.append("eggs")      # ["milk", "bread", "eggs"]
 shopping.remove("milk")      # ["bread", "eggs"]
 shopping[0] = "rye bread"    # ["rye bread", "eggs"]
 print(shopping)` }],
-    task: `Pack the backpack for the adventure: replace the <code>rope</code> with a <code>torch</code> using the index, add a <code>compass</code> at the end and take out the <code>apple</code>. Then print the backpack: <code>['torch', 'map', 'compass']</code>.`,
+    task: `Pack the backpack for the adventure: replace the <code>rope</code> with a <code>torch</code> using the index, add a <code>compass</code> at the end and take out the <code>apple</code>. Then print the backpack: <code>['torch', 'map', 'compass']</code>. You can make the three changes in any order. I'll also try another backpack.`,
     starter: `backpack = ["apple", "rope", "map"]\n\n`,
     solution: `backpack = ["apple", "rope", "map"]
 
@@ -3229,7 +3247,9 @@ backpack.remove("apple")
 print(backpack)`,
     hints: ["In which position is the rope, counting from 0? Which tool adds at the end and which takes out?",
       "First the replacement with the rope's index, then append with the compass, then remove with the apple; finally print the list."],
-    check: (o, c) => o === "['torch', 'map', 'compass']" && /backpack\s*\[\s*1\s*\]\s*=/.test(c) && /\.append\s*\(/.test(c) && /\.remove\s*\(/.test(c),
+    check: (o, c) => o === "['torch', 'map', 'compass']" && /backpack\s*\[\s*-?\d+\s*\]\s*=/.test(c) && /\.append\s*\(/.test(c) && /\.remove\s*\(/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /backpack\s*=\s*\["apple", "rope", "map"\]/, 'backpack = ["apple", "rope", "map", "bread"]'), (o) => o === "['torch', 'map', 'bread', 'compass']",
+      'with backpack = ["apple", "rope", "map", "bread"] it had to print [\'torch\', \'map\', \'bread\', \'compass\']')),
     expect: "['torch', 'map', 'compass']"
   }
 },
@@ -5138,7 +5158,7 @@ print(doppi)` },
 `<p>Puoi anche filtrare, aggiungendo un if in fondo:</p>`,
 { code: `pari = [n for n in range(10) if n % 2 == 0]
 print(pari)` }],
-    task: `Dalle temperature della settimana crea con due list comprehension: la lista delle temperature calde (sopra i 27 gradi) e la lista di tutte le temperature in Fahrenheit (gradi per 9, diviso 5, più 32). Stampale: <code>[31, 35, 28]</code> e <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
+    task: `Dalle temperature della settimana crea con due list comprehension: la lista delle temperature calde (sopra i 27 gradi) e la lista di tutte le temperature in Fahrenheit (gradi per 9, diviso 5, più 32). Stampale: <code>[31, 35, 28]</code> e <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>. Proverò anche con altre temperature.`,
     starter: `temperature = [18, 25, 31, 22, 35, 28]\n\n`,
     solution: `temperature = [18, 25, 31, 22, 35, 28]
 
@@ -5149,6 +5169,8 @@ print(fahrenheit)`,
     hints: ["Quale delle due liste ha bisogno di un filtro, e quale di un calcolo su ogni elemento?",
       "La prima prende ogni temperatura così com'è, con un if in fondo per quelle sopra 27. La seconda mette la formula al posto dell'elemento, senza filtro."],
     check: (o, c) => o === "[31, 35, 28]\n[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]" && (c.match(/\[[^\]\n]*\bfor\b[^\]\n]*\]/g) || []).length >= 2,
+    tests: (c) => tlist(tcase(swapRe(c, /temperature\s*=\s*\[[^\]]*\]/, "temperature = [30, 20, 28]"), (o) => o === "[30, 28]\n[86.0, 68.0, 82.4]",
+      "con temperature = [30, 20, 28] doveva stampare [30, 28] e [86.0, 68.0, 82.4]")),
     expect: "[31, 35, 28]\n[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]"
   },
   en: {
@@ -5167,7 +5189,7 @@ print(doubles)` },
 `<p>You can also filter, adding an if at the end:</p>`,
 { code: `evens = [n for n in range(10) if n % 2 == 0]
 print(evens)` }],
-    task: `From the week's temperatures build, with two list comprehensions: the list of hot temperatures (over 27 degrees) and the list of all the temperatures in Fahrenheit (degrees times 9, divided by 5, plus 32). Print them: <code>[31, 35, 28]</code> and <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
+    task: `From the week's temperatures build, with two list comprehensions: the list of hot temperatures (over 27 degrees) and the list of all the temperatures in Fahrenheit (degrees times 9, divided by 5, plus 32). Print them: <code>[31, 35, 28]</code> and <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>. I'll also try other temperatures.`,
     starter: `temperatures = [18, 25, 31, 22, 35, 28]\n\n`,
     solution: `temperatures = [18, 25, 31, 22, 35, 28]
 
@@ -5178,6 +5200,8 @@ print(fahrenheit)`,
     hints: ["Which of the two lists needs a filter, and which a calculation on every item?",
       "The first takes each temperature as it is, with an if at the end for those over 27. The second puts the formula in place of the item, with no filter."],
     check: (o, c) => o === "[31, 35, 28]\n[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]" && (c.match(/\[[^\]\n]*\bfor\b[^\]\n]*\]/g) || []).length >= 2,
+    tests: (c) => tlist(tcase(swapRe(c, /temperatures\s*=\s*\[[^\]]*\]/, "temperatures = [30, 20, 28]"), (o) => o === "[30, 28]\n[86.0, 68.0, 82.4]",
+      "with temperatures = [30, 20, 28] it had to print [30, 28] and [86.0, 68.0, 82.4]")),
     expect: "[31, 35, 28]\n[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]"
   }
 },
@@ -5975,7 +5999,7 @@ print(f"{player.name}, games played: {player.games}. Record: {player.record} poi
 sistema = [Pianeta("Terra", 1), Pianeta("Marte", 2)]
 for p in sistema:
     print(p.nome, "ha", p.lune, "lune")` }],
-    task: `Con la classe <code>Giocatore</code> crea una lista di tre giocatori: Ada con 30 punti, Bob con 25 e Cleo con 40. Scorri la lista e stampa ogni giocatore come <code>Ada: 30</code>, poi trova chi ha più punti e stampa <code>Vince Cleo con 40 punti</code>.`,
+    task: `Con la classe <code>Giocatore</code> crea una lista di tre giocatori: Ada con 30 punti, Bob con 25 e Cleo con 40. Scorri la lista e stampa ogni giocatore come <code>Ada: 30</code>, poi trova chi ha più punti e stampa <code>Vince Cleo con 40 punti</code>. Proverò anche con altri punteggi.`,
     starter: `class Giocatore:\n    def __init__(self, nome, punti):\n        self.nome = nome\n        self.punti = punti\n\n`,
     solution: `class Giocatore:
     def __init__(self, nome, punti):
@@ -5992,6 +6016,9 @@ print(f"Vince {migliore.nome} con {migliore.punti} punti")`,
     hints: ["Come ti ricordi il giocatore migliore mentre scorri la lista? Da chi conviene partire?",
       "Crea la lista con tre giocatori. Parti con il migliore uguale al primo della lista; nel for stampa ogni giocatore e, se ha più punti del migliore, il migliore diventa lui. Alla fine stampa il vincitore."],
     check: (o, c) => o === "Ada: 30\nBob: 25\nCleo: 40\nVince Cleo con 40 punti" && /\bfor\b/.test(c),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /Giocatore\(\s*"Cleo"\s*,\s*40\s*\)/, 'Giocatore("Cleo", 10)'), (o) => o === "Ada: 30\nBob: 25\nCleo: 10\nVince Ada con 30 punti", "con Cleo a 10 punti doveva vincere Ada con 30 punti"),
+      tcase(swapRe(c, /Giocatore\(\s*"Bob"\s*,\s*25\s*\)/, 'Giocatore("Bob", 50)'), (o) => o === "Ada: 30\nBob: 50\nCleo: 40\nVince Bob con 50 punti", "con Bob a 50 punti doveva vincere Bob")),
     expect: "Ada: 30\nBob: 25\nCleo: 40\nVince Cleo con 40 punti"
   },
   en: {
@@ -6007,7 +6034,7 @@ print(f"Vince {migliore.nome} con {migliore.punti} punti")`,
 system = [Planet("Earth", 1), Planet("Mars", 2)]
 for p in system:
     print(p.name, "has", p.moons, "moons")` }],
-    task: `With the class <code>Player</code> create a list of three players: Ada with 30 points, Bob with 25 and Cleo with 40. Loop over the list and print each player as <code>Ada: 30</code>, then find who has most points and print <code>Cleo wins with 40 points</code>.`,
+    task: `With the class <code>Player</code> create a list of three players: Ada with 30 points, Bob with 25 and Cleo with 40. Loop over the list and print each player as <code>Ada: 30</code>, then find who has most points and print <code>Cleo wins with 40 points</code>. I'll also try other scores.`,
     starter: `class Player:\n    def __init__(self, name, points):\n        self.name = name\n        self.points = points\n\n`,
     solution: `class Player:
     def __init__(self, name, points):
@@ -6024,6 +6051,9 @@ print(f"{best.name} wins with {best.points} points")`,
     hints: ["How do you remember the best player while going through the list? Who is it best to start from?",
       "Create the list with three players. Start with the best equal to the first in the list; in the for print each player and, if they have more points than the best, they become the best. At the end print the winner."],
     check: (o, c) => o === "Ada: 30\nBob: 25\nCleo: 40\nCleo wins with 40 points" && /\bfor\b/.test(c),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /Player\(\s*"Cleo"\s*,\s*40\s*\)/, 'Player("Cleo", 10)'), (o) => o === "Ada: 30\nBob: 25\nCleo: 10\nAda wins with 30 points", "with Cleo at 10 points Ada had to win with 30 points"),
+      tcase(swapRe(c, /Player\(\s*"Bob"\s*,\s*25\s*\)/, 'Player("Bob", 50)'), (o) => o === "Ada: 30\nBob: 50\nCleo: 40\nBob wins with 50 points", "with Bob at 50 points Bob had to win")),
     expect: "Ada: 30\nBob: 25\nCleo: 40\nCleo wins with 40 points"
   }
 },
@@ -10029,7 +10059,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "6ec581af4b", APP_BUILT = "2026-11-08T22:41Z";
+const APP_VERSION = "4681f0cc9b", APP_BUILT = "2026-11-08T22:51Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
