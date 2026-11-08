@@ -1089,49 +1089,16 @@ const RIG = (expr) => `import random\nrandom.randint = lambda a, b: ${expr}\n`;
 /* ---------- 00_inizio: how Python reads, print, the writing rules, comments, errors ---------- */
 const C00 = [
 {
-  id: "how", kind: "quiz", teaches: ["print", "plus"],
-  it: {
-    title: "Come ragiona Python",
-    theory: [
-`<p>Un programma è una lista di istruzioni. Python le legge <b>dall'alto in basso</b>, una riga alla volta, e fa <b>esattamente</b> quello che c'è scritto: niente di più, niente di meno.</p>
-<p>Il codice si scrive nell'<b>editor</b> e si avvia con <b>▶ Esegui</b>: il risultato compare nel <b>terminale</b>, la striscia scura in basso. Nel terminale puoi anche provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>, ma per superare i livelli conta il codice dell'editor.</p>`,
-{ code: `print("Prima riga")
-print("Seconda riga")
-print(10 + 5)` },
-`<p>Il testo tra virgolette viene stampato così com'è. Senza virgolette, invece, Python lo considera un calcolo o un nome.</p>`],
-    task: `Leggi il codice e indovina cosa stampa, prima di eseguirlo.`,
-    quiz: [{ code: `print("Buongiorno")
-print(2 + 3)
-print("2 + 3")`,
-      options: ["Buongiorno\n5\n2 + 3", "Buongiorno\n5\n5", "Buongiorno\n2 + 3\n2 + 3", "2 + 3\n5\nBuongiorno"], correct: 0,
-      explain: "Python esegue le righe in ordine. 2 + 3 senza virgolette è un calcolo e dà 5; tra virgolette è testo e viene stampato così com'è." }]
-  },
-  en: {
-    title: "How Python thinks",
-    theory: [
-`<p>A program is a list of instructions. Python reads them <b>from top to bottom</b>, one line at a time, and does <b>exactly</b> what's written: nothing more, nothing less.</p>
-<p>You write code in the <b>editor</b> and start it with <b>▶ Run</b>: the result appears in the <b>terminal</b>, the dark strip at the bottom. In the terminal you can also try one instruction at a time after <code>&gt;&gt;&gt;</code>, but to pass levels what counts is the code in the editor.</p>`,
-{ code: `print("First line")
-print("Second line")
-print(10 + 5)` },
-`<p>Text between quotes is printed as it is. Without quotes, Python treats it as a calculation or a name.</p>`],
-    task: `Read the code and guess what it prints, before running it.`,
-    quiz: [{ code: `print("Good morning")
-print(2 + 3)
-print("2 + 3")`,
-      options: ["Good morning\n5\n2 + 3", "Good morning\n5\n5", "Good morning\n2 + 3\n2 + 3", "2 + 3\n5\nGood morning"], correct: 0,
-      explain: "Python runs the lines in order. 2 + 3 without quotes is a calculation and gives 5; in quotes it's text and is printed as it is." }]
-  }
-},
-{
-  id: "print", teaches: [],
+  id: "print", teaches: ["print", "plus"],
   it: {
     title: "Il tuo primo programma",
     theory: [
-`<p><code>print()</code> mostra nel terminale quello che metti tra le parentesi. Il testo va tra virgolette e in Python si chiama <b>stringa</b>. I numeri e i calcoli si scrivono senza virgolette: Python fa il conto e stampa il risultato.</p>`,
+`<p>Benvenuto! Un programma è una lista di istruzioni: Python le esegue <b>dall'alto in basso</b>, una riga alla volta, e fa <b>esattamente</b> quello che c'è scritto. Il programma si scrive nell'<b>editor</b>, il riquadro con i numeri di riga, e si avvia con <b>▶ Esegui</b>: quello che stampa compare nel <b>terminale</b>, la striscia scura in basso.</p>
+<p>La prima istruzione è <code>print()</code>: mostra nel terminale quello che metti tra le parentesi. Il testo va tra virgolette e in Python si chiama <b>stringa</b>. I numeri e i calcoli si scrivono senza virgolette: Python fa il conto e stampa il risultato.</p>`,
 { code: `print("Buongiorno")
 print(3 + 4)` },
-`<p>Ogni <code>print</code> stampa una riga. Premi <b>▶ Prova</b> sotto l'esempio per vederlo girare nel terminale.</p>`],
+`<p>Ogni <code>print</code> stampa una riga: qui escono <code>Buongiorno</code> e poi <code>7</code>. Premi <b>▶ Prova</b> sotto l'esempio per vederlo girare nel terminale.</p>
+<p>Nel terminale puoi anche provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>; per superare il livello, però, conta il codice dell'editor.</p>`],
     task: `Stampa due righe: prima <code>Ciao, mondo!</code>, poi il risultato di <code>100 + 23</code> calcolato da Python, senza scrivere 123 a mano.`,
     starter: ``,
     solution: `print("Ciao, mondo!")
@@ -1144,10 +1111,12 @@ print(100 + 23)`,
   en: {
     title: "Your first program",
     theory: [
-`<p><code>print()</code> shows in the terminal whatever you put between the parentheses. Text goes between quotes and in Python it's called a <b>string</b>. Numbers and calculations are written without quotes: Python does the math and prints the result.</p>`,
+`<p>Welcome! A program is a list of instructions: Python runs them <b>from top to bottom</b>, one line at a time, and does <b>exactly</b> what's written. You write the program in the <b>editor</b>, the box with the line numbers, and start it with <b>▶ Run</b>: what it prints shows up in the <b>terminal</b>, the dark strip at the bottom.</p>
+<p>The first instruction is <code>print()</code>: it shows in the terminal whatever you put between the parentheses. Text goes between quotes and in Python it's called a <b>string</b>. Numbers and calculations are written without quotes: Python does the math and prints the result.</p>`,
 { code: `print("Good morning")
 print(3 + 4)` },
-`<p>Each <code>print</code> prints one line. Press <b>▶ Try it</b> under the example to run it in the terminal.</p>`],
+`<p>Each <code>print</code> prints one line: here you get <code>Good morning</code> and then <code>7</code>. Press <b>▶ Try it</b> under the example to run it in the terminal.</p>
+<p>In the terminal you can also try one instruction at a time after <code>&gt;&gt;&gt;</code>; to pass the level, though, what counts is the code in the editor.</p>`],
     task: `Print two lines: first <code>Hello, world!</code>, then the result of <code>100 + 23</code> worked out by Python, without typing 123 yourself.`,
     starter: ``,
     solution: `print("Hello, world!")
@@ -1156,6 +1125,41 @@ print(100 + 23)`,
       "In the first print the text goes between quotes. In the second, write the calculation without quotes: that way Python does it."],
     check: (o, c) => o === "Hello, world!\n123" && /100\s*\+\s*23/.test(c),
     expect: "Hello, world!\n123"
+  }
+},
+{
+  id: "how", kind: "quiz", teaches: [],
+  it: {
+    title: "Prevedi: come ragiona Python",
+    theory: [
+`<p>Prima di eseguire un programma, prova a immaginare cosa farà: è l'allenamento più utile che ci sia, e lo ritroverai in ogni cartella con i livelli <b>Prevedi</b>.</p>
+<p>Per prevedere, ragiona come Python: legge le righe <b>dall'alto in basso</b> e per ogni <code>print</code> stampa una riga. Quello che sta tra virgolette esce così com'è; un calcolo senza virgolette esce già fatto.</p>`,
+{ code: `print("Prima riga")
+print("Seconda riga")
+print(10 + 5)` },
+`<p>Qui escono <code>Prima riga</code>, <code>Seconda riga</code> e <code>15</code>, in quest'ordine.</p>`],
+    task: `Leggi il codice e scegli cosa stampa. Dopo la risposta giusta potrai eseguirlo per vederlo.`,
+    quiz: [{ code: `print("Buongiorno")
+print(2 + 3)
+print("2 + 3")`,
+      options: ["Buongiorno\n5\n2 + 3", "Buongiorno\n5\n5", "Buongiorno\n2 + 3\n2 + 3", "2 + 3\n5\nBuongiorno"], correct: 0,
+      explain: "Python esegue le righe in ordine. 2 + 3 senza virgolette è un calcolo e dà 5; tra virgolette è testo e viene stampato così com'è." }]
+  },
+  en: {
+    title: "Predict: how Python thinks",
+    theory: [
+`<p>Before running a program, try to picture what it will do: it's the most useful training there is, and you'll find it in every folder in the <b>Predict</b> levels.</p>
+<p>To predict, think like Python: it reads the lines <b>from top to bottom</b> and prints one line for each <code>print</code>. What's between quotes comes out as it is; a calculation without quotes comes out already worked out.</p>`,
+{ code: `print("First line")
+print("Second line")
+print(10 + 5)` },
+`<p>Here you get <code>First line</code>, <code>Second line</code> and <code>15</code>, in this order.</p>`],
+    task: `Read the code and choose what it prints. After the right answer you can run it to see it.`,
+    quiz: [{ code: `print("Good morning")
+print(2 + 3)
+print("2 + 3")`,
+      options: ["Good morning\n5\n2 + 3", "Good morning\n5\n5", "Good morning\n2 + 3\n2 + 3", "2 + 3\n5\nGood morning"], correct: 0,
+      explain: "Python runs the lines in order. 2 + 3 without quotes is a calculation and gives 5; in quotes it's text and is printed as it is." }]
   }
 },
 {
@@ -1552,9 +1556,9 @@ print(width ** 2)`,
   }
 },
 {
-  id: "cambia", kind: "quiz", teaches: ["augassign"],
+  id: "update", teaches: ["augassign"],
   it: {
-    title: "Prevedi: le variabili cambiano",
+    title: "Le variabili cambiano",
     theory: [
 `<p>Una variabile può cambiare valore: basta assegnarle un valore nuovo. A destra dell'<code>=</code> puoi usare anche il valore vecchio: <code>punti = punti + 5</code> vuol dire "calcola punti + 5 e rimetti il risultato in punti".</p>`,
 { code: `punti = 10
@@ -1564,7 +1568,54 @@ print(punti)   # 15
 punti += 5     # come punti = punti + 5
 punti -= 2     # come punti = punti - 2
 print(punti)   # 18` },
-`<p>Python esegue le righe in ordine: per sapere quanto vale una variabile, segui le righe una alla volta e tieni il conto, come farebbe lui.</p>`],
+`<p><code>+=</code> e <code>-=</code> sono scorciatoie: aggiungono o tolgono un valore alla variabile. C'è anche <code>*=</code>, che la moltiplica. Python esegue le righe in ordine, quindi ogni riga parte dal valore lasciato da quella prima.</p>`],
+    task: `Hai 10 monete. Ne raccogli 5, ne spendi 8 al negozio, poi un forziere le raddoppia. Aggiorna <code>monete</code> a ogni passo, usando <code>+=</code> e <code>-=</code>, e alla fine stampa <code>Monete: 14</code>. Lo proverò anche partendo da un altro numero di monete.`,
+    starter: `monete = 10\n\n`,
+    solution: `monete = 10
+
+monete += 5
+monete -= 8
+monete *= 2
+print("Monete:", monete)`,
+    hints: ["Quante volte cambia il numero di monete? Quale scorciatoia aggiunge e quale toglie?",
+      "Tre righe che aggiornano monete: una con += 5, una con -= 8 e una che la raddoppia (con *= 2 oppure moltiplicando per 2). Poi il print con la virgola."],
+    check: (o, c) => o === "Monete: 14" && /monete\s*\+=/.test(c) && /monete\s*-=/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /monete\s*=\s*10\b/, "monete = 20"), (o) => o === "Monete: 34", "partendo da 20 monete doveva stampare Monete: 34")),
+    expect: "Monete: 14"
+  },
+  en: {
+    title: "Variables change",
+    theory: [
+`<p>A variable can change its value: just assign it a new one. On the right of the <code>=</code> you can also use the old value: <code>points = points + 5</code> means "work out points + 5 and put the result back in points".</p>`,
+{ code: `points = 10
+points = points + 5
+print(points)   # 15
+
+points += 5     # same as points = points + 5
+points -= 2     # same as points = points - 2
+print(points)   # 18` },
+`<p><code>+=</code> and <code>-=</code> are shortcuts: they add a value to the variable or take it away. There's also <code>*=</code>, which multiplies it. Python runs the lines in order, so each line starts from the value the one before left.</p>`],
+    task: `You have 10 coins. You collect 5, spend 8 at the shop, then a chest doubles them. Update <code>coins</code> at each step, using <code>+=</code> and <code>-=</code>, and at the end print <code>Coins: 14</code>. I'll also try it starting from a different number of coins.`,
+    starter: `coins = 10\n\n`,
+    solution: `coins = 10
+
+coins += 5
+coins -= 8
+coins *= 2
+print("Coins:", coins)`,
+    hints: ["How many times does the number of coins change? Which shortcut adds and which one takes away?",
+      "Three lines that update coins: one with += 5, one with -= 8 and one that doubles it (with *= 2 or by multiplying by 2). Then the print with the comma."],
+    check: (o, c) => o === "Coins: 14" && /coins\s*\+=/.test(c) && /coins\s*-=/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /coins\s*=\s*10\b/, "coins = 20"), (o) => o === "Coins: 34", "starting from 20 coins it had to print Coins: 34")),
+    expect: "Coins: 14"
+  }
+},
+{
+  id: "cambia", kind: "quiz", teaches: [],
+  it: {
+    title: "Prevedi: le variabili cambiano",
+    theory: [
+`<p>Ora che sai aggiornare una variabile, segui un programma come fa Python: una riga alla volta, tenendo il conto del valore di ogni variabile. Se ti aiuta, scrivilo su un foglio, riga dopo riga.</p>`],
     task: `Segui il codice riga per riga e prevedi cosa stampa.`,
     quiz: [
       { code: `vite = 3
@@ -1583,15 +1634,7 @@ print("Ho", soldi, "euro")`, options: ["Ho 25 euro", "Ho 15 euro", "Ho 20 euro",
   en: {
     title: "Predict: variables change",
     theory: [
-`<p>A variable can change its value: just assign it a new one. On the right of <code>=</code> you can use the old value too: <code>points = points + 5</code> means "work out points + 5 and put the result back in points".</p>`,
-{ code: `points = 10
-points = points + 5
-print(points)   # 15
-
-points += 5     # same as points = points + 5
-points -= 2     # same as points = points - 2
-print(points)   # 18` },
-`<p>Python runs the lines in order: to know what a variable holds, follow the lines one at a time and keep track, as Python would.</p>`],
+`<p>Now that you can update a variable, follow a program the way Python does: one line at a time, keeping track of each variable's value. If it helps, write it down on paper, line after line.</p>`],
     task: `Follow the code line by line and predict what it prints.`,
     quiz: [
       { code: `lives = 3
@@ -2104,20 +2147,18 @@ print(f"The ticket costs {price} euros")`,
   }
 },
 {
-  id: "elifq", kind: "quiz", teaches: ["elif"],
+  id: "elifq", kind: "quiz", teaches: [],
   it: {
     title: "Prevedi: elif e l'ordine delle condizioni",
     theory: [
-`<p><code>elif</code> ("altrimenti se") aggiunge altre condizioni. Python le controlla <b>dall'alto in basso</b> e si ferma alla <b>prima vera</b>: esegue quel blocco e salta tutti gli altri, anche se sarebbero veri.</p>`,
+`<p>Ora che conosci <code>elif</code>, allena l'occhio. In una catena <code>if</code>, <code>elif</code>, <code>else</code> parte <b>un solo</b> blocco: quello della prima condizione vera. Due <code>if</code> separati invece sono indipendenti: Python li controlla tutti e due, e possono partire entrambi.</p>`,
 { code: `temperatura = 28
-if temperatura > 30:
-    print("Fa caldissimo")
-elif temperatura > 20:
+if temperatura > 20:
     print("Si sta bene")
-else:
-    print("Prendi la giacca")` },
-`<p>Due <code>if</code> separati invece sono indipendenti: Python li controlla tutti e due.</p>`],
-    task: `Prevedi cosa stampa ogni programma, prima di eseguirlo.`,
+if temperatura > 25:
+    print("Metti la crema")` },
+`<p>Qui le condizioni sono vere tutte e due e i due <code>if</code> sono separati: escono entrambe le frasi.</p>`],
+    task: `Prevedi cosa stampa ogni programma.`,
     quiz: [
       { code: `voto = 8
 if voto >= 6:
@@ -2150,16 +2191,14 @@ else:
   en: {
     title: "Predict: elif and the order of conditions",
     theory: [
-`<p><code>elif</code> ("else if") adds more conditions. Python checks them <b>from top to bottom</b> and stops at the <b>first true one</b>: it runs that block and skips all the others, even if they'd be true.</p>`,
+`<p>Now that you know <code>elif</code>, train your eye. In an <code>if</code>, <code>elif</code>, <code>else</code> chain <b>only one</b> block runs: the one of the first true condition. Two separate <code>if</code>s, instead, are independent: Python checks both, and both can run.</p>`,
 { code: `temperature = 28
-if temperature > 30:
-    print("Scorching")
-elif temperature > 20:
+if temperature > 20:
     print("It's nice")
-else:
-    print("Take a jacket")` },
-`<p>Two separate <code>if</code>s, instead, are independent: Python checks both.</p>`],
-    task: `Predict what each program prints, before running it.`,
+if temperature > 25:
+    print("Wear sunscreen")` },
+`<p>Here both conditions are true and the two <code>if</code>s are separate: both sentences come out.</p>`],
+    task: `Predict what each program prints.`,
     quiz: [
       { code: `grade = 8
 if grade >= 6:
@@ -2191,18 +2230,19 @@ else:
   }
 },
 {
-  id: "if", teaches: [],
+  id: "if", teaches: ["elif"],
   it: {
     title: "Decidere tra più casi",
     theory: [
-`<p>Quando i casi sono più di due, metti in fila <code>if</code>, <code>elif</code> ed <code>else</code>. Visto che Python si ferma alla prima condizione vera, conviene partire dal caso più alto.</p>`,
+`<p>Quando i casi sono più di due, tra <code>if</code> ed <code>else</code> metti uno o più <code>elif</code> ("altrimenti se"): ognuno ha la sua condizione, i due punti e il suo blocco rientrato.</p>`,
 { code: `velocita = 75
 if velocita > 130:
     print("Multa salata")
 elif velocita > 90:
     print("Multa")
 else:
-    print("Tutto regolare")` }],
+    print("Tutto regolare")` },
+`<p>Python controlla le condizioni <b>dall'alto in basso</b> e si ferma alla <b>prima vera</b>: esegue quel blocco e salta tutti gli altri. Con 75 nessuna condizione è vera e parte l'<code>else</code>. Con 140 sarebbero vere tutte e due, ma parte solo la prima: <code>Multa salata</code>. Per questo conviene partire dal caso più alto.</p>`],
     task: `Dai un giudizio al punteggio di una partita: <code>Leggendario</code> da 90 in su, <code>Ottimo</code> da 70, <code>Buono</code> da 50, altrimenti <code>Riprova</code>. Verificherò anche con altri punteggi.`,
     starter: `punteggio = 72\n\n`,
     solution: `punteggio = 72
@@ -2225,14 +2265,15 @@ else:
   en: {
     title: "Choosing between many cases",
     theory: [
-`<p>When there are more than two cases, line up <code>if</code>, <code>elif</code> and <code>else</code>. Since Python stops at the first true condition, it's best to start from the highest case.</p>`,
+`<p>When there are more than two cases, put one or more <code>elif</code>s ("else if") between <code>if</code> and <code>else</code>: each one has its own condition, the colon and its indented block.</p>`,
 { code: `speed = 75
 if speed > 130:
     print("Big fine")
 elif speed > 90:
     print("Fine")
 else:
-    print("All good")` }],
+    print("All good")` },
+`<p>Python checks the conditions <b>from top to bottom</b> and stops at the <b>first true one</b>: it runs that block and skips all the others. With 75 no condition is true and the <code>else</code> runs. With 140 both would be true, but only the first one runs: <code>Big fine</code>. That's why it's best to start from the highest case.</p>`],
     task: `Rate a game score: <code>Legendary</code> from 90 up, <code>Great</code> from 70, <code>Good</code> from 50, otherwise <code>Try again</code>. I'll also check it with other scores.`,
     starter: `score = 72\n\n`,
     solution: `score = 72
@@ -2683,17 +2724,64 @@ for i in range(1, 11):
   }
 },
 {
-  id: "rangeq", kind: "quiz", teaches: ["range3"],
+  id: "step", teaches: ["range3"],
+  it: {
+    title: "Contare a salti: il passo",
+    theory: [
+`<p><code>range</code> può avere un terzo numero, il <b>passo</b>: di quanto cambia il numero a ogni giro. <code>range(2, 11, 2)</code> conta 2, 4, 6, 8, 10.</p>`,
+{ code: `for n in range(2, 11, 2):
+    print(n)` },
+`<p>Con un passo negativo il ciclo conta all'indietro: <code>range(5, 0, -1)</code> fa 5, 4, 3, 2, 1. Il secondo numero resta sempre escluso: per arrivare fino a 0 devi fermarti un passo più in là, per esempio a -1.</p>`,
+{ code: `for n in range(3, 0, -1):
+    print(n)
+print("Via!")` }],
+    task: `Conto alla rovescia del razzo: partendo da <code>partenza</code>, stampa i numeri scendendo di 5 alla volta fino a 0 compreso, uno per riga, e poi <code>Decollo!</code>. Con 20 deve uscire 20, 15, 10, 5, 0 e Decollo!. Usa un for con il passo di range. Lo proverò anche con un'altra partenza.`,
+    starter: `partenza = 20\n\n`,
+    solution: `partenza = 20
+
+for n in range(partenza, -1, -5):
+    print(n)
+print("Decollo!")`,
+    hints: ["Il passo è positivo o negativo? E quale numero metti come fine, visto che la fine è esclusa e lo 0 deve comparire?",
+      "Un for con un range che parte da partenza, si ferma a -1 (così lo 0 è compreso) e ha passo -5; dentro, il print del numero. Il Decollo! dopo il ciclo, senza rientro."],
+    check: (o, c) => o === "20\n15\n10\n5\n0\nDecollo!" && /range\s*\([^()]*,[^()]*,[^()]*\)/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /partenza\s*=\s*20\b/, "partenza = 15"), (o) => o === "15\n10\n5\n0\nDecollo!", "con partenza = 15 doveva stampare 15, 10, 5, 0 e Decollo!")),
+    expect: "20\n15\n10\n5\n0\nDecollo!"
+  },
+  en: {
+    title: "Counting in steps",
+    theory: [
+`<p><code>range</code> can take a third number, the <b>step</b>: how much the number changes at each round. <code>range(2, 11, 2)</code> counts 2, 4, 6, 8, 10.</p>`,
+{ code: `for n in range(2, 11, 2):
+    print(n)` },
+`<p>With a negative step the loop counts backwards: <code>range(5, 0, -1)</code> gives 5, 4, 3, 2, 1. The second number is always left out: to get down to 0 you have to stop one step further, for example at -1.</p>`,
+{ code: `for n in range(3, 0, -1):
+    print(n)
+print("Go!")` }],
+    task: `Rocket countdown: starting from <code>start</code>, print the numbers going down by 5 each time, down to 0 included, one per line, then <code>Liftoff!</code>. With 20 the output must be 20, 15, 10, 5, 0 and Liftoff!. Use a for with range's step. I'll also try it with another start.`,
+    starter: `start = 20\n\n`,
+    solution: `start = 20
+
+for n in range(start, -1, -5):
+    print(n)
+print("Liftoff!")`,
+    hints: ["Is the step positive or negative? And which number do you put as the end, since the end is left out and 0 must show up?",
+      "A for with a range that starts from start, stops at -1 (so 0 is included) and has step -5; inside, print the number. Liftoff! after the loop, not indented."],
+    check: (o, c) => o === "20\n15\n10\n5\n0\nLiftoff!" && /range\s*\([^()]*,[^()]*,[^()]*\)/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /start\s*=\s*20\b/, "start = 15"), (o) => o === "15\n10\n5\n0\nLiftoff!", "with start = 15 it had to print 15, 10, 5, 0 and Liftoff!")),
+    expect: "20\n15\n10\n5\n0\nLiftoff!"
+  }
+},
+{
+  id: "rangeq", kind: "quiz", teaches: [],
   it: {
     title: "Prevedi: range e cicli",
     theory: [
-`<p><code>range</code> può avere anche un terzo numero, il <b>passo</b>: <code>range(2, 11, 2)</code> conta 2, 4, 6, 8, 10. Con un passo negativo conta all'indietro: <code>range(5, 0, -1)</code> fa 5, 4, 3, 2, 1.</p>`,
+`<p>Per prevedere un ciclo fai come Python: annota il valore della variabile a ogni giro, e ricorda che la fine di <code>range</code> è sempre esclusa. Guarda anche i rientri: solo le righe rientrate si ripetono.</p>`,
 { code: `for n in range(10, 31, 10):
     print(n)
-for n in range(3, 0, -1):
-    print(n)
-print("Via!")` },
-`<p>Per prevedere un ciclo fai come Python: annota il valore della variabile a ogni giro.</p>`],
+print("Fine")` },
+`<p>Qui <code>n</code> vale 10, poi 20, poi 30: il 31 è escluso. <code>Fine</code> non è rientrato, quindi esce una volta sola, dopo il ciclo.</p>`],
     task: `Prevedi cosa stampa ogni ciclo.`,
     quiz: [
       { code: `for i in range(2, 9, 3):
@@ -2712,13 +2800,11 @@ print("c")`, options: ["a\nb\na\nb\nc", "a\na\nb\nc", "a\nb\nc\na\nb\nc", "a\nb\
   en: {
     title: "Predict: range and loops",
     theory: [
-`<p><code>range</code> can also take a third number, the <b>step</b>: <code>range(2, 11, 2)</code> counts 2, 4, 6, 8, 10. With a negative step it counts backwards: <code>range(5, 0, -1)</code> gives 5, 4, 3, 2, 1.</p>`,
+`<p>To predict a loop, do as Python does: write down the variable's value on each round, and remember that the end of <code>range</code> is always left out. Watch the indentation too: only the indented lines repeat.</p>`,
 { code: `for n in range(10, 31, 10):
     print(n)
-for n in range(3, 0, -1):
-    print(n)
-print("Go!")` },
-`<p>To predict a loop, do as Python does: write down the variable's value on each round.</p>`],
+print("Done")` },
+`<p>Here <code>n</code> is 10, then 20, then 30: 31 is left out. <code>Done</code> isn't indented, so it comes out only once, after the loop.</p>`],
     task: `Predict what each loop prints.`,
     quiz: [
       { code: `for i in range(2, 9, 3):
@@ -3548,17 +3634,16 @@ ticket("Bob", 3, "first")`,
   }
 },
 {
-  id: "retq", kind: "quiz", teaches: ["return"],
+  id: "retq", kind: "quiz", teaches: [],
   it: {
     title: "Prevedi: return e None",
     theory: [
-`<p><code>return</code> fa uscire la funzione e <b>restituisce</b> un valore a chi l'ha chiamata, che può usarlo come vuole: stamparlo, salvarlo, usarlo in un calcolo. <code>print</code> invece mostra soltanto nel terminale.</p>`,
-{ code: `def doppio(n):
-    return n * 2
+`<p>Prima di rispondere, per ogni chiamata chiediti: la funzione <b>restituisce</b> qualcosa con <code>return</code>, o lo <b>stampa</b> soltanto? Quello che restituisce prende il posto della chiamata; se non c'è <code>return</code>, al suo posto c'è <code>None</code>.</p>`,
+{ code: `def triplo(n):
+    return n * 3
 
-risultato = doppio(5)
-print(risultato + 1)   # 11` },
-`<p>Una funzione senza <code>return</code> restituisce un valore speciale: <code>None</code>, cioè "niente". E dopo <code>return</code> la funzione è finita: le righe sotto non vengono eseguite.</p>`],
+print(triplo(2) + triplo(1))   # 6 + 3` },
+`<p>Qui <code>triplo(2)</code> diventa 6 e <code>triplo(1)</code> diventa 3: il print stampa 9.</p>`],
     task: `Prevedi cosa stampa ogni programma.`,
     quiz: [
       { code: `def doppio(n):
@@ -3585,13 +3670,12 @@ print(massimo(3, 9), massimo(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"
   en: {
     title: "Predict: return and None",
     theory: [
-`<p><code>return</code> leaves the function and <b>gives back</b> a value to whoever called it, who can use it however they like: print it, store it, use it in a calculation. <code>print</code> instead only shows something in the terminal.</p>`,
-{ code: `def double(n):
-    return n * 2
+`<p>Before answering, ask yourself for every call: does the function <b>give back</b> something with <code>return</code>, or does it only <b>print</b> it? What it gives back takes the place of the call; if there's no <code>return</code>, in its place there's <code>None</code>.</p>`,
+{ code: `def triple(n):
+    return n * 3
 
-result = double(5)
-print(result + 1)   # 11` },
-`<p>A function without <code>return</code> gives back a special value: <code>None</code>, meaning "nothing". And after <code>return</code> the function is over: the lines below don't run.</p>`],
+print(triple(2) + triple(1))   # 6 + 3` },
+`<p>Here <code>triple(2)</code> becomes 6 and <code>triple(1)</code> becomes 3: the print shows 9.</p>`],
     task: `Predict what each program prints.`,
     quiz: [
       { code: `def double(n):
@@ -3617,17 +3701,18 @@ print(biggest(3, 9), biggest(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"
   }
 },
 {
-  id: "def", teaches: [],
+  id: "def", teaches: ["return"],
   it: {
     title: "Restituire un risultato",
     theory: [
-`<p>Le funzioni più utili <b>calcolano</b> qualcosa e lo restituiscono con <code>return</code>. Il valore restituito si può salvare in una variabile o usare direttamente in un altro calcolo.</p>`,
+`<p>Le funzioni più utili <b>calcolano</b> qualcosa e lo restituiscono con <code>return</code>: la funzione finisce e il valore torna a chi l'ha chiamata, che può usarlo come vuole: salvarlo in una variabile, stamparlo, usarlo in un altro calcolo.</p>`,
 { code: `def area_quadrato(lato):
     return lato * lato
 
 a = area_quadrato(3)
 print(a)                                    # 9
-print(area_quadrato(2) + area_quadrato(4))  # 20` }],
+print(area_quadrato(2) + area_quadrato(4))  # 20` },
+`<p><code>print</code> e <code>return</code> sono diversi: <code>print</code> mostra un valore nel terminale e basta, <code>return</code> lo consegna al programma. Una funzione senza <code>return</code> restituisce un valore speciale, <code>None</code>, cioè "niente". E dopo <code>return</code> la funzione è finita: le righe sotto non vengono eseguite.</p>`],
     task: `Scrivi <code>prezzo_scontato(prezzo, sconto)</code> che restituisce il prezzo dopo lo sconto in percentuale (il prezzo meno prezzo per sconto diviso 100). Poi stampa quanto spendi in tutto per una felpa da 80 euro scontata del 25% e un cappello da 20 euro scontato del 10%: deve uscire <code>78.0</code>.`,
     starter: `# Scrivi la funzione, poi usala due volte\n\n`,
     solution: `def prezzo_scontato(prezzo, sconto):
@@ -3643,13 +3728,14 @@ print(prezzo_scontato(80, 25) + prezzo_scontato(20, 10))`,
   en: {
     title: "Giving back a result",
     theory: [
-`<p>The most useful functions <b>work something out</b> and give it back with <code>return</code>. The returned value can be stored in a variable or used directly in another calculation.</p>`,
+`<p>The most useful functions <b>work something out</b> and give it back with <code>return</code>: the function ends and the value goes back to whoever called it, who can use it however they like: store it in a variable, print it, use it in another calculation.</p>`,
 { code: `def square_area(side):
     return side * side
 
 a = square_area(3)
 print(a)                                # 9
-print(square_area(2) + square_area(4))  # 20` }],
+print(square_area(2) + square_area(4))  # 20` },
+`<p><code>print</code> and <code>return</code> are different: <code>print</code> shows a value in the terminal and that's it, <code>return</code> hands it to the program. A function without <code>return</code> gives back a special value, <code>None</code>, meaning "nothing". And after <code>return</code> the function is over: the lines below don't run.</p>`],
     task: `Write <code>discounted(price, discount)</code> that gives back the price after the percentage discount (the price minus price times discount divided by 100). Then print how much you spend in total on an 80-euro hoodie with 25% off and a 20-euro cap with 10% off: the output must be <code>78.0</code>.`,
     starter: `# Write the function, then use it twice\n\n`,
     solution: `def discounted(price, discount):
@@ -4205,21 +4291,18 @@ else:
   }
 },
 {
-  id: "try", teaches: ["try", "except", "ValueError", "ZeroDivisionError"], sample: ["ciao", "21"],
+  id: "try", teaches: ["try", "except", "ValueError"], sample: ["ciao", "21"],
   it: {
     title: "Gestire gli errori",
     theory: [
 `<p>Con <code>try</code> ed <code>except</code> puoi intercettare un errore e decidere tu cosa fare, invece di lasciare che il programma si fermi. Nel blocco <code>try</code> metti le righe che potrebbero fallire; nel blocco <code>except</code> cosa fare se falliscono.</p>`,
 { code: `try:
-    print(10 / 0)
-except ZeroDivisionError:
-    print("Non si divide per zero")
-
-try:
     n = int("ciao")
 except ValueError:
-    print("Quello non è un numero")` },
-`<p>È utilissimo con <code>input()</code>: se l'utente scrive lettere invece di un numero, <code>int()</code> dà un <code>ValueError</code>. Unito a un <code>while True</code>, puoi richiedere il numero finché non è valido.</p>`],
+    print("Quello non è un numero")
+print("Il programma continua")` },
+`<p>Dopo <code>except</code> scrivi il nome dell'errore da intercettare, lo stesso che leggi nell'ultima riga del messaggio: <code>ValueError</code> quando un testo non diventa un numero, <code>ZeroDivisionError</code> quando dividi per zero, e così via.</p>
+<p>È utilissimo con <code>input()</code>: se l'utente scrive lettere invece di un numero, <code>int()</code> dà un <code>ValueError</code>. Unito a un <code>while True</code>, puoi richiedere il numero finché non è valido.</p>`],
     task: `Chiedi un numero finché l'utente non ne scrive uno valido: a ogni tentativo sbagliato stampa <code>Non è un numero, riprova.</code>. Quando è valido, stampa <code>Il doppio è 42</code> (con il doppio del numero).`,
     starter: `# Chiedi finché il numero non è valido\n\n`,
     solution: `while True:
@@ -4241,15 +4324,12 @@ print(f"Il doppio è {n * 2}")`,
     theory: [
 `<p>With <code>try</code> and <code>except</code> you can catch an error and decide what to do yourself, instead of letting the program stop. In the <code>try</code> block go the lines that might fail; in the <code>except</code> block, what to do if they fail.</p>`,
 { code: `try:
-    print(10 / 0)
-except ZeroDivisionError:
-    print("You can't divide by zero")
-
-try:
     n = int("hello")
 except ValueError:
-    print("That's not a number")` },
-`<p>It's really useful with <code>input()</code>: if the user types letters instead of a number, <code>int()</code> gives a <code>ValueError</code>. Together with a <code>while True</code>, you can ask for the number again until it's valid.</p>`],
+    print("That's not a number")
+print("The program carries on")` },
+`<p>After <code>except</code> you write the name of the error to catch, the same one you read on the last line of the message: <code>ValueError</code> when some text doesn't become a number, <code>ZeroDivisionError</code> when you divide by zero, and so on.</p>
+<p>It's really useful with <code>input()</code>: if the user types letters instead of a number, <code>int()</code> gives a <code>ValueError</code>. Together with a <code>while True</code>, you can ask for the number again until it's valid.</p>`],
     task: `Ask for a number until the user types a valid one: after each wrong try print <code>Not a number, try again.</code>. When it's valid, print <code>Double is 42</code> (with double the number).`,
     starter: `# Ask until the number is valid\n\n`,
     solution: `while True:
@@ -4267,7 +4347,7 @@ print(f"Double is {n * 2}")`,
   }
 },
 {
-  id: "mod", teaches: ["import", "random.randint", "random.choice", "math.sqrt", "math.pi", "round"],
+  id: "mod", teaches: ["import", "random.randint", "random.choice", "math.pi", "round"],
   it: {
     title: "Moduli: random e math",
     theory: [
@@ -4277,7 +4357,6 @@ import math
 
 print(random.randint(1, 100))              # un intero da 1 a 100, estremi compresi
 print(random.choice(["sasso", "carta"]))   # un elemento a caso
-print(math.sqrt(81))                       # 9.0: radice quadrata
 print(round(math.pi, 3))                   # 3.142: arrotonda a 3 decimali` },
 `<p>Premi più volte ▶ Prova: i numeri casuali cambiano ogni volta. <code>round</code> non serve importarlo: è già dentro Python.</p>`],
     task: `Simula un turno di gioco. Lancia due dadi da 6 e stampa <code>Dadi: 3 e 5, totale 8</code> (con i numeri usciti). Poi scegli a caso chi gioca tra Ada, Bob e Cleo e stampa <code>Tocca a Bob</code>. Infine stampa l'area del cerchio di raggio 3 (pi greco per il raggio al quadrato), arrotondata a 2 decimali: <code>28.27</code>.`,
@@ -4306,7 +4385,6 @@ import math
 
 print(random.randint(1, 100))              # a whole number from 1 to 100, both included
 print(random.choice(["rock", "paper"]))    # a random item
-print(math.sqrt(81))                       # 9.0: square root
 print(round(math.pi, 3))                   # 3.142: rounds to 3 decimals` },
 `<p>Press ▶ Try it a few times: the random numbers change every time. <code>round</code> doesn't need importing: it's already built into Python.</p>`],
     task: `Simulate a game turn. Roll two 6-sided dice and print <code>Dice: 3 and 5, total 8</code> (with the numbers rolled). Then pick at random who plays among Ada, Bob and Cleo and print <code>Bob's turn</code>. Finally print the area of the circle with radius 3 (pi times the radius squared), rounded to 2 decimals: <code>28.27</code>.`,
@@ -4399,17 +4477,17 @@ print(fahrenheit)`,
 d["b"] = d.get("a", 0) + 5
 print(d)`, options: ["{'a': 1, 'b': 6}", "{'a': 1, 'b': 5}", "{'b': 6}", "{'a': 6}"], correct: 0, explain: "get(\"a\", 0) trova la chiave a e dà 1; più 5 fa 6, che finisce nella chiave nuova b." },
       { q: "Cosa stampa?", code: `try:
-    print(10 / 0)
-except ZeroDivisionError:
-    print("zero!")
-print("fine")`, options: ["zero!\nfine", "zero!", "fine", "0\nfine"], correct: 0, explain: "La divisione per zero viene intercettata: stampa zero! e il programma continua." },
+    n = int("tre")
+except ValueError:
+    print("non è un numero")
+print("fine")`, options: ["non è un numero\nfine", "non è un numero", "fine", "3\nfine"], correct: 0, explain: "int(\"tre\") non può diventare un numero: il ValueError viene intercettato, parte il blocco except e poi il programma continua con fine." },
       { q: "Python si ferma con un KeyError alla riga 3. Quale riga va corretta?", code: `rubrica = {"Ada": "333"}
 nome = "ada"
 print(rubrica[nome])`, spot: true, correct: 1,
         explain: "La chiave è \"Ada\" con la maiuscola: il nome sbagliato nasce alla riga 2." },
       { q: "Cosa stampa?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) dà 0, 1, 2, 3; il filtro tiene i dispari, 1 e 3, che diventano 10 e 30." },
       { q: "Cosa stampa?", code: `import math
-print(math.sqrt(49) + 1)`, options: ["8.0", "8", "50", "7.0"], correct: 0, explain: "La radice di 49 è 7.0 (sqrt dà sempre un float); più 1 fa 8.0." }]
+print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) arrotonda pi greco a una cifra dopo la virgola: 3.1. Per 2 fa 6.2." }]
   },
   en: {
     title: "Review: the tools",
@@ -4420,17 +4498,17 @@ print(math.sqrt(49) + 1)`, options: ["8.0", "8", "50", "7.0"], correct: 0, expla
 d["b"] = d.get("a", 0) + 5
 print(d)`, options: ["{'a': 1, 'b': 6}", "{'a': 1, 'b': 5}", "{'b': 6}", "{'a': 6}"], correct: 0, explain: "get(\"a\", 0) finds key a and gives 1; plus 5 is 6, which goes into the new key b." },
       { q: "What does it print?", code: `try:
-    print(10 / 0)
-except ZeroDivisionError:
-    print("zero!")
-print("done")`, options: ["zero!\ndone", "zero!", "done", "0\ndone"], correct: 0, explain: "The division by zero is caught: it prints zero! and the program carries on." },
+    n = int("three")
+except ValueError:
+    print("not a number")
+print("done")`, options: ["not a number\ndone", "not a number", "done", "3\ndone"], correct: 0, explain: "int(\"three\") can't become a number: the ValueError is caught, the except block runs and then the program carries on with done." },
       { q: "Python stops with a KeyError on line 3. Which line needs fixing?", code: `phonebook = {"Ada": "333"}
 name = "ada"
 print(phonebook[name])`, spot: true, correct: 1,
         explain: "The key is \"Ada\" with a capital: the wrong name comes from line 2." },
       { q: "What does it print?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) gives 0, 1, 2, 3; the filter keeps the odd ones, 1 and 3, which become 10 and 30." },
       { q: "What does it print?", code: `import math
-print(math.sqrt(49) + 1)`, options: ["8.0", "8", "50", "7.0"], correct: 0, explain: "The square root of 49 is 7.0 (sqrt always gives a float); plus 1 is 8.0." }]
+print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) rounds pi to one digit after the point: 3.1. Times 2 is 6.2." }]
   }
 },
 {
@@ -5384,15 +5462,15 @@ plt.show()`,
 /* ---------- The Python world: folders, files and the full list of levels ---------- */
 const LESSONS = [].concat(C00, C01, C02, C03, C04, C05, C06, CBONUS);
 const WORLDS = [
-  { id: "w0", dir: { it: "00_inizio", en: "00_start" }, mascot: "cursy", levels: ["how", "print", "rules", "comments", "errors", "ripasso0", "build0", "boss0"],
+  { id: "w0", dir: { it: "00_inizio", en: "00_start" }, mascot: "cursy", levels: ["print", "how", "rules", "comments", "errors", "ripasso0", "build0", "boss0"],
     it: { name: "Prima di iniziare", tag: "Come legge Python, print e le regole" }, en: { name: "Before you start", tag: "How Python reads, print and the rules" } },
-  { id: "w1", dir: { it: "01_basi", en: "01_basics" }, mascot: "bit", levels: ["var", "num", "cambia", "divmod", "fstr", "types", "input", "ripasso1", "build1", "boss1"],
+  { id: "w1", dir: { it: "01_basi", en: "01_basics" }, mascot: "bit", levels: ["var", "num", "update", "cambia", "divmod", "fstr", "types", "input", "ripasso1", "build1", "boss1"],
     it: { name: "Le basi", tag: "Variabili, conti, tipi e input" }, en: { name: "The basics", tag: "Variables, math, types and input" } },
-  { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "elifq", "if", "logic", "textcmp", "parity", "ripasso2", "build2", "boss2"],
+  { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "logic", "textcmp", "parity", "ripasso2", "build2", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
-  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "rangeq", "count", "list", "listmod", "loop", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
+  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listmod", "loop", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
-  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "def0", "params", "retq", "def", "fcall", "ripasso4", "build4", "boss4"],
+  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "def0", "params", "def", "retq", "fcall", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
   { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "mod", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori, moduli" }, en: { name: "Tools", tag: "Dictionaries, errors, modules" } },
@@ -5403,24 +5481,25 @@ const WORLDS = [
 ];
 /* Every level is a file inside its folder: [Italian, English] */
 const FILES = {
-  how: ["01_come_ragiona.py", "01_how_it_thinks.py"], print: ["02_primo_programma.py", "02_first_program.py"], rules: ["03_regole.py", "03_rules.py"],
+  print: ["01_primo_programma.py", "01_first_program.py"], how: ["02_prevedi_print.py", "02_predict_print.py"], rules: ["03_regole.py", "03_rules.py"],
   comments: ["04_commenti.py", "04_comments.py"], errors: ["05_errori.py", "05_errors.py"], ripasso0: ["06_ripasso.py", "06_review.py"],
   build0: ["07_costruisci_biglietto.py", "07_build_card.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"],
-  var: ["01_variabili.py", "01_variables.py"], num: ["02_numeri.py", "02_numbers.py"], cambia: ["03_prevedi_valori.py", "03_predict_values.py"],
-  divmod: ["04_resto.py", "04_remainder.py"], fstr: ["05_fstring.py", "05_fstrings.py"], types: ["06_tipi.py", "06_types.py"],
-  input: ["07_input.py", "07_input.py"], ripasso1: ["08_ripasso.py", "08_review.py"], build1: ["09_costruisci_gioco.py", "09_build_game.py"],
-  boss1: ["boss_calcolo.py", "boss_math.py"],
+  var: ["01_variabili.py", "01_variables.py"], num: ["02_numeri.py", "02_numbers.py"], update: ["03_aggiornare.py", "03_updating.py"],
+  cambia: ["04_prevedi_valori.py", "04_predict_values.py"], divmod: ["05_resto.py", "05_remainder.py"], fstr: ["06_fstring.py", "06_fstrings.py"],
+  types: ["07_tipi.py", "07_types.py"], input: ["08_input.py", "08_input.py"], ripasso1: ["09_ripasso.py", "09_review.py"],
+  build1: ["10_costruisci_gioco.py", "10_build_game.py"], boss1: ["boss_calcolo.py", "boss_math.py"],
   bool: ["01_vero_falso.py", "01_true_false.py"], ifblock: ["02_primo_if.py", "02_first_if.py"], ifelse: ["03_else.py", "03_else.py"],
-  elifq: ["04_prevedi_elif.py", "04_predict_elif.py"], if: ["05_piu_casi.py", "05_many_cases.py"], logic: ["06_and_or_not.py", "06_and_or_not.py"],
+  if: ["04_piu_casi.py", "04_many_cases.py"], elifq: ["05_prevedi_elif.py", "05_predict_elif.py"], logic: ["06_and_or_not.py", "06_and_or_not.py"],
   textcmp: ["07_testo.py", "07_text.py"], parity: ["08_pari_dispari.py", "08_even_odd.py"], ripasso2: ["09_ripasso.py", "09_review.py"],
   build2: ["10_costruisci_gioco.py", "10_build_game.py"], boss2: ["boss_termometro.py", "boss_thermometer.py"],
-  for: ["01_for.py", "01_for.py"], rangeq: ["02_prevedi_range.py", "02_predict_range.py"], count: ["03_contare.py", "03_counting.py"],
-  list: ["04_liste.py", "04_lists.py"], listmod: ["05_modificare.py", "05_changing.py"], loop: ["06_scorrere.py", "06_looping.py"],
-  index: ["07_posizioni.py", "07_positions.py"], while: ["08_while.py", "08_while.py"], whilein: ["09_break.py", "09_break.py"],
-  ripasso3: ["10_ripasso.py", "10_review.py"], build3: ["11_costruisci_gioco.py", "11_build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
+  for: ["01_for.py", "01_for.py"], step: ["02_passo.py", "02_step.py"], rangeq: ["03_prevedi_range.py", "03_predict_range.py"],
+  count: ["04_contare.py", "04_counting.py"], list: ["05_liste.py", "05_lists.py"], listmod: ["06_modificare.py", "06_changing.py"],
+  loop: ["07_scorrere.py", "07_looping.py"], index: ["08_posizioni.py", "08_positions.py"], while: ["09_while.py", "09_while.py"],
+  whilein: ["10_break.py", "10_break.py"], ripasso3: ["11_ripasso.py", "11_review.py"], build3: ["12_costruisci_gioco.py", "12_build_game.py"],
+  boss3: ["boss_scontrino.py", "boss_receipt.py"],
   str: ["01_testo.py", "01_text.py"], strmeth: ["02_metodi.py", "02_methods.py"], vowels: ["03_vocali.py", "03_vowels.py"],
-  def0: ["04_def.py", "04_def.py"], params: ["05_parametri.py", "05_parameters.py"], retq: ["06_prevedi_return.py", "06_predict_return.py"],
-  def: ["07_return.py", "07_return.py"], fcall: ["08_insieme.py", "08_together.py"], ripasso4: ["09_ripasso.py", "09_review.py"],
+  def0: ["04_def.py", "04_def.py"], params: ["05_parametri.py", "05_parameters.py"], def: ["06_return.py", "06_return.py"],
+  retq: ["07_prevedi_return.py", "07_predict_return.py"], fcall: ["08_insieme.py", "08_together.py"], ripasso4: ["09_ripasso.py", "09_review.py"],
   build4: ["10_costruisci_gioco.py", "10_build_game.py"], boss4: ["boss_funzioni.py", "boss_functions.py"],
   dict: ["01_dizionari.py", "01_dicts.py"], dictget: ["02_chiavi.py", "02_keys.py"], dictloop: ["03_contare.py", "03_counting.py"],
   dictq: ["04_prevedi_dizionari.py", "04_predict_dicts.py"], try: ["05_try.py", "05_try.py"], mod: ["06_moduli.py", "06_modules.py"],
@@ -6023,17 +6102,27 @@ function bytesFor(level, newStars, oldStars) {
   const extra = Math.max(0, newStars - oldStars) * STAR_BYTES;
   return extra + (oldStars ? 0 : (level.boss ? BOSS_BYTES : FIRST_BYTES));
 }
-/* One new rank about every folder, reachable with two stars per level; three stars or the bonus give some margin */
+/* Ranks follow the path, so adding a level never shifts them: one in the middle of the first folder, then one for
+   every folder, which arrives when you beat its boss after two stars on the other levels (three stars come sooner) */
+const twoStarBytes = (n) => LEVELS.slice(0, n).reduce((a, l) => a + bytesFor(l, 2, 0), 0);
+function rankAt(wid, half) {
+  const wi = WORLDS.findIndex((w) => w.id === wid);
+  let n = 0;
+  for (let i = 0; i < wi; i++) n += WORLDS[i].levels.length;
+  if (half) return twoStarBytes(n + Math.round(WORLDS[wi].levels.length / 2)) - 64;
+  n += WORLDS[wi].levels.length;
+  return twoStarBytes(n - 1) + 64;
+}
 const RANKS = [
   { at: 0, it: "Principiante", en: "Beginner" },
-  { at: 500, it: "Apprendista", en: "Apprentice" },
-  { at: 1400, it: "Scripter", en: "Scripter" },
-  { at: 2300, it: "Debugger", en: "Debugger" },
-  { at: 3800, it: "Costruttore", en: "Builder" },
-  { at: 5300, it: "Sviluppatore", en: "Developer" },
-  { at: 6900, it: "Architetto", en: "Architect" },
-  { at: 8000, it: "Pythonista", en: "Pythonista" },
-  { at: 9400, it: "Maestro del codice", en: "Code master" }
+  { at: rankAt("w0", true), it: "Apprendista", en: "Apprentice" },
+  { at: rankAt("w0"), it: "Scripter", en: "Scripter" },
+  { at: rankAt("w1"), it: "Debugger", en: "Debugger" },
+  { at: rankAt("w2"), it: "Costruttore", en: "Builder" },
+  { at: rankAt("w3"), it: "Sviluppatore", en: "Developer" },
+  { at: rankAt("w4"), it: "Architetto", en: "Architect" },
+  { at: rankAt("w5"), it: "Pythonista", en: "Pythonista" },
+  { at: rankAt("w6"), it: "Maestro del codice", en: "Code master" }
 ];
 function rankOf(bytes) { let r = 0; RANKS.forEach((x, i) => { if (bytes >= x.at) r = i; }); return r; }
 function fmtBytes(b) { return b >= 1024 ? (b / 1024).toFixed(1).replace(/\.0$/, "") + " KB" : b + " B"; }
@@ -8806,7 +8895,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "91666cb46a", APP_BUILT = "2026-11-08T15:20Z";
+const APP_VERSION = "e3504b751c", APP_BUILT = "2026-11-08T20:12Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";

@@ -29,16 +29,16 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 ### Il percorso a livelli
 
 - **Schermata d'apertura**: all'avvio le mascotte inseguono un bug, se lo litigano in una nuvola di polvere e lo risolvono, poi si mettono in posa. Si salta con un tocco, e dalle impostazioni si può spegnere. Chi non ha fatto l'accesso trova subito **Accedi**, e sotto **Crea account** o **Entra come ospite**; chi è già dentro riceve un saluto ed entra da solo.
-- **Esplora file** del mondo Python: 8 cartelle numerate (`00_inizio`, `01_basi`, …) con 72 file `.py` da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte, e l'icona di ogni file dice che tipo di livello è.
-- **Lo stesso ritmo in ogni cartella**: lezioni brevi, poi un livello **Prevedi** (leggi il codice e indovina cosa stampa), un **Ripasso** con più domande che mescola il nuovo e il vecchio, un livello **Costruisci** e il **boss**. Nei livelli Costruisci scrivi da zero un pezzo di "Indovina il numero", il gioco che cresce cartella dopo cartella fino alla versione con le classi.
+- **Esplora file** del mondo Python: 8 cartelle numerate (`00_inizio`, `01_basi`, …) con 74 file `.py` da aprire in ordine. Ogni cartella ha il suo `README.md` con la mascotte, e l'icona di ogni file dice che tipo di livello è.
+- **Lo stesso ritmo in ogni cartella**: lezioni brevi, poi un livello **Prevedi** (leggi il codice e indovina cosa stampa: arriva sempre dopo che le cose nuove sono state spiegate e provate), un **Ripasso** con più domande che mescola il nuovo e il vecchio, un livello **Costruisci** e il **boss**. Nei livelli Costruisci scrivi da zero un pezzo di "Indovina il numero", il gioco che cresce cartella dopo cartella fino alla versione con le classi.
 - **Tipi di esercizio**: scrivi il programma, completa i `___` (un tocco seleziona lo spazio vuoto), rimetti in ordine le righe e scegli i rientri con le frecce, prevedi l'output, tocca la riga che ferma Python. Riordinare e toccare funzionano bene anche sul telefono.
-- **la cartella 00_inizio**: come ragiona Python, il primo programma, le regole di scrittura, i commenti, leggere un errore, un ripasso e il biglietto da visita.
+- **la cartella 00_inizio**: il primo programma con `print`, prevedere cosa fa Python, le regole di scrittura, i commenti, leggere un errore, un ripasso e il biglietto da visita.
 - **Un boss per cartella**: un programma pieno di bug da correggere, guidato da Papera, la paperella del debug, che risponde con domande invece che con soluzioni.
 - **Mascotte in pixel art** che guidano le cartelle e reagiscono al tuo codice: Cursy, Bit, Graffa, Pip, Floppy e Papera.
 - **La quest** di ogni livello sta in un riquadro sopra l'editor, separata dalla spiegazione.
 - **Aiuti a gradini**: il primo suggerimento è una domanda che ti indirizza, il secondo è il piano a parole; la soluzione si sblocca solo dopo.
 - **Stelle**: ★★★ senza aiuti, ★★ con i suggerimenti, ★ con la soluzione; nei quiz contano gli errori. Puoi rigiocare un livello per prenderle tutte.
-- **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice, più o meno un grado nuovo per cartella.
+- **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice: un grado a metà della prima cartella, poi uno per cartella, quando ne batti il boss.
 - **Suoni morbidi** quando superi un livello, disattivabili.
 - **Account**: scegli un nome utente e una password; i progressi di ogni account sono separati e restano sul dispositivo. Puoi usare l'app anche come ospite, avere più account sullo stesso dispositivo, cambiare la password ed eliminare l'account. Alla creazione ricevi un **codice di recupero** (mostrato una sola volta) per rientrare se dimentichi la password. Password e codice non vengono mai salvati in chiaro (PBKDF2).
 - **Salvataggio**: dalle impostazioni puoi salvare i progressi in un file o in un codice da copiare, e ripristinarli anche su un altro dispositivo; il ripristino unisce i progressi invece di sovrascriverli.
@@ -79,16 +79,16 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 ### The level path
 
 - **Opening screen**: when the app starts, the mascots chase a bug, scuffle over it in a dust cloud and fix it, then pose for a group photo. Tap to skip, or turn it off in Settings. If you're not logged in you get **Log in**, with **Create account** and **Continue as guest** below; if you are, you get a hello and go straight in.
-- **File explorer** of the Python world: 8 numbered folders (`00_start`, `01_basics`, …) with 72 `.py` files opened in order. Each folder has its own `README.md` with the mascot, and each file's icon tells what kind of level it is.
-- **The same rhythm in every folder**: short lessons, then a **Predict** level (read the code and guess what it prints), a **Review** with several questions mixing new and old, a **Build** level and the **boss**. In the Build levels you write a piece of "Guess the number" from scratch: the game grows folder after folder, up to the version with classes.
+- **File explorer** of the Python world: 8 numbered folders (`00_start`, `01_basics`, …) with 74 `.py` files opened in order. Each folder has its own `README.md` with the mascot, and each file's icon tells what kind of level it is.
+- **The same rhythm in every folder**: short lessons, then a **Predict** level (read the code and guess what it prints: it always comes after the new things have been explained and tried), a **Review** with several questions mixing new and old, a **Build** level and the **boss**. In the Build levels you write a piece of "Guess the number" from scratch: the game grows folder after folder, up to the version with classes.
 - **Kinds of exercise**: write the program, fill in the `___` (one tap selects the blank), put the lines back in order and set the indentation with the arrows, predict the output, tap the line that stops Python. Reordering and tapping work well on phones too.
-- **the 00_start folder**: how Python thinks, the first program, the writing rules, comments, reading an error, a review and the business card.
+- **the 00_start folder**: the first program with `print`, predicting what Python does, the writing rules, comments, reading an error, a review and the business card.
 - **One boss per folder**: a buggy program to fix, guided by Papera, the debugging duck, who answers with questions instead of solutions.
 - **Pixel-art mascots** that guide each folder and react to your code: Cursy, Bit, Graffa, Pip, Floppy and Papera.
 - **The quest** of each level sits in its own box above the editor, apart from the explanation.
 - **Help in steps**: the first hint is a question that points the way, the second is the plan in words; the solution unlocks only after them.
 - **Stars**: ★★★ with no help, ★★ with the hints, ★ with the solution; in quizzes, mistakes count. Replay a level to collect them all.
-- **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master, roughly one new rank per folder.
+- **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master: one halfway through the first folder, then one per folder, when you beat its boss.
 - **Soft sounds** when you pass a level, and you can turn them off.
 - **Accounts**: pick a username and a password; each account's progress is kept separate and stays on the device. You can also play as a guest, keep several accounts on one device, change the password and delete the account. When you sign up you get a **recovery code** (shown only once) to get back in if you forget the password. Passwords and codes are never stored in clear text (PBKDF2).
 - **Saving**: from Settings you can save progress to a file or a copyable code, and restore it, even on another device; restoring merges progress instead of overwriting it.
