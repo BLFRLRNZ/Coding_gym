@@ -1065,13 +1065,14 @@ self.onmessage = async (e) => {
   }
 };
 </script>
-<script>
-/* ================= Course: the Python world (content only, no DOM access) =================
+<script>/* ================= Course: the Python world (content only, no DOM access) =================
    Every level teaches one or two ideas and uses them right away. Each folder has the same rhythm:
    lessons, a "predict" quiz, a review that mixes old and new, a "build" level (one game that grows
    folder after folder) and a boss to debug. Kinds: "code" (default), "quiz", "order" (put the lines
    in order and set the indentation). Hints come in two steps: a question, then the plan in words. */
-const COURSE_VER = 2;
+const COURSE_VER = 3;
+/* Levels whose task changed in a version: saved drafts and attempts of these levels are dropped (stars stay) */
+const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"] };
 
 /* Python's int() accepts spaces around the number, a sign and _ between digits */
 const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
@@ -1084,6 +1085,119 @@ const tlist = (...xs) => xs.filter(Boolean);
 const lastLines = (o, n) => o.split("\n").slice(-n).join("\n");
 /* The tests of the games load fixed dice: random.randint gives a known number */
 const RIG = (expr) => `import random\nrandom.randint = lambda a, b: ${expr}\n`;
+
+/* ---------- "Indovina il numero": one game that grows over six parts ----------
+   1 one guess, distance and points · 2 a verdict, out of range gives 0 points · 3 up to 5 attempts in a loop,
+   points from the attempts · 4 the same game split into functions · 5 levels, a random secret, non-numbers
+   asked again · 6 a player object with the record, more games in a row.
+   runGame says what a part prints for a list of answers (prompts excluded, like the app's output). */
+const GAME_MAX = 5;
+const gamePoints = (t) => 10 * (GAME_MAX + 1 - t);
+const GAME = {
+  it: {
+    hello10: (n) => `Ciao ${n}! Ho un numero segreto da 1 a 10.`, hello: (n) => `Ciao ${n}!`, range: (m) => `Ho un numero segreto da 1 a ${m}.`,
+    out: (m) => `Fuori dal campo: scegli da 1 a ${m}!`, win: "Indovinato!", low: "Troppo basso!", high: "Troppo alto!", nan: "Scrivi un numero!",
+    reveal: (n, s) => `Hai scelto ${n}, il segreto era ${s}.`, dist: (d, p) => `Distanza: ${d}, punti: ${p}`,
+    won: (t, p) => `Ce l'hai fatta! Tentativi: ${t}, punti: ${p}`, lost: (s) => `Tentativi finiti! Il segreto era ${s}. Punti: 0`,
+    record: "Nuovo record!", yes: "si", summary: (n, g, r) => `${n}, partite giocate: ${g}. Record: ${r} punti`,
+    levels: { facile: 10, medio: 50, difficile: 100 }
+  },
+  en: {
+    hello10: (n) => `Hi ${n}! I have a secret number from 1 to 10.`, hello: (n) => `Hi ${n}!`, range: (m) => `I have a secret number from 1 to ${m}.`,
+    out: (m) => `Out of range: pick from 1 to ${m}!`, win: "You got it!", low: "Too low!", high: "Too high!", nan: "Type a number!",
+    reveal: (n, s) => `You chose ${n}, the secret was ${s}.`, dist: (d, p) => `Distance: ${d}, points: ${p}`,
+    won: (t, p) => `You made it! Attempts: ${t}, points: ${p}`, lost: (s) => `Out of attempts! The secret was ${s}. Points: 0`,
+    record: "New record!", yes: "yes", summary: (n, g, r) => `${n}, games played: ${g}. Record: ${r} points`,
+    levels: { easy: 10, medium: 50, hard: 100 }
+  }
+};
+/* end: "done" (the program finished), "more" (it would ask for more answers), "extra" (it finished, but the
+   answers were more: the program asked too many questions), "crash" (int() of a non-number before part 5),
+   "bad" (secret out of range), "cut" (stopped after maxGames games) */
+function runGame(lang, part, ins, secretFor, maxGames) {
+  const T = GAME[lang], lines = [], res = (end) => ({ lines, end });
+  if (!ins.length) return res("more");
+  const name = ins[0];
+  if (part <= 2) {
+    if (ins.length < 2) return res("more");
+    if (!isIntText(ins[1])) return res("crash");
+    const n = toInt(ins[1]), d = Math.abs(7 - n);
+    let p = 10 - d;
+    lines.push(T.hello10(name));
+    if (part === 2) {
+      if (n < 1 || n > 10) { lines.push(T.out(10)); p = 0; }
+      else lines.push(n === 7 ? T.win : n < 7 ? T.low : T.high);
+    }
+    lines.push(T.reveal(n, 7), T.dist(d, p));
+    return res(ins.length === 2 ? "done" : "extra");
+  }
+  lines.push(part <= 4 ? T.hello10(name) : T.hello(name));
+  let i = 1, games = 0, record = 0;
+  for (;;) {
+    let top = 10;
+    if (part >= 5) {
+      if (i >= ins.length) return res("more");
+      const lv = ins[i++];
+      top = Object.prototype.hasOwnProperty.call(T.levels, lv) ? T.levels[lv] : 10;
+      lines.push(T.range(top));
+    }
+    const secret = secretFor(games, top);
+    if (!(secret >= 1 && secret <= top)) return res("bad");
+    let t = 0, won = false;
+    while (t < GAME_MAX) {
+      if (i >= ins.length) return res("more");
+      const x = ins[i++];
+      if (!isIntText(x)) { if (part < 5) return res("crash"); lines.push(T.nan); continue; }
+      const n = toInt(x);
+      t++;
+      if (n < 1 || n > top) lines.push(T.out(top));
+      else if (n === secret) { lines.push(T.win); won = true; break; }
+      else lines.push(n < secret ? T.low : T.high);
+    }
+    const points = won ? gamePoints(t) : 0;
+    lines.push(won ? T.won(t, points) : T.lost(secret));
+    games++;
+    if (part < 6) return res(i === ins.length ? "done" : "extra");
+    if (points > record) { record = points; lines.push(T.record); }
+    if (i >= ins.length) return res("more");
+    if (ins[i++] !== T.yes) break;
+    if (maxGames && games >= maxGames) return res("cut");
+  }
+  lines.push(T.summary(name, games, record));
+  return res(i === ins.length ? "done" : "extra");
+}
+/* What the program should have printed. Up to part 4 the secret is 7; from part 5 it's random, so for each
+   game it takes the secret that fits the output best (the right one, when the program works). */
+function gameExpect(lang, part, ins, out) {
+  if (part < 5) { const r = runGame(lang, part, ins || [], () => 7); return r.end === "done" ? r.lines.join("\n") : null; }
+  const want = String(out || "").split("\n"), chosen = [];
+  for (let k = 0; k < 40; k++) {
+    let best = null;
+    for (let s = 1; s <= 100; s++) {
+      const r = runGame(lang, part, ins || [], (j) => (j < k ? chosen[j] : s), k + 1);
+      if (r.end !== "done" && r.end !== "cut") continue;
+      let same = 0;
+      while (same < r.lines.length && r.lines[same] === want[same]) same++;
+      if (!best || same > best.same) best = { s, same, r };
+      if (same === r.lines.length) break;
+    }
+    if (!best) return null;
+    chosen.push(best.s);
+    if (best.r.end === "done") return best.r.lines.join("\n");
+  }
+  return null;
+}
+/* The output with the loaded dice of the tests: random.randint(1, top) gives top // 2 */
+const gameRigged = (lang, part, ins) => { const r = runGame(lang, part, ins, (k, top) => Math.floor(top / 2)); return r.end === "done" ? r.lines.join("\n") : null; };
+const gameCheck = (lang, part, needs) => (o, c, x) => needs.every((re) => re.test(c)) && o === gameExpect(lang, part, x.inputs, o);
+/* Hidden tests: whole games with other answers (with loaded dice from part 5) */
+const gameTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = part >= 5 ? gameRigged(lang, part, ins) : gameExpect(lang, part, ins);
+  const end = want.split("\n").pop();
+  return tcase(part >= 5 ? RIG("b // 2") + c : c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`,
+    part >= 5 ? { inputs: ins, rand: true } : { inputs: ins });
+});
 
 
 /* ---------- 00_inizio: how Python reads, print, the writing rules, comments, errors ---------- */
@@ -1435,14 +1549,6 @@ function buildCardWhy(o, c, lang) {
 
 
 /* ---------- 01_basi: variables, math, changing values, // and %, f-strings, types, input ---------- */
-const guess1 = (lang, name, n) => {
-  const d = Math.abs(7 - n);
-  return lang === "it"
-    ? `Ciao ${name}! Ho un numero segreto da 1 a 10.\nHai scelto ${n}, il segreto era 7.\nDistanza: ${d}, punti: ${10 - d}`
-    : `Hi ${name}! I have a secret number from 1 to 10.\nYou chose ${n}, the secret was 7.\nDistance: ${d}, points: ${10 - d}`;
-};
-const guess1Ok = (lang) => (o, c, x) => x.inputs.length === 2 && isIntText(x.inputs[1]) && /\b(segreto|secret)\b/.test(c) && o === guess1(lang, x.inputs[0], toInt(x.inputs[1]));
-const guess1Exp = (lang) => (x) => (x.inputs.length >= 2 && isIntText(x.inputs[1]) ? guess1(lang, x.inputs[0], toInt(x.inputs[1])) : null);
 
 const C01 = [
 {
@@ -1750,16 +1856,72 @@ print(f"This year {name} turns {year - born}")`,
   }
 },
 {
-  id: "types", teaches: ["type()", "int()", "float()", "str()"],
+  id: "typeof", teaches: ["type()"],
   it: {
-    title: "Tipi e conversioni",
+    title: "Che tipo è?",
     theory: [
-`<p>Ogni valore ha un <b>tipo</b>: <code>int</code> per i numeri interi, <code>float</code> per quelli con la virgola, <code>str</code> per il testo. Con <code>type()</code> chiedi a Python il tipo di un valore.</p>`,
+`<p>Ogni valore ha un <b>tipo</b>, che dice a Python che cosa può farci: <code>int</code> per i numeri interi, <code>float</code> per quelli con la virgola, <code>str</code> per il testo. Con <code>type()</code> chiedi a Python il tipo di un valore.</p>`,
 { code: `print(type(7))        # <class 'int'>
 print(type(2.5))      # <class 'float'>
 print(type("ciao"))   # <class 'str'>
 print(type("7"))      # <class 'str'>: tra virgolette è testo!` },
-`<p>Per passare da un tipo all'altro: <code>int("12")</code> dà il numero 12, <code>float("2.5")</code> dà 2.5, <code>str(3)</code> dà il testo "3". Così puoi fare i conti con numeri scritti come testo, o unire un numero a una frase con <code>+</code>.</p>`,
+`<p>Il tipo spiega tanti comportamenti: <code>7 + 7</code> fa 14, ma <code>"7" + "7"</code> fa <code>"77"</code>, perché due testi uniti con <code>+</code> si mettono uno dopo l'altro. E la divisione con <code>/</code> dà sempre un <code>float</code>, anche quando il risultato è tondo.</p>`],
+    task: `Stampa il tipo di <code>a</code>, <code>b</code>, <code>c</code> e <code>d</code>, uno per riga, e alla fine il valore di <code>d</code>. Deve uscire <code>&lt;class 'int'&gt;</code>, <code>&lt;class 'str'&gt;</code>, <code>&lt;class 'float'&gt;</code>, <code>&lt;class 'str'&gt;</code> e <code>77</code>: prima di eseguire, guarda le quattro righe e cerca di capire il perché di ognuno. Proverò anche con altri valori.`,
+    starter: `a = 7\nb = "7"\nc = a / 7\nd = b + b\n\n`,
+    solution: `a = 7
+b = "7"
+c = a / 7
+d = b + b
+
+print(type(a))
+print(type(b))
+print(type(c))
+print(type(d))
+print(d)`,
+    hints: ["Quali valori sono tra virgolette? E che tipo dà sempre la divisione con /?",
+      "Cinque print: quattro con type() delle quattro variabili, nell'ordine, e l'ultimo con d."],
+    check: (o, c) => o === "<class 'int'>\n<class 'str'>\n<class 'float'>\n<class 'str'>\n77" && (c.match(/type\s*\(/g) || []).length >= 4,
+    tests: (c) => tlist(tcase(swapRe(c, /b\s*=\s*"7"/, "b = 7"), (o) => o === "<class 'int'>\n<class 'int'>\n<class 'float'>\n<class 'int'>\n14", "con b = 7, senza virgolette, doveva stampare int, int, float, int e 14")),
+    expect: "<class 'int'>\n<class 'str'>\n<class 'float'>\n<class 'str'>\n77"
+  },
+  en: {
+    title: "What type is it?",
+    theory: [
+`<p>Every value has a <b>type</b>, which tells Python what it can do with it: <code>int</code> for whole numbers, <code>float</code> for decimal ones, <code>str</code> for text. With <code>type()</code> you ask Python the type of a value.</p>`,
+{ code: `print(type(7))        # <class 'int'>
+print(type(2.5))      # <class 'float'>
+print(type("hello"))  # <class 'str'>
+print(type("7"))      # <class 'str'>: in quotes it's text!` },
+`<p>The type explains lots of behaviours: <code>7 + 7</code> is 14, but <code>"7" + "7"</code> is <code>"77"</code>, because two pieces of text joined with <code>+</code> go one after the other. And division with <code>/</code> always gives a <code>float</code>, even when the result is a whole number.</p>`],
+    task: `Print the type of <code>a</code>, <code>b</code>, <code>c</code> and <code>d</code>, one per line, and at the end the value of <code>d</code>. The output must be <code>&lt;class 'int'&gt;</code>, <code>&lt;class 'str'&gt;</code>, <code>&lt;class 'float'&gt;</code>, <code>&lt;class 'str'&gt;</code> and <code>77</code>: before running, look at the four lines and work out the reason for each one. I'll also try other values.`,
+    starter: `a = 7\nb = "7"\nc = a / 7\nd = b + b\n\n`,
+    solution: `a = 7
+b = "7"
+c = a / 7
+d = b + b
+
+print(type(a))
+print(type(b))
+print(type(c))
+print(type(d))
+print(d)`,
+    hints: ["Which values are in quotes? And which type does division with / always give?",
+      "Five prints: four with type() of the four variables, in order, and the last one with d."],
+    check: (o, c) => o === "<class 'int'>\n<class 'str'>\n<class 'float'>\n<class 'str'>\n77" && (c.match(/type\s*\(/g) || []).length >= 4,
+    tests: (c) => tlist(tcase(swapRe(c, /b\s*=\s*"7"/, "b = 7"), (o) => o === "<class 'int'>\n<class 'int'>\n<class 'float'>\n<class 'int'>\n14", "with b = 7, without quotes, it had to print int, int, float, int and 14")),
+    expect: "<class 'int'>\n<class 'str'>\n<class 'float'>\n<class 'str'>\n77"
+  }
+},
+{
+  id: "types", teaches: ["int()", "float()", "str()"],
+  it: {
+    title: "Cambiare tipo: le conversioni",
+    theory: [
+`<p>Spesso un numero arriva scritto come testo, per esempio <code>"12"</code>: così com'è non ci puoi fare i conti. Per passare da un tipo all'altro ci sono tre funzioni, con il nome del tipo che vuoi ottenere:</p>
+<ul><li><code>int("12")</code> dà il numero intero 12;</li>
+<li><code>float("2.5")</code> dà il numero con la virgola 2.5;</li>
+<li><code>str(3)</code> dà il testo <code>"3"</code>, che puoi unire a una frase con <code>+</code>.</li></ul>
+<p>Attenzione: <code>int("2.5")</code> dà errore, perché un testo con la virgola si converte con <code>float</code>.</p>`,
 { code: `eta = "17"
 print(int(eta) + 1)
 print("Hai " + str(18) + " anni")` }],
@@ -1778,14 +1940,13 @@ print(type(totale))`,
     expect: "Totale: 13.5\n<class 'float'>"
   },
   en: {
-    title: "Types and conversions",
+    title: "Changing type: conversions",
     theory: [
-`<p>Every value has a <b>type</b>: <code>int</code> for whole numbers, <code>float</code> for decimal ones, <code>str</code> for text. With <code>type()</code> you ask Python the type of a value.</p>`,
-{ code: `print(type(7))        # <class 'int'>
-print(type(2.5))      # <class 'float'>
-print(type("hello"))  # <class 'str'>
-print(type("7"))      # <class 'str'>: in quotes it's text!` },
-`<p>To go from one type to another: <code>int("12")</code> gives the number 12, <code>float("2.5")</code> gives 2.5, <code>str(3)</code> gives the text "3". That way you can do math with numbers written as text, or join a number to a sentence with <code>+</code>.</p>`,
+`<p>A number often arrives written as text, for example <code>"12"</code>: as it is, you can't do math with it. To go from one type to another there are three functions, named after the type you want to get:</p>
+<ul><li><code>int("12")</code> gives the whole number 12;</li>
+<li><code>float("2.5")</code> gives the decimal number 2.5;</li>
+<li><code>str(3)</code> gives the text <code>"3"</code>, which you can join to a sentence with <code>+</code>.</li></ul>
+<p>Careful: <code>int("2.5")</code> gives an error, because text with a decimal point is converted with <code>float</code>.</p>`,
 { code: `age = "17"
 print(int(age) + 1)
 print("You are " + str(18))` }],
@@ -1887,11 +2048,11 @@ print(7 / 2 + 0.5)`, options: ["<class 'float'>\n4.0", "<class 'int'>\n4", "<cla
   }
 },
 {
-  id: "build1", build: true, teaches: ["abs"], sample: ["Ada", "5"],
+  id: "build1", build: true, part: 1, teaches: ["abs"], sample: ["Ada", "5"],
   it: {
     title: "Costruisci: indovina il numero, parte 1",
     theory: [
-`<p>Da qui in avanti costruisci un gioco vero, un pezzo per cartella: <b>indovina il numero</b>. Alla fine sarà completo, con tentativi, numeri casuali e record.</p>
+`<p>Da qui in avanti costruisci un gioco vero, un pezzo per cartella: <b>indovina il numero</b>. Ogni parte riparte dal tuo codice della parte prima e lo fa crescere: alla fine il gioco avrà indizi, tentativi, livelli, numeri casuali e il record.</p>
 <p>Parte 1: il computer ha un numero segreto (per ora sempre 7) e il giocatore fa un tentativo. Il programma dice quanto ci è andato vicino e assegna dei punti: 10 meno la distanza. Per la distanza ti serve <code>abs()</code>, che toglie il segno meno: <code>abs(3 - 8)</code> fa 5.</p>
 <p>Una partita deve andare esattamente così (il giocatore risponde <i>Ada</i> e <i>5</i>):</p>
 <pre class="term-sample">Come ti chiami? Ada
@@ -1911,15 +2072,13 @@ print(f"Hai scelto {tentativo}, il segreto era {segreto}.")
 print(f"Distanza: {distanza}, punti: {10 - distanza}")`,
     hints: ["Quante volte devi chiedere qualcosa? Quale delle due risposte deve diventare un numero?",
       "Due input, il secondo convertito con int(). Poi calcola la distanza con abs() della differenza e stampa le tre frasi con le f-string; per i punti fai 10 meno la distanza."],
-    check: guess1Ok("it"), expect: guess1Exp("it"),
-    tests: (c) => [
-      tcase(c, (o) => o === guess1("it", "Bob", 10), "con Bob e 10 doveva dire Distanza: 3, punti: 7", { inputs: ["Bob", "10"] }),
-      tcase(c, (o) => o === guess1("it", "Cleo", 7), "con Cleo e 7 doveva dire Distanza: 0, punti: 10", { inputs: ["Cleo", "7"] })]
+    check: gameCheck("it", 1, [/\bsegreto\b/]), expect: (x) => gameExpect("it", 1, x.inputs),
+    tests: gameTests("it", 1, [["Bob", "10"], ["Cleo", "7"]])
   },
   en: {
     title: "Build: guess the number, part 1",
     theory: [
-`<p>From here on you build a real game, one piece per folder: <b>guess the number</b>. In the end it will be complete, with attempts, random numbers and records.</p>
+`<p>From here on you build a real game, one piece per folder: <b>guess the number</b>. Each part starts from your code of the part before and makes it grow: in the end the game will have clues, attempts, levels, random numbers and the record.</p>
 <p>Part 1: the computer has a secret number (always 7 for now) and the player makes a guess. The program says how close it was and gives points: 10 minus the distance. For the distance you need <code>abs()</code>, which drops the minus sign: <code>abs(3 - 8)</code> is 5.</p>
 <p>A game must go exactly like this (the player answers <i>Ada</i> and <i>5</i>):</p>
 <pre class="term-sample">What's your name? Ada
@@ -1939,10 +2098,8 @@ print(f"You chose {guess}, the secret was {secret}.")
 print(f"Distance: {distance}, points: {10 - distance}")`,
     hints: ["How many times do you need to ask something? Which of the two answers has to become a number?",
       "Two inputs, the second converted with int(). Then work out the distance with abs() of the difference and print the three sentences with f-strings; for the points do 10 minus the distance."],
-    check: guess1Ok("en"), expect: guess1Exp("en"),
-    tests: (c) => [
-      tcase(c, (o) => o === guess1("en", "Bob", 10), "with Bob and 10 it had to say Distance: 3, points: 7", { inputs: ["Bob", "10"] }),
-      tcase(c, (o) => o === guess1("en", "Cleo", 7), "with Cleo and 7 it had to say Distance: 0, points: 10", { inputs: ["Cleo", "7"] })]
+    check: gameCheck("en", 1, [/\bsecret\b/]), expect: (x) => gameExpect("en", 1, x.inputs),
+    tests: gameTests("en", 1, [["Bob", "10"], ["Cleo", "7"]])
   }
 },
 {
@@ -1982,12 +2139,6 @@ print(f"In 5 years you will be {age + 5}")`,
 
 
 /* ---------- 02_decisioni: comparisons, if and blocks, else, elif, and/or/not, text, % with if ---------- */
-const guess2 = (lang, n) => {
-  const it = lang === "it";
-  if (n < 1 || n > 10) return it ? "Fuori dal campo: scegli da 1 a 10!" : "Out of range: pick from 1 to 10!";
-  if (n === 7) return it ? "Indovinato!" : "You got it!";
-  return n < 7 ? (it ? "Troppo basso!" : "Too low!") : (it ? "Troppo alto!" : "Too high!");
-};
 const parity = (lang, n) => (lang === "it"
   ? `${n} è ${n % 2 === 0 ? "pari" : "dispari"}` + (n % 3 === 0 ? "\ned è un multiplo di 3" : "")
   : `${n} is ${n % 2 === 0 ? "even" : "odd"}` + (n % 3 === 0 ? "\nand it's a multiple of 3" : ""));
@@ -2546,62 +2697,82 @@ print(x)`, options: ["7", "2", "5", "15"], correct: 0, explain: "10 % 4 is 2; no
   }
 },
 {
-  id: "build2", build: true, teaches: [], sample: ["4"],
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["Ada", "4"],
   it: {
     title: "Costruisci: indovina il numero, parte 2",
     theory: [
-`<p>Parte 2: ora il gioco dà degli indizi. Il segreto è sempre 7; il giocatore fa un tentativo e il programma risponde:</p>
-<ul><li><code>Fuori dal campo: scegli da 1 a 10!</code> se il numero è minore di 1 o maggiore di 10;</li>
+`<p>Parte 2: nell'editor c'è già il gioco della parte 1. Ora il programma impara a <b>giudicare</b> il numero: subito dopo la risposta stampa un verdetto.</p>
+<ul><li><code>Fuori dal campo: scegli da 1 a 10!</code> se il numero è minore di 1 o maggiore di 10: in questo caso i punti sono 0;</li>
 <li><code>Indovinato!</code> se è giusto;</li>
 <li><code>Troppo basso!</code> o <code>Troppo alto!</code> negli altri casi.</li></ul>
-<pre class="term-sample">Il tuo numero (1-10)? 4
-Troppo basso!</pre>`],
-    task: `Scrivi il programma: un tentativo, un controllo con if, elif ed else e la frase giusta. Usa la variabile <code>segreto</code>. Proverò con tanti numeri.`,
-    starter: `segreto = 7\n\n`,
+<p>Tutto il resto resta com'era. Per ora c'è un solo tentativo, quindi il verdetto arriva insieme al segreto: dalla parte 3 avrai più tentativi e gli indizi ti serviranno davvero.</p>
+<pre class="term-sample">Come ti chiami? Ada
+Ciao Ada! Ho un numero segreto da 1 a 10.
+Il tuo numero? 4
+Troppo basso!
+Hai scelto 4, il segreto era 7.
+Distanza: 3, punti: 7</pre>`],
+    task: `Fai crescere il gioco: dopo il numero stampa il verdetto giusto con <code>if</code>, <code>elif</code> ed <code>else</code>, e con un numero fuori dal campo dai 0 punti. Il resto non cambia. Proverò con tanti numeri.`,
     solution: `segreto = 7
 
-tentativo = int(input("Il tuo numero (1-10)? "))
+nome = input("Come ti chiami? ")
+print(f"Ciao {nome}! Ho un numero segreto da 1 a 10.")
+tentativo = int(input("Il tuo numero? "))
+distanza = abs(segreto - tentativo)
+punti = 10 - distanza
 if tentativo < 1 or tentativo > 10:
     print("Fuori dal campo: scegli da 1 a 10!")
+    punti = 0
 elif tentativo == segreto:
     print("Indovinato!")
 elif tentativo < segreto:
     print("Troppo basso!")
 else:
-    print("Troppo alto!")`,
-    hints: ["Quale controllo va fatto per primo, visto che un numero fuori dal campo non deve ricevere altri indizi? E come unisci \"minore di 1\" e \"maggiore di 10\"?",
-      "if per il fuori campo (due confronti uniti con or), elif per il numero giusto, elif per il troppo basso, else per il troppo alto."],
-    check: (o, c, x) => /\bsegreto\b/.test(c) && isIntText(x.inputs[0]) && o === guess2("it", toInt(x.inputs[0])),
-    expect: (x) => (isIntText(x.inputs[0]) ? guess2("it", toInt(x.inputs[0])) : null),
-    tests: (c) => [7, 3, 9, 0, 11, 10, 1].map((n) => tcase(c, (o) => o === guess2("it", n), `con ${n} doveva stampare ${guess2("it", n)}`, { inputs: [String(n)] }))
+    print("Troppo alto!")
+print(f"Hai scelto {tentativo}, il segreto era {segreto}.")
+print(f"Distanza: {distanza}, punti: {punti}")`,
+    hints: ["Quale controllo va fatto per primo, visto che un numero fuori dal campo non deve ricevere altri verdetti? E se in un caso i punti cambiano, dove conviene tenerli?",
+      "Metti i punti in una variabile prima dell'if. Poi if per il fuori campo (due confronti uniti con or), dove stampi il messaggio e metti i punti a 0; elif per il numero giusto, elif per il troppo basso, else per il troppo alto. Nell'ultima riga stampa la variabile dei punti."],
+    check: gameCheck("it", 2, [/\bsegreto\b/, /\belif\b/]), expect: (x) => gameExpect("it", 2, x.inputs),
+    tests: gameTests("it", 2, [["Bob", "7"], ["Bob", "3"], ["Bob", "9"], ["Bob", "0"], ["Bob", "11"], ["Bob", "10"], ["Bob", "1"]])
   },
   en: {
     title: "Build: guess the number, part 2",
     theory: [
-`<p>Part 2: now the game gives clues. The secret is still 7; the player makes a guess and the program answers:</p>
-<ul><li><code>Out of range: pick from 1 to 10!</code> if the number is less than 1 or greater than 10;</li>
+`<p>Part 2: the editor already holds the game of part 1. Now the program learns to <b>judge</b> the number: right after the answer it prints a verdict.</p>
+<ul><li><code>Out of range: pick from 1 to 10!</code> if the number is lower than 1 or higher than 10: in that case the points are 0;</li>
 <li><code>You got it!</code> if it's right;</li>
 <li><code>Too low!</code> or <code>Too high!</code> in the other cases.</li></ul>
-<pre class="term-sample">Your number (1-10)? 4
-Too low!</pre>`],
-    task: `Write the program: one guess, a check with if, elif and else, and the right sentence. Use the variable <code>secret</code>. I'll try lots of numbers.`,
-    starter: `secret = 7\n\n`,
+<p>Everything else stays as it was. For now there's a single guess, so the verdict comes together with the secret: from part 3 you'll have more attempts and the clues will really help.</p>
+<pre class="term-sample">What's your name? Ada
+Hi Ada! I have a secret number from 1 to 10.
+Your number? 4
+Too low!
+You chose 4, the secret was 7.
+Distance: 3, points: 7</pre>`],
+    task: `Make the game grow: after the number print the right verdict with <code>if</code>, <code>elif</code> and <code>else</code>, and give 0 points to a number out of range. The rest doesn't change. I'll try lots of numbers.`,
     solution: `secret = 7
 
-guess = int(input("Your number (1-10)? "))
+name = input("What's your name? ")
+print(f"Hi {name}! I have a secret number from 1 to 10.")
+guess = int(input("Your number? "))
+distance = abs(secret - guess)
+points = 10 - distance
 if guess < 1 or guess > 10:
     print("Out of range: pick from 1 to 10!")
+    points = 0
 elif guess == secret:
     print("You got it!")
 elif guess < secret:
     print("Too low!")
 else:
-    print("Too high!")`,
-    hints: ["Which check comes first, since a number out of range shouldn't get any other clue? And how do you join \"less than 1\" and \"greater than 10\"?",
-      "if for out of range (two comparisons joined with or), elif for the right number, elif for too low, else for too high."],
-    check: (o, c, x) => /\bsecret\b/.test(c) && isIntText(x.inputs[0]) && o === guess2("en", toInt(x.inputs[0])),
-    expect: (x) => (isIntText(x.inputs[0]) ? guess2("en", toInt(x.inputs[0])) : null),
-    tests: (c) => [7, 3, 9, 0, 11, 10, 1].map((n) => tcase(c, (o) => o === guess2("en", n), `with ${n} it had to print ${guess2("en", n)}`, { inputs: [String(n)] }))
+    print("Too high!")
+print(f"You chose {guess}, the secret was {secret}.")
+print(f"Distance: {distance}, points: {points}")`,
+    hints: ["Which check comes first, since a number out of range must not get any other verdict? And if the points change in one case, where should you keep them?",
+      "Put the points in a variable before the if. Then if for out of range (two comparisons joined with or), where you print the message and set the points to 0; elif for the right number, elif for too low, else for too high. On the last line print the points variable."],
+    check: gameCheck("en", 2, [/\bsecret\b/, /\belif\b/]), expect: (x) => gameExpect("en", 2, x.inputs),
+    tests: gameTests("en", 2, [["Bob", "7"], ["Bob", "3"], ["Bob", "9"], ["Bob", "0"], ["Bob", "11"], ["Bob", "10"], ["Bob", "1"]])
   }
 },
 {
@@ -2660,20 +2831,6 @@ const menu = (lang, ins) => {
   }
   return null;
 };
-const guess3 = (lang, ins) => {
-  const it = lang === "it", out = [];
-  let t = 0;
-  for (const s of ins) {
-    if (!isIntText(s)) return null;
-    const n = toInt(s);
-    t++;
-    if (n === 7) { out.push(it ? `Indovinato! Tentativi: ${t}` : `You got it! Attempts: ${t}`); return out.join("\n"); }
-    out.push(n < 7 ? (it ? "Troppo basso!" : "Too low!") : (it ? "Troppo alto!" : "Too high!"));
-    if (t === 5) { out.push(it ? "Tentativi finiti! Era 7." : "Out of attempts! It was 7."); return out.join("\n"); }
-  }
-  return null;
-};
-const GAMES3 = [["7"], ["1", "2", "3", "4", "5"], ["8", "6", "7"], ["10", "1", "9", "2", "7"]];
 
 const C03 = [
 {
@@ -2867,52 +3024,117 @@ print("Evens:", evens)` },
   }
 },
 {
-  id: "list", teaches: ["list", "index", "negindex", "len", "in"],
+  id: "list", teaches: ["list", "index", "negindex"],
   it: {
     title: "Liste",
     theory: [
-`<p>Una <b>lista</b> tiene più valori in ordine, tra parentesi quadre. Ogni elemento ha una <b>posizione</b>, l'indice, che parte da 0. Gli indici negativi contano dalla fine: <code>-1</code> è l'ultimo.</p>`,
+`<p>Una <b>lista</b> tiene più valori in ordine, tra parentesi quadre e separati da virgole. Ogni elemento ha una <b>posizione</b>, l'indice, che parte da 0: il primo elemento è <code>lista[0]</code>, il secondo <code>lista[1]</code>.</p>`,
 { code: `spesa = ["latte", "pane", "uova"]
-print(spesa[0])         # latte: il primo
-print(spesa[-1])        # uova: l'ultimo
-print(len(spesa))       # 3: quanti elementi
-print("pane" in spesa)  # True: c'è?` }],
-    task: `Dalla classifica stampa, una per riga: il primo, il <b>penultimo</b>, quanti sono in tutto, e se <code>Eva</code> è in classifica. Deve uscire <code>Ada</code>, <code>Cleo</code>, <code>4</code> e <code>False</code>.`,
+print(spesa[0])     # latte: il primo
+print(spesa[2])     # uova: il terzo
+print(spesa[-1])    # uova: l'ultimo` },
+`<p>Gli indici <b>negativi</b> contano dalla fine: <code>-1</code> è l'ultimo, <code>-2</code> il penultimo. Sono comodi perché funzionano anche quando non sai quanto è lunga la lista.</p>`],
+    task: `Dalla classifica stampa, uno per riga: il primo, il secondo, l'ultimo e il penultimo, usando gli indici negativi per gli ultimi due. Deve uscire <code>Ada</code>, <code>Bob</code>, <code>Dan</code> e <code>Cleo</code>. Proverò anche con un'altra classifica.`,
     starter: `classifica = ["Ada", "Bob", "Cleo", "Dan"]\n\n`,
     solution: `classifica = ["Ada", "Bob", "Cleo", "Dan"]
 
 print(classifica[0])
-print(classifica[-2])
-print(len(classifica))
-print("Eva" in classifica)`,
-    hints: ["Se -1 è l'ultimo, come si indica il penultimo? E come chiedi a Python se un valore sta in una lista?",
-      "Quattro print: l'indice 0, l'indice negativo del penultimo, len() della lista e il controllo con in."],
-    check: (o, c) => o === "Ada\nCleo\n4\nFalse" && /\[\s*-2\s*\]/.test(c) && /\bin\b/.test(c) && /len\s*\(/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /classifica\s*=\s*\[[^\]]*\]/, 'classifica = ["Eva", "Fede", "Gio"]'), (o) => o === "Eva\nFede\n3\nTrue", 'con classifica = ["Eva", "Fede", "Gio"] doveva stampare Eva, Fede, 3 e True')),
-    expect: "Ada\nCleo\n4\nFalse"
+print(classifica[1])
+print(classifica[-1])
+print(classifica[-2])`,
+    hints: ["Da quale numero partono gli indici? E se -1 è l'ultimo, come si indica il penultimo?",
+      "Quattro print: gli indici 0 e 1 per i primi due, -1 e -2 per l'ultimo e il penultimo."],
+    check: (o, c) => o === "Ada\nBob\nDan\nCleo" && /\[\s*-\s*1\s*\]/.test(c) && /\[\s*-\s*2\s*\]/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /classifica\s*=\s*\[[^\]]*\]/, 'classifica = ["Eva", "Fede", "Gio"]'), (o) => o === "Eva\nFede\nGio\nFede", 'con classifica = ["Eva", "Fede", "Gio"] doveva stampare Eva, Fede, Gio e Fede')),
+    expect: "Ada\nBob\nDan\nCleo"
   },
   en: {
     title: "Lists",
     theory: [
-`<p>A <b>list</b> holds several values in order, between square brackets. Each item has a <b>position</b>, the index, which starts at 0. Negative indexes count from the end: <code>-1</code> is the last.</p>`,
+`<p>A <b>list</b> holds several values in order, between square brackets and separated by commas. Each item has a <b>position</b>, the index, which starts at 0: the first item is <code>list[0]</code>, the second <code>list[1]</code>.</p>`,
 { code: `shopping = ["milk", "bread", "eggs"]
-print(shopping[0])           # milk: the first
-print(shopping[-1])          # eggs: the last
-print(len(shopping))         # 3: how many items
-print("bread" in shopping)   # True: is it there?` }],
-    task: `From the ranking print, one per line: the first, the <b>second to last</b>, how many there are, and whether <code>Eva</code> is in the ranking. The output must be <code>Ada</code>, <code>Cleo</code>, <code>4</code> and <code>False</code>.`,
+print(shopping[0])    # milk: the first
+print(shopping[2])    # eggs: the third
+print(shopping[-1])   # eggs: the last` },
+`<p><b>Negative</b> indexes count from the end: <code>-1</code> is the last, <code>-2</code> the second to last. They're handy because they work even when you don't know how long the list is.</p>`],
+    task: `From the ranking print, one per line: the first, the second, the last and the second to last, using negative indexes for the last two. The output must be <code>Ada</code>, <code>Bob</code>, <code>Dan</code> and <code>Cleo</code>. I'll also try another ranking.`,
     starter: `ranking = ["Ada", "Bob", "Cleo", "Dan"]\n\n`,
     solution: `ranking = ["Ada", "Bob", "Cleo", "Dan"]
 
 print(ranking[0])
-print(ranking[-2])
-print(len(ranking))
-print("Eva" in ranking)`,
-    hints: ["If -1 is the last, how do you point at the second to last? And how do you ask Python whether a value is in a list?",
-      "Four prints: index 0, the negative index of the second to last, len() of the list and the check with in."],
-    check: (o, c) => o === "Ada\nCleo\n4\nFalse" && /\[\s*-2\s*\]/.test(c) && /\bin\b/.test(c) && /len\s*\(/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /ranking\s*=\s*\[[^\]]*\]/, 'ranking = ["Eva", "Fede", "Gio"]'), (o) => o === "Eva\nFede\n3\nTrue", 'with ranking = ["Eva", "Fede", "Gio"] it had to print Eva, Fede, 3 and True')),
-    expect: "Ada\nCleo\n4\nFalse"
+print(ranking[1])
+print(ranking[-1])
+print(ranking[-2])`,
+    hints: ["Which number do indexes start from? And if -1 is the last, how do you point at the second to last?",
+      "Four prints: indexes 0 and 1 for the first two, -1 and -2 for the last and the second to last."],
+    check: (o, c) => o === "Ada\nBob\nDan\nCleo" && /\[\s*-\s*1\s*\]/.test(c) && /\[\s*-\s*2\s*\]/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /ranking\s*=\s*\[[^\]]*\]/, 'ranking = ["Eva", "Fede", "Gio"]'), (o) => o === "Eva\nFede\nGio\nFede", 'with ranking = ["Eva", "Fede", "Gio"] it had to print Eva, Fede, Gio and Fede')),
+    expect: "Ada\nBob\nDan\nCleo"
+  }
+},
+{
+  id: "listlen", teaches: ["len", "in"], sample: ["Eva"],
+  it: {
+    title: "Quanti sono e chi c'è: len e in",
+    theory: [
+`<p>Due domande che farai spesso a una lista. <code>len(lista)</code> dice <b>quanti</b> elementi ha. <code>valore in lista</code> dice se un valore <b>c'è</b>: dà <code>True</code> o <code>False</code>, quindi si usa benissimo dentro un <code>if</code>.</p>`,
+{ code: `spesa = ["latte", "pane", "uova"]
+print(len(spesa))         # 3
+print("pane" in spesa)    # True
+if "burro" in spesa:
+    print("C'è il burro")
+else:
+    print("Manca il burro")` },
+`<p><code>in</code> cerca il valore identico, maiuscole comprese: <code>"Pane" in spesa</code> dà <code>False</code>.</p>`],
+    task: `Stampa quanti giocatori ci sono in classifica, così: <code>In classifica ci sono 4 giocatori</code>. Poi chiedi un nome all'utente e rispondi <code>Eva non è in classifica</code> oppure <code>Bob è in classifica</code>, con il nome scritto. Proverò con altri nomi e un'altra classifica.`,
+    starter: `classifica = ["Ada", "Bob", "Cleo", "Dan"]\n\n`,
+    solution: `classifica = ["Ada", "Bob", "Cleo", "Dan"]
+
+print(f"In classifica ci sono {len(classifica)} giocatori")
+nome = input("Chi cerchi? ")
+if nome in classifica:
+    print(f"{nome} è in classifica")
+else:
+    print(f"{nome} non è in classifica")`,
+    hints: ["Quale funzione conta gli elementi di una lista? E come chiedi a Python se il nome scritto sta nella lista?",
+      "Una f-string con len() della lista; poi input() del nome e un if con in: nel blocco la frase di chi c'è, nell'else quella di chi non c'è."],
+    check: (o, c, x) => /len\s*\(/.test(c) && /\bin\s+classifica\b/.test(c) && x.inputs.length === 1 && o === `In classifica ci sono 4 giocatori\n${x.inputs[0]} ${["Ada", "Bob", "Cleo", "Dan"].includes(x.inputs[0]) ? "è" : "non è"} in classifica`,
+    expect: (x) => (x.inputs.length === 1 ? `In classifica ci sono 4 giocatori\n${x.inputs[0]} ${["Ada", "Bob", "Cleo", "Dan"].includes(x.inputs[0]) ? "è" : "non è"} in classifica` : null),
+    tests: (c) => tlist(
+      tcase(c, (o) => o === "In classifica ci sono 4 giocatori\nBob è in classifica", "rispondendo Bob doveva dire Bob è in classifica", { inputs: ["Bob"] }),
+      tcase(c, (o) => o === "In classifica ci sono 4 giocatori\nbob non è in classifica", "rispondendo bob, minuscolo, doveva dire bob non è in classifica", { inputs: ["bob"] }),
+      tcase(swapRe(c, /classifica\s*=\s*\[[^\]]*\]/, 'classifica = ["Eva", "Fede"]'), (o) => o === "In classifica ci sono 2 giocatori\nEva è in classifica", 'con classifica = ["Eva", "Fede"] e la risposta Eva doveva dire 2 giocatori ed Eva è in classifica', { inputs: ["Eva"] }))
+  },
+  en: {
+    title: "How many and who's there: len and in",
+    theory: [
+`<p>Two questions you'll often ask a list. <code>len(list)</code> says <b>how many</b> items it has. <code>value in list</code> says whether a value <b>is there</b>: it gives <code>True</code> or <code>False</code>, so it works great inside an <code>if</code>.</p>`,
+{ code: `shopping = ["milk", "bread", "eggs"]
+print(len(shopping))         # 3
+print("bread" in shopping)   # True
+if "butter" in shopping:
+    print("There's butter")
+else:
+    print("No butter")` },
+`<p><code>in</code> looks for the identical value, capitals included: <code>"Bread" in shopping</code> gives <code>False</code>.</p>`],
+    task: `Print how many players there are in the ranking, like this: <code>There are 4 players in the ranking</code>. Then ask the user for a name and answer <code>Eva isn't in the ranking</code> or <code>Bob is in the ranking</code>, with the name typed. I'll try other names and another ranking.`,
+    starter: `ranking = ["Ada", "Bob", "Cleo", "Dan"]\n\n`,
+    solution: `ranking = ["Ada", "Bob", "Cleo", "Dan"]
+
+print(f"There are {len(ranking)} players in the ranking")
+name = input("Who are you looking for? ")
+if name in ranking:
+    print(f"{name} is in the ranking")
+else:
+    print(f"{name} isn't in the ranking")`,
+    hints: ["Which function counts the items of a list? And how do you ask Python whether the name typed is in the list?",
+      "An f-string with len() of the list; then input() for the name and an if with in: in the block the sentence for who's there, in the else the one for who isn't."],
+    check: (o, c, x) => /len\s*\(/.test(c) && /\bin\s+ranking\b/.test(c) && x.inputs.length === 1 && o === `There are 4 players in the ranking\n${x.inputs[0]} ${["Ada", "Bob", "Cleo", "Dan"].includes(x.inputs[0]) ? "is" : "isn't"} in the ranking`,
+    expect: (x) => (x.inputs.length === 1 ? `There are 4 players in the ranking\n${x.inputs[0]} ${["Ada", "Bob", "Cleo", "Dan"].includes(x.inputs[0]) ? "is" : "isn't"} in the ranking` : null),
+    tests: (c) => tlist(
+      tcase(c, (o) => o === "There are 4 players in the ranking\nBob is in the ranking", "answering Bob it had to say Bob is in the ranking", { inputs: ["Bob"] }),
+      tcase(c, (o) => o === "There are 4 players in the ranking\nbob isn't in the ranking", "answering bob, lowercase, it had to say bob isn't in the ranking", { inputs: ["bob"] }),
+      tcase(swapRe(c, /ranking\s*=\s*\[[^\]]*\]/, 'ranking = ["Eva", "Fede"]'), (o) => o === "There are 2 players in the ranking\nEva is in the ranking", 'with ranking = ["Eva", "Fede"] and the answer Eva it had to say 2 players and Eva is in the ranking', { inputs: ["Eva"] }))
   }
 },
 {
@@ -3245,74 +3467,94 @@ else:
   }
 },
 {
-  id: "build3", build: true, teaches: [], sample: ["4", "9", "7"],
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: ["Ada", "4", "9", "7"],
   it: {
     title: "Costruisci: indovina il numero, parte 3",
     theory: [
-`<p>Parte 3: ora il giocatore ha più tentativi. Il programma continua a chiedere finché il numero non è giusto, dando ogni volta l'indizio, ma al massimo <b>5 volte</b>. Alla fine dice quanti tentativi sono serviti, oppure che sono finiti.</p>
-<pre class="term-sample">Il tuo numero? 4
+`<p>Parte 3: ora il giocatore ha fino a <b>5 tentativi</b>. Il programma continua a chiedere, dando ogni volta il verdetto, finché il numero non è giusto o i tentativi sono finiti. Anche un numero fuori dal campo conta come tentativo.</p>
+<p>Con più tentativi non puoi più svelare il segreto dopo ogni numero: togli le due righe con il segreto e la distanza. Cambiano anche i punti: ora dipendono dai tentativi usati, <code>10 * (6 - tentativi)</code>. Al primo colpo fai 50 punti, al quinto 10.</p>
+<pre class="term-sample">Come ti chiami? Ada
+Ciao Ada! Ho un numero segreto da 1 a 10.
+Il tuo numero? 4
 Troppo basso!
 Il tuo numero? 9
 Troppo alto!
 Il tuo numero? 7
-Indovinato! Tentativi: 3</pre>
-<p>Se dopo 5 tentativi il numero non è uscito, l'ultima riga è <code>Tentativi finiti! Era 7.</code></p>`],
-    task: `Scrivi il gioco con un ciclo: conta i tentativi, dai l'indizio dopo ogni numero sbagliato e fermati quando il giocatore indovina o arriva a 5 tentativi. Usa <code>segreto</code> e <code>tentativi</code>.`,
-    starter: `segreto = 7\ntentativi = 0\n\n`,
+Indovinato!
+Ce l'hai fatta! Tentativi: 3, punti: 30</pre>
+<p>Se dopo 5 tentativi il numero non è uscito, l'ultima riga è <code>Tentativi finiti! Il segreto era 7. Punti: 0</code>.</p>`],
+    task: `Fai crescere il gioco: metti la domanda e il verdetto in un ciclo che si ferma quando il numero è giusto o dopo 5 tentativi, poi stampa la riga del risultato. Tieni il limite in <code>max_tentativi</code> e il conteggio in <code>tentativi</code>. Proverò con tante partite.`,
     solution: `segreto = 7
+max_tentativi = 5
 tentativi = 0
 
-while tentativi < 5:
-    n = int(input("Il tuo numero? "))
+nome = input("Come ti chiami? ")
+print(f"Ciao {nome}! Ho un numero segreto da 1 a 10.")
+while tentativi < max_tentativi:
+    tentativo = int(input("Il tuo numero? "))
     tentativi += 1
-    if n == segreto:
-        print(f"Indovinato! Tentativi: {tentativi}")
+    if tentativo < 1 or tentativo > 10:
+        print("Fuori dal campo: scegli da 1 a 10!")
+    elif tentativo == segreto:
+        print("Indovinato!")
         break
-    elif n < segreto:
+    elif tentativo < segreto:
         print("Troppo basso!")
     else:
         print("Troppo alto!")
-if n != segreto:
-    print(f"Tentativi finiti! Era {segreto}.")`,
-    hints: ["Cosa deve succedere a ogni giro? E quali sono le due ragioni per uscire dal ciclo?",
-      "while finché i tentativi sono meno di 5: chiedi il numero, aumenta tentativi, poi if per l'indovinato (con break), elif ed else per gli indizi. Dopo il ciclo, un if che controlla se l'ultimo numero non era giusto."],
-    check: (o, c, x) => /\b(while|for)\b/.test(c) && o === guess3("it", x.inputs),
-    expect: (x) => guess3("it", x.inputs),
-    tests: (c) => GAMES3.map((ins) => tcase(c, (o) => o === guess3("it", ins), `con i numeri ${ins.join(", ")} doveva finire con ${guess3("it", ins).split("\n").pop()}`, { inputs: ins }))
+if tentativo == segreto:
+    punti = 10 * (max_tentativi + 1 - tentativi)
+    print(f"Ce l'hai fatta! Tentativi: {tentativi}, punti: {punti}")
+else:
+    print(f"Tentativi finiti! Il segreto era {segreto}. Punti: 0")`,
+    hints: ["Quali righe vanno ripetute a ogni tentativo, e quali una volta sola? Quali sono le due ragioni per uscire dal ciclo?",
+      "In cima max_tentativi = 5 e tentativi = 0. Poi un while finché i tentativi sono meno di max_tentativi: dentro la domanda, un tentativo in più nel conteggio e la catena di if, con break dopo Indovinato!. Togli le righe della distanza; dopo il ciclo un if: se l'ultimo numero è il segreto stampa tentativi e punti, altrimenti Tentativi finiti!."],
+    check: gameCheck("it", 3, [/\b(while|for)\b/]), expect: (x) => gameExpect("it", 3, x.inputs),
+    tests: gameTests("it", 3, [["Bob", "7"], ["Bob", "1", "2", "3", "4", "5"], ["Bob", "8", "6", "7"], ["Bob", "10", "0", "9", "2", "7"], ["Bob", "11", "7"]])
   },
   en: {
     title: "Build: guess the number, part 3",
     theory: [
-`<p>Part 3: now the player gets more guesses. The program keeps asking until the number is right, giving the clue each time, but at most <b>5 times</b>. At the end it says how many guesses it took, or that they ran out.</p>
-<pre class="term-sample">Your number? 4
+`<p>Part 3: now the player has up to <b>5 attempts</b>. The program keeps asking, giving the verdict every time, until the number is right or the attempts are over. A number out of range counts as an attempt too.</p>
+<p>With more attempts you can't reveal the secret after each number any more: remove the two lines with the secret and the distance. The points change too: now they depend on the attempts used, <code>10 * (6 - attempts)</code>. First time right gives 50 points, the fifth time 10.</p>
+<pre class="term-sample">What's your name? Ada
+Hi Ada! I have a secret number from 1 to 10.
+Your number? 4
 Too low!
 Your number? 9
 Too high!
 Your number? 7
-You got it! Attempts: 3</pre>
-<p>If the number hasn't come up after 5 guesses, the last line is <code>Out of attempts! It was 7.</code></p>`],
-    task: `Write the game with a loop: count the attempts, give the clue after each wrong number and stop when the player guesses or reaches 5 attempts. Use <code>secret</code> and <code>attempts</code>.`,
-    starter: `secret = 7\nattempts = 0\n\n`,
+You got it!
+You made it! Attempts: 3, points: 30</pre>
+<p>If after 5 attempts the number hasn't come up, the last line is <code>Out of attempts! The secret was 7. Points: 0</code>.</p>`],
+    task: `Make the game grow: put the question and the verdict in a loop that stops when the number is right or after 5 attempts, then print the result line. Keep the limit in <code>max_attempts</code> and the count in <code>attempts</code>. I'll try lots of games.`,
     solution: `secret = 7
+max_attempts = 5
 attempts = 0
 
-while attempts < 5:
-    n = int(input("Your number? "))
+name = input("What's your name? ")
+print(f"Hi {name}! I have a secret number from 1 to 10.")
+while attempts < max_attempts:
+    guess = int(input("Your number? "))
     attempts += 1
-    if n == secret:
-        print(f"You got it! Attempts: {attempts}")
+    if guess < 1 or guess > 10:
+        print("Out of range: pick from 1 to 10!")
+    elif guess == secret:
+        print("You got it!")
         break
-    elif n < secret:
+    elif guess < secret:
         print("Too low!")
     else:
         print("Too high!")
-if n != secret:
-    print(f"Out of attempts! It was {secret}.")`,
-    hints: ["What must happen on each round? And what are the two reasons to leave the loop?",
-      "while attempts are fewer than 5: ask for the number, increase attempts, then an if for the right guess (with break), elif and else for the clues. After the loop, an if that checks whether the last number wasn't right."],
-    check: (o, c, x) => /\b(while|for)\b/.test(c) && o === guess3("en", x.inputs),
-    expect: (x) => guess3("en", x.inputs),
-    tests: (c) => GAMES3.map((ins) => tcase(c, (o) => o === guess3("en", ins), `with the numbers ${ins.join(", ")} it had to end with ${guess3("en", ins).split("\n").pop()}`, { inputs: ins }))
+if guess == secret:
+    points = 10 * (max_attempts + 1 - attempts)
+    print(f"You made it! Attempts: {attempts}, points: {points}")
+else:
+    print(f"Out of attempts! The secret was {secret}. Points: 0")`,
+    hints: ["Which lines must repeat at every attempt, and which only once? What are the two reasons to leave the loop?",
+      "At the top max_attempts = 5 and attempts = 0. Then a while as long as the attempts are fewer than max_attempts: inside the question, one more attempt in the count and the if chain, with break after You got it!. Remove the distance lines; after the loop an if: if the last number is the secret print attempts and points, otherwise Out of attempts!."],
+    check: gameCheck("en", 3, [/\b(while|for)\b/]), expect: (x) => gameExpect("en", 3, x.inputs),
+    tests: gameTests("en", 3, [["Bob", "7"], ["Bob", "1", "2", "3", "4", "5"], ["Bob", "8", "6", "7"], ["Bob", "10", "0", "9", "2", "7"], ["Bob", "11", "7"]])
   }
 },
 {
@@ -3362,19 +3604,6 @@ print("Total:", total)`,
 
 
 /* ---------- 04_funzioni: strings as sequences, string methods, def, parameters, return and None ---------- */
-const guess4 = (lang, ins, s) => {
-  const it = lang === "it", out = [], secret = s || 7;
-  let t = 0;
-  for (const x of ins) {
-    if (!isIntText(x)) return null;
-    const n = toInt(x);
-    t++;
-    if (n === secret) { out.push(it ? `Indovinato! Tentativi: ${t}` : `You got it! Attempts: ${t}`); return out.join("\n"); }
-    out.push(n < secret ? (it ? "Troppo basso!" : "Too low!") : (it ? "Troppo alto!" : "Too high!"));
-  }
-  return null;
-};
-
 const C04 = [
 {
   id: "str", teaches: ["slice"],
@@ -3884,98 +4113,108 @@ print(numbers)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5,
   }
 },
 {
-  id: "build4", build: true, teaches: [], sample: ["4", "9", "7"],
+  id: "build4", build: true, part: 4, from: "build3", teaches: [], sample: ["Ada", "4", "9", "7"],
   it: {
     title: "Costruisci: indovina il numero, parte 4",
     theory: [
-`<p>Parte 4: il gioco funziona, ora lo mettiamo in ordine con le funzioni.</p>
-<ul><li><code>indizio(n, segreto)</code> restituisce <code>"basso"</code>, <code>"alto"</code> o <code>"giusto"</code>;</li>
-<li><code>partita(segreto)</code> fa giocare: chiede numeri finché non sono giusti, stampa <code>Troppo basso!</code> o <code>Troppo alto!</code> usando <code>indizio</code>, e alla fine restituisce il numero di tentativi.</li></ul>
-<p>Fuori dalle funzioni il programma chiama <code>partita(7)</code> e stampa <code>Indovinato! Tentativi: 3</code>. Questa volta i tentativi sono illimitati.</p>
-<pre class="term-sample">Il tuo numero? 4
-Troppo basso!
-Il tuo numero? 9
-Troppo alto!
-Il tuo numero? 7
-Indovinato! Tentativi: 3</pre>`],
-    task: `Scrivi le due funzioni e la chiamata finale. Proverò anche <code>indizio</code> da sola, con altri numeri, e <code>partita</code> con un altro segreto.`,
-    starter: `# Le funzioni del gioco\n\n`,
-    solution: `def indizio(n, segreto):
-    if n == segreto:
-        return "giusto"
+`<p>Parte 4: il gioco è cresciuto, ed è ora di metterlo in ordine con le <b>funzioni</b>. Per chi gioca non cambia niente: l'output resta identico. Cambia per chi legge il codice, che diventa fatto di pezzi con un nome e un compito solo:</p>
+<ul><li><code>verdetto(n, segreto)</code> <b>restituisce</b> la frase del verdetto, invece di stamparla;</li>
+<li><code>punti_per(tentativi)</code> restituisce i punti;</li>
+<li><code>partita(segreto)</code> fa giocare una partita e restituisce i tentativi usati, oppure 0 se sono finiti.</li></ul>
+<p>Fuori dalle funzioni restano il nome, il saluto, la chiamata a <code>partita</code> e la riga del risultato. Grazie a queste funzioni, nella parte 5 aggiungerai i livelli quasi senza toccare il resto.</p>`],
+    task: `Dividi il gioco in queste tre funzioni, con questi nomi, senza cambiare quello che stampa. Proverò anche le funzioni da sole e una partita con un altro segreto.`,
+    solution: `segreto = 7
+max_tentativi = 5
+
+def verdetto(n, segreto):
+    if n < 1 or n > 10:
+        return "Fuori dal campo: scegli da 1 a 10!"
+    elif n == segreto:
+        return "Indovinato!"
     elif n < segreto:
-        return "basso"
-    return "alto"
+        return "Troppo basso!"
+    return "Troppo alto!"
+
+def punti_per(tentativi):
+    return 10 * (max_tentativi + 1 - tentativi)
 
 def partita(segreto):
     tentativi = 0
-    while True:
-        n = int(input("Il tuo numero? "))
+    while tentativi < max_tentativi:
+        tentativo = int(input("Il tuo numero? "))
         tentativi += 1
-        esito = indizio(n, segreto)
-        if esito == "giusto":
+        print(verdetto(tentativo, segreto))
+        if tentativo == segreto:
             return tentativi
-        elif esito == "basso":
-            print("Troppo basso!")
-        else:
-            print("Troppo alto!")
+    return 0
 
-t = partita(7)
-print(f"Indovinato! Tentativi: {t}")`,
-    hints: ["indizio non stampa niente: cosa fa allora con il suo risultato? E partita, quando finisce e cosa consegna?",
-      "indizio: if/elif con tre return. partita: contatore, while True con input, aumento del contatore e chiamata di indizio; con \"giusto\" fai return dei tentativi, altrimenti stampi l'indizio. In fondo salvi il risultato di partita(7) e lo stampi."],
-    check: (o, c, x) => /def\s+indizio\s*\(/.test(c) && /def\s+partita\s*\(/.test(c) && o === guess4("it", x.inputs),
-    expect: (x) => guess4("it", x.inputs),
-    tests: (c) => tlist(
-      tcase(c + '\nprint(indizio(3, 5), indizio(5, 5), indizio(9, 5))', (o) => o.split("\n").pop() === "basso giusto alto", 'indizio(3, 5), indizio(5, 5) e indizio(9, 5) dovevano dare basso, giusto e alto', { inputs: ["7"] }),
-      tcase(c, (o) => o === guess4("it", ["50", "1", "7"]), "con 50, 1 e 7 doveva servire 3 tentativi", { inputs: ["50", "1", "7"] }),
-      tcase(swapRe(c, /partita\(\s*7\s*\)/, "partita(3)"), (o) => o === guess4("it", ["5", "3"], 3), "con partita(3) il segreto doveva essere 3", { inputs: ["5", "3"] }))
+nome = input("Come ti chiami? ")
+print(f"Ciao {nome}! Ho un numero segreto da 1 a 10.")
+tentativi = partita(segreto)
+if tentativi > 0:
+    print(f"Ce l'hai fatta! Tentativi: {tentativi}, punti: {punti_per(tentativi)}")
+else:
+    print(f"Tentativi finiti! Il segreto era {segreto}. Punti: 0")`,
+    hints: ["Quale parte del codice decide la frase da stampare, e quale va ripetuta per ogni partita? Cosa deve consegnare partita a chi la chiama?",
+      "verdetto: la catena di if, con return della frase al posto di print. punti_per: un return con il calcolo dei punti. partita: il contatore e il ciclo; dentro, print(verdetto(...)) e, se il numero è giusto, return dei tentativi; dopo il ciclo return 0. Sotto, il programma chiama partita(segreto) e stampa il risultato."],
+    check: gameCheck("it", 4, [/def\s+verdetto\s*\(/, /def\s+punti_per\s*\(/, /def\s+partita\s*\(/]), expect: (x) => gameExpect("it", 4, x.inputs),
+    tests: (c) => gameTests("it", 4, [["Bob", "7"], ["Bob", "1", "2", "3", "4", "5"], ["Bob", "10", "0", "9", "2", "7"]])(c).concat([
+      tcase(c + `\nprint(verdetto(0, 5))\nprint(verdetto(5, 5))\nprint(verdetto(3, 5))\nprint(verdetto(9, 5))\nprint(punti_per(1), punti_per(5))`,
+        (o) => lastLines(o, 5) === "Fuori dal campo: scegli da 1 a 10!\nIndovinato!\nTroppo basso!\nTroppo alto!\n50 10",
+        "verdetto(0, 5), verdetto(5, 5), verdetto(3, 5) e verdetto(9, 5) dovevano restituire le quattro frasi, punti_per(1) 50 e punti_per(5) 10", { inputs: ["Eva", "7"] }),
+      tcase(swapRe(c, /segreto\s*=\s*7\b/, "segreto = 3"), (o) => o === runGame("it", 4, ["Fede", "5", "3"], () => 3).lines.join("\n"),
+        "con segreto = 3 e le risposte 5 e 3 doveva finire con Ce l'hai fatta! Tentativi: 2, punti: 40", { inputs: ["Fede", "5", "3"] })])
   },
   en: {
     title: "Build: guess the number, part 4",
     theory: [
-`<p>Part 4: the game works, now let's tidy it up with functions.</p>
-<ul><li><code>clue(n, secret)</code> gives back <code>"low"</code>, <code>"high"</code> or <code>"right"</code>;</li>
-<li><code>game(secret)</code> runs the game: it asks for numbers until one is right, prints <code>Too low!</code> or <code>Too high!</code> using <code>clue</code>, and at the end gives back the number of attempts.</li></ul>
-<p>Outside the functions the program calls <code>game(7)</code> and prints <code>You got it! Attempts: 3</code>. This time attempts are unlimited.</p>
-<pre class="term-sample">Your number? 4
-Too low!
-Your number? 9
-Too high!
-Your number? 7
-You got it! Attempts: 3</pre>`],
-    task: `Write the two functions and the final call. I'll also try <code>clue</code> on its own, with other numbers, and <code>game</code> with another secret.`,
-    starter: `# The game's functions\n\n`,
-    solution: `def clue(n, secret):
-    if n == secret:
-        return "right"
+`<p>Part 4: the game has grown, and it's time to tidy it up with <b>functions</b>. For the player nothing changes: the output stays identical. It changes for whoever reads the code, which becomes made of pieces with a name and a single job:</p>
+<ul><li><code>verdict(n, secret)</code> <b>gives back</b> the verdict sentence, instead of printing it;</li>
+<li><code>points_for(attempts)</code> gives back the points;</li>
+<li><code>play(secret)</code> plays one game and gives back the attempts used, or 0 if they ran out.</li></ul>
+<p>Outside the functions you keep the name, the hello, the call to <code>play</code> and the result line. Thanks to these functions, in part 5 you'll add the levels almost without touching the rest.</p>`],
+    task: `Split the game into these three functions, with these names, without changing what it prints. I'll also try the functions on their own and a game with another secret.`,
+    solution: `secret = 7
+max_attempts = 5
+
+def verdict(n, secret):
+    if n < 1 or n > 10:
+        return "Out of range: pick from 1 to 10!"
+    elif n == secret:
+        return "You got it!"
     elif n < secret:
-        return "low"
-    return "high"
+        return "Too low!"
+    return "Too high!"
 
-def game(secret):
+def points_for(attempts):
+    return 10 * (max_attempts + 1 - attempts)
+
+def play(secret):
     attempts = 0
-    while True:
-        n = int(input("Your number? "))
+    while attempts < max_attempts:
+        guess = int(input("Your number? "))
         attempts += 1
-        result = clue(n, secret)
-        if result == "right":
+        print(verdict(guess, secret))
+        if guess == secret:
             return attempts
-        elif result == "low":
-            print("Too low!")
-        else:
-            print("Too high!")
+    return 0
 
-a = game(7)
-print(f"You got it! Attempts: {a}")`,
-    hints: ["clue prints nothing: so what does it do with its result? And game, when does it end and what does it hand back?",
-      "clue: if/elif with three returns. game: counter, while True with input, counter increase and a call to clue; with \"right\" return the attempts, otherwise print the clue. At the bottom store game(7)'s result and print it."],
-    check: (o, c, x) => /def\s+clue\s*\(/.test(c) && /def\s+game\s*\(/.test(c) && o === guess4("en", x.inputs),
-    expect: (x) => guess4("en", x.inputs),
-    tests: (c) => tlist(
-      tcase(c + '\nprint(clue(3, 5), clue(5, 5), clue(9, 5))', (o) => o.split("\n").pop() === "low right high", "clue(3, 5), clue(5, 5) and clue(9, 5) had to give low, right and high", { inputs: ["7"] }),
-      tcase(c, (o) => o === guess4("en", ["50", "1", "7"]), "with 50, 1 and 7 it had to take 3 attempts", { inputs: ["50", "1", "7"] }),
-      tcase(swapRe(c, /game\(\s*7\s*\)/, "game(3)"), (o) => o === guess4("en", ["5", "3"], 3), "with game(3) the secret had to be 3", { inputs: ["5", "3"] }))
+name = input("What's your name? ")
+print(f"Hi {name}! I have a secret number from 1 to 10.")
+attempts = play(secret)
+if attempts > 0:
+    print(f"You made it! Attempts: {attempts}, points: {points_for(attempts)}")
+else:
+    print(f"Out of attempts! The secret was {secret}. Points: 0")`,
+    hints: ["Which part of the code decides the sentence to print, and which part repeats for every game? What must play hand back to whoever calls it?",
+      "verdict: the if chain, with return of the sentence instead of print. points_for: a return with the points calculation. play: the counter and the loop; inside, print(verdict(...)) and, if the number is right, return the attempts; after the loop return 0. Below, the program calls play(secret) and prints the result."],
+    check: gameCheck("en", 4, [/def\s+verdict\s*\(/, /def\s+points_for\s*\(/, /def\s+play\s*\(/]), expect: (x) => gameExpect("en", 4, x.inputs),
+    tests: (c) => gameTests("en", 4, [["Bob", "7"], ["Bob", "1", "2", "3", "4", "5"], ["Bob", "10", "0", "9", "2", "7"]])(c).concat([
+      tcase(c + `\nprint(verdict(0, 5))\nprint(verdict(5, 5))\nprint(verdict(3, 5))\nprint(verdict(9, 5))\nprint(points_for(1), points_for(5))`,
+        (o) => lastLines(o, 5) === "Out of range: pick from 1 to 10!\nYou got it!\nToo low!\nToo high!\n50 10",
+        "verdict(0, 5), verdict(5, 5), verdict(3, 5) and verdict(9, 5) had to give back the four sentences, points_for(1) 50 and points_for(5) 10", { inputs: ["Eva", "7"] }),
+      tcase(swapRe(c, /secret\s*=\s*7\b/, "secret = 3"), (o) => o === runGame("en", 4, ["Fede", "5", "3"], () => 3).lines.join("\n"),
+        "with secret = 3 and the answers 5 and 3 it had to end with You made it! Attempts: 2, points: 40", { inputs: ["Fede", "5", "3"] })])
   }
 },
 {
@@ -4035,34 +4274,13 @@ const retry = (lang, ins) => {
 };
 const diceWhy = (lang) => (o) => {
   const it = lang === "it", r = o.split("\n");
-  if (r.length !== 3) return it ? "Devono uscire esattamente 3 righe: i dadi, chi gioca e l'area." : "Exactly 3 lines must come out: the dice, who plays and the area.";
+  if (r.length !== 2) return it ? "Devono uscire esattamente 2 righe: i dadi e chi gioca." : "Exactly 2 lines must come out: the dice and who plays.";
   const m = r[0].match(it ? /^Dadi: ([1-6]) e ([1-6]), totale (\d+)$/ : /^Dice: ([1-6]) and ([1-6]), total (\d+)$/);
   if (!m) return it ? "La prima riga deve essere come Dadi: 3 e 5, totale 8, con due numeri da 1 a 6." : "The first line must be like Dice: 3 and 5, total 8, with two numbers from 1 to 6.";
   if (+m[1] + +m[2] !== +m[3]) return it ? "Il totale non è la somma dei due dadi." : "The total isn't the sum of the two dice.";
   if (!(it ? /^Tocca a (Ada|Bob|Cleo)$/ : /^(Ada|Bob|Cleo)'s turn$/).test(r[1])) return it ? "La seconda riga deve essere Tocca a seguito da uno dei tre nomi." : "The second line must be one of the three names followed by 's turn.";
-  if (r[2] !== "28.27") return it ? "La terza riga deve essere l'area arrotondata: 28.27." : "The third line must be the rounded area: 28.27.";
   return null;
 };
-const guess5 = (lang, ins, secret) => {
-  const it = lang === "it", out = [], levels = it ? { facile: 10, medio: 50, difficile: 100 } : { easy: 10, medium: 50, hard: 100 };
-  if (!ins.length) return null;
-  const max = levels[ins[0]] || 10;
-  out.push(it ? `Ho pensato un numero da 1 a ${max}.` : `I picked a number from 1 to ${max}.`);
-  let t = 0;
-  for (const x of ins.slice(1)) {
-    if (!isIntText(x)) { out.push(it ? "Scrivi un numero!" : "Type a number!"); continue; }
-    const n = toInt(x);
-    t++;
-    if (n === secret) { out.push(it ? `Indovinato! Tentativi: ${t}` : `You got it! Attempts: ${t}`); return out.join("\n"); }
-    out.push(n < secret ? (it ? "Troppo basso!" : "Too low!") : (it ? "Troppo alto!" : "Too high!"));
-  }
-  return null;
-};
-/* In a real game the secret is random: it has to be the number that ended the game */
-const lastGuess = (ins, skip) => { const nums = ins.slice(skip).filter(isIntText); return nums.length ? toInt(nums[nums.length - 1]) : null; };
-const GAMES5 = { it: [["medio", "trenta", "30", "12", "25"], ["boh", "5"], ["difficile", "50"]], en: [["medium", "thirty", "30", "12", "25"], ["what", "5"], ["hard", "50"]] };
-const SECRET5 = { medio: 25, boh: 5, difficile: 50, medium: 25, what: 5, hard: 50 };
-
 const C05 = [
 {
   id: "dict", teaches: ["dict"],
@@ -4347,62 +4565,113 @@ print(f"Double is {n * 2}")`,
   }
 },
 {
-  id: "mod", teaches: ["import", "random.randint", "random.choice", "math.pi", "round"],
+  id: "mod", teaches: ["import", "random.randint", "random.choice"],
   it: {
-    title: "Moduli: random e math",
+    title: "Moduli: il caso con random",
     theory: [
-`<p>Python ha tanti <b>moduli</b> pronti: li carichi con <code>import</code> e usi le loro funzioni con il punto. <code>random</code> fa scelte a caso, <code>math</code> ha le funzioni matematiche.</p>`,
+`<p>Python ha tanti <b>moduli</b> pronti, cioè raccolte di funzioni: li carichi con <code>import</code> e usi le loro funzioni con il punto. Il modulo <code>random</code> fa scelte a caso.</p>`,
 { code: `import random
-import math
 
 print(random.randint(1, 100))              # un intero da 1 a 100, estremi compresi
-print(random.choice(["sasso", "carta"]))   # un elemento a caso
-print(round(math.pi, 3))                   # 3.142: arrotonda a 3 decimali` },
-`<p>Premi più volte ▶ Prova: i numeri casuali cambiano ogni volta. <code>round</code> non serve importarlo: è già dentro Python.</p>`],
-    task: `Simula un turno di gioco. Lancia due dadi da 6 e stampa <code>Dadi: 3 e 5, totale 8</code> (con i numeri usciti). Poi scegli a caso chi gioca tra Ada, Bob e Cleo e stampa <code>Tocca a Bob</code>. Infine stampa l'area del cerchio di raggio 3 (pi greco per il raggio al quadrato), arrotondata a 2 decimali: <code>28.27</code>.`,
-    starter: `import random\nimport math\n\n`,
+print(random.choice(["sasso", "carta"]))   # un elemento a caso della lista` },
+`<p>Premi più volte ▶ Prova: i numeri cambiano ogni volta. Se un numero casuale ti serve più di una volta, salvalo in una variabile: ogni chiamata a <code>randint</code> ne tira fuori uno nuovo.</p>`],
+    task: `Simula un turno di gioco. Lancia due dadi da 6 e stampa <code>Dadi: 3 e 5, totale 8</code> (con i numeri usciti). Poi scegli a caso chi gioca tra Ada, Bob e Cleo e stampa <code>Tocca a Bob</code>. Per controllarlo truccherò i dadi.`,
+    starter: `import random\n\n`,
     solution: `import random
-import math
 
 d1 = random.randint(1, 6)
 d2 = random.randint(1, 6)
 print(f"Dadi: {d1} e {d2}, totale {d1 + d2}")
 giocatore = random.choice(["Ada", "Bob", "Cleo"])
-print(f"Tocca a {giocatore}")
-print(round(math.pi * 3 ** 2, 2))`,
+print(f"Tocca a {giocatore}")`,
     hints: ["Quante volte devi lanciare un dado? Ti serve salvare i numeri usciti, visto che li usi due volte?",
-      "Due variabili con randint da 1 a 6 e una f-string con la loro somma; una variabile con choice sulla lista dei nomi; per l'area, round del calcolo con math.pi e 2 decimali."],
+      "Due variabili con randint da 1 a 6 e una f-string con la loro somma; poi una variabile con choice sulla lista dei nomi e la seconda frase."],
     check: (o, c) => !diceWhy("it")(o) && /randint/.test(c) && /choice/.test(c),
     why: diceWhy("it"),
-    tests: (c) => [tcase(RIG("b") + "random.choice = lambda s: s[-1]\n" + c, (o) => o === "Dadi: 6 e 6, totale 12\nTocca a Cleo\n28.27", "con i dadi truccati sul 6 doveva stampare Dadi: 6 e 6, totale 12 e Tocca a Cleo", { rand: true })]
+    tests: (c) => [tcase(RIG("b") + "random.choice = lambda s: s[-1]\n" + c, (o) => o === "Dadi: 6 e 6, totale 12\nTocca a Cleo", "con i dadi truccati sul 6 doveva stampare Dadi: 6 e 6, totale 12 e Tocca a Cleo", { rand: true })]
   },
   en: {
-    title: "Modules: random and math",
+    title: "Modules: chance with random",
     theory: [
-`<p>Python has lots of ready-made <b>modules</b>: you load them with <code>import</code> and use their functions with a dot. <code>random</code> makes random choices, <code>math</code> has the mathematical functions.</p>`,
+`<p>Python has lots of ready-made <b>modules</b>, that is collections of functions: you load them with <code>import</code> and use their functions with a dot. The <code>random</code> module makes random choices.</p>`,
 { code: `import random
-import math
 
 print(random.randint(1, 100))              # a whole number from 1 to 100, both included
-print(random.choice(["rock", "paper"]))    # a random item
-print(round(math.pi, 3))                   # 3.142: rounds to 3 decimals` },
-`<p>Press ▶ Try it a few times: the random numbers change every time. <code>round</code> doesn't need importing: it's already built into Python.</p>`],
-    task: `Simulate a game turn. Roll two 6-sided dice and print <code>Dice: 3 and 5, total 8</code> (with the numbers rolled). Then pick at random who plays among Ada, Bob and Cleo and print <code>Bob's turn</code>. Finally print the area of the circle with radius 3 (pi times the radius squared), rounded to 2 decimals: <code>28.27</code>.`,
-    starter: `import random\nimport math\n\n`,
+print(random.choice(["rock", "paper"]))    # a random item of the list` },
+`<p>Press ▶ Try it a few times: the numbers change every time. If you need a random number more than once, store it in a variable: every call to <code>randint</code> draws a new one.</p>`],
+    task: `Simulate a game turn. Roll two 6-sided dice and print <code>Dice: 3 and 5, total 8</code> (with the numbers rolled). Then pick at random who plays among Ada, Bob and Cleo and print <code>Bob's turn</code>. To check it I'll load the dice.`,
+    starter: `import random\n\n`,
     solution: `import random
-import math
 
 d1 = random.randint(1, 6)
 d2 = random.randint(1, 6)
 print(f"Dice: {d1} and {d2}, total {d1 + d2}")
 player = random.choice(["Ada", "Bob", "Cleo"])
-print(f"{player}'s turn")
-print(round(math.pi * 3 ** 2, 2))`,
+print(f"{player}'s turn")`,
     hints: ["How many times do you roll a die? Do you need to store the numbers rolled, since you use them twice?",
-      "Two variables with randint from 1 to 6 and an f-string with their sum; a variable with choice over the list of names; for the area, round the calculation with math.pi to 2 decimals."],
+      "Two variables with randint from 1 to 6 and an f-string with their sum; then a variable with choice over the list of names and the second sentence."],
     check: (o, c) => !diceWhy("en")(o) && /randint/.test(c) && /choice/.test(c),
     why: diceWhy("en"),
-    tests: (c) => [tcase(RIG("b") + "random.choice = lambda s: s[-1]\n" + c, (o) => o === "Dice: 6 and 6, total 12\nCleo's turn\n28.27", "with dice loaded on 6 it had to print Dice: 6 and 6, total 12 and Cleo's turn", { rand: true })]
+    tests: (c) => [tcase(RIG("b") + "random.choice = lambda s: s[-1]\n" + c, (o) => o === "Dice: 6 and 6, total 12\nCleo's turn", "with dice loaded on 6 it had to print Dice: 6 and 6, total 12 and Cleo's turn", { rand: true })]
+  }
+},
+{
+  id: "math", teaches: ["math.sqrt", "math.pi", "round"],
+  it: {
+    title: "Moduli: math e round",
+    theory: [
+`<p>Il modulo <code>math</code> ha le funzioni e le costanti della matematica: per esempio <code>math.sqrt</code>, la radice quadrata, e <code>math.pi</code>, pi greco. Si importa come <code>random</code>.</p>`,
+{ code: `import math
+
+print(math.sqrt(81))        # 9.0: la radice quadrata
+print(math.pi)              # 3.141592653589793
+print(round(math.pi, 2))    # 3.14: arrotondato a 2 decimali
+print(round(2.567, 1))      # 2.6` },
+`<p><code>round(numero, cifre)</code> arrotonda un numero alle cifre dopo la virgola che vuoi. Non serve importarlo: è già dentro Python, come <code>print</code>. E nota che <code>math.sqrt</code> dà sempre un <code>float</code>, anche per 81.</p>`],
+    task: `Un quadrato ha area <code>area_quadrato</code> e un cerchio ha raggio <code>raggio</code>. Stampa il lato del quadrato (la radice quadrata dell'area) e poi l'area del cerchio (pi greco per il raggio al quadrato) arrotondata a 2 decimali. Deve uscire <code>7.0</code> e <code>28.27</code>. Proverò anche con altre misure.`,
+    starter: `import math\n\narea_quadrato = 49\nraggio = 3\n\n`,
+    solution: `import math
+
+area_quadrato = 49
+raggio = 3
+
+print(math.sqrt(area_quadrato))
+print(round(math.pi * raggio ** 2, 2))`,
+    hints: ["Quale funzione di math dà la radice quadrata? E come si arrotonda un numero a 2 decimali?",
+      "Due print: nel primo math.sqrt dell'area del quadrato; nel secondo round del calcolo con math.pi e il raggio al quadrato, con 2 come secondo numero."],
+    check: (o, c) => o === "7.0\n28.27" && /math\.sqrt\s*\(/.test(c) && /math\.pi/.test(c) && /round\s*\(/.test(c),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /area_quadrato\s*=\s*49\b/, "area_quadrato = 16"), (o) => o === "4.0\n28.27", "con area_quadrato = 16 doveva stampare 4.0 e 28.27"),
+      tcase(swapRe(c, /raggio\s*=\s*3\b/, "raggio = 1"), (o) => o === "7.0\n3.14", "con raggio = 1 doveva stampare 7.0 e 3.14")),
+    expect: "7.0\n28.27"
+  },
+  en: {
+    title: "Modules: math and round",
+    theory: [
+`<p>The <code>math</code> module has the functions and constants of mathematics: for example <code>math.sqrt</code>, the square root, and <code>math.pi</code>, pi. You import it like <code>random</code>.</p>`,
+{ code: `import math
+
+print(math.sqrt(81))        # 9.0: the square root
+print(math.pi)              # 3.141592653589793
+print(round(math.pi, 2))    # 3.14: rounded to 2 decimals
+print(round(2.567, 1))      # 2.6` },
+`<p><code>round(number, digits)</code> rounds a number to the digits after the point you want. It doesn't need importing: it's already built into Python, like <code>print</code>. And note that <code>math.sqrt</code> always gives a <code>float</code>, even for 81.</p>`],
+    task: `A square has area <code>square_area</code> and a circle has radius <code>radius</code>. Print the side of the square (the square root of the area) and then the area of the circle (pi times the radius squared) rounded to 2 decimals. The output must be <code>7.0</code> and <code>28.27</code>. I'll also try other sizes.`,
+    starter: `import math\n\nsquare_area = 49\nradius = 3\n\n`,
+    solution: `import math
+
+square_area = 49
+radius = 3
+
+print(math.sqrt(square_area))
+print(round(math.pi * radius ** 2, 2))`,
+    hints: ["Which math function gives the square root? And how do you round a number to 2 decimals?",
+      "Two prints: in the first math.sqrt of the square's area; in the second round of the calculation with math.pi and the radius squared, with 2 as the second number."],
+    check: (o, c) => o === "7.0\n28.27" && /math\.sqrt\s*\(/.test(c) && /math\.pi/.test(c) && /round\s*\(/.test(c),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /square_area\s*=\s*49\b/, "square_area = 16"), (o) => o === "4.0\n28.27", "with square_area = 16 it had to print 4.0 and 28.27"),
+      tcase(swapRe(c, /radius\s*=\s*3\b/, "radius = 1"), (o) => o === "7.0\n3.14", "with radius = 1 it had to print 7.0 and 3.14")),
+    expect: "7.0\n28.27"
   }
 },
 {
@@ -4512,16 +4781,20 @@ print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0,
   }
 },
 {
-  id: "build5", build: true, teaches: [], sample: ["medio", "trenta", "30", "12", "25"], rig: "b // 2",
+  id: "build5", build: true, part: 5, from: "build4", teaches: [], rig: "b // 2",
   it: {
     title: "Costruisci: indovina il numero, parte 5",
+    sample: ["Ada", "medio", "trenta", "30", "12", "25"],
     theory: [
-`<p>Parte 5: il gioco diventa vero.</p>
-<ul><li>Il giocatore sceglie il livello: <code>facile</code> (da 1 a 10), <code>medio</code> (da 1 a 50) o <code>difficile</code> (da 1 a 100). Tieni i livelli in un dizionario; se scrive un livello che non esiste, si gioca da 1 a 10.</li>
+`<p>Parte 5: il gioco diventa vero, con gli strumenti di questa cartella.</p>
+<ul><li>Il giocatore sceglie il livello: <code>facile</code> (da 1 a 10), <code>medio</code> (da 1 a 50) o <code>difficile</code> (da 1 a 100). Tieni i livelli in un dizionario; un livello che non esiste vale come facile.</li>
 <li>Il segreto lo sceglie <code>random.randint</code>.</li>
 <li>Se il giocatore scrive qualcosa che non è un numero, il programma dice <code>Scrivi un numero!</code> e richiede, senza contare il tentativo: mettilo in una funzione <code>leggi_numero()</code>.</li></ul>
-<pre class="term-sample">Livello (facile/medio/difficile)? medio
-Ho pensato un numero da 1 a 50.
+<p>Il fuori campo ora dipende dal livello, quindi <code>verdetto</code> e <code>partita</code> ricevono anche il massimo. Il saluto si divide in due righe, perché il livello si sceglie dopo il nome. I tentativi restano 5 a ogni livello: a difficile serve un po' di strategia.</p>
+<pre class="term-sample">Come ti chiami? Ada
+Ciao Ada!
+Livello (facile/medio/difficile)? medio
+Ho un numero segreto da 1 a 50.
 Il tuo numero? trenta
 Scrivi un numero!
 Il tuo numero? 30
@@ -4529,12 +4802,25 @@ Troppo alto!
 Il tuo numero? 12
 Troppo basso!
 Il tuo numero? 25
-Indovinato! Tentativi: 3</pre>`],
-    task: `Scrivi il gioco completo. Per controllarlo truccherò i dadi: saprò io quale numero esce.`,
-    starter: `import random\n\n`,
+Indovinato!
+Ce l'hai fatta! Tentativi: 3, punti: 30</pre>`],
+    task: `Fai crescere il gioco con i livelli, il segreto casuale e <code>leggi_numero()</code>. Per controllarlo truccherò i dadi: saprò io quale numero esce.`,
     solution: `import random
 
+max_tentativi = 5
 livelli = {"facile": 10, "medio": 50, "difficile": 100}
+
+def verdetto(n, segreto, massimo):
+    if n < 1 or n > massimo:
+        return f"Fuori dal campo: scegli da 1 a {massimo}!"
+    elif n == segreto:
+        return "Indovinato!"
+    elif n < segreto:
+        return "Troppo basso!"
+    return "Troppo alto!"
+
+def punti_per(tentativi):
+    return 10 * (max_tentativi + 1 - tentativi)
 
 def leggi_numero():
     while True:
@@ -4543,38 +4829,45 @@ def leggi_numero():
         except ValueError:
             print("Scrivi un numero!")
 
+def partita(segreto, massimo):
+    tentativi = 0
+    while tentativi < max_tentativi:
+        tentativo = leggi_numero()
+        tentativi += 1
+        print(verdetto(tentativo, segreto, massimo))
+        if tentativo == segreto:
+            return tentativi
+    return 0
+
+nome = input("Come ti chiami? ")
+print(f"Ciao {nome}!")
 scelta = input("Livello (facile/medio/difficile)? ")
 massimo = livelli.get(scelta, 10)
 segreto = random.randint(1, massimo)
-print(f"Ho pensato un numero da 1 a {massimo}.")
-tentativi = 0
-while True:
-    n = leggi_numero()
-    tentativi += 1
-    if n == segreto:
-        print(f"Indovinato! Tentativi: {tentativi}")
-        break
-    elif n < segreto:
-        print("Troppo basso!")
-    else:
-        print("Troppo alto!")`,
-    hints: ["Quali pezzi nuovi servono rispetto alla parte 4? Dove salvi i livelli, e cosa succede se il livello scritto non c'è?",
-      "Dizionario dei livelli e get con 10 come predefinito; segreto con randint da 1 al massimo. leggi_numero: while True con un try che restituisce l'input convertito, ed except ValueError con il messaggio. Poi il ciclo del gioco come nella parte 3, ma senza limite di tentativi."],
-    check: (o, c, x) => /randint/.test(c) && /\btry\b/.test(c) && /def\s+leggi_numero/.test(c) && lastGuess(x.inputs, 1) != null && o === guess5("it", x.inputs, lastGuess(x.inputs, 1)),
-    expect: (x) => (lastGuess(x.inputs, 1) == null ? null : guess5("it", x.inputs, lastGuess(x.inputs, 1))),
-    tests: (c) => GAMES5.it.map((ins) => tcase(RIG("b // 2") + c, (o) => o === guess5("it", ins, SECRET5[ins[0]]),
-      `con i dadi truccati e le risposte ${ins.join(", ")} doveva finire con ${guess5("it", ins, SECRET5[ins[0]]).split("\n").pop()}`, { inputs: ins, rand: true }))
+print(f"Ho un numero segreto da 1 a {massimo}.")
+tentativi = partita(segreto, massimo)
+if tentativi > 0:
+    print(f"Ce l'hai fatta! Tentativi: {tentativi}, punti: {punti_per(tentativi)}")
+else:
+    print(f"Tentativi finiti! Il segreto era {segreto}. Punti: 0")`,
+    hints: ["Dove tieni i livelli, e cosa succede se il livello scritto non c'è? Quali funzioni devono sapere il massimo?",
+      "In cima import random e il dizionario dei livelli. leggi_numero: while True con un try che restituisce l'input convertito, ed except ValueError con il messaggio. verdetto e partita ricevono anche il massimo, e partita legge i numeri con leggi_numero. Sotto: nome, saluto, scelta del livello, massimo con get (10 se manca), segreto con randint e la riga con il massimo."],
+    check: gameCheck("it", 5, [/randint/, /\btry\b/, /def\s+leggi_numero\s*\(/, /\.get\s*\(/]), expect: (x) => gameExpect("it", 5, x.inputs, x.out),
+    tests: gameTests("it", 5, [["Ada", "medio", "trenta", "30", "12", "25"], ["Bob", "boh", "11", "5"], ["Cleo", "difficile", "1", "2", "3", "4", "99"]])
   },
   en: {
     title: "Build: guess the number, part 5",
-    sample: ["medium", "thirty", "30", "12", "25"],
+    sample: ["Ada", "medium", "thirty", "30", "12", "25"],
     theory: [
-`<p>Part 5: the game gets real.</p>
-<ul><li>The player picks the level: <code>easy</code> (from 1 to 10), <code>medium</code> (from 1 to 50) or <code>hard</code> (from 1 to 100). Keep the levels in a dictionary; if they type a level that doesn't exist, play from 1 to 10.</li>
+`<p>Part 5: the game becomes the real thing, with the tools of this folder.</p>
+<ul><li>The player picks the level: <code>easy</code> (1 to 10), <code>medium</code> (1 to 50) or <code>hard</code> (1 to 100). Keep the levels in a dictionary; a level that doesn't exist counts as easy.</li>
 <li>The secret is picked by <code>random.randint</code>.</li>
 <li>If the player types something that isn't a number, the program says <code>Type a number!</code> and asks again, without counting the attempt: put that in a function <code>read_number()</code>.</li></ul>
-<pre class="term-sample">Level (easy/medium/hard)? medium
-I picked a number from 1 to 50.
+<p>Out of range now depends on the level, so <code>verdict</code> and <code>play</code> also receive the top. The hello splits into two lines, because the level is chosen after the name. The attempts stay 5 at every level: on hard you need some strategy.</p>
+<pre class="term-sample">What's your name? Ada
+Hi Ada!
+Level (easy/medium/hard)? medium
+I have a secret number from 1 to 50.
 Your number? thirty
 Type a number!
 Your number? 30
@@ -4582,12 +4875,25 @@ Too high!
 Your number? 12
 Too low!
 Your number? 25
-You got it! Attempts: 3</pre>`],
-    task: `Write the full game. To check it I'll load the dice: I'll know which number comes up.`,
-    starter: `import random\n\n`,
+You got it!
+You made it! Attempts: 3, points: 30</pre>`],
+    task: `Make the game grow with the levels, the random secret and <code>read_number()</code>. To check it I'll load the dice: I'll know which number comes out.`,
     solution: `import random
 
+max_attempts = 5
 levels = {"easy": 10, "medium": 50, "hard": 100}
+
+def verdict(n, secret, top):
+    if n < 1 or n > top:
+        return f"Out of range: pick from 1 to {top}!"
+    elif n == secret:
+        return "You got it!"
+    elif n < secret:
+        return "Too low!"
+    return "Too high!"
+
+def points_for(attempts):
+    return 10 * (max_attempts + 1 - attempts)
 
 def read_number():
     while True:
@@ -4596,27 +4902,31 @@ def read_number():
         except ValueError:
             print("Type a number!")
 
+def play(secret, top):
+    attempts = 0
+    while attempts < max_attempts:
+        guess = read_number()
+        attempts += 1
+        print(verdict(guess, secret, top))
+        if guess == secret:
+            return attempts
+    return 0
+
+name = input("What's your name? ")
+print(f"Hi {name}!")
 choice = input("Level (easy/medium/hard)? ")
-maximum = levels.get(choice, 10)
-secret = random.randint(1, maximum)
-print(f"I picked a number from 1 to {maximum}.")
-attempts = 0
-while True:
-    n = read_number()
-    attempts += 1
-    if n == secret:
-        print(f"You got it! Attempts: {attempts}")
-        break
-    elif n < secret:
-        print("Too low!")
-    else:
-        print("Too high!")`,
-    hints: ["Which new pieces do you need compared with part 4? Where do you keep the levels, and what happens if the level typed doesn't exist?",
-      "Dictionary of levels and get with 10 as the default; secret with randint from 1 to the maximum. read_number: while True with a try that gives back the converted input, and except ValueError with the message. Then the game loop as in part 3, but with no attempt limit."],
-    check: (o, c, x) => /randint/.test(c) && /\btry\b/.test(c) && /def\s+read_number/.test(c) && lastGuess(x.inputs, 1) != null && o === guess5("en", x.inputs, lastGuess(x.inputs, 1)),
-    expect: (x) => (lastGuess(x.inputs, 1) == null ? null : guess5("en", x.inputs, lastGuess(x.inputs, 1))),
-    tests: (c) => GAMES5.en.map((ins) => tcase(RIG("b // 2") + c, (o) => o === guess5("en", ins, SECRET5[ins[0]]),
-      `with loaded dice and the answers ${ins.join(", ")} it had to end with ${guess5("en", ins, SECRET5[ins[0]]).split("\n").pop()}`, { inputs: ins, rand: true }))
+top = levels.get(choice, 10)
+secret = random.randint(1, top)
+print(f"I have a secret number from 1 to {top}.")
+attempts = play(secret, top)
+if attempts > 0:
+    print(f"You made it! Attempts: {attempts}, points: {points_for(attempts)}")
+else:
+    print(f"Out of attempts! The secret was {secret}. Points: 0")`,
+    hints: ["Where do you keep the levels, and what happens if the level typed isn't there? Which functions need to know the top?",
+      "At the top import random and the levels dictionary. read_number: while True with a try that gives back the converted input, and except ValueError with the message. verdict and play also receive the top, and play reads the numbers with read_number. Below: name, hello, level choice, top with get (10 if missing), secret with randint and the line with the top."],
+    check: gameCheck("en", 5, [/randint/, /\btry\b/, /def\s+read_number\s*\(/, /\.get\s*\(/]), expect: (x) => gameExpect("en", 5, x.inputs, x.out),
+    tests: gameTests("en", 5, [["Ada", "medium", "thirty", "30", "12", "25"], ["Bob", "what", "11", "5"], ["Cleo", "hard", "1", "2", "3", "4", "99"]])
   }
 },
 {
@@ -4668,19 +4978,6 @@ print("Half:", len(phonebook) // 2)`,
 
 
 /* ---------- 06_oggetti: classes and attributes, methods, state, lists of objects, the final game ---------- */
-const guess6 = (lang, ins, secret) => {
-  const it = lang === "it", out = [];
-  let t = 0;
-  for (const x of ins) {
-    if (!isIntText(x)) { out.push(it ? "Scrivi un numero!" : "Type a number!"); continue; }
-    const n = toInt(x);
-    t++;
-    if (n === secret) { out.push(it ? "Indovinato!" : "You got it!", it ? `Tentativi: ${t}` : `Attempts: ${t}`); return out.join("\n"); }
-    out.push(n < secret ? (it ? "Troppo basso!" : "Too low!") : (it ? "Troppo alto!" : "Too high!"));
-  }
-  return null;
-};
-
 const C06 = [
 {
   id: "class", teaches: ["class", "self", "__init__"],
@@ -5175,39 +5472,53 @@ print(len(b.things), b.things[-1])`, options: ["2 b", "2 a", "1 b", "0 None"], c
   }
 },
 {
-  id: "final", build: true, teaches: [], sample: ["x", "10", "15", "13"], rig: "13",
+  id: "final", build: true, part: 6, from: "build5", teaches: [], rig: "b // 2",
   it: {
-    title: "Sfida finale: la classe Partita",
+    title: "Sfida finale: il record",
+    sample: ["Ada", "medio", "30", "12", "25", "si", "facile", "5", "no"],
     theory: [
-`<p>Ultima parte del gioco, e prova finale di tutto il percorso. Trasforma la partita in un oggetto:</p>
-<ul><li><code>Partita(massimo)</code> sceglie il <code>segreto</code> con <code>random.randint(1, massimo)</code> e parte con <code>tentativi</code> a 0 e <code>finita</code> a <code>False</code>;</li>
-<li>il metodo <code>prova(n)</code> conta il tentativo e restituisce <code>"basso"</code>, <code>"alto"</code> o <code>"giusto"</code>; con il numero giusto mette <code>finita</code> a <code>True</code>.</li></ul>
-<p>Il programma crea una partita da 1 a 20 e, finché non è finita, legge un numero (con <code>leggi_numero()</code> della parte 5) e stampa il messaggio preso da un dizionario: <code>Troppo basso!</code>, <code>Troppo alto!</code> o <code>Indovinato!</code>. Alla fine stampa i tentativi.</p>
-<pre class="term-sample">Il tuo numero? 10
-Troppo basso!
-Il tuo numero? 15
+`<p>Ultima parte del gioco, e prova finale del percorso: il <b>record</b>. Il giocatore diventa un oggetto che ricorda quante partite ha giocato e il suo punteggio migliore, e si possono giocare più partite di fila.</p>
+<ul><li><code>Giocatore(nome)</code> parte con 0 partite e record 0;</li>
+<li>il metodo <code>registra(punti)</code> conta la partita e, se i punti superano il record, aggiorna il record e restituisce <code>True</code>; altrimenti restituisce <code>False</code>.</li></ul>
+<p>Dopo il saluto, tutto quello che va dalla scelta del livello alla riga del risultato si ripete finché il giocatore risponde <code>si</code> a <code>Giochi ancora? (si/no)</code>. Dopo ogni partita, se <code>registra</code> dice che è un record, stampa <code>Nuovo record!</code>. Alla fine stampa il riepilogo.</p>
+<pre class="term-sample">Come ti chiami? Ada
+Ciao Ada!
+Livello (facile/medio/difficile)? medio
+Ho un numero segreto da 1 a 50.
+Il tuo numero? 30
 Troppo alto!
-Il tuo numero? 13
+Il tuo numero? 12
+Troppo basso!
+Il tuo numero? 25
 Indovinato!
-Tentativi: 3</pre>`],
-    task: `Scrivi la classe, la funzione per leggere i numeri e il ciclo del gioco. Proverò la classe anche da sola, con i dadi truccati.`,
-    starter: `import random\n\n`,
+Ce l'hai fatta! Tentativi: 3, punti: 30
+Nuovo record!
+Giochi ancora? (si/no) si
+Livello (facile/medio/difficile)? facile
+Ho un numero segreto da 1 a 10.
+Il tuo numero? 5
+Indovinato!
+Ce l'hai fatta! Tentativi: 1, punti: 50
+Nuovo record!
+Giochi ancora? (si/no) no
+Ada, partite giocate: 2. Record: 50 punti</pre>`],
+    task: `Scrivi la classe <code>Giocatore</code>, fai ripetere le partite e stampa il record. Proverò la classe anche da sola, e una serie di partite con i dadi truccati.`,
     solution: `import random
 
-class Partita:
-    def __init__(self, massimo):
-        self.segreto = random.randint(1, massimo)
-        self.tentativi = 0
-        self.finita = False
+max_tentativi = 5
+livelli = {"facile": 10, "medio": 50, "difficile": 100}
 
-    def prova(self, n):
-        self.tentativi += 1
-        if n == self.segreto:
-            self.finita = True
-            return "giusto"
-        elif n < self.segreto:
-            return "basso"
-        return "alto"
+def verdetto(n, segreto, massimo):
+    if n < 1 or n > massimo:
+        return f"Fuori dal campo: scegli da 1 a {massimo}!"
+    elif n == segreto:
+        return "Indovinato!"
+    elif n < segreto:
+        return "Troppo basso!"
+    return "Troppo alto!"
+
+def punti_per(tentativi):
+    return 10 * (max_tentativi + 1 - tentativi)
 
 def leggi_numero():
     while True:
@@ -5216,55 +5527,102 @@ def leggi_numero():
         except ValueError:
             print("Scrivi un numero!")
 
-messaggi = {"basso": "Troppo basso!", "alto": "Troppo alto!", "giusto": "Indovinato!"}
-partita = Partita(20)
-while not partita.finita:
-    esito = partita.prova(leggi_numero())
-    print(messaggi[esito])
-print(f"Tentativi: {partita.tentativi}")`,
-    hints: ["Quali attributi servono alla partita per ricordarsi come sta andando? Chi deve cambiare finita, e quando?",
-      "__init__ con segreto, tentativi e finita. prova: aumenta i tentativi, poi if/elif con tre return, mettendo finita a True prima del return giusto. Il ciclo: finché la partita non è finita, prova con leggi_numero() e stampa il messaggio dal dizionario. Infine i tentativi."],
-    check: (o, c, x) => /class\s+Partita/.test(c) && /def\s+prova\s*\(\s*self/.test(c) && /randint/.test(c) && lastGuess(x.inputs, 0) != null && o === guess6("it", x.inputs, lastGuess(x.inputs, 0)),
-    expect: (x) => (lastGuess(x.inputs, 0) == null ? null : guess6("it", x.inputs, lastGuess(x.inputs, 0))),
-    tests: (c) => [
-      tcase(RIG("13") + c + "\np = Partita(20)\nprint(p.prova(5), p.prova(15), p.finita, p.prova(13), p.finita, p.tentativi)", (o) => o.split("\n").pop() === "basso alto False giusto True 3",
-        "con il segreto 13, prova(5), prova(15) e prova(13) dovevano dare basso, alto e giusto, con finita che diventa True e 3 tentativi", { inputs: ["13"], rand: true }),
-      tcase(RIG("13") + c, (o) => o === guess6("it", ["x", "10", "15", "13"], 13), "con il segreto 13 e le risposte x, 10, 15, 13 dovevano servire 3 tentativi", { inputs: ["x", "10", "15", "13"], rand: true }),
-      tcase(RIG("b") + c + "\nprint(Partita(7).segreto)", (o) => o.split("\n").pop() === "7", "Partita(7) doveva scegliere il segreto tra 1 e 7", { inputs: ["20"], rand: true })]
+def partita(segreto, massimo):
+    tentativi = 0
+    while tentativi < max_tentativi:
+        tentativo = leggi_numero()
+        tentativi += 1
+        print(verdetto(tentativo, segreto, massimo))
+        if tentativo == segreto:
+            return tentativi
+    return 0
+
+class Giocatore:
+    def __init__(self, nome):
+        self.nome = nome
+        self.partite = 0
+        self.record = 0
+
+    def registra(self, punti):
+        self.partite += 1
+        if punti > self.record:
+            self.record = punti
+            return True
+        return False
+
+giocatore = Giocatore(input("Come ti chiami? "))
+print(f"Ciao {giocatore.nome}!")
+while True:
+    scelta = input("Livello (facile/medio/difficile)? ")
+    massimo = livelli.get(scelta, 10)
+    segreto = random.randint(1, massimo)
+    print(f"Ho un numero segreto da 1 a {massimo}.")
+    tentativi = partita(segreto, massimo)
+    punti = 0
+    if tentativi > 0:
+        punti = punti_per(tentativi)
+        print(f"Ce l'hai fatta! Tentativi: {tentativi}, punti: {punti}")
+    else:
+        print(f"Tentativi finiti! Il segreto era {segreto}. Punti: 0")
+    if giocatore.registra(punti):
+        print("Nuovo record!")
+    if input("Giochi ancora? (si/no) ") != "si":
+        break
+print(f"{giocatore.nome}, partite giocate: {giocatore.partite}. Record: {giocatore.record} punti")`,
+    hints: ["Cosa deve ricordare il giocatore da una partita all'altra? Quali righe si ripetono per ogni partita, e quale domanda decide se continuare?",
+      "Classe Giocatore: __init__ con nome, partite a 0 e record a 0; registra aumenta le partite e, se i punti superano il record, lo aggiorna e restituisce True, altrimenti False. Sotto: crea il giocatore con il nome e salutalo, poi while True con livello, partita e riga del risultato (i punti sono 0 se hai perso), il controllo del record e la domanda Giochi ancora? con break se la risposta non è si. Dopo il ciclo il riepilogo."],
+    check: gameCheck("it", 6, [/class\s+Giocatore/, /def\s+registra\s*\(\s*self/, /randint/]), expect: (x) => gameExpect("it", 6, x.inputs, x.out),
+    tests: (c) => gameTests("it", 6, [["Ada", "medio", "30", "12", "25", "si", "facile", "5", "no"], ["Bob", "difficile", "1", "2", "3", "4", "5", "no"], ["Cleo", "facile", "5", "si", "facile", "1", "5", "si", "boh", "x", "5", "no"]])(c).concat([
+      tcase(RIG("b // 2") + c + `\ng = Giocatore("Zoe")\nprint(g.registra(30), g.registra(20), g.registra(40))\nprint(g.record, g.partite)`,
+        (o) => lastLines(o, 2) === "True False True\n40 3",
+        "Giocatore(\"Zoe\") con registra(30), registra(20) e registra(40) doveva dare True, False, True, con record 40 e 3 partite", { inputs: ["X", "facile", "5", "no"], rand: true })])
   },
   en: {
-    title: "Final challenge: the Game class",
-    sample: ["x", "10", "15", "13"],
+    title: "Final challenge: the record",
+    sample: ["Ada", "medium", "30", "12", "25", "yes", "easy", "5", "no"],
     theory: [
-`<p>The last part of the game, and the final test of the whole path. Turn the game into an object:</p>
-<ul><li><code>Game(maximum)</code> picks the <code>secret</code> with <code>random.randint(1, maximum)</code> and starts with <code>attempts</code> at 0 and <code>finished</code> at <code>False</code>;</li>
-<li>the method <code>guess(n)</code> counts the attempt and gives back <code>"low"</code>, <code>"high"</code> or <code>"right"</code>; with the right number it sets <code>finished</code> to <code>True</code>.</li></ul>
-<p>The program creates a game from 1 to 20 and, until it's finished, reads a number (with <code>read_number()</code> from part 5) and prints the message taken from a dictionary: <code>Too low!</code>, <code>Too high!</code> or <code>You got it!</code>. At the end it prints the attempts.</p>
-<pre class="term-sample">Your number? 10
-Too low!
-Your number? 15
+`<p>The last part of the game, and the final test of the path: the <b>record</b>. The player becomes an object that remembers how many games they played and their best score, and you can play several games in a row.</p>
+<ul><li><code>Player(name)</code> starts with 0 games and record 0;</li>
+<li>the method <code>register(points)</code> counts the game and, if the points beat the record, updates the record and gives back <code>True</code>; otherwise it gives back <code>False</code>.</li></ul>
+<p>After the hello, everything from the level choice to the result line repeats as long as the player answers <code>yes</code> to <code>Play again? (yes/no)</code>. After each game, if <code>register</code> says it's a record, print <code>New record!</code>. At the end print the summary.</p>
+<pre class="term-sample">What's your name? Ada
+Hi Ada!
+Level (easy/medium/hard)? medium
+I have a secret number from 1 to 50.
+Your number? 30
 Too high!
-Your number? 13
+Your number? 12
+Too low!
+Your number? 25
 You got it!
-Attempts: 3</pre>`],
-    task: `Write the class, the function that reads numbers and the game loop. I'll also try the class on its own, with loaded dice.`,
-    starter: `import random\n\n`,
+You made it! Attempts: 3, points: 30
+New record!
+Play again? (yes/no) yes
+Level (easy/medium/hard)? easy
+I have a secret number from 1 to 10.
+Your number? 5
+You got it!
+You made it! Attempts: 1, points: 50
+New record!
+Play again? (yes/no) no
+Ada, games played: 2. Record: 50 points</pre>`],
+    task: `Write the class <code>Player</code>, make the games repeat and print the record. I'll also try the class on its own, and a series of games with loaded dice.`,
     solution: `import random
 
-class Game:
-    def __init__(self, maximum):
-        self.secret = random.randint(1, maximum)
-        self.attempts = 0
-        self.finished = False
+max_attempts = 5
+levels = {"easy": 10, "medium": 50, "hard": 100}
 
-    def guess(self, n):
-        self.attempts += 1
-        if n == self.secret:
-            self.finished = True
-            return "right"
-        elif n < self.secret:
-            return "low"
-        return "high"
+def verdict(n, secret, top):
+    if n < 1 or n > top:
+        return f"Out of range: pick from 1 to {top}!"
+    elif n == secret:
+        return "You got it!"
+    elif n < secret:
+        return "Too low!"
+    return "Too high!"
+
+def points_for(attempts):
+    return 10 * (max_attempts + 1 - attempts)
 
 def read_number():
     while True:
@@ -5273,21 +5631,55 @@ def read_number():
         except ValueError:
             print("Type a number!")
 
-messages = {"low": "Too low!", "high": "Too high!", "right": "You got it!"}
-game = Game(20)
-while not game.finished:
-    result = game.guess(read_number())
-    print(messages[result])
-print(f"Attempts: {game.attempts}")`,
-    hints: ["Which attributes does the game need to remember how it's going? Who must change finished, and when?",
-      "__init__ with secret, attempts and finished. guess: increase the attempts, then if/elif with three returns, setting finished to True before the right return. The loop: until the game is finished, guess with read_number() and print the message from the dictionary. Finally the attempts."],
-    check: (o, c, x) => /class\s+Game/.test(c) && /def\s+guess\s*\(\s*self/.test(c) && /randint/.test(c) && lastGuess(x.inputs, 0) != null && o === guess6("en", x.inputs, lastGuess(x.inputs, 0)),
-    expect: (x) => (lastGuess(x.inputs, 0) == null ? null : guess6("en", x.inputs, lastGuess(x.inputs, 0))),
-    tests: (c) => [
-      tcase(RIG("13") + c + "\ng = Game(20)\nprint(g.guess(5), g.guess(15), g.finished, g.guess(13), g.finished, g.attempts)", (o) => o.split("\n").pop() === "low high False right True 3",
-        "with the secret 13, guess(5), guess(15) and guess(13) had to give low, high and right, with finished turning True and 3 attempts", { inputs: ["13"], rand: true }),
-      tcase(RIG("13") + c, (o) => o === guess6("en", ["x", "10", "15", "13"], 13), "with the secret 13 and the answers x, 10, 15, 13 it had to take 3 attempts", { inputs: ["x", "10", "15", "13"], rand: true }),
-      tcase(RIG("b") + c + "\nprint(Game(7).secret)", (o) => o.split("\n").pop() === "7", "Game(7) had to pick the secret between 1 and 7", { inputs: ["20"], rand: true })]
+def play(secret, top):
+    attempts = 0
+    while attempts < max_attempts:
+        guess = read_number()
+        attempts += 1
+        print(verdict(guess, secret, top))
+        if guess == secret:
+            return attempts
+    return 0
+
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.games = 0
+        self.record = 0
+
+    def register(self, points):
+        self.games += 1
+        if points > self.record:
+            self.record = points
+            return True
+        return False
+
+player = Player(input("What's your name? "))
+print(f"Hi {player.name}!")
+while True:
+    choice = input("Level (easy/medium/hard)? ")
+    top = levels.get(choice, 10)
+    secret = random.randint(1, top)
+    print(f"I have a secret number from 1 to {top}.")
+    attempts = play(secret, top)
+    points = 0
+    if attempts > 0:
+        points = points_for(attempts)
+        print(f"You made it! Attempts: {attempts}, points: {points}")
+    else:
+        print(f"Out of attempts! The secret was {secret}. Points: 0")
+    if player.register(points):
+        print("New record!")
+    if input("Play again? (yes/no) ") != "yes":
+        break
+print(f"{player.name}, games played: {player.games}. Record: {player.record} points")`,
+    hints: ["What must the player remember from one game to the next? Which lines repeat for every game, and which question decides whether to go on?",
+      "Class Player: __init__ with name, games at 0 and record at 0; register adds one game and, if the points beat the record, updates it and gives back True, otherwise False. Below: create the player with the name and say hello, then while True with level, game and result line (the points are 0 if you lost), the record check and the question Play again? with break if the answer isn't yes. After the loop the summary."],
+    check: gameCheck("en", 6, [/class\s+Player/, /def\s+register\s*\(\s*self/, /randint/]), expect: (x) => gameExpect("en", 6, x.inputs, x.out),
+    tests: (c) => gameTests("en", 6, [["Ada", "medium", "30", "12", "25", "yes", "easy", "5", "no"], ["Bob", "hard", "1", "2", "3", "4", "5", "no"], ["Cleo", "easy", "5", "yes", "easy", "1", "5", "yes", "what", "x", "5", "no"]])(c).concat([
+      tcase(RIG("b // 2") + c + `\ng = Player("Zoe")\nprint(g.register(30), g.register(20), g.register(40))\nprint(g.record, g.games)`,
+        (o) => lastLines(o, 2) === "True False True\n40 3",
+        "Player(\"Zoe\") with register(30), register(20) and register(40) had to give True, False, True, with record 40 and 3 games", { inputs: ["X", "easy", "5", "no"], rand: true })])
   }
 },
 {
@@ -5464,57 +5856,63 @@ const LESSONS = [].concat(C00, C01, C02, C03, C04, C05, C06, CBONUS);
 const WORLDS = [
   { id: "w0", dir: { it: "00_inizio", en: "00_start" }, mascot: "cursy", levels: ["print", "how", "rules", "comments", "errors", "ripasso0", "build0", "boss0"],
     it: { name: "Prima di iniziare", tag: "Come legge Python, print e le regole" }, en: { name: "Before you start", tag: "How Python reads, print and the rules" } },
-  { id: "w1", dir: { it: "01_basi", en: "01_basics" }, mascot: "bit", levels: ["var", "num", "update", "cambia", "divmod", "fstr", "types", "input", "ripasso1", "build1", "boss1"],
+  { id: "w1", dir: { it: "01_basi", en: "01_basics" }, mascot: "bit", levels: ["var", "num", "update", "cambia", "divmod", "fstr", "typeof", "types", "input", "ripasso1", "build1", "boss1"],
     it: { name: "Le basi", tag: "Variabili, conti, tipi e input" }, en: { name: "The basics", tag: "Variables, math, types and input" } },
   { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "logic", "textcmp", "parity", "ripasso2", "build2", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
-  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listmod", "loop", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
+  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
   { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "def0", "params", "def", "retq", "fcall", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
-  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "mod", "comp", "ripasso5", "build5", "boss5"],
+  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "mod", "math", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori, moduli" }, en: { name: "Tools", tag: "Dictionaries, errors, modules" } },
   { id: "w6", dir: { it: "06_oggetti", en: "06_objects" }, mascot: "pip", levels: ["class", "method", "classq", "state", "objlist", "ripasso6", "final", "boss6"],
     it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
   { id: "bonus", dir: { it: "bonus", en: "bonus" }, mascot: "bit", levels: ["numpy", "plot"],
     it: { name: "Bonus", tag: "Numeri e grafici" }, en: { name: "Bonus", tag: "Numbers and charts" } }
 ];
-/* Every level is a file inside its folder: [Italian, English] */
-const FILES = {
-  print: ["01_primo_programma.py", "01_first_program.py"], how: ["02_prevedi_print.py", "02_predict_print.py"], rules: ["03_regole.py", "03_rules.py"],
-  comments: ["04_commenti.py", "04_comments.py"], errors: ["05_errori.py", "05_errors.py"], ripasso0: ["06_ripasso.py", "06_review.py"],
-  build0: ["07_costruisci_biglietto.py", "07_build_card.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"],
-  var: ["01_variabili.py", "01_variables.py"], num: ["02_numeri.py", "02_numbers.py"], update: ["03_aggiornare.py", "03_updating.py"],
-  cambia: ["04_prevedi_valori.py", "04_predict_values.py"], divmod: ["05_resto.py", "05_remainder.py"], fstr: ["06_fstring.py", "06_fstrings.py"],
-  types: ["07_tipi.py", "07_types.py"], input: ["08_input.py", "08_input.py"], ripasso1: ["09_ripasso.py", "09_review.py"],
-  build1: ["10_costruisci_gioco.py", "10_build_game.py"], boss1: ["boss_calcolo.py", "boss_math.py"],
-  bool: ["01_vero_falso.py", "01_true_false.py"], ifblock: ["02_primo_if.py", "02_first_if.py"], ifelse: ["03_else.py", "03_else.py"],
-  if: ["04_piu_casi.py", "04_many_cases.py"], elifq: ["05_prevedi_elif.py", "05_predict_elif.py"], logic: ["06_and_or_not.py", "06_and_or_not.py"],
-  textcmp: ["07_testo.py", "07_text.py"], parity: ["08_pari_dispari.py", "08_even_odd.py"], ripasso2: ["09_ripasso.py", "09_review.py"],
-  build2: ["10_costruisci_gioco.py", "10_build_game.py"], boss2: ["boss_termometro.py", "boss_thermometer.py"],
-  for: ["01_for.py", "01_for.py"], step: ["02_passo.py", "02_step.py"], rangeq: ["03_prevedi_range.py", "03_predict_range.py"],
-  count: ["04_contare.py", "04_counting.py"], list: ["05_liste.py", "05_lists.py"], listmod: ["06_modificare.py", "06_changing.py"],
-  loop: ["07_scorrere.py", "07_looping.py"], index: ["08_posizioni.py", "08_positions.py"], while: ["09_while.py", "09_while.py"],
-  whilein: ["10_break.py", "10_break.py"], ripasso3: ["11_ripasso.py", "11_review.py"], build3: ["12_costruisci_gioco.py", "12_build_game.py"],
-  boss3: ["boss_scontrino.py", "boss_receipt.py"],
-  str: ["01_testo.py", "01_text.py"], strmeth: ["02_metodi.py", "02_methods.py"], vowels: ["03_vocali.py", "03_vowels.py"],
-  def0: ["04_def.py", "04_def.py"], params: ["05_parametri.py", "05_parameters.py"], def: ["06_return.py", "06_return.py"],
-  retq: ["07_prevedi_return.py", "07_predict_return.py"], fcall: ["08_insieme.py", "08_together.py"], ripasso4: ["09_ripasso.py", "09_review.py"],
-  build4: ["10_costruisci_gioco.py", "10_build_game.py"], boss4: ["boss_funzioni.py", "boss_functions.py"],
-  dict: ["01_dizionari.py", "01_dicts.py"], dictget: ["02_chiavi.py", "02_keys.py"], dictloop: ["03_contare.py", "03_counting.py"],
-  dictq: ["04_prevedi_dizionari.py", "04_predict_dicts.py"], try: ["05_try.py", "05_try.py"], mod: ["06_moduli.py", "06_modules.py"],
-  comp: ["07_liste_veloci.py", "07_comprehensions.py"], ripasso5: ["08_ripasso.py", "08_review.py"], build5: ["09_costruisci_gioco.py", "09_build_game.py"],
-  boss5: ["boss_rubrica.py", "boss_phonebook.py"],
-  class: ["01_classi.py", "01_classes.py"], method: ["02_metodi.py", "02_methods.py"], classq: ["03_prevedi_oggetti.py", "03_predict_objects.py"],
-  state: ["04_stato.py", "04_state.py"], objlist: ["05_squadra.py", "05_team.py"], ripasso6: ["06_grande_ripasso.py", "06_big_review.py"],
-  final: ["07_sfida_finale.py", "07_final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
-  numpy: ["01_numpy.py", "01_numpy.py"], plot: ["02_grafici.py", "02_charts.py"]
+/* Every level is a file inside its folder: [Italian, English]. The number in front comes from the level's
+   position in the folder (bosses have none), so a new level renumbers the files after it by itself. */
+const FILE_BASE = {
+  print: ["primo_programma.py", "first_program.py"], how: ["prevedi_print.py", "predict_print.py"], rules: ["regole.py", "rules.py"],
+  comments: ["commenti.py", "comments.py"], errors: ["errori.py", "errors.py"], ripasso0: ["ripasso.py", "review.py"],
+  build0: ["costruisci_biglietto.py", "build_card.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"], var: ["variabili.py", "variables.py"],
+  num: ["numeri.py", "numbers.py"], update: ["aggiornare.py", "updating.py"], cambia: ["prevedi_valori.py", "predict_values.py"],
+  divmod: ["resto.py", "remainder.py"], fstr: ["fstring.py", "fstrings.py"], typeof: ["tipi.py", "types.py"],
+  types: ["conversioni.py", "conversions.py"], input: ["input.py", "input.py"], ripasso1: ["ripasso.py", "review.py"],
+  build1: ["costruisci_gioco.py", "build_game.py"], boss1: ["boss_calcolo.py", "boss_math.py"], bool: ["vero_falso.py", "true_false.py"],
+  ifblock: ["primo_if.py", "first_if.py"], ifelse: ["else.py", "else.py"], if: ["piu_casi.py", "many_cases.py"],
+  elifq: ["prevedi_elif.py", "predict_elif.py"], logic: ["and_or_not.py", "and_or_not.py"], textcmp: ["testo.py", "text.py"],
+  parity: ["pari_dispari.py", "even_odd.py"], ripasso2: ["ripasso.py", "review.py"], build2: ["costruisci_gioco.py", "build_game.py"],
+  boss2: ["boss_termometro.py", "boss_thermometer.py"], for: ["for.py", "for.py"], step: ["passo.py", "step.py"],
+  rangeq: ["prevedi_range.py", "predict_range.py"], count: ["contare.py", "counting.py"], list: ["liste.py", "lists.py"],
+  listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"],
+  index: ["posizioni.py", "positions.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
+  ripasso3: ["ripasso.py", "review.py"], build3: ["costruisci_gioco.py", "build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
+  str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"],
+  def0: ["def.py", "def.py"], params: ["parametri.py", "parameters.py"], def: ["return.py", "return.py"],
+  retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], ripasso4: ["ripasso.py", "review.py"],
+  build4: ["costruisci_gioco.py", "build_game.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
+  dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
+  try: ["try.py", "try.py"], mod: ["moduli_random.py", "random_module.py"], math: ["moduli_math.py", "math_module.py"],
+  comp: ["liste_veloci.py", "comprehensions.py"], ripasso5: ["ripasso.py", "review.py"], build5: ["costruisci_gioco.py", "build_game.py"],
+  boss5: ["boss_rubrica.py", "boss_phonebook.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
+  classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
+  ripasso6: ["grande_ripasso.py", "big_review.py"], final: ["sfida_finale.py", "final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
+  numpy: ["numpy.py", "numpy.py"], plot: ["grafici.py", "charts.py"]
 };
-/* Normalise: a fixed expected output becomes a function; an "order" level's solution is its lines */
+const FILES = {};
+for (const w of WORLDS) w.levels.forEach((id, k) => {
+  FILES[id] = FILE_BASE[id].map((f) => (f.startsWith("boss_") ? f : String(k + 1).padStart(2, "0") + "_" + f));
+});
+/* Normalise: a fixed expected output becomes a function; an "order" level's solution is its lines; a part of the
+   game starts from the solution of the part before (the app uses the learner's own code when there is one) */
+const LESSON_FROM = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
 for (const l of LESSONS) for (const lang of ["it", "en"]) {
   const d = l[lang];
   if (typeof d.expect === "string") { const v = d.expect; d.expect = () => v; }
   if (l.kind === "order" && !d.solution) d.solution = d.lines.join("\n");
+  if (l.from && d.starter === undefined) d.starter = LESSON_FROM[l.from][lang].solution + "\n\n";
 }
 
 
@@ -6341,6 +6739,8 @@ Object.assign(UI.it, {
   hintMore: "Un altro aiuto", bossHintMore: "Chiedi ancora a Papera", hideHints: "Nascondi gli aiuti",
   solLocked: "La soluzione si sblocca dopo i suggerimenti.",
   statusFill: "Nell'editor sostituisci i ___ con il codice giusto, poi premi Esegui.",
+  statusFromOwn: (n) => `Nell'editor c'è il tuo gioco della parte ${n}: fallo crescere, poi premi Esegui.`,
+  statusFromRef: (n) => `Nell'editor c'è il gioco della parte ${n}: fallo crescere, poi premi Esegui.`,
   fillBlanks: "Prima sostituisci tutti i ___ con il codice giusto: la riga è segnata in rosso.",
   quizStep: (i, n) => `Domanda ${i} di ${n}`, quizNext: "Prossima domanda →", quizEnd: "Completa il livello ✓",
   spotQ: "Tocca la riga sbagliata.", spotWrong: "Non è questa riga. Rileggila con calma e riprova.",
@@ -6412,6 +6812,8 @@ Object.assign(UI.en, {
   hintMore: "Another hint", bossHintMore: "Ask Papera again", hideHints: "Hide the help",
   solLocked: "The solution unlocks after the hints.",
   statusFill: "In the editor, replace the ___ with the right code, then press Run.",
+  statusFromOwn: (n) => `The editor holds your game from part ${n}: make it grow, then press Run.`,
+  statusFromRef: (n) => `The editor holds the game from part ${n}: make it grow, then press Run.`,
   fillBlanks: "First replace every ___ with the right code: the line is marked in red.",
   quizStep: (i, n) => `Question ${i} of ${n}`, quizNext: "Next question →", quizEnd: "Complete the level ✓",
   spotQ: "Tap the wrong line.", spotWrong: "Not this line. Read it carefully and try again.",
@@ -6499,6 +6901,8 @@ function mergeStates(local, incoming) {
     const mine = out.codeAt[k] || 0, theirs = (inc.codeAt || {})[k] || 0;
     if (out.code[k] === undefined || theirs > mine) { out.code[k] = incCode[k]; out.codeAt[k] = theirs; }
   }
+  /* the code that passed each level: what's already there stays, the rest comes in */
+  out.won = Object.assign({}, inc.courseVer === COURSE_VER ? inc.won || {} : {}, out.won || {});
   const progs = new Map((out.programs || []).map((p) => [p.id, p]));
   for (const p of inc.programs || []) {
     if (!p || typeof p.code !== "string") continue;
@@ -6626,7 +7030,7 @@ function saveAccounts() { try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringif
 const storeKey = () => stateKeyFor(ACC.current);
 function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
-const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, programs: [], active: null,
+const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
   fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null });
 let S = DEFAULTS();
 function sanitize() {
@@ -6635,15 +7039,24 @@ function sanitize() {
   if (S.view === "free" || S.view === "term") S.view = "lab";
   if (!["worlds", "map", "lessons", "lab"].includes(S.view)) S.view = "worlds";
   if (!LANGS.some((l) => l.id === S.world && l.ready)) S.world = "python";
-  for (const k of ["stars", "attempt", "code"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
+  for (const k of ["stars", "attempt", "code", "won"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
   for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
   if (!(S.bytes >= 0)) S.bytes = 0;
   if (!S.codeAt || typeof S.codeAt !== "object") S.codeAt = {};
-  /* A new version of the course: stars stay, but drafts and attempts belonged to the old tasks */
+  /* A new version of the course: stars stay, but drafts and attempts of the changed tasks go. Before version 2
+     every task changed; after it, COURSE_CHANGED lists the levels of each version */
   let moved = false;
   if (S.courseVer !== COURSE_VER) {
-    moved = S.courseVer !== undefined || Object.keys(S.code).length > 0 || Object.keys(S.stars).length > 0;
-    if (moved) { S.code = {}; S.codeAt = {}; S.attempt = {}; S.curId = null; }
+    const old = S.courseVer;
+    if (!(old >= 2)) {
+      moved = old !== undefined || Object.keys(S.code).length > 0 || Object.keys(S.stars).length > 0;
+      if (moved) { S.code = {}; S.codeAt = {}; S.attempt = {}; S.won = {}; S.curId = null; }
+    } else {
+      for (let v = old + 1; v <= COURSE_VER; v++) for (const id of COURSE_CHANGED[v] || []) {
+        for (const lang of ["it", "en"]) { delete S.code[lang + ":" + id]; delete S.codeAt[lang + ":" + id]; delete S.won[lang + ":" + id]; }
+        delete S.attempt[id];
+      }
+    }
     S.courseVer = COURSE_VER;
   }
   /* bytes always follow from the stars (first pass + every star), so they can't drift */
@@ -6790,12 +7203,21 @@ function insertAt(el, text) {
 function updateFileName() {
   $("fname").textContent = S.mode === "free" ? activeProgram().name : curFile();
 }
+/* A part of the game starts from the part before: the learner's own code, if they passed it, else its solution */
+function ownCarry(id) {
+  const from = LESSON_BY_ID[id].from, own = from && S.stars[from] ? S.won[S.lang + ":" + from] : null;
+  return typeof own === "string" && own.trim() ? own : null;
+}
+function starterFor(id) {
+  const own = ownCarry(id);
+  return own ? own.replace(/\s*$/, "\n\n") : LESSON_BY_ID[id][S.lang].starter;
+}
 function loadEditor() {
   if (S.mode === "free") code.value = activeProgram().code;
   else if (noEditor()) code.value = "";
   else {
     const key = S.lang + ":" + level().id;
-    code.value = S.code[key] !== undefined ? S.code[key] : lesson().starter;
+    code.value = S.code[key] !== undefined ? S.code[key] : starterFor(level().id);
   }
   errLine = 0;
   code.scrollTop = 0; code.scrollLeft = 0;
@@ -6908,7 +7330,7 @@ copyBtn.onclick = () => {
 resetBtn.onclick = () => {
   if (running || S.mode === "free" || noEditor()) return;
   code.focus(); code.select();
-  insertAt(code, lesson().starter);
+  insertAt(code, starterFor(level().id));
   persistEditor();
 };
 
@@ -7406,6 +7828,8 @@ async function checkLesson(res, src) {
     }
   }
   termWrite(t("pass", S.current === LEVELS.length - 1) + "\n", "pass");
+  /* the code that passed: the next part of the game starts from it */
+  S.won[S.lang + ":" + level().id] = src;
   completeLevel();
 }
 /* Shows the learner exactly where their output differs from the required one */
@@ -7921,7 +8345,11 @@ function renderQuest() {
   let body;
   if (it.kind === "quiz") body = quizHtml(L);
   else if (it.kind === "order") body = orderHtml(L, st) + helpHtml(lv, L, st, `<button class="btn primary" id="ord-run" data-run>${t("run")}</button>`);
-  else body = `<div class="status ${st ? "ok" : ""}">${st ? t("statusDone") : /___/.test(L.starter || "") ? t("statusFill") : t("statusTodo")}</div>` + helpHtml(lv, L, st);
+  else {
+    const from = it.from && LESSON_BY_ID[it.from];
+    const todo = /___/.test(L.starter || "") ? t("statusFill") : from ? t(ownCarry(lv.id) ? "statusFromOwn" : "statusFromRef", from.part) : t("statusTodo");
+    body = `<div class="status ${st ? "ok" : ""}">${st ? t("statusDone") : todo}</div>` + helpHtml(lv, L, st);
+  }
   questEl.innerHTML = `<div class="q-head"><span class="q-tag">${t(questTag(it))}</span><span class="q-file">${curFile()}</span>${stars}</div>
     <p class="q-task">${L.task}</p>${body}`;
   if (it.kind === "quiz") bindQuiz(L);
@@ -8895,7 +9323,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "e3504b751c", APP_BUILT = "2026-11-08T20:12Z";
+const APP_VERSION = "cc428978a8", APP_BUILT = "2026-11-08T20:47Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
