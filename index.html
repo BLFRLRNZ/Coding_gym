@@ -149,6 +149,7 @@ code { font-family: var(--f-mono); font-size: 0.86em; background: var(--code-bg)
 .ex-ta::selection { background: var(--sel); }
 .ex-ta:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .ex-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 0 8px 8px; }
+.q-folder { display: block; font-family: var(--f-mono); font-size: 0.72rem; font-weight: 400; color: var(--muted); margin-bottom: 2px; }
 .task { border-left: 3px solid var(--mustard); padding: 4px 0 4px 14px; display: grid; gap: 4px; }
 .task .eyebrow { color: var(--mustard); }
 .task p { margin: 0; }
@@ -1306,11 +1307,12 @@ print("2 + 3")`,
 <ul><li><b>Maiuscole e minuscole contano</b>: <code>print</code> funziona, <code>Print</code> no.</li>
 <li><b>Le parentesi vanno in coppia</b>: ogni <code>(</code> ha la sua <code>)</code>.</li>
 <li><b>Il testo va tra virgolette dritte</b>, <code>"ciao"</code> oppure <code>'ciao'</code>, aperte e chiuse con lo stesso tipo. Le virgolette curve “ ”, che mettono alcune tastiere, Python non le capisce: se ne trova, Arcode le cambia da solo e te lo dice.</li>
-<li><b>Gli spazi dentro le virgolette contano</b>, quelli fuori quasi mai: <code>print( "ciao" )</code> funziona come <code>print("ciao")</code>.</li></ul>`,
+<li><b>Gli spazi dentro le virgolette contano</b>; quelli fuori, tra un pezzo e l'altro della riga, no: <code>print( "ciao" )</code> funziona come <code>print("ciao")</code>.</li></ul>`,
 { code: `print("Ciao")
 print( "Ciao" )
 print('C i a o')` },
-`<p>Se sbagli una delle prime tre, Python si ferma con un errore: ora sai leggerlo, e la riga indicata ti dice dove guardare. Uno spazio di troppo dentro le virgolette invece non dà errori: cambia solo quello che viene stampato.</p>`],
+`<p>Se sbagli una delle prime tre, Python si ferma con un errore: ora sai leggerlo, e la riga indicata ti dice dove guardare. Uno spazio di troppo dentro le virgolette invece non dà errori: cambia solo quello che viene stampato.</p>
+<p>Attenzione agli spazi <b>all'inizio della riga</b>: quelli contano eccome. Per ora ogni riga comincia dal margine, altrimenti Python si ferma con un <code>IndentationError</code>; più avanti scoprirai a cosa servono, perché sono i <b>rientri</b>.</p>`],
     task: `Questo programma ha quattro errori, uno contro ogni regola. Tre fermano Python: esegui, leggi l'errore, correggi la riga ed esegui di nuovo. L'ultimo non dà errori, ma l'output non è quello giusto: confrontalo con le frasi da stampare, <code>Ciao, sono Robo!</code>, <code>Ho tre ruote</code>, <code>Mi piace la musica</code>, <code>E ballo benissimo</code> e <code>Ciao ciao!</code>.`,
     starter: `print("Ciao, sono Robo!")\nPrint("Ho tre ruote")\nprint('Mi piace la musica")\nprint( "E ballo benissimo" ))\nprint("Ciao ciao !")\n`,
     solution: `print("Ciao, sono Robo!")
@@ -1330,11 +1332,12 @@ print("Ciao ciao!")`,
 <ul><li><b>Uppercase and lowercase matter</b>: <code>print</code> works, <code>Print</code> doesn't.</li>
 <li><b>Parentheses come in pairs</b>: every <code>(</code> has its <code>)</code>.</li>
 <li><b>Text goes between straight quotes</b>, <code>"hi"</code> or <code>'hi'</code>, opened and closed with the same kind. Curly quotes “ ”, which some keyboards put in, Python doesn't understand: if it finds any, Arcode swaps them by itself and tells you.</li>
-<li><b>Spaces inside quotes matter</b>, outside them almost never: <code>print( "hi" )</code> works like <code>print("hi")</code>.</li></ul>`,
+<li><b>Spaces inside quotes matter</b>; outside them, between one piece of the line and the next, they don't: <code>print( "hi" )</code> works like <code>print("hi")</code>.</li></ul>`,
 { code: `print("Hello")
 print( "Hello" )
 print('H e l l o')` },
-`<p>If you break one of the first three, Python stops with an error: now you know how to read it, and the line it points to tells you where to look. One space too many inside the quotes gives no error, though: it only changes what gets printed.</p>`],
+`<p>If you break one of the first three, Python stops with an error: now you know how to read it, and the line it points to tells you where to look. One space too many inside the quotes gives no error, though: it only changes what gets printed.</p>
+<p>Careful with spaces <b>at the start of the line</b>: those do matter. For now every line starts at the margin, otherwise Python stops with an <code>IndentationError</code>; later you'll find out what they're for, because they're the <b>indentation</b>.</p>`],
     task: `This program has four mistakes, one against each rule. Three of them stop Python: run, read the error, fix the line and run again. The last one gives no error, but the output isn't the right one: compare it with the sentences to print, <code>Hi, I'm Robo!</code>, <code>I have three wheels</code>, <code>I love music</code>, <code>And I dance really well</code> and <code>Bye bye!</code>.`,
     starter: `print("Hi, I'm Robo!")\nPrint("I have three wheels")\nprint('I love music")\nprint( "And I dance really well" ))\nprint("Bye bye !")\n`,
     solution: `print("Hi, I'm Robo!")
@@ -2243,7 +2246,7 @@ print(ticket == 5)`,
   it: {
     title: "Il primo if: blocchi e rientro",
     theory: [
-`<p>Con <code>if</code> il programma decide se eseguire alcune righe. Dopo la condizione si mettono i <b>due punti</b> <code>:</code>, e le righe che dipendono dall'if si scrivono <b>rientrate di 4 spazi</b>: sono il <b>blocco</b> dell'if.</p>`,
+`<p>Con <code>if</code> il programma decide se eseguire alcune righe. Dopo la condizione si mettono i <b>due punti</b> <code>:</code>, e le righe che dipendono dall'if si scrivono <b>rientrate di 4 spazi</b>: sono il <b>blocco</b> dell'if. Sono gli spazi all'inizio della riga di cui parlavano le regole di scrittura: per Python dicono quali righe vanno insieme.</p>`,
 { code: `temperatura = 32
 if temperatura > 30:
     print("Fa caldo")
@@ -2262,7 +2265,7 @@ print("Buona giornata")` },
   en: {
     title: "The first if: blocks and indentation",
     theory: [
-`<p>With <code>if</code> the program decides whether to run some lines. After the condition comes a <b>colon</b> <code>:</code>, and the lines that depend on the if are <b>indented by 4 spaces</b>: they're the if's <b>block</b>.</p>`,
+`<p>With <code>if</code> the program decides whether to run some lines. After the condition comes a <b>colon</b> <code>:</code>, and the lines that depend on the if are <b>indented by 4 spaces</b>: they're the if's <b>block</b>. These are the spaces at the start of the line the writing rules talked about: for Python they say which lines go together.</p>`,
 { code: `temperature = 32
 if temperature > 30:
     print("It's hot")
@@ -6015,27 +6018,35 @@ print(f"{best.name} wins with {best.points} points")`,
   id: "ripasso6", kind: "quiz", review: true, teaches: [],
   it: {
     title: "Il grande ripasso",
-    theory: [`<p>Una domanda per ogni cartella del percorso, dalle basi agli oggetti. Se una ti blocca, sai quale cartella ripassare.</p>`],
+    theory: [`<p>Una domanda per ogni cartella del percorso, dalle basi agli oggetti: sette in tutto, e sopra ognuna c'è la cartella da cui arriva. Se una ti blocca, sai quale cartella ripassare.</p>`],
     task: `Rispondi alle domande una alla volta.`,
     quiz: [
-      { q: "Cosa stampa?", code: `x = 7
+      { folder: 0, q: "Cosa stampa?", code: `print("3 + 4")  # print(7)
+# print("ciao")
+print(3 + 4)`, options: ["3 + 4\n7", "7\n7", "3 + 4\n7\nciao", "3 + 4\n7\n7"], correct: 0, explain: "Tra virgolette 3 + 4 è testo e resta com'è; senza virgolette è un calcolo e fa 7. Quello che sta dopo un # è un commento: Python non lo esegue." },
+      { folder: 1, q: "Cosa stampa?", code: `x = 7
 x = x // 2 + x % 2
 print(x)`, options: ["4", "3", "3.5", "1"], correct: 0, explain: "7 // 2 fa 3, 7 % 2 fa 1: 3 + 1 fa 4." },
-      { q: "Cosa stampa?", code: `n = 0
+      { folder: 2, q: "Cosa stampa?", code: `risposta = "Si"
+if risposta == "si" or risposta == "sì":
+    print("ok")
+else:
+    print("no")`, options: ["no", "ok", "ok\nno", "Si"], correct: 0, explain: "Il confronto tra testi guarda anche le maiuscole: \"Si\" non è uguale né a \"si\" né a \"sì\", quindi tutte e due le condizioni sono false e parte l'else." },
+      { folder: 3, q: "Cosa stampa?", code: `n = 0
 for i in range(1, 6):
     if i % 2 == 1:
         n += i
 print(n)`, options: ["9", "15", "6", "3"], correct: 0, explain: "Somma solo i dispari tra 1 e 5: 1 + 3 + 5 fa 9." },
-      { q: "Il programma stampa 6 e 1, poi si ferma con un TypeError alla riga 4. Tocca la riga da correggere.", code: `def area(b, h):
+      { folder: 4, q: "Il programma stampa 6 e 1, poi si ferma con un TypeError alla riga 4. Tocca la riga da correggere.", code: `def area(b, h):
     print(b * h)
 
 totale = area(2, 3) + area(1, 1)`, spot: true, correct: 1,
         explain: "area stampa invece di restituire: le chiamate valgono None, e None + None non si può fare. La riga 2 deve essere un return." },
-      { q: "Cosa stampa?", code: `voti = {"Ada": 8}
+      { folder: 5, q: "Cosa stampa?", code: `voti = {"Ada": 8}
 voti["Bob"] = voti.get("Bob", 6) + 1
 for nome, v in voti.items():
     print(nome, v)`, options: ["Ada 8\nBob 7", "Ada 8\nBob 6", "Ada 8", "Bob 7"], correct: 0, explain: "Bob non c'è: get dà il predefinito 6, più 1 fa 7. Poi il for stampa le due coppie." },
-      { q: "Cosa stampa?", code: `class Scatola:
+      { folder: 6, q: "Cosa stampa?", code: `class Scatola:
     def __init__(self):
         self.cose = []
 
@@ -6049,27 +6060,35 @@ print(len(s.cose), s.cose[-1])`, options: ["2 b", "2 a", "1 b", "0 None"], corre
   },
   en: {
     title: "The big review",
-    theory: [`<p>One question for each folder of the path, from the basics to objects. If one stumps you, you know which folder to go back to.</p>`],
+    theory: [`<p>One question for each folder of the path, from the basics to objects: seven in all, and above each one there's the folder it comes from. If one stumps you, you know which folder to go back to.</p>`],
     task: `Answer the questions one at a time.`,
     quiz: [
-      { q: "What does it print?", code: `x = 7
+      { folder: 0, q: "What does it print?", code: `print("3 + 4")  # print(7)
+# print("hello")
+print(3 + 4)`, options: ["3 + 4\n7", "7\n7", "3 + 4\n7\nhello", "3 + 4\n7\n7"], correct: 0, explain: "In quotes 3 + 4 is text and stays as it is; without quotes it's a sum and gives 7. Whatever comes after a # is a comment: Python doesn't run it." },
+      { folder: 1, q: "What does it print?", code: `x = 7
 x = x // 2 + x % 2
 print(x)`, options: ["4", "3", "3.5", "1"], correct: 0, explain: "7 // 2 is 3, 7 % 2 is 1: 3 + 1 is 4." },
-      { q: "What does it print?", code: `n = 0
+      { folder: 2, q: "What does it print?", code: `answer = "Yes"
+if answer == "yes" or answer == "y":
+    print("ok")
+else:
+    print("no")`, options: ["no", "ok", "ok\nno", "Yes"], correct: 0, explain: "Comparing text also looks at capitals: \"Yes\" is equal neither to \"yes\" nor to \"y\", so both conditions are false and the else runs." },
+      { folder: 3, q: "What does it print?", code: `n = 0
 for i in range(1, 6):
     if i % 2 == 1:
         n += i
 print(n)`, options: ["9", "15", "6", "3"], correct: 0, explain: "It adds only the odd numbers from 1 to 5: 1 + 3 + 5 is 9." },
-      { q: "The program prints 6 and 1, then stops with a TypeError on line 4. Tap the line to fix.", code: `def area(w, h):
+      { folder: 4, q: "The program prints 6 and 1, then stops with a TypeError on line 4. Tap the line to fix.", code: `def area(w, h):
     print(w * h)
 
 total = area(2, 3) + area(1, 1)`, spot: true, correct: 1,
         explain: "area prints instead of giving back: the calls are worth None, and None + None can't be done. Line 2 must be a return." },
-      { q: "What does it print?", code: `grades = {"Ada": 8}
+      { folder: 5, q: "What does it print?", code: `grades = {"Ada": 8}
 grades["Bob"] = grades.get("Bob", 6) + 1
 for name, g in grades.items():
     print(name, g)`, options: ["Ada 8\nBob 7", "Ada 8\nBob 6", "Ada 8", "Bob 7"], correct: 0, explain: "Bob isn't there: get gives the default 6, plus 1 is 7. Then the for prints both pairs." },
-      { q: "What does it print?", code: `class Box:
+      { folder: 6, q: "What does it print?", code: `class Box:
     def __init__(self):
         self.things = []
 
@@ -7389,7 +7408,7 @@ Object.assign(UI.it, {
   statusFromOwn: (n) => `Nell'editor c'è il tuo gioco della parte ${n}: fallo crescere, poi premi Esegui.`,
   statusFromRef: (n) => `Nell'editor c'è il gioco della parte ${n}: fallo crescere, poi premi Esegui.`,
   fillBlanks: "Prima sostituisci tutti i ___ con il codice giusto: la riga è segnata in rosso.",
-  quizStep: (i, n) => `Domanda ${i} di ${n}`, quizNext: "Prossima domanda →", quizEnd: "Completa il livello ✓",
+  quizStep: (i, n) => `Domanda ${i} di ${n}`, quizFolder: (d) => `dalla cartella ${d}`, quizNext: "Prossima domanda →", quizEnd: "Completa il livello ✓",
   spotQ: "Tocca la riga sbagliata.", spotWrong: "Non è questa riga. Rileggila con calma e riprova.",
   tagPredict: "# PREVEDI", tagReview: "# RIPASSO", tagOrder: "# RIORDINA", tagBuild: "# COSTRUISCI", tagBoss: "# BOSS",
   statusOrder: "Tocca le righe nell'ordine giusto, sistema i rientri e premi Esegui.",
@@ -7462,7 +7481,7 @@ Object.assign(UI.en, {
   statusFromOwn: (n) => `The editor holds your game from part ${n}: make it grow, then press Run.`,
   statusFromRef: (n) => `The editor holds the game from part ${n}: make it grow, then press Run.`,
   fillBlanks: "First replace every ___ with the right code: the line is marked in red.",
-  quizStep: (i, n) => `Question ${i} of ${n}`, quizNext: "Next question →", quizEnd: "Complete the level ✓",
+  quizStep: (i, n) => `Question ${i} of ${n}`, quizFolder: (d) => `from the folder ${d}`, quizNext: "Next question →", quizEnd: "Complete the level ✓",
   spotQ: "Tap the wrong line.", spotWrong: "Not this line. Read it carefully and try again.",
   tagPredict: "# PREDICT", tagReview: "# REVIEW", tagOrder: "# REORDER", tagBuild: "# BUILD", tagBoss: "# BOSS",
   statusOrder: "Tap the lines in the right order, set the indentation and press Run.",
@@ -9089,7 +9108,8 @@ function quizHtml(L) {
   const fb = qs.solved ? `<p class="qfb good"><b>${t("quizRight")}</b> ${escHtml(q.explain || "")}</p>`
     : qs.wrong.length ? `<p class="qfb bad">${t(q.spot ? "spotWrong" : "quizWrong")}</p>` : "";
   const acts = qs.solved ? `<div class="row"><button class="btn primary" id="q-next">${qs.i + 1 < n ? t("quizNext") : t("quizEnd")}</button>${q.code ? `<button class="btn" id="q-run" data-run>${t("quizRun")}</button>` : ""}</div>` : "";
-  return `${steps}<p class="q-ask">${escHtml(q.q || t(q.spot ? "spotQ" : "quizQ"))}</p>${ask}<div class="qfb-wrap" aria-live="polite">${fb}</div>${acts}<p class="rule">${t("quizStar", n)}</p>`;
+  const from = q.folder != null && WORLDS[q.folder] ? `<span class="q-folder">${escHtml(t("quizFolder", dirName(WORLDS[q.folder], S.lang)))}</span>` : "";
+  return `${steps}<p class="q-ask">${from}${escHtml(q.q || t(q.spot ? "spotQ" : "quizQ"))}</p>${ask}<div class="qfb-wrap" aria-live="polite">${fb}</div>${acts}<p class="rule">${t("quizStar", n)}</p>`;
 }
 function bindQuiz(L) {
   const qs = ui.quiz, q = L.quiz[qs.i];
@@ -9994,7 +10014,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "0b89f377bc", APP_BUILT = "2026-11-08T22:00Z";
+const APP_VERSION = "80739f82e0", APP_BUILT = "2026-11-08T22:12Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
