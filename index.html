@@ -1070,9 +1070,9 @@ self.onmessage = async (e) => {
    lessons, a "predict" quiz, a review that mixes old and new, a "build" level (one game that grows
    folder after folder) and a boss to debug. Kinds: "code" (default), "quiz", "order" (put the lines
    in order and set the indentation). Hints come in two steps: a question, then the plan in words. */
-const COURSE_VER = 3;
+const COURSE_VER = 4;
 /* Levels whose task changed in a version: saved drafts and attempts of these levels are dropped (stars stay) */
-const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"] };
+const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"] };
 
 /* Python's int() accepts spaces around the number, a sign and _ between digits */
 const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
@@ -1284,19 +1284,23 @@ print("2 + 3")`,
 `<p>Python è precisissimo. Quattro regole da ricordare sempre:</p>
 <ul><li><b>Maiuscole e minuscole contano</b>: <code>print</code> funziona, <code>Print</code> no.</li>
 <li><b>Le parentesi vanno in coppia</b>: ogni <code>(</code> ha la sua <code>)</code>.</li>
-<li><b>Il testo va tra virgolette dritte</b>, <code>"ciao"</code> oppure <code>'ciao'</code>, aperte e chiuse con lo stesso tipo.</li>
+<li><b>Il testo va tra virgolette dritte</b>, <code>"ciao"</code> oppure <code>'ciao'</code>, aperte e chiuse con lo stesso tipo. Le virgolette curve “ ”, che mettono alcune tastiere, Python non le capisce: se ne trova, Arcode le cambia da solo e te lo dice.</li>
 <li><b>Gli spazi dentro le virgolette contano</b>, quelli fuori quasi mai: <code>print( "ciao" )</code> funziona come <code>print("ciao")</code>.</li></ul>`,
 { code: `print("Ciao")
 print( "Ciao" )
-print('C i a o')` }],
-    task: `Questo programma ha due errori. Correggili in modo che stampi le due frasi. Premi Esegui per vedere cosa ti dice Python.`,
-    starter: `Print("Python è preciso")\nprint("e anche tu lo sarai"\n`,
-    solution: `print("Python è preciso")
-print("e anche tu lo sarai")`,
-    hints: ["Esegui il programma: su quale riga si ferma Python? Confronta quella riga con le quattro regole.",
-      "Una riga comincia con una lettera maiuscola che Python non riconosce; l'altra apre una parentesi e non la chiude."],
-    check: (o) => o === "Python è preciso\ne anche tu lo sarai",
-    expect: "Python è preciso\ne anche tu lo sarai"
+print('C i a o')` },
+`<p>Se sbagli una delle prime tre, Python si ferma con un errore: ora sai leggerlo, e la riga indicata ti dice dove guardare. Uno spazio di troppo dentro le virgolette invece non dà errori: cambia solo quello che viene stampato.</p>`],
+    task: `Questo programma ha quattro errori, uno contro ogni regola. Tre fermano Python: esegui, leggi l'errore, correggi la riga ed esegui di nuovo. L'ultimo non dà errori, ma l'output non è quello giusto: confrontalo con le frasi da stampare, <code>Ciao, sono Robo!</code>, <code>Ho tre ruote</code>, <code>Mi piace la musica</code>, <code>E ballo benissimo</code> e <code>Ciao ciao!</code>.`,
+    starter: `print("Ciao, sono Robo!")\nPrint("Ho tre ruote")\nprint('Mi piace la musica")\nprint( "E ballo benissimo" ))\nprint("Ciao ciao !")\n`,
+    solution: `print("Ciao, sono Robo!")
+print("Ho tre ruote")
+print("Mi piace la musica")
+print( "E ballo benissimo" )
+print("Ciao ciao!")`,
+    hints: ["A ogni Esegui, su quale riga si ferma Python, e quale delle quattro regole non rispetta quella riga? Quando gli errori sono finiti, confronta l'output con le frasi del compito, carattere per carattere.",
+      "Riga 2: una maiuscola di troppo. Riga 3: le virgolette si aprono con un tipo e si chiudono con l'altro. Riga 4: una parentesi chiusa in più (gli spazi fuori dalle virgolette invece vanno bene). Riga 5: uno spazio di troppo dentro le virgolette."],
+    check: (o) => o === "Ciao, sono Robo!\nHo tre ruote\nMi piace la musica\nE ballo benissimo\nCiao ciao!",
+    expect: "Ciao, sono Robo!\nHo tre ruote\nMi piace la musica\nE ballo benissimo\nCiao ciao!"
   },
   en: {
     title: "The writing rules",
@@ -1304,19 +1308,23 @@ print("e anche tu lo sarai")`,
 `<p>Python is extremely precise. Four rules to always remember:</p>
 <ul><li><b>Uppercase and lowercase matter</b>: <code>print</code> works, <code>Print</code> doesn't.</li>
 <li><b>Parentheses come in pairs</b>: every <code>(</code> has its <code>)</code>.</li>
-<li><b>Text goes between straight quotes</b>, <code>"hi"</code> or <code>'hi'</code>, opened and closed with the same kind.</li>
+<li><b>Text goes between straight quotes</b>, <code>"hi"</code> or <code>'hi'</code>, opened and closed with the same kind. Curly quotes “ ”, which some keyboards put in, Python doesn't understand: if it finds any, Arcode swaps them by itself and tells you.</li>
 <li><b>Spaces inside quotes matter</b>, outside them almost never: <code>print( "hi" )</code> works like <code>print("hi")</code>.</li></ul>`,
 { code: `print("Hello")
 print( "Hello" )
-print('H e l l o')` }],
-    task: `This program has two mistakes. Fix them so it prints both sentences. Press Run to see what Python tells you.`,
-    starter: `Print("Python is precise")\nprint("and so will you be"\n`,
-    solution: `print("Python is precise")
-print("and so will you be")`,
-    hints: ["Run the program: which line does Python stop at? Compare that line with the four rules.",
-      "One line starts with a capital letter Python doesn't recognise; the other opens a parenthesis and never closes it."],
-    check: (o) => o === "Python is precise\nand so will you be",
-    expect: "Python is precise\nand so will you be"
+print('H e l l o')` },
+`<p>If you break one of the first three, Python stops with an error: now you know how to read it, and the line it points to tells you where to look. One space too many inside the quotes gives no error, though: it only changes what gets printed.</p>`],
+    task: `This program has four mistakes, one against each rule. Three of them stop Python: run, read the error, fix the line and run again. The last one gives no error, but the output isn't the right one: compare it with the sentences to print, <code>Hi, I'm Robo!</code>, <code>I have three wheels</code>, <code>I love music</code>, <code>And I dance really well</code> and <code>Bye bye!</code>.`,
+    starter: `print("Hi, I'm Robo!")\nPrint("I have three wheels")\nprint('I love music")\nprint( "And I dance really well" ))\nprint("Bye bye !")\n`,
+    solution: `print("Hi, I'm Robo!")
+print("I have three wheels")
+print("I love music")
+print( "And I dance really well" )
+print("Bye bye!")`,
+    hints: ["Each time you run it, which line does Python stop at, and which of the four rules does that line break? When the errors are over, compare the output with the sentences in the task, character by character.",
+      "Line 2: one capital letter too many. Line 3: the quotes open with one kind and close with the other. Line 4: one closing parenthesis too many (the spaces outside the quotes are fine, though). Line 5: one space too many inside the quotes."],
+    check: (o) => o === "Hi, I'm Robo!\nI have three wheels\nI love music\nAnd I dance really well\nBye bye!",
+    expect: "Hi, I'm Robo!\nI have three wheels\nI love music\nAnd I dance really well\nBye bye!"
   }
 },
 {
@@ -1662,7 +1670,7 @@ print(width ** 2)`,
   }
 },
 {
-  id: "update", teaches: ["augassign"],
+  id: "update", teaches: ["augassign", "copyvar"],
   it: {
     title: "Le variabili cambiano",
     theory: [
@@ -1674,20 +1682,27 @@ print(punti)   # 15
 punti += 5     # come punti = punti + 5
 punti -= 2     # come punti = punti - 2
 print(punti)   # 18` },
-`<p><code>+=</code> e <code>-=</code> sono scorciatoie: aggiungono o tolgono un valore alla variabile. C'è anche <code>*=</code>, che la moltiplica. Python esegue le righe in ordine, quindi ogni riga parte dal valore lasciato da quella prima.</p>`],
-    task: `Hai 10 monete. Ne raccogli 5, ne spendi 8 al negozio, poi un forziere le raddoppia. Aggiorna <code>monete</code> a ogni passo, usando <code>+=</code> e <code>-=</code>, e alla fine stampa <code>Monete: 14</code>. Lo proverò anche partendo da un altro numero di monete.`,
+`<p><code>+=</code> e <code>-=</code> sono scorciatoie: aggiungono o tolgono un valore alla variabile. C'è anche <code>*=</code>, che la moltiplica. Python esegue le righe in ordine, quindi ogni riga parte dal valore lasciato da quella prima.</p>
+<p>Una variabile può anche prendere il valore di un'altra: <code>b = a</code> copia in <code>b</code> il valore che <code>a</code> ha <b>in quel momento</b>. Da lì le due variabili vanno ognuna per conto suo: se poi <code>a</code> cambia, <code>b</code> tiene il valore copiato.</p>`,
+{ code: `punti = 18
+record = punti         # record vale 18, come punti adesso
+punti -= 10
+print(punti, record)   # 8 18` }],
+    task: `Hai 10 monete. Prima di partire copia il numero di monete in <code>partenza</code>, così te lo ricordi. Poi ne raccogli 5, ne spendi 8 al negozio e un forziere le raddoppia: aggiorna <code>monete</code> a ogni passo, usando <code>+=</code> e <code>-=</code>. Alla fine stampa <code>Monete: 14</code> e, sotto, <code>Partenza: 10</code>. Lo proverò anche partendo da un altro numero di monete.`,
     starter: `monete = 10\n\n`,
     solution: `monete = 10
+partenza = monete
 
 monete += 5
 monete -= 8
 monete *= 2
-print("Monete:", monete)`,
-    hints: ["Quante volte cambia il numero di monete? Quale scorciatoia aggiunge e quale toglie?",
-      "Tre righe che aggiornano monete: una con += 5, una con -= 8 e una che la raddoppia (con *= 2 oppure moltiplicando per 2). Poi il print con la virgola."],
-    check: (o, c) => o === "Monete: 14" && /monete\s*\+=/.test(c) && /monete\s*-=/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /monete\s*=\s*10\b/, "monete = 20"), (o) => o === "Monete: 34", "partendo da 20 monete doveva stampare Monete: 34")),
-    expect: "Monete: 14"
+print("Monete:", monete)
+print("Partenza:", partenza)`,
+    hints: ["Quante volte cambia il numero di monete? E partenza va copiata prima o dopo i cambiamenti, se deve ricordare il 10?",
+      "Subito sotto la prima riga copia monete in partenza. Poi tre righe che aggiornano monete: += 5, -= 8 e una che la raddoppia (con *= 2 oppure moltiplicando per 2). Alla fine due print con la virgola."],
+    check: (o, c) => o === "Monete: 14\nPartenza: 10" && /monete\s*\+=/.test(c) && /monete\s*-=/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /monete\s*=\s*10\b/, "monete = 20"), (o) => o === "Monete: 34\nPartenza: 20", "partendo da 20 monete doveva stampare Monete: 34 e Partenza: 20")),
+    expect: "Monete: 14\nPartenza: 10"
   },
   en: {
     title: "Variables change",
@@ -1700,20 +1715,27 @@ print(points)   # 15
 points += 5     # same as points = points + 5
 points -= 2     # same as points = points - 2
 print(points)   # 18` },
-`<p><code>+=</code> and <code>-=</code> are shortcuts: they add a value to the variable or take it away. There's also <code>*=</code>, which multiplies it. Python runs the lines in order, so each line starts from the value the one before left.</p>`],
-    task: `You have 10 coins. You collect 5, spend 8 at the shop, then a chest doubles them. Update <code>coins</code> at each step, using <code>+=</code> and <code>-=</code>, and at the end print <code>Coins: 14</code>. I'll also try it starting from a different number of coins.`,
+`<p><code>+=</code> and <code>-=</code> are shortcuts: they add a value to the variable or take it away. There's also <code>*=</code>, which multiplies it. Python runs the lines in order, so each line starts from the value the one before left.</p>
+<p>A variable can also take the value of another one: <code>b = a</code> copies into <code>b</code> the value <code>a</code> has <b>at that moment</b>. From then on the two variables go their own way: if <code>a</code> changes later, <code>b</code> keeps the copied value.</p>`,
+{ code: `points = 18
+record = points         # record is 18, like points right now
+points -= 10
+print(points, record)   # 8 18` }],
+    task: `You have 10 coins. Before you set off, copy the number of coins into <code>start</code>, so you remember it. Then you collect 5, spend 8 at the shop and a chest doubles them: update <code>coins</code> at each step, using <code>+=</code> and <code>-=</code>. At the end print <code>Coins: 14</code> and, below it, <code>Start: 10</code>. I'll also try it starting from a different number of coins.`,
     starter: `coins = 10\n\n`,
     solution: `coins = 10
+start = coins
 
 coins += 5
 coins -= 8
 coins *= 2
-print("Coins:", coins)`,
-    hints: ["How many times does the number of coins change? Which shortcut adds and which one takes away?",
-      "Three lines that update coins: one with += 5, one with -= 8 and one that doubles it (with *= 2 or by multiplying by 2). Then the print with the comma."],
-    check: (o, c) => o === "Coins: 14" && /coins\s*\+=/.test(c) && /coins\s*-=/.test(c),
-    tests: (c) => tlist(tcase(swapRe(c, /coins\s*=\s*10\b/, "coins = 20"), (o) => o === "Coins: 34", "starting from 20 coins it had to print Coins: 34")),
-    expect: "Coins: 14"
+print("Coins:", coins)
+print("Start:", start)`,
+    hints: ["How many times does the number of coins change? And should start be copied before or after the changes, if it has to remember the 10?",
+      "Right below the first line copy coins into start. Then three lines that update coins: += 5, -= 8 and one that doubles it (with *= 2 or by multiplying by 2). At the end two prints with the comma."],
+    check: (o, c) => o === "Coins: 14\nStart: 10" && /coins\s*\+=/.test(c) && /coins\s*-=/.test(c),
+    tests: (c) => tlist(tcase(swapRe(c, /coins\s*=\s*10\b/, "coins = 20"), (o) => o === "Coins: 34\nStart: 20", "starting from 20 coins it had to print Coins: 34 and Start: 20")),
+    expect: "Coins: 14\nStart: 10"
   }
 },
 {
@@ -2523,7 +2545,7 @@ else:
   }
 },
 {
-  id: "textcmp", teaches: [], sample: ["drago"],
+  id: "textcmp", teaches: ["streq"], sample: ["drago"],
   it: {
     title: "Confrontare il testo",
     theory: [
@@ -3250,6 +3272,77 @@ print(pricey)`,
   }
 },
 {
+  id: "best", teaches: ["bestloop"],
+  it: {
+    title: "Il migliore finora",
+    theory: [
+`<p>Per trovare il valore più grande di una lista con un ciclo si usa lo schema del <b>migliore finora</b>: una variabile tiene il valore più alto visto fino a quel momento. Parte dal primo elemento; a ogni giro, se l'elemento è più grande, prende il suo posto. Quando il ciclo finisce, contiene il più grande di tutti.</p>`,
+{ code: `punti = [12, 30, 25, 41, 18]
+migliore = punti[0]
+for p in punti:
+    if p > migliore:
+        migliore = p
+print("Record:", migliore)   # Record: 41` },
+`<p>Segui i giri: <code>migliore</code> parte da 12, diventa 30, resta 30 con il 25, diventa 41 e resta 41 con il 18. Perché partire dal primo elemento e non da 0? Se i numeri fossero tutti negativi, lo 0 vincerebbe senza essere nella lista. Per trovare il più piccolo basta girare il confronto: <code>&lt;</code> al posto di <code>&gt;</code>.</p>`],
+    task: `Questi sono i tempi in secondi dei giri di pista di Ada. Con un ciclo trova il giro più veloce (il tempo più basso) e il più lento (il più alto), e stampa <code>Giro più veloce: 58</code> e poi <code>Giro più lento: 71</code>. Proverò anche con altri tempi.`,
+    starter: `tempi = [64, 58, 71, 60, 66]\n\n`,
+    solution: `tempi = [64, 58, 71, 60, 66]
+
+veloce = tempi[0]
+lento = tempi[0]
+for t in tempi:
+    if t < veloce:
+        veloce = t
+    if t > lento:
+        lento = t
+print("Giro più veloce:", veloce)
+print("Giro più lento:", lento)`,
+    hints: ["Ti servono due variabili, una per il giro più veloce e una per il più lento: da quale valore conviene farle partire? E per il più veloce, da che parte va il confronto?",
+      "Fai partire tutte e due dal primo tempo della lista. Nel for, con due if separati: se il tempo è minore del più veloce, diventa il nuovo più veloce; se è maggiore del più lento, il nuovo più lento. I print vanno dopo il ciclo."],
+    check: (o, c) => o === "Giro più veloce: 58\nGiro più lento: 71" && /\bfor\b/.test(c) && !/\b(min|max)\s*\(/.test(c),
+    why: (o, c) => (/\b(min|max)\s*\(/.test(c) ? "Qui il più veloce e il più lento vanno trovati con il ciclo, senza min() e max(): è proprio lo schema da allenare." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /tempi\s*=\s*\[[^\]]*\]/, "tempi = [70, 65, 80, 55]"), (o) => o === "Giro più veloce: 55\nGiro più lento: 80", "con tempi = [70, 65, 80, 55] doveva stampare 55 e 80"),
+      tcase(swapRe(c, /tempi\s*=\s*\[[^\]]*\]/, "tempi = [50]"), (o) => o === "Giro più veloce: 50\nGiro più lento: 50", "con un giro solo, tempi = [50], doveva stampare 50 e 50"),
+      tcase(swapRe(c, /tempi\s*=\s*\[[^\]]*\]/, "tempi = [90, 95, 99]"), (o) => o === "Giro più veloce: 90\nGiro più lento: 99", "con tempi = [90, 95, 99] doveva stampare 90 e 99")),
+    expect: "Giro più veloce: 58\nGiro più lento: 71"
+  },
+  en: {
+    title: "The best so far",
+    theory: [
+`<p>To find the biggest value in a list with a loop you use the <b>best so far</b> pattern: a variable holds the highest value seen up to that moment. It starts from the first item; each round, if the item is bigger, it takes its place. When the loop ends, it holds the biggest of all.</p>`,
+{ code: `points = [12, 30, 25, 41, 18]
+best = points[0]
+for p in points:
+    if p > best:
+        best = p
+print("Record:", best)   # Record: 41` },
+`<p>Follow the rounds: <code>best</code> starts at 12, becomes 30, stays 30 with 25, becomes 41 and stays 41 with 18. Why start from the first item and not from 0? If the numbers were all negative, 0 would win without being in the list. To find the smallest, just flip the comparison: <code>&lt;</code> instead of <code>&gt;</code>.</p>`],
+    task: `These are the times in seconds of Ada's laps. With a loop find the fastest lap (the lowest time) and the slowest (the highest), and print <code>Fastest lap: 58</code> and then <code>Slowest lap: 71</code>. I'll also try other times.`,
+    starter: `times = [64, 58, 71, 60, 66]\n\n`,
+    solution: `times = [64, 58, 71, 60, 66]
+
+fastest = times[0]
+slowest = times[0]
+for t in times:
+    if t < fastest:
+        fastest = t
+    if t > slowest:
+        slowest = t
+print("Fastest lap:", fastest)
+print("Slowest lap:", slowest)`,
+    hints: ["You need two variables, one for the fastest lap and one for the slowest: which value should they start from? And for the fastest, which way does the comparison go?",
+      "Start both from the first time in the list. In the for, with two separate ifs: if the time is lower than the fastest, it becomes the new fastest; if it's higher than the slowest, the new slowest. The prints go after the loop."],
+    check: (o, c) => o === "Fastest lap: 58\nSlowest lap: 71" && /\bfor\b/.test(c) && !/\b(min|max)\s*\(/.test(c),
+    why: (o, c) => (/\b(min|max)\s*\(/.test(c) ? "Here the fastest and the slowest have to be found with the loop, without min() and max(): that's exactly the pattern to practise." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /times\s*=\s*\[[^\]]*\]/, "times = [70, 65, 80, 55]"), (o) => o === "Fastest lap: 55\nSlowest lap: 80", "with times = [70, 65, 80, 55] it had to print 55 and 80"),
+      tcase(swapRe(c, /times\s*=\s*\[[^\]]*\]/, "times = [50]"), (o) => o === "Fastest lap: 50\nSlowest lap: 50", "with a single lap, times = [50], it had to print 50 and 50"),
+      tcase(swapRe(c, /times\s*=\s*\[[^\]]*\]/, "times = [90, 95, 99]"), (o) => o === "Fastest lap: 90\nSlowest lap: 99", "with times = [90, 95, 99] it had to print 90 and 99")),
+    expect: "Fastest lap: 58\nSlowest lap: 71"
+  }
+},
+{
   id: "index", teaches: [],
   it: {
     title: "Le posizioni: range e len",
@@ -3437,7 +3530,13 @@ for i in range(len(parole) + 1):
 if x % 2 == 1 and x > 5:
     print("sì")
 else:
-    print("no")`, options: ["sì", "no", "sì\nno", "niente"], correct: 0, explain: "7 è dispari ed è maggiore di 5: tutte e due vere." }]
+    print("no")`, options: ["sì", "no", "sì\nno", "niente"], correct: 0, explain: "7 è dispari ed è maggiore di 5: tutte e due vere." },
+      { q: "Cosa stampa?", code: `temperature = [-3, -8, -1, -5]
+massima = 0
+for t in temperature:
+    if t > massima:
+        massima = t
+print(massima)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "Nessuna temperatura supera lo 0 di partenza, quindi massima resta 0, che nella lista non c'è nemmeno. Per questo il migliore finora parte dal primo elemento." }]
   },
   en: {
     title: "Review: loops and lists",
@@ -3463,7 +3562,13 @@ for i in range(len(words) + 1):
 if x % 2 == 1 and x > 5:
     print("yes")
 else:
-    print("no")`, options: ["yes", "no", "yes\nno", "nothing"], correct: 0, explain: "7 is odd and greater than 5: both true." }]
+    print("no")`, options: ["yes", "no", "yes\nno", "nothing"], correct: 0, explain: "7 is odd and greater than 5: both true." },
+      { q: "What does it print?", code: `temperatures = [-3, -8, -1, -5]
+highest = 0
+for t in temperatures:
+    if t > highest:
+        highest = t
+print(highest)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "No temperature beats the starting 0, so highest stays 0, which isn't even in the list. That's why the best so far starts from the first item." }]
   }
 },
 {
@@ -3670,8 +3775,9 @@ print(len(code))`,
 print(frase.upper())          # "  CIAO MONDO  "
 print(frase.lower())          # "  ciao mondo  "
 print(frase.strip())          # "Ciao Mondo": via gli spazi ai lati
-print(frase.replace("o", "0"))` },
-`<p>Puoi anche metterne più di uno in fila: <code>frase.strip().upper()</code> prima toglie gli spazi, poi fa tutto maiuscolo.</p>`],
+print(frase.replace("o", "0"))  # "  Cia0 M0nd0  ": ogni o diventa 0` },
+`<p><code>replace(vecchio, nuovo)</code> sostituisce il primo testo con il secondo, tutte le volte che compare. Distingue maiuscole e minuscole: qui la <code>o</code> minuscola cambia, una <code>O</code> maiuscola resterebbe com'è.</p>
+<p>Puoi anche metterne più di uno in fila: <code>frase.strip().upper()</code> prima toglie gli spazi, poi fa tutto maiuscolo.</p>`],
     task: `Gli utenti scrivono le risposte in modo disordinato. Partendo da <code>risposta</code>, stampa: la risposta pulita (senza spazi ai lati e tutta minuscola), poi la stessa con <code>certo</code> sostituito da <code>volentieri</code>, poi la risposta pulita tutta maiuscola. Deve uscire <code>sì, certo</code>, <code>sì, volentieri</code> e <code>SÌ, CERTO</code>.`,
     starter: `risposta = "   Sì, CERTO "\n\n`,
     solution: `risposta = "   Sì, CERTO "
@@ -3694,8 +3800,9 @@ print(pulita.upper())`,
 print(phrase.upper())          # "  HELLO WORLD  "
 print(phrase.lower())          # "  hello world  "
 print(phrase.strip())          # "Hello World": spaces gone from the sides
-print(phrase.replace("o", "0"))` },
-`<p>You can chain more than one: <code>phrase.strip().upper()</code> first removes the spaces, then makes everything uppercase.</p>`],
+print(phrase.replace("o", "0"))  # "  Hell0 W0rld  ": every o becomes 0` },
+`<p><code>replace(old, new)</code> swaps the first text for the second, every time it appears. It tells uppercase from lowercase: here the lowercase <code>o</code> changes, an uppercase <code>O</code> would stay as it is.</p>
+<p>You can chain more than one: <code>phrase.strip().upper()</code> first removes the spaces, then makes everything uppercase.</p>`],
     task: `Users type their answers messily. Starting from <code>answer</code>, print: the clean answer (no spaces at the sides and all lowercase), then the same with <code>sure</code> replaced by <code>gladly</code>, then the clean answer all uppercase. The output must be <code>yes, sure</code>, <code>yes, gladly</code> and <code>YES, SURE</code>.`,
     starter: `answer = "   Yes, SURE "\n\n`,
     solution: `answer = "   Yes, SURE "
@@ -4264,11 +4371,21 @@ print(initials("Ada", "Lovelace"))`,
 
 
 /* ---------- 05_strumenti: dictionaries, missing keys, counting, try/except, modules, comprehensions ---------- */
-const retry = (lang, ins) => {
-  const out = [];
-  for (const s of ins) {
-    if (isIntText(s)) { out.push(lang === "it" ? `Il doppio è ${toInt(s) * 2}` : `Double is ${toInt(s) * 2}`); return out.join("\n"); }
-    out.push(lang === "it" ? "Non è un numero, riprova." : "Not a number, try again.");
+/* "try": one answer, the year of birth; "retry": ask again until the number of tickets is right */
+const yearIn = (lang, ins) => {
+  const it = lang === "it", s = (ins || [])[0];
+  if (s === undefined || ins.length !== 1) return null;
+  const first = isIntText(s) ? (it ? `Nel 2040 avrai ${2040 - toInt(s)} anni` : `In 2040 you'll be ${2040 - toInt(s)}`) : (it ? "Scrivi l'anno in cifre" : "Write the year in digits");
+  return first + "\n" + (it ? "Grazie!" : "Thanks!");
+};
+const tickets = (lang, ins) => {
+  const it = lang === "it", out = [];
+  for (let k = 0; k < (ins || []).length; k++) {
+    const s = ins[k];
+    if (!isIntText(s)) { out.push(it ? "Non è un numero, riprova." : "Not a number, try again."); continue; }
+    const n = toInt(s);
+    if (n >= 1 && n <= 10) { out.push(it ? `Totale: ${n * 5} euro` : `Total: ${n * 5} euros`); return k === ins.length - 1 ? out.join("\n") : null; }
+    out.push(it ? "Da 1 a 10, riprova." : "From 1 to 10, try again.");
   }
   return null;
 };
@@ -4397,7 +4514,8 @@ for c in colori:
 
 for colore, quanti in conteggio.items():
     print(colore, quanti)` },
-`<p>È lo schema per <b>contare</b>: per ogni elemento prendi il conteggio attuale (0 se non c'è ancora) e aggiungi 1.</p>`],
+`<p>È lo schema per <b>contare</b>: per ogni elemento prendi il conteggio attuale (0 se non c'è ancora) e aggiungi 1.</p>
+<p>E per trovare il più votato? Lo schema del <b>migliore finora</b>, come nei cicli sulle liste. Questa volta però ti servono due variabili che cambiano insieme: il numero di voti più alto visto finora e il nome di chi li ha.</p>`],
     task: `Conta i voti dell'elezione del rappresentante di classe e stampa, nell'ordine in cui compaiono i candidati, <code>Ada: 3</code>, <code>Bob: 2</code> e <code>Cleo: 1</code>. Poi stampa <code>Vince Ada</code>, trovando chi ha più voti con un ciclo.`,
     starter: `voti = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]\n\n`,
     solution: `voti = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]
@@ -4431,7 +4549,8 @@ for c in colours:
 
 for colour, how_many in counts.items():
     print(colour, how_many)` },
-`<p>It's the pattern for <b>counting</b>: for each item take the current count (0 if it isn't there yet) and add 1.</p>`],
+`<p>It's the pattern for <b>counting</b>: for each item take the current count (0 if it isn't there yet) and add 1.</p>
+<p>And to find who got the most? The <b>best so far</b> pattern, as in the loops over lists. This time, though, you need two variables that change together: the highest number of votes seen so far and the name of whoever has them.</p>`],
     task: `Count the votes in the class representative election and print, in the order the candidates appear, <code>Ada: 3</code>, <code>Bob: 2</code> and <code>Cleo: 1</code>. Then print <code>Ada wins</code>, finding who has most votes with a loop.`,
     starter: `votes = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]\n\n`,
     solution: `votes = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]
@@ -4509,59 +4628,123 @@ else:
   }
 },
 {
-  id: "try", teaches: ["try", "except", "ValueError"], sample: ["ciao", "21"],
+  id: "try", teaches: ["try", "except", "ValueError"], sample: ["2010"],
   it: {
     title: "Gestire gli errori",
     theory: [
 `<p>Con <code>try</code> ed <code>except</code> puoi intercettare un errore e decidere tu cosa fare, invece di lasciare che il programma si fermi. Nel blocco <code>try</code> metti le righe che potrebbero fallire; nel blocco <code>except</code> cosa fare se falliscono.</p>`,
 { code: `try:
     n = int("ciao")
+    print("Questa riga viene saltata")
 except ValueError:
     print("Quello non è un numero")
 print("Il programma continua")` },
-`<p>Dopo <code>except</code> scrivi il nome dell'errore da intercettare, lo stesso che leggi nell'ultima riga del messaggio: <code>ValueError</code> quando un testo non diventa un numero, <code>ZeroDivisionError</code> quando dividi per zero, e così via.</p>
-<p>È utilissimo con <code>input()</code>: se l'utente scrive lettere invece di un numero, <code>int()</code> dà un <code>ValueError</code>. Unito a un <code>while True</code>, puoi richiedere il numero finché non è valido.</p>`],
-    task: `Chiedi un numero finché l'utente non ne scrive uno valido: a ogni tentativo sbagliato stampa <code>Non è un numero, riprova.</code>. Quando è valido, stampa <code>Il doppio è 42</code> (con il doppio del numero).`,
-    starter: `# Chiedi finché il numero non è valido\n\n`,
-    solution: `while True:
-    try:
-        n = int(input("Un numero: "))
-        break
-    except ValueError:
-        print("Non è un numero, riprova.")
-print(f"Il doppio è {n * 2}")`,
-    hints: ["Dove va il break: prima o dopo la riga che può fallire? Cosa succede alle righe del try dopo quella che dà errore?",
-      "while True; dentro, un try con la conversione dell'input in numero seguita dal break, e un except ValueError con il messaggio. Dopo il ciclo, il print del doppio."],
-    check: (o, c, x) => /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === retry("it", x.inputs),
-    expect: (x) => retry("it", x.inputs),
-    tests: (c) => [["x", "y", "5"], ["7"]].map((ins) => tcase(c, (o) => o === retry("it", ins), `con ${ins.join(", ")} doveva finire con ${retry("it", ins).split("\n").pop()}`, { inputs: ins }))
+`<p>Quando una riga del <code>try</code> fallisce, Python salta subito all'<code>except</code>: le righe del <code>try</code> sotto di lei non vengono eseguite. Poi il programma continua dopo l'<code>except</code>. Qui escono <code>Quello non è un numero</code> e <code>Il programma continua</code>.</p>
+<p>Dopo <code>except</code> scrivi il nome dell'errore da intercettare, lo stesso che leggi nell'ultima riga del messaggio: <code>ValueError</code> quando un testo non diventa un numero, <code>ZeroDivisionError</code> quando dividi per zero, e così via. È utilissimo con <code>input()</code>: se l'utente scrive lettere invece di un numero, <code>int()</code> dà un <code>ValueError</code>, e tu puoi rispondere con un messaggio invece di fermarti.</p>`],
+    task: `Chiedi all'utente in che anno è nato e stampa <code>Nel 2040 avrai 30 anni</code> (con il conto giusto). Se invece di un numero scrive qualcos'altro, il programma non deve fermarsi con un errore: stampa <code>Scrivi l'anno in cifre</code>. In tutti e due i casi, alla fine stampa <code>Grazie!</code>. Proverò con più risposte.`,
+    starter: `# Chiedi l'anno di nascita\n\n`,
+    solution: `try:
+    anno = int(input("In che anno sei nato? "))
+    print(f"Nel 2040 avrai {2040 - anno} anni")
+except ValueError:
+    print("Scrivi l'anno in cifre")
+print("Grazie!")`,
+    hints: ["Quale riga può fallire? E la riga che usa l'anno, dove deve stare, visto che se la conversione fallisce l'anno non c'è?",
+      "Nel try metti la conversione dell'input in numero e, subito sotto, il print con il conto; nell'except ValueError il messaggio. Il Grazie! va dopo, senza rientro, così compare sempre."],
+    check: (o, c, x) => /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === yearIn("it", x.inputs),
+    expect: (x) => yearIn("it", x.inputs),
+    tests: (c) => [["2000"], ["duemila"], ["2040"]].map((ins) => tcase(c, (o) => o === yearIn("it", ins), `rispondendo ${ins[0]} doveva stampare ${yearIn("it", ins).replace("\n", " e poi ")}`, { inputs: ins }))
   },
   en: {
     title: "Handling errors",
-    sample: ["hello", "21"],
+    sample: ["2010"],
     theory: [
 `<p>With <code>try</code> and <code>except</code> you can catch an error and decide what to do yourself, instead of letting the program stop. In the <code>try</code> block go the lines that might fail; in the <code>except</code> block, what to do if they fail.</p>`,
 { code: `try:
     n = int("hello")
+    print("This line gets skipped")
 except ValueError:
     print("That's not a number")
 print("The program carries on")` },
-`<p>After <code>except</code> you write the name of the error to catch, the same one you read on the last line of the message: <code>ValueError</code> when some text doesn't become a number, <code>ZeroDivisionError</code> when you divide by zero, and so on.</p>
-<p>It's really useful with <code>input()</code>: if the user types letters instead of a number, <code>int()</code> gives a <code>ValueError</code>. Together with a <code>while True</code>, you can ask for the number again until it's valid.</p>`],
-    task: `Ask for a number until the user types a valid one: after each wrong try print <code>Not a number, try again.</code>. When it's valid, print <code>Double is 42</code> (with double the number).`,
-    starter: `# Ask until the number is valid\n\n`,
-    solution: `while True:
+`<p>When a line in the <code>try</code> fails, Python jumps straight to the <code>except</code>: the lines of the <code>try</code> below it don't run. Then the program carries on after the <code>except</code>. Here the output is <code>That's not a number</code> and <code>The program carries on</code>.</p>
+<p>After <code>except</code> you write the name of the error to catch, the same one you read on the last line of the message: <code>ValueError</code> when some text doesn't become a number, <code>ZeroDivisionError</code> when you divide by zero, and so on. It's really useful with <code>input()</code>: if the user types letters instead of a number, <code>int()</code> gives a <code>ValueError</code>, and you can answer with a message instead of stopping.</p>`],
+    task: `Ask the user what year they were born and print <code>In 2040 you'll be 30</code> (with the right sum). If they type something other than a number, the program must not stop with an error: print <code>Write the year in digits</code>. Either way, at the end print <code>Thanks!</code>. I'll try several answers.`,
+    starter: `# Ask for the year of birth\n\n`,
+    solution: `try:
+    year = int(input("What year were you born? "))
+    print(f"In 2040 you'll be {2040 - year}")
+except ValueError:
+    print("Write the year in digits")
+print("Thanks!")`,
+    hints: ["Which line can fail? And the line that uses the year, where should it go, given that if the conversion fails there's no year?",
+      "In the try put the conversion of the input to a number and, right below, the print with the sum; in the except ValueError the message. The Thanks! goes after, without indentation, so it always shows."],
+    check: (o, c, x) => /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === yearIn("en", x.inputs),
+    expect: (x) => yearIn("en", x.inputs),
+    tests: (c) => [["2000"], ["two thousand"], ["2040"]].map((ins) => tcase(c, (o) => o === yearIn("en", ins), `answering ${ins[0]} it had to print ${yearIn("en", ins).replace("\n", " and then ")}`, { inputs: ins }))
+  }
+},
+{
+  id: "retry", teaches: ["retryloop"], sample: ["tre", "12", "3"],
+  it: {
+    title: "Chiedere finché va bene",
+    theory: [
+`<p>Ora unisci due cose che conosci: <code>while True</code>, che ripete, e <code>try</code>, che intercetta l'errore. Il <code>break</code> va nel <code>try</code>, subito dopo la riga che può fallire.</p>`,
+{ code: `while True:
     try:
-        n = int(input("A number: "))
+        eta = int(input("Quanti anni hai? "))
         break
     except ValueError:
+        print("Scrivi l'età in cifre")
+print("Tra un anno ne avrai", eta + 1)` },
+`<p>Segui due risposte. Se scrivi <code>dieci</code>, <code>int()</code> fallisce: il <code>break</code> viene saltato, parte l'<code>except</code> e il ciclo ricomincia con la domanda. Se scrivi <code>10</code>, <code>int()</code> riesce, il <code>break</code> esce dal ciclo e si arriva all'ultima riga, con <code>eta</code> pronta da usare.</p>
+<p>Dentro una funzione, al posto del <code>break</code> puoi scrivere <code>return</code>: la funzione finisce, e il ciclo con lei.</p>`],
+    task: `Chiedi quanti biglietti vuole l'utente, da 1 a 10, finché la risposta va bene. Se non è un numero stampa <code>Non è un numero, riprova.</code>; se è un numero fuori da 1-10 stampa <code>Da 1 a 10, riprova.</code>. Quando va bene, stampa <code>Totale: 15 euro</code> (ogni biglietto costa 5 euro). Proverò con tante risposte.`,
+    starter: `# Chiedi i biglietti finché la risposta va bene\n\n`,
+    solution: `while True:
+    try:
+        biglietti = int(input("Quanti biglietti? "))
+        if biglietti >= 1 and biglietti <= 10:
+            break
+        print("Da 1 a 10, riprova.")
+    except ValueError:
+        print("Non è un numero, riprova.")
+print(f"Totale: {biglietti * 5} euro")`,
+    hints: ["Quando deve finire il ciclo: appena la risposta è un numero, o solo quando è anche tra 1 e 10? E dove va allora il break?",
+      "while True; nel try converti la risposta e, con un if, fai break solo se è tra 1 e 10, altrimenti stampa il messaggio del numero fuori campo; nell'except ValueError l'altro messaggio. Dopo il ciclo il totale, 5 euro a biglietto."],
+    check: (o, c, x) => /\bwhile\b/.test(c) && /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === tickets("it", x.inputs),
+    expect: (x) => tickets("it", x.inputs),
+    tests: (c) => [["x", "0", "3"], ["12", "dieci", "10"], ["1"]].map((ins) => tcase(c, (o) => o === tickets("it", ins), `con le risposte ${ins.join(", ")} doveva finire con ${tickets("it", ins).split("\n").pop()}`, { inputs: ins }))
+  },
+  en: {
+    title: "Ask until it's right",
+    sample: ["three", "12", "3"],
+    theory: [
+`<p>Now put together two things you know: <code>while True</code>, which repeats, and <code>try</code>, which catches the error. The <code>break</code> goes in the <code>try</code>, right after the line that can fail.</p>`,
+{ code: `while True:
+    try:
+        age = int(input("How old are you? "))
+        break
+    except ValueError:
+        print("Write your age in digits")
+print("In a year you'll be", age + 1)` },
+`<p>Follow two answers. If you type <code>ten</code>, <code>int()</code> fails: the <code>break</code> is skipped, the <code>except</code> runs and the loop starts again with the question. If you type <code>10</code>, <code>int()</code> works, the <code>break</code> leaves the loop and you reach the last line, with <code>age</code> ready to use.</p>
+<p>Inside a function, instead of <code>break</code> you can write <code>return</code>: the function ends, and the loop with it.</p>`],
+    task: `Ask how many tickets the user wants, from 1 to 10, until the answer is fine. If it isn't a number print <code>Not a number, try again.</code>; if it's a number outside 1-10 print <code>From 1 to 10, try again.</code>. When it's fine, print <code>Total: 15 euros</code> (each ticket costs 5 euros). I'll try lots of answers.`,
+    starter: `# Ask for the tickets until the answer is fine\n\n`,
+    solution: `while True:
+    try:
+        tickets = int(input("How many tickets? "))
+        if tickets >= 1 and tickets <= 10:
+            break
+        print("From 1 to 10, try again.")
+    except ValueError:
         print("Not a number, try again.")
-print(f"Double is {n * 2}")`,
-    hints: ["Where does the break go: before or after the line that can fail? What happens to the try's lines after the one that errors?",
-      "while True; inside, a try with the conversion of the input to a number followed by the break, and an except ValueError with the message. After the loop, the print of the double."],
-    check: (o, c, x) => /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === retry("en", x.inputs),
-    expect: (x) => retry("en", x.inputs),
-    tests: (c) => [["x", "y", "5"], ["7"]].map((ins) => tcase(c, (o) => o === retry("en", ins), `with ${ins.join(", ")} it had to end with ${retry("en", ins).split("\n").pop()}`, { inputs: ins }))
+print(f"Total: {tickets * 5} euros")`,
+    hints: ["When should the loop end: as soon as the answer is a number, or only when it's also between 1 and 10? So where does the break go?",
+      "while True; in the try convert the answer and, with an if, break only if it's between 1 and 10, otherwise print the out-of-range message; in the except ValueError the other message. After the loop the total, 5 euros a ticket."],
+    check: (o, c, x) => /\bwhile\b/.test(c) && /\btry\b/.test(c) && /except\s+ValueError/.test(c) && o === tickets("en", x.inputs),
+    expect: (x) => tickets("en", x.inputs),
+    tests: (c) => [["x", "0", "3"], ["12", "ten", "10"], ["1"]].map((ins) => tcase(c, (o) => o === tickets("en", ins), `with the answers ${ins.join(", ")} it had to end with ${tickets("en", ins).split("\n").pop()}`, { inputs: ins }))
   }
 },
 {
@@ -4984,7 +5167,7 @@ const C06 = [
   it: {
     title: "Classi: oggetti con i loro dati",
     theory: [
-`<p>Una <b>classe</b> è uno stampo per creare <b>oggetti</b>. Ogni oggetto ha i suoi dati, chiamati <b>attributi</b>. Il metodo speciale <code>__init__</code> prepara l'oggetto quando lo crei, e <code>self</code> è l'oggetto stesso: <code>self.nome = nome</code> salva il nome dentro l'oggetto.</p>`,
+`<p>Una <b>classe</b> è uno stampo per creare <b>oggetti</b>. Si scrive con la parola <code>class</code>, il nome (di solito con l'iniziale maiuscola) e i due punti; dentro, rientrate, ci sono le sue funzioni, che si chiamano <b>metodi</b>. Ogni oggetto ha i suoi dati, chiamati <b>attributi</b>. Il metodo speciale <code>__init__</code> prepara l'oggetto quando lo crei, e <code>self</code> è l'oggetto stesso: <code>self.nome = nome</code> salva il nome dentro l'oggetto.</p>`,
 { code: `class Gatto:
     def __init__(self, nome, eta):
         self.nome = nome
@@ -5340,7 +5523,8 @@ print(f"Balance: {account.balance}")`,
   it: {
     title: "Una squadra di oggetti",
     theory: [
-`<p>Gli oggetti si possono mettere in una lista e scorrere con un for, come qualsiasi altro valore. Così gestisci tanti giocatori, prodotti o personaggi con lo stesso codice.</p>`,
+`<p>Gli oggetti si possono mettere in una lista e scorrere con un for, come qualsiasi altro valore. Così gestisci tanti giocatori, prodotti o personaggi con lo stesso codice.</p>
+<p>Per trovare il migliore funziona lo schema del <b>migliore finora</b> che conosci dai cicli. Con gli oggetti c'è un vantaggio: la variabile può tenere tutto l'oggetto, non solo il numero, e alla fine hai insieme il nome e i punti.</p>`,
 { code: `class Pianeta:
     def __init__(self, nome, lune):
         self.nome = nome
@@ -5371,7 +5555,8 @@ print(f"Vince {migliore.nome} con {migliore.punti} punti")`,
   en: {
     title: "A team of objects",
     theory: [
-`<p>Objects can go in a list and be looped over with a for, like any other value. That way you handle lots of players, products or characters with the same code.</p>`,
+`<p>Objects can go in a list and be looped over with a for, like any other value. That way you handle lots of players, products or characters with the same code.</p>
+<p>To find the best one, the <b>best so far</b> pattern you know from loops works. With objects there's a bonus: the variable can hold the whole object, not just the number, so at the end you have the name and the points together.</p>`,
 { code: `class Planet:
     def __init__(self, name, moons):
         self.name = name
@@ -5854,17 +6039,17 @@ plt.show()`,
 /* ---------- The Python world: folders, files and the full list of levels ---------- */
 const LESSONS = [].concat(C00, C01, C02, C03, C04, C05, C06, CBONUS);
 const WORLDS = [
-  { id: "w0", dir: { it: "00_inizio", en: "00_start" }, mascot: "cursy", levels: ["print", "how", "rules", "comments", "errors", "ripasso0", "build0", "boss0"],
+  { id: "w0", dir: { it: "00_inizio", en: "00_start" }, mascot: "cursy", levels: ["print", "how", "errors", "rules", "comments", "ripasso0", "build0", "boss0"],
     it: { name: "Prima di iniziare", tag: "Come legge Python, print e le regole" }, en: { name: "Before you start", tag: "How Python reads, print and the rules" } },
   { id: "w1", dir: { it: "01_basi", en: "01_basics" }, mascot: "bit", levels: ["var", "num", "update", "cambia", "divmod", "fstr", "typeof", "types", "input", "ripasso1", "build1", "boss1"],
     it: { name: "Le basi", tag: "Variabili, conti, tipi e input" }, en: { name: "The basics", tag: "Variables, math, types and input" } },
-  { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "logic", "textcmp", "parity", "ripasso2", "build2", "boss2"],
+  { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "textcmp", "logic", "parity", "ripasso2", "build2", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
-  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
+  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "best", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
   { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "def0", "params", "def", "retq", "fcall", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
-  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "mod", "math", "comp", "ripasso5", "build5", "boss5"],
+  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "math", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori, moduli" }, en: { name: "Tools", tag: "Dictionaries, errors, modules" } },
   { id: "w6", dir: { it: "06_oggetti", en: "06_objects" }, mascot: "pip", levels: ["class", "method", "classq", "state", "objlist", "ripasso6", "final", "boss6"],
     it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
@@ -5886,7 +6071,7 @@ const FILE_BASE = {
   parity: ["pari_dispari.py", "even_odd.py"], ripasso2: ["ripasso.py", "review.py"], build2: ["costruisci_gioco.py", "build_game.py"],
   boss2: ["boss_termometro.py", "boss_thermometer.py"], for: ["for.py", "for.py"], step: ["passo.py", "step.py"],
   rangeq: ["prevedi_range.py", "predict_range.py"], count: ["contare.py", "counting.py"], list: ["liste.py", "lists.py"],
-  listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"],
+  listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"], best: ["il_migliore.py", "the_best.py"],
   index: ["posizioni.py", "positions.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
   ripasso3: ["ripasso.py", "review.py"], build3: ["costruisci_gioco.py", "build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
   str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"],
@@ -5894,7 +6079,7 @@ const FILE_BASE = {
   retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], ripasso4: ["ripasso.py", "review.py"],
   build4: ["costruisci_gioco.py", "build_game.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
   dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
-  try: ["try.py", "try.py"], mod: ["moduli_random.py", "random_module.py"], math: ["moduli_math.py", "math_module.py"],
+  try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], math: ["moduli_math.py", "math_module.py"],
   comp: ["liste_veloci.py", "comprehensions.py"], ripasso5: ["ripasso.py", "review.py"], build5: ["costruisci_gioco.py", "build_game.py"],
   boss5: ["boss_rubrica.py", "boss_phonebook.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
   classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
@@ -9323,7 +9508,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "cc428978a8", APP_BUILT = "2026-11-08T20:47Z";
+const APP_VERSION = "82ad2d929a", APP_BUILT = "2026-11-08T21:08Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
