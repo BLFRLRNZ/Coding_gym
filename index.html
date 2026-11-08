@@ -414,6 +414,7 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .ln-n { flex: none; min-width: 1.5em; margin-right: 10px; text-align: right; font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted); }
 .spot-ln:not(:disabled):hover, .ord-pool .ord-ln:hover { border-color: var(--accent); }
 .spot-ln:not(:disabled) { cursor: pointer; }
+.spot-ln.blank, .spot-ln.blank:hover { cursor: default; border-color: transparent; min-height: 0; padding-top: 2px; padding-bottom: 2px; }
 .spot-ln.right { border-color: var(--ok); background: var(--ok-soft); }
 .spot-ln.wrong { border-color: var(--err); border-style: dashed; opacity: 0.6; }
 .ord { display: grid; gap: 8px; min-width: 0; }
@@ -2057,9 +2058,10 @@ print(f"In 10 years you will be {age + 10}")`,
     quiz: [
       { q: "Cosa stampa?", code: `x = 17
 print(x // 5, x % 5)`, options: ["3 2", "3.4 2", "3 0", "2 3"], correct: 0, explain: "17 diviso 5 fa 3 con il resto di 2: // dà il 3, % dà il 2." },
-      { q: "Python si ferma alla riga 2 con un errore. Quale riga va corretta?", code: `eta = input("Quanti anni hai? ")
-print(eta + 1)`, spot: true, correct: 0,
-        explain: "L'errore compare alla riga 2, ma la causa è alla riga 1: input() dà testo, e testo più numero non si può fare. La correzione è int(input(...))." },
+      { q: "Python si ferma alla riga 2 con un errore. Quale riga va corretta perché tutto il programma funzioni con una modifica sola?", code: `eta = input("Quanti anni hai? ")
+print("Tra 5 anni:", eta + 5)
+print("Tra 10 anni:", eta + 10)`, spot: true, correct: 0,
+        explain: "L'errore compare alla riga 2, ma la causa è alla riga 1: input() dà testo, e testo più numero non si può fare. Con int(input(...)) alla riga 1 funzionano tutte e due le righe dopo; correggendo solo la riga 2, Python si fermerebbe alla 3." },
       { q: "Quale nome di variabile è valido?", options: ["nome utente", "2giocatori", "nome-utente", "nome_utente"], correct: 3,
         explain: "Niente spazi, niente trattini (sono un meno!) e niente numero all'inizio: il trattino basso va benissimo." },
       { q: "Cosa stampa?", code: `prezzo = 3
@@ -2078,9 +2080,10 @@ print(7 / 2 + 0.5)`, options: ["<class 'float'>\n4.0", "<class 'int'>\n4", "<cla
     quiz: [
       { q: "What does it print?", code: `x = 17
 print(x // 5, x % 5)`, options: ["3 2", "3.4 2", "3 0", "2 3"], correct: 0, explain: "17 divided by 5 is 3 with a remainder of 2: // gives the 3, % gives the 2." },
-      { q: "Python stops on line 2 with an error. Which line needs fixing?", code: `age = input("How old are you? ")
-print(age + 1)`, spot: true, correct: 0,
-        explain: "The error shows up on line 2, but the cause is on line 1: input() gives text, and text plus a number can't be done. The fix is int(input(...))." },
+      { q: "Python stops on line 2 with an error. Which line needs fixing so that the whole program works with a single change?", code: `age = input("How old are you? ")
+print("In 5 years:", age + 5)
+print("In 10 years:", age + 10)`, spot: true, correct: 0,
+        explain: "The error shows up on line 2, but the cause is on line 1: input() gives text, and text plus a number can't be done. With int(input(...)) on line 1 both lines after it work; fixing only line 2, Python would stop at line 3." },
       { q: "Which variable name is valid?", options: ["user name", "2players", "user-name", "user_name"], correct: 3,
         explain: "No spaces, no hyphens (they're a minus!) and no number at the start: the underscore is perfectly fine." },
       { q: "What does it print?", code: `price = 3
@@ -4308,7 +4311,7 @@ print(segno(3), segno(-1))`, options: ["più meno", "più più", "meno meno", "N
     messaggio = "Ciao " + nome
 
 print(saluta("Ada"))`, spot: true, correct: 1,
-        explain: "La funzione costruisce il messaggio ma non lo restituisce: la riga 2 dovrebbe essere un return (o serve return messaggio subito sotto)." },
+        explain: "La funzione costruisce il messaggio ma non lo restituisce, quindi la chiamata vale None: la riga 2 deve diventare un return, per esempio return \"Ciao \" + nome." },
       { q: "Cosa stampa?", code: `conta = 0
 for c in "mississippi":
     if c == "s":
@@ -4336,7 +4339,7 @@ print(sign(3), sign(-1))`, options: ["plus minus", "plus plus", "minus minus", "
     message = "Hi " + name
 
 print(greet("Ada"))`, spot: true, correct: 1,
-        explain: "The function builds the message but doesn't give it back: line 2 should be a return (or return message is needed right below)." },
+        explain: "The function builds the message but doesn't give it back, so the call is worth None: line 2 must become a return, for example return \"Hi \" + name." },
       { q: "What does it print?", code: `count = 0
 for c in "mississippi":
     if c == "s":
@@ -4539,7 +4542,7 @@ auto["colore"] = "rosso"    # aggiunge una chiave nuova
 print(len(auto))            # 3 coppie
 print(auto)` },
 `<p>Dentro una f-string, per leggere una chiave usa le virgolette dell'altro tipo, <code>f"{auto['marca']}"</code>, perché quelle doppie chiudono già la stringa.</p>`],
-    task: `Il personaggio prende un colpo da 30 punti (togli 30 alla <code>vita</code>), sale di un <code>livello</code> e trova un'<code>arma</code>: aggiungi la chiave con il valore <code>spada</code>. Poi stampa <code>Kai ha 70 punti vita</code> leggendo i dati dal dizionario, e il numero di chiavi: <code>4</code>. Alla fine controllerò anche cosa c'è nel dizionario.`,
+    task: `Il personaggio prende un colpo da 30 punti (togli 30 alla <code>vita</code>), sale di un <code>livello</code> e trova un'arma: aggiungi la chiave <code>arma</code> con il valore <code>spada</code>. Poi stampa <code>Kai ha 70 punti vita</code> leggendo i dati dal dizionario, e il numero di chiavi: <code>4</code>. Alla fine controllerò anche cosa c'è nel dizionario.`,
     starter: `eroe = {"nome": "Kai", "vita": 100, "livello": 3}\n\n`,
     solution: `eroe = {"nome": "Kai", "vita": 100, "livello": 3}
 
@@ -4565,7 +4568,7 @@ car["colour"] = "red"       # adds a new key
 print(len(car))             # 3 pairs
 print(car)` },
 `<p>Inside an f-string, to read a key use the other kind of quotes, <code>f"{car['make']}"</code>, because the double ones already close the string.</p>`],
-    task: `The character takes a 30-point hit (take 30 off <code>life</code>), goes up a <code>level</code> and finds a <code>weapon</code>: add the key with the value <code>sword</code>. Then print <code>Kai has 70 life points</code> reading the data from the dictionary, and the number of keys: <code>4</code>. At the end I'll also check what's in the dictionary.`,
+    task: `The character takes a 30-point hit (take 30 off <code>life</code>), goes up a <code>level</code> and finds a weapon: add the key <code>weapon</code> with the value <code>sword</code>. Then print <code>Kai has 70 life points</code> reading the data from the dictionary, and the number of keys: <code>4</code>. At the end I'll also check what's in the dictionary.`,
     starter: `hero = {"name": "Kai", "life": 100, "level": 3}\n\n`,
     solution: `hero = {"name": "Kai", "life": 100, "level": 3}
 
@@ -5135,7 +5138,7 @@ print(doppi)` },
 `<p>Puoi anche filtrare, aggiungendo un if in fondo:</p>`,
 { code: `pari = [n for n in range(10) if n % 2 == 0]
 print(pari)` }],
-    task: `Dalle temperature della settimana crea con due list comprehension: la lista dei giorni caldi (sopra i 27 gradi) e la lista di tutte le temperature in Fahrenheit (gradi per 9, diviso 5, più 32). Stampale: <code>[31, 35, 28]</code> e <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
+    task: `Dalle temperature della settimana crea con due list comprehension: la lista delle temperature calde (sopra i 27 gradi) e la lista di tutte le temperature in Fahrenheit (gradi per 9, diviso 5, più 32). Stampale: <code>[31, 35, 28]</code> e <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
     starter: `temperature = [18, 25, 31, 22, 35, 28]\n\n`,
     solution: `temperature = [18, 25, 31, 22, 35, 28]
 
@@ -5164,7 +5167,7 @@ print(doubles)` },
 `<p>You can also filter, adding an if at the end:</p>`,
 { code: `evens = [n for n in range(10) if n % 2 == 0]
 print(evens)` }],
-    task: `From the week's temperatures build, with two list comprehensions: the list of hot days (over 27 degrees) and the list of all the temperatures in Fahrenheit (degrees times 9, divided by 5, plus 32). Print them: <code>[31, 35, 28]</code> and <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
+    task: `From the week's temperatures build, with two list comprehensions: the list of hot temperatures (over 27 degrees) and the list of all the temperatures in Fahrenheit (degrees times 9, divided by 5, plus 32). Print them: <code>[31, 35, 28]</code> and <code>[64.4, 77.0, 87.8, 71.6, 95.0, 82.4]</code>.`,
     starter: `temperatures = [18, 25, 31, 22, 35, 28]\n\n`,
     solution: `temperatures = [18, 25, 31, 22, 35, 28]
 
@@ -5193,10 +5196,10 @@ print(d)`, options: ["{'a': 1, 'b': 6}", "{'a': 1, 'b': 5}", "{'b': 6}", "{'a': 
 except ValueError:
     print("non è un numero")
 print("fine")`, options: ["non è un numero\nfine", "non è un numero", "fine", "3\nfine"], correct: 0, explain: "int(\"tre\") non può diventare un numero: il ValueError viene intercettato, parte il blocco except e poi il programma continua con fine." },
-      { q: "Python si ferma con un KeyError alla riga 3. Quale riga va corretta?", code: `rubrica = {"Ada": "333"}
+      { q: "Python si ferma con un KeyError alla riga 3. La rubrica è scritta bene: quale riga va corretta?", code: `rubrica = {"Ada": "333", "Bob": "444"}
 nome = "ada"
 print(rubrica[nome])`, spot: true, correct: 1,
-        explain: "La chiave è \"Ada\" con la maiuscola: il nome sbagliato nasce alla riga 2." },
+        explain: "Nella rubrica i nomi hanno la maiuscola, e \"ada\" non è \"Ada\": il nome sbagliato nasce alla riga 2, ed è lì che va corretto." },
       { q: "Cosa stampa?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) dà 0, 1, 2, 3; il filtro tiene i dispari, 1 e 3, che diventano 10 e 30." },
       { q: "Cosa stampa?", code: `import math
 print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) arrotonda pi greco a una cifra dopo la virgola: 3.1. Per 2 fa 6.2." }]
@@ -5214,10 +5217,10 @@ print(d)`, options: ["{'a': 1, 'b': 6}", "{'a': 1, 'b': 5}", "{'b': 6}", "{'a': 
 except ValueError:
     print("not a number")
 print("done")`, options: ["not a number\ndone", "not a number", "done", "3\ndone"], correct: 0, explain: "int(\"three\") can't become a number: the ValueError is caught, the except block runs and then the program carries on with done." },
-      { q: "Python stops with a KeyError on line 3. Which line needs fixing?", code: `phonebook = {"Ada": "333"}
+      { q: "Python stops with a KeyError on line 3. The phone book is written correctly: which line needs fixing?", code: `phonebook = {"Ada": "333", "Bob": "444"}
 name = "ada"
 print(phonebook[name])`, spot: true, correct: 1,
-        explain: "The key is \"Ada\" with a capital: the wrong name comes from line 2." },
+        explain: "In the phone book the names have a capital, and \"ada\" isn't \"Ada\": the wrong name comes from line 2, and that's where it needs fixing." },
       { q: "What does it print?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) gives 0, 1, 2, 3; the filter keeps the odd ones, 1 and 3, which become 10 and 30." },
       { q: "What does it print?", code: `import math
 print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) rounds pi to one digit after the point: 3.1. Times 2 is 6.2." }]
@@ -9105,6 +9108,8 @@ function quizHtml(L) {
   let ask;
   if (q.spot) {
     ask = `<div class="spot">${q.code.split("\n").map((ln, k) => {
+      /* an empty line is only spacing: there's nothing on it to fix, so it can't be tapped */
+      if (!ln.trim()) return `<div class="spot-ln blank" aria-hidden="true"><span class="ln-n">${k + 1}</span><code> </code></div>`;
       const cls = qs.solved && k === q.correct ? "right" : qs.wrong.includes(k) ? "wrong" : "";
       return `<button class="spot-ln ${cls}" data-q="${k}" ${qs.solved || qs.wrong.includes(k) ? "disabled" : ""} aria-label="${escHtml(t("ordLine", k + 1, ln.trim()))}"><span class="ln-n" aria-hidden="true">${k + 1}</span><code>${highlight(ln)}</code></button>`;
     }).join("")}</div>`;
@@ -10024,7 +10029,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "dc4fc0a679", APP_BUILT = "2026-11-08T22:23Z";
+const APP_VERSION = "6ec581af4b", APP_BUILT = "2026-11-08T22:41Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
