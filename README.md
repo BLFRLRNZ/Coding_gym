@@ -20,8 +20,8 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 - **Editor con colori della sintassi**, numeri di riga, rientro automatico dopo i due punti, Tab e Maiusc+Tab per spostare blocchi di righe.
 - **Terminale interattivo**: scrivi Python dopo `>>>` e premi Invio, come nel vero interprete. Dopo aver eseguito un programma, le sue variabili restano disponibili nel terminale. Frecce su/giù per i comandi precedenti, Ctrl+C per fermare, Ctrl+L per pulire.
 - **Lezioni** su: `print`, commenti, leggere gli errori, variabili, numeri, `//` e `%`, f-string, tipi, `input`, booleani, `if/elif/else`, `and/or/not`, `for` e `range`, contatori, liste e indici, `while` e `break`, stringhe e metodi, funzioni, parametri, `return`, dizionari, `try/except`, moduli `math` e `random`, list comprehension, classi e oggetti, più due bonus su `numpy` e `matplotlib`. Ogni lezione spiega una o due idee e le fa usare subito; niente viene usato prima di essere spiegato.
-- **Esempi eseguibili** in ogni lezione con il pulsante ▶ Prova.
-- **Correzione automatica** degli esercizi, con verifiche nascoste su altri valori e altre risposte a `input()`, così le risposte scritte "a mano" non passano; nei giochi con numeri casuali le verifiche truccano i dadi. Quando manca qualcosa, il livello lo dice a parole.
+- **Esempi da modificare e provare** in ogni lezione: cambi il codice dell'esempio e premi ▶ Prova; con ↺ Originale torna com'era.
+- **Correzione automatica** degli esercizi, con verifiche su altri valori e altre risposte a `input()`, così le risposte scritte "a mano" non passano; nei giochi con numeri casuali le verifiche truccano i dadi. Ogni compito dice sempre se verrà provato anche con altri valori. Quando manca qualcosa, il livello lo dice a parole.
 - **Errori in stile Python** (traceback con riga e codice) con una spiegazione in italiano, e la riga sbagliata evidenziata nell'editor.
 - **Barra dei simboli** sul telefono per scrivere `( ) : " [ ] { } =` senza cercarli sulla tastiera.
 - Tema chiaro/scuro, dimensione del testo regolabile.
@@ -70,8 +70,8 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 - **Editor with syntax colors**, line numbers, auto-indent after a colon, Tab and Shift+Tab to move blocks of lines.
 - **Interactive terminal**: type Python after `>>>` and press Enter, like the real interpreter. After you run a program, its variables stay available in the terminal. Up/down arrows for previous commands, Ctrl+C to stop, Ctrl+L to clear.
 - **Lessons** on: `print`, comments, reading errors, variables, numbers, `//` and `%`, f-strings, types, `input`, booleans, `if/elif/else`, `and/or/not`, `for` and `range`, counters, lists and indexes, `while` and `break`, strings and methods, functions, parameters, `return`, dictionaries, `try/except`, the `math` and `random` modules, list comprehensions, classes and objects, plus two bonus levels on `numpy` and `matplotlib`. Every lesson explains one or two ideas and puts them to use right away; nothing is used before it's explained.
-- **Runnable examples** in every lesson with the ▶ Try it button.
-- **Automatic checking** of exercises, with hidden checks on other values and other answers to `input()`, so hard-coded answers don't pass; in games with random numbers the checks load the dice. When something is missing, the level says so in words.
+- **Examples to edit and try** in every lesson: change the example's code and press ▶ Try it; ↺ Original puts it back as it was.
+- **Automatic checking** of exercises, with checks on other values and other answers to `input()`, so hard-coded answers don't pass; in games with random numbers the checks load the dice. Every task always says whether it will also be tried with other values. When something is missing, the level says so in words.
 - **Python-style errors** (traceback with line and code) with a plain-language explanation, and the wrong line highlighted in the editor.
 - **Symbol bar** on phones to type `( ) : " [ ] { } =` without hunting for them on the keyboard.
 - Light/dark theme, adjustable text size.

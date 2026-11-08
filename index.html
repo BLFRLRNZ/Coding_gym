@@ -138,7 +138,17 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 code { font-family: var(--f-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
 .ex { background: var(--code-bg); border-radius: 8px; overflow: hidden; }
 .ex pre, .hintbox pre { margin: 0; font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.6; padding: 10px 12px; overflow-x: auto; white-space: pre; font-variant-ligatures: none; }
-.ex-foot { display: flex; justify-content: flex-end; padding: 0 8px 8px; }
+/* an example is a small editor: the highlighted copy gives the size, the transparent textarea on top takes the typing */
+.ex-code { position: relative; }
+.ex .ex-hl, .ex-ta { font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.6; padding: 10px 12px 14px; tab-size: 4; letter-spacing: 0;
+  font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; white-space: pre; }
+.ex .ex-hl { overflow: hidden; pointer-events: none; }
+.ex-ta { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 8px; resize: none; outline: none;
+  overflow-x: auto; overflow-y: hidden; overflow-wrap: normal; word-break: normal;
+  background: transparent; color: transparent; -webkit-text-fill-color: transparent; caret-color: var(--ink); }
+.ex-ta::selection { background: var(--sel); }
+.ex-ta:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
+.ex-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 0 8px 8px; }
 .task { border-left: 3px solid var(--mustard); padding: 4px 0 4px 14px; display: grid; gap: 4px; }
 .task .eyebrow { color: var(--mustard); }
 .task p { margin: 0; }
@@ -1222,7 +1232,7 @@ const C00 = [
 <p>La prima istruzione è <code>print()</code>: mostra nel terminale quello che metti tra le parentesi. Il testo va tra virgolette e in Python si chiama <b>stringa</b>. I numeri e i calcoli si scrivono senza virgolette: Python fa il conto e stampa il risultato.</p>`,
 { code: `print("Buongiorno")
 print(3 + 4)` },
-`<p>Ogni <code>print</code> stampa una riga: qui escono <code>Buongiorno</code> e poi <code>7</code>. Premi <b>▶ Prova</b> sotto l'esempio per vederlo girare nel terminale.</p>
+`<p>Ogni <code>print</code> stampa una riga: qui escono <code>Buongiorno</code> e poi <code>7</code>. Premi <b>▶ Prova</b> sotto l'esempio per vederlo girare nel terminale. Puoi anche cambiarlo: tocca il codice, modificalo e premi di nuovo <b>▶ Prova</b>; con <b>↺ Originale</b> torni all'esempio di partenza.</p>
 <p>Nel terminale puoi anche provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>; per superare il livello, però, conta il codice dell'editor.</p>`],
     task: `Stampa due righe: prima <code>Ciao, mondo!</code>, poi il risultato di <code>100 + 23</code> calcolato da Python, senza scrivere 123 a mano.`,
     starter: ``,
@@ -1240,7 +1250,7 @@ print(100 + 23)`,
 <p>The first instruction is <code>print()</code>: it shows in the terminal whatever you put between the parentheses. Text goes between quotes and in Python it's called a <b>string</b>. Numbers and calculations are written without quotes: Python does the math and prints the result.</p>`,
 { code: `print("Good morning")
 print(3 + 4)` },
-`<p>Each <code>print</code> prints one line: here you get <code>Good morning</code> and then <code>7</code>. Press <b>▶ Try it</b> under the example to run it in the terminal.</p>
+`<p>Each <code>print</code> prints one line: here you get <code>Good morning</code> and then <code>7</code>. Press <b>▶ Try it</b> under the example to run it in the terminal. You can also change it: tap the code, edit it and press <b>▶ Try it</b> again; <b>↺ Original</b> brings back the starting example.</p>
 <p>In the terminal you can also try one instruction at a time after <code>&gt;&gt;&gt;</code>; to pass the level, though, what counts is the code in the editor.</p>`],
     task: `Print two lines: first <code>Hello, world!</code>, then the result of <code>100 + 23</code> worked out by Python, without typing 123 yourself.`,
     starter: ``,
@@ -1635,7 +1645,7 @@ print(2 + 3 * 4) # 14: prima la moltiplicazione
 print(1.5 * 2)   # 3.0` },
 `<p>Come in matematica, <code>*</code> e <code>/</code> vengono prima di <code>+</code> e <code>-</code>; con le parentesi decidi tu l'ordine: <code>(2 + 3) * 4</code> fa 20. I numeri con la virgola si scrivono con il <b>punto</b>, e la divisione <code>/</code> dà sempre un numero con la virgola: <code>10 / 2</code> fa <code>5.0</code>.</p>
 <p>Puoi fare i conti anche con le variabili.</p>`],
-    task: `Un rettangolo è largo <code>base</code> e alto <code>altezza</code>. Usando le variabili, stampa su quattro righe: l'area (base per altezza), il perimetro (il doppio di base più altezza), metà dell'area e il quadrato della base. Con i valori dati deve uscire <code>42</code>, <code>26</code>, <code>21.0</code> e <code>49</code>.`,
+    task: `Un rettangolo è largo <code>base</code> e alto <code>altezza</code>. Usando le variabili, stampa su quattro righe: l'area (base per altezza), il perimetro (il doppio di base più altezza), metà dell'area e il quadrato della base. Con i valori dati deve uscire <code>42</code>, <code>26</code>, <code>21.0</code> e <code>49</code>. Proverò anche con altre misure.`,
     starter: `base = 7\naltezza = 6\n\n`,
     solution: `base = 7
 altezza = 6
@@ -1663,7 +1673,7 @@ print(2 + 3 * 4) # 14: multiplication first
 print(1.5 * 2)   # 3.0` },
 `<p>As in math, <code>*</code> and <code>/</code> come before <code>+</code> and <code>-</code>; with parentheses you choose the order: <code>(2 + 3) * 4</code> is 20. Decimal numbers use a <b>dot</b>, and division <code>/</code> always gives a decimal number: <code>10 / 2</code> is <code>5.0</code>.</p>
 <p>You can do math with variables too.</p>`],
-    task: `A rectangle is <code>width</code> wide and <code>height</code> tall. Using the variables, print on four lines: the area (width times height), the perimeter (twice width plus height), half the area and the square of the width. With the given values the output must be <code>42</code>, <code>26</code>, <code>21.0</code> and <code>49</code>.`,
+    task: `A rectangle is <code>width</code> wide and <code>height</code> tall. Using the variables, print on four lines: the area (width times height), the perimeter (twice width plus height), half the area and the square of the width. With the given values the output must be <code>42</code>, <code>26</code>, <code>21.0</code> and <code>49</code>. I'll also try other sizes.`,
     starter: `width = 7\nheight = 6\n\n`,
     solution: `width = 7
 height = 6
@@ -1801,7 +1811,7 @@ amici = 5
 print(fette // amici)   # 3 fette a testa
 print(fette % amici)    # ne avanzano 2` },
 `<p>Il resto è utilissimo: <code>numero % 2</code> fa 0 se il numero è pari e 1 se è dispari; <code>numero % 10</code> ti dà l'ultima cifra.</p>`],
-    task: `Completa il programma al posto dei <code>___</code>: deve trasformare i minuti in ore e minuti. Con 135 minuti deve stampare <code>2 ore e 15 minuti</code>.`,
+    task: `Completa il programma al posto dei <code>___</code>: deve trasformare i minuti in ore e minuti. Con 135 minuti deve stampare <code>2 ore e 15 minuti</code>. Proverò anche con un altro numero di minuti.`,
     starter: `minuti_totali = 135\n\nore = minuti_totali ___ 60\nminuti = minuti_totali ___ 60\nprint(ore, "ore e", minuti, "minuti")\n`,
     solution: `minuti_totali = 135
 
@@ -1823,7 +1833,7 @@ friends = 5
 print(slices // friends)   # 3 slices each
 print(slices % friends)    # 2 left over` },
 `<p>The remainder is really useful: <code>number % 2</code> is 0 if the number is even and 1 if it's odd; <code>number % 10</code> gives you the last digit.</p>`],
-    task: `Fill in the <code>___</code>: the program must turn minutes into hours and minutes. With 135 minutes it must print <code>2 hours and 15 minutes</code>.`,
+    task: `Fill in the <code>___</code>: the program must turn minutes into hours and minutes. With 135 minutes it must print <code>2 hours and 15 minutes</code>. I'll also try another number of minutes.`,
     starter: `total_minutes = 135\n\nhours = total_minutes ___ 60\nminutes = total_minutes ___ 60\nprint(hours, "hours and", minutes, "minutes")\n`,
     solution: `total_minutes = 135
 
@@ -1850,7 +1860,7 @@ pezzi = 3
 print(f"{nome} ha mangiato {pezzi} pezzi di pizza")
 print(f"Il doppio di {pezzi} è {pezzi * 2}")` },
 `<p>Attenzione: <code>"Ho " + 3</code> dà errore, perché non si possono sommare testo e numero. Con le f-string il problema non c'è.</p>`],
-    task: `Con una f-string stampa <code>Luca quest'anno compie 18 anni</code>, facendo calcolare l'età a Python dalle variabili <code>anno</code> e <code>nato</code>.`,
+    task: `Con una f-string stampa <code>Luca quest'anno compie 18 anni</code>, facendo calcolare l'età a Python dalle variabili <code>anno</code> e <code>nato</code>. Proverò anche con un altro anno di nascita.`,
     starter: `nome = "Luca"\nnato = 2008\nanno = 2026\n\n`,
     solution: `nome = "Luca"
 nato = 2008
@@ -1874,7 +1884,7 @@ slices = 3
 print(f"{name} ate {slices} slices of pizza")
 print(f"Double {slices} is {slices * 2}")` },
 `<p>Careful: <code>"I am " + 3</code> gives an error, because you can't add text and a number. With f-strings that problem doesn't exist.</p>`],
-    task: `With an f-string print <code>This year Luca turns 18</code>, letting Python work out the age from the variables <code>year</code> and <code>born</code>.`,
+    task: `With an f-string print <code>This year Luca turns 18</code>, letting Python work out the age from the variables <code>year</code> and <code>born</code>. I'll also try another year of birth.`,
     starter: `name = "Luca"\nborn = 2008\nyear = 2026\n\n`,
     solution: `name = "Luca"
 born = 2008
@@ -1958,7 +1968,7 @@ print(d)`,
 { code: `eta = "17"
 print(int(eta) + 1)
 print("Hai " + str(18) + " anni")` }],
-    task: `<code>prezzo</code> e <code>quantita</code> sono scritti come testo. Calcola il totale (prezzo per quantità) convertendoli in numeri e salvalo in <code>totale</code>. Poi stampa <code>Totale: 13.5</code> unendo testo e numero con <code>+</code>, e sulla riga dopo il tipo di <code>totale</code>.`,
+    task: `<code>prezzo</code> e <code>quantita</code> sono scritti come testo. Calcola il totale (prezzo per quantità) convertendoli in numeri e salvalo in <code>totale</code>. Poi stampa <code>Totale: 13.5</code> unendo testo e numero con <code>+</code>, e sulla riga dopo il tipo di <code>totale</code>. Proverò anche con un'altra quantità.`,
     starter: `prezzo = "4.5"\nquantita = "3"\n\n`,
     solution: `prezzo = "4.5"
 quantita = "3"
@@ -1983,7 +1993,7 @@ print(type(totale))`,
 { code: `age = "17"
 print(int(age) + 1)
 print("You are " + str(18))` }],
-    task: `<code>price</code> and <code>quantity</code> are written as text. Work out the total (price times quantity) by converting them to numbers, and store it in <code>total</code>. Then print <code>Total: 13.5</code> joining text and number with <code>+</code>, and on the next line the type of <code>total</code>.`,
+    task: `<code>price</code> and <code>quantity</code> are written as text. Work out the total (price times quantity) by converting them to numbers, and store it in <code>total</code>. Then print <code>Total: 13.5</code> joining text and number with <code>+</code>, and on the next line the type of <code>total</code>. I'll also try another quantity.`,
     starter: `price = "4.5"\nquantity = "3"\n\n`,
     solution: `price = "4.5"
 quantity = "3"
@@ -2007,7 +2017,7 @@ print(type(total))`,
 { code: `colore = input("Colore preferito? ")
 print(f"Anche a me piace il {colore}")` },
 `<p><code>input()</code> restituisce sempre <b>testo</b>, anche se scrivi un numero. Per fare i conti dovrai convertirlo, come nella lezione sui tipi.</p>`],
-    task: `Chiedi all'utente quanti anni ha e stampa quanti ne avrà tra 10 anni, così: <code>Tra 10 anni avrai 30 anni</code> (se ha scritto 20). Quando esegui, rispondi nel terminale.`,
+    task: `Chiedi all'utente quanti anni ha e stampa quanti ne avrà tra 10 anni, così: <code>Tra 10 anni avrai 30 anni</code> (se ha scritto 20). Quando esegui, rispondi nel terminale. Proverò anche con altre età.`,
     starter: `# Chiedi l'età, poi fai il conto\n\n`,
     solution: `eta = int(input("Quanti anni hai? "))
 print(f"Tra 10 anni avrai {eta + 10} anni")`,
@@ -2024,7 +2034,7 @@ print(f"Tra 10 anni avrai {eta + 10} anni")`,
 { code: `colour = input("Favourite colour? ")
 print(f"I like {colour} too")` },
 `<p><code>input()</code> always returns <b>text</b>, even if you type a number. To do math you'll have to convert it, as in the lesson on types.</p>`],
-    task: `Ask the user how old they are and print how old they'll be in 10 years, like this: <code>In 10 years you will be 30</code> (if they typed 20). When you run it, answer in the terminal.`,
+    task: `Ask the user how old they are and print how old they'll be in 10 years, like this: <code>In 10 years you will be 30</code> (if they typed 20). When you run it, answer in the terminal. I'll also try other ages.`,
     starter: `# Ask the age, then do the math\n\n`,
     solution: `age = int(input("How old are you? "))
 print(f"In 10 years you will be {age + 10}")`,
@@ -2093,7 +2103,7 @@ Ciao Ada! Ho un numero segreto da 1 a 10.
 Il tuo numero? 5
 Hai scelto 5, il segreto era 7.
 Distanza: 2, punti: 8</pre>`],
-    task: `Scrivi il programma della partita: chiedi il nome, saluta, chiedi un numero, poi stampa il numero scelto con il segreto, e la distanza con i punti. Il segreto è nella variabile <code>segreto</code>.`,
+    task: `Scrivi il programma della partita: chiedi il nome, saluta, chiedi un numero, poi stampa il numero scelto con il segreto, e la distanza con i punti. Il segreto è nella variabile <code>segreto</code>. Proverò anche con altre risposte.`,
     starter: `segreto = 7\n\n`,
     solution: `segreto = 7
 
@@ -2119,7 +2129,7 @@ Hi Ada! I have a secret number from 1 to 10.
 Your number? 5
 You chose 5, the secret was 7.
 Distance: 2, points: 8</pre>`],
-    task: `Write the program for the game: ask the name, say hello, ask a number, then print the chosen number with the secret, and the distance with the points. The secret is in the variable <code>secret</code>.`,
+    task: `Write the program for the game: ask the name, say hello, ask a number, then print the chosen number with the secret, and the distance with the points. The secret is in the variable <code>secret</code>. I'll also try other answers.`,
     starter: `secret = 7\n\n`,
     solution: `secret = 7
 
@@ -2140,7 +2150,7 @@ print(f"Distance: {distance}, points: {10 - distance}")`,
   it: {
     title: "Il calcolo che non torna",
     theory: [`<p>Due bug. Il primo non dà errori, ma la frase esce strana; il secondo compare appena sistemi il primo, e blocca Python quando prova a sommare testo e numero. Esegui, rispondi alle domande e guarda cosa succede.</p>`],
-    task: `Correggi il programma: deve salutare per nome e dire quanti anni avrai tra 5 anni, per esempio <code>Ciao Ada</code> e <code>Tra 5 anni avrai 25 anni</code>.`,
+    task: `Correggi il programma: deve salutare per nome e dire quanti anni avrai tra 5 anni, per esempio <code>Ciao Ada</code> e <code>Tra 5 anni avrai 25 anni</code>. Proverò anche con altre risposte.`,
     starter: `nome = input("Come ti chiami? ")\nanni = input("Quanti anni hai? ")\nprint("Ciao " + nome)\nprint("Tra 5 anni avrai {anni + 5} anni")\n`,
     solution: `nome = input("Come ti chiami? ")
 anni = int(input("Quanti anni hai? "))
@@ -2155,7 +2165,7 @@ print(f"Tra 5 anni avrai {anni + 5} anni")`,
   en: {
     title: "The math that doesn't add up",
     theory: [`<p>Two bugs. The first gives no error, but the sentence comes out odd; the second shows up as soon as you fix the first, and stops Python when it tries to add text and a number. Run it, answer the questions and see what happens.</p>`],
-    task: `Fix the program: it must greet by name and say how old you'll be in 5 years, for example <code>Hi Ada</code> and <code>In 5 years you will be 25</code>.`,
+    task: `Fix the program: it must greet by name and say how old you'll be in 5 years, for example <code>Hi Ada</code> and <code>In 5 years you will be 25</code>. I'll also try other answers.`,
     starter: `name = input("What's your name? ")\nage = input("How old are you? ")\nprint("Hi " + name)\nprint("In 5 years you will be {age + 5}")\n`,
     solution: `name = input("What's your name? ")
 age = int(input("How old are you? "))
@@ -2190,7 +2200,7 @@ print(eta == 15)    # True: uguale
 print(eta != 15)    # False: diverso
 print(eta <= 15)    # True: minore o uguale` },
 `<p>I confronti: <code>==</code> uguale, <code>!=</code> diverso, <code>&gt;</code> maggiore, <code>&lt;</code> minore, <code>&gt;=</code> maggiore o uguale, <code>&lt;=</code> minore o uguale. Attenzione: <code>=</code> mette un valore in una variabile, <code>==</code> confronta due valori.</p>`],
-    task: `Sulla giostra si sale se si è alti <b>almeno</b> 140 cm. Stampa il risultato del confronto per <code>altezza</code>, poi quello che dice se il <code>biglietto</code> costa esattamente 5 euro. Con i valori dati deve uscire <code>False</code> e poi <code>True</code>.`,
+    task: `Sulla giostra si sale se si è alti <b>almeno</b> 140 cm. Stampa il risultato del confronto per <code>altezza</code>, poi quello che dice se il <code>biglietto</code> costa esattamente 5 euro. Con i valori dati deve uscire <code>False</code> e poi <code>True</code>. Proverò anche con altre altezze.`,
     starter: `altezza = 132\nbiglietto = 5\n\n`,
     solution: `altezza = 132
 biglietto = 5
@@ -2214,7 +2224,7 @@ print(age == 15)    # True: equal
 print(age != 15)    # False: different
 print(age <= 15)    # True: less than or equal` },
 `<p>The comparisons: <code>==</code> equal, <code>!=</code> different, <code>&gt;</code> greater, <code>&lt;</code> less, <code>&gt;=</code> greater or equal, <code>&lt;=</code> less or equal. Careful: <code>=</code> puts a value in a variable, <code>==</code> compares two values.</p>`],
-    task: `You can get on the ride if you're <b>at least</b> 140 cm tall. Print the result of the comparison for <code>height</code>, then the one that says whether the <code>ticket</code> costs exactly 5 euros. With the given values the output must be <code>False</code> and then <code>True</code>.`,
+    task: `You can get on the ride if you're <b>at least</b> 140 cm tall. Print the result of the comparison for <code>height</code>, then the one that says whether the <code>ticket</code> costs exactly 5 euros. With the given values the output must be <code>False</code> and then <code>True</code>. I'll also try other heights.`,
     starter: `height = 132\nticket = 5\n\n`,
     solution: `height = 132
 ticket = 5
@@ -2239,9 +2249,9 @@ if temperatura > 30:
     print("Fa caldo")
     print("Bevi tanta acqua")
 print("Buona giornata")` },
-`<p>Il blocco finisce quando torni a scrivere dall'inizio della riga: <code>Buona giornata</code> viene stampato sempre. Prova a cambiare 32 in 20: le due righe rientrate non partono più.</p>
+`<p>Il blocco finisce quando torni a scrivere dall'inizio della riga: <code>Buona giornata</code> viene stampato sempre. Prova a cambiare 32 in 20 nell'esempio e premi <b>▶ Prova</b>: le due righe rientrate non partono più.</p>
 <p>Nell'editor, se premi Invio dopo i due punti il rientro si aggiunge da solo; con Tab e Maiusc+Tab sposti le righe. Qui invece metti in ordine dei pezzi già scritti e scegli tu i rientri con le frecce.</p>`],
-    task: `Metti in ordine le righe e sistema i rientri: se hai almeno 5 euro compri il gelato e i soldi scendono di 5; <code>Ciao!</code> va stampato sempre. Con <code>soldi = 8</code> deve uscire <code>Gelato comprato!</code>, <code>Ti restano 3 euro</code> e <code>Ciao!</code>.`,
+    task: `Metti in ordine le righe e sistema i rientri: se hai almeno 5 euro compri il gelato e i soldi scendono di 5; <code>Ciao!</code> va stampato sempre. Con <code>soldi = 8</code> deve uscire <code>Gelato comprato!</code>, <code>Ti restano 3 euro</code> e <code>Ciao!</code>. Lo proverò anche con meno soldi.`,
     lines: [`soldi = 8`, `if soldi >= 5:`, `    print("Gelato comprato!")`, `    soldi = soldi - 5`, `    print("Ti restano", soldi, "euro")`, `print("Ciao!")`],
     hints: ["Quali righe devono partire solo se hai almeno 5 euro, e quale sempre? Le prime vanno dentro il blocco.",
       "In cima la variabile, poi l'if con i due punti. Dentro, spostate a destra: la stampa del gelato, il conto dei soldi e poi la stampa di quanto resta. In fondo il saluto, senza rientro."],
@@ -2258,9 +2268,9 @@ if temperature > 30:
     print("It's hot")
     print("Drink lots of water")
 print("Have a nice day")` },
-`<p>The block ends when you go back to writing from the start of the line: <code>Have a nice day</code> is always printed. Try changing 32 to 20: the two indented lines don't run any more.</p>
+`<p>The block ends when you go back to writing from the start of the line: <code>Have a nice day</code> is always printed. Try changing 32 to 20 in the example and press <b>▶ Try it</b>: the two indented lines don't run any more.</p>
 <p>In the editor, pressing Enter after a colon adds the indentation by itself; Tab and Shift+Tab move lines. Here instead you put pieces in order and choose the indentation yourself with the arrows.</p>`],
-    task: `Put the lines in order and set the indentation: if you have at least 5 euros you buy the ice cream and your money goes down by 5; <code>Bye!</code> is always printed. With <code>money = 8</code> the output must be <code>Ice cream bought!</code>, <code>You have 3 euros left</code> and <code>Bye!</code>.`,
+    task: `Put the lines in order and set the indentation: if you have at least 5 euros you buy the ice cream and your money goes down by 5; <code>Bye!</code> is always printed. With <code>money = 8</code> the output must be <code>Ice cream bought!</code>, <code>You have 3 euros left</code> and <code>Bye!</code>. I'll also try it with less money.`,
     lines: [`money = 8`, `if money >= 5:`, `    print("Ice cream bought!")`, `    money = money - 5`, `    print("You have", money, "euros left")`, `print("Bye!")`],
     hints: ["Which lines must run only if you have at least 5 euros, and which one always? The first ones go inside the block.",
       "At the top the variable, then the if with the colon. Inside, moved to the right: the ice cream message, the money sum and then the message with what's left. At the bottom the goodbye, not indented."],
@@ -2282,7 +2292,7 @@ else:
     print("Zero o negativo")
 print("Controllo finito")` },
 `<p>Dentro i blocchi puoi fare qualsiasi cosa, anche dare un valore a una variabile da usare dopo.</p>`],
-    task: `Il biglietto del museo costa 5 euro per chi ha meno di 12 anni, altrimenti 9. Con un if/else metti il prezzo giusto nella variabile <code>prezzo</code>, poi, <b>dopo</b> l'if/else, stampa una sola volta <code>Il biglietto costa 9 euro</code> (con il prezzo giusto).`,
+    task: `Il biglietto del museo costa 5 euro per chi ha meno di 12 anni, altrimenti 9. Con un if/else metti il prezzo giusto nella variabile <code>prezzo</code>, poi, <b>dopo</b> l'if/else, stampa una sola volta <code>Il biglietto costa 9 euro</code> (con il prezzo giusto). Proverò anche con altre età.`,
     starter: `eta = 30\n\n`,
     solution: `eta = 30
 
@@ -2311,7 +2321,7 @@ else:
     print("Zero or negative")
 print("Check done")` },
 `<p>Inside the blocks you can do anything, including giving a value to a variable you'll use later.</p>`],
-    task: `The museum ticket costs 5 euros for anyone under 12, otherwise 9. With an if/else put the right price in the variable <code>price</code>, then, <b>after</b> the if/else, print just once <code>The ticket costs 9 euros</code> (with the right price).`,
+    task: `The museum ticket costs 5 euros for anyone under 12, otherwise 9. With an if/else put the right price in the variable <code>price</code>, then, <b>after</b> the if/else, print just once <code>The ticket costs 9 euros</code> (with the right price). I'll also try other ages.`,
     starter: `age = 30\n\n`,
     solution: `age = 30
 
@@ -2625,7 +2635,7 @@ else:
 if n % 4 == 0:
     print("multiplo di 4")` },
 `<p>Per i dispari il resto della divisione per 2 è 1: puoi controllare l'uno o l'altro caso.</p>`],
-    task: `Chiedi un numero all'utente. Stampa <code>8 è pari</code> oppure <code>7 è dispari</code> (con il suo numero). Poi, solo se è un multiplo di 3, stampa anche <code>ed è un multiplo di 3</code>.`,
+    task: `Chiedi un numero all'utente. Stampa <code>8 è pari</code> oppure <code>7 è dispari</code> (con il suo numero). Poi, solo se è un multiplo di 3, stampa anche <code>ed è un multiplo di 3</code>. Proverò con tanti numeri.`,
     starter: `# Chiedi un numero e di' com'è\n\n`,
     solution: `n = int(input("Un numero: "))
 if n % 2 == 0:
@@ -2652,7 +2662,7 @@ else:
 if n % 4 == 0:
     print("multiple of 4")` },
 `<p>For odd numbers the remainder of dividing by 2 is 1: you can check either case.</p>`],
-    task: `Ask the user for a number. Print <code>8 is even</code> or <code>7 is odd</code> (with their number). Then, only if it's a multiple of 3, also print <code>and it's a multiple of 3</code>.`,
+    task: `Ask the user for a number. Print <code>8 is even</code> or <code>7 is odd</code> (with their number). Then, only if it's a multiple of 3, also print <code>and it's a multiple of 3</code>. I'll try lots of numbers.`,
     starter: `# Ask for a number and say what it's like\n\n`,
     solution: `n = int(input("A number: "))
 if n % 2 == 0:
@@ -2878,7 +2888,7 @@ const C03 = [
 for n in range(1, 4):
     print(n, "al quadrato fa", n ** 2)` },
 `<p><code>range(3)</code> conta 0, 1, 2: parte da 0 e l'ultimo numero è escluso. <code>range(1, 4)</code> conta 1, 2, 3. Come per l'if, il blocco del for ha i due punti e il rientro.</p>`],
-    task: `Usando la variabile <code>numero</code>, stampa la sua tabellina da 1 a 10, una riga per volta: <code>7 x 1 = 7</code>, <code>7 x 2 = 14</code> e così via fino a <code>7 x 10 = 70</code>.`,
+    task: `Usando la variabile <code>numero</code>, stampa la sua tabellina da 1 a 10, una riga per volta: <code>7 x 1 = 7</code>, <code>7 x 2 = 14</code> e così via fino a <code>7 x 10 = 70</code>. Proverò anche con un altro numero.`,
     starter: `numero = 7\n\n`,
     solution: `numero = 7
 
@@ -2900,7 +2910,7 @@ for i in range(1, 11):
 for n in range(1, 4):
     print(n, "squared is", n ** 2)` },
 `<p><code>range(3)</code> counts 0, 1, 2: it starts from 0 and the last number is left out. <code>range(1, 4)</code> counts 1, 2, 3. As with if, the for's block has a colon and indentation.</p>`],
-    task: `Using the variable <code>number</code>, print its times table from 1 to 10, one line at a time: <code>7 x 1 = 7</code>, <code>7 x 2 = 14</code> and so on up to <code>7 x 10 = 70</code>.`,
+    task: `Using the variable <code>number</code>, print its times table from 1 to 10, one line at a time: <code>7 x 1 = 7</code>, <code>7 x 2 = 14</code> and so on up to <code>7 x 10 = 70</code>. I'll also try another number.`,
     starter: `number = 7\n\n`,
     solution: `number = 7
 
@@ -3026,7 +3036,7 @@ for n in range(1, 11):
 print("Somma:", somma)
 print("Pari:", pari)` },
 `<p>Guarda i rientri: <code>somma += n</code> è dentro il for (4 spazi), <code>pari += 1</code> è dentro l'if che è dentro il for (8 spazi), i print sono fuori da tutto.</p>`],
-    task: `Metti in ordine le righe e sistema i rientri: il programma conta quanti numeri da 1 a 50 sono multipli di 7 e ne fa la somma. Deve stampare <code>Multipli: 7</code> e <code>Somma: 196</code>.`,
+    task: `Metti in ordine le righe e sistema i rientri: il programma conta quanti numeri da 1 a 50 sono multipli di 7 e ne fa la somma. Deve stampare <code>Multipli: 7</code> e <code>Somma: 196</code>. Lo proverò anche con un altro limite al posto di 50.`,
     lines: [`conta = 0`, `somma = 0`, `for n in range(1, 51):`, `    if n % 7 == 0:`, `        conta += 1`, `        somma += n`, `print("Multipli:", conta)`, `print("Somma:", somma)`],
     hints: ["Quali righe vanno prima del ciclo, quali dentro, quali dentro l'if e quali dopo?",
       "In cima i due valori a zero, poi il for e, rientrato, l'if con il resto della divisione per 7. Le due righe che aumentano conta e somma stanno dentro l'if, con due rientri. I print alla fine, senza rientro."],
@@ -3047,7 +3057,7 @@ for n in range(1, 11):
 print("Total:", total)
 print("Evens:", evens)` },
 `<p>Look at the indentation: <code>total += n</code> is inside the for (4 spaces), <code>evens += 1</code> is inside the if, which is inside the for (8 spaces), the prints are outside everything.</p>`],
-    task: `Put the lines in order and set the indentation: the program counts how many numbers from 1 to 50 are multiples of 7 and adds them up. It must print <code>Multiples: 7</code> and <code>Sum: 196</code>.`,
+    task: `Put the lines in order and set the indentation: the program counts how many numbers from 1 to 50 are multiples of 7 and adds them up. It must print <code>Multiples: 7</code> and <code>Sum: 196</code>. I'll also try it with another limit instead of 50.`,
     lines: [`count = 0`, `total = 0`, `for n in range(1, 51):`, `    if n % 7 == 0:`, `        count += 1`, `        total += n`, `print("Multiples:", count)`, `print("Sum:", total)`],
     hints: ["Which lines go before the loop, which inside, which inside the if and which after?",
       "At the top the two values at zero, then the for and, indented, the if with the remainder of dividing by 7. The two lines that increase count and total go inside the if, with two indents. The prints at the end, not indented."],
@@ -3232,7 +3242,7 @@ for v in voti:
     totale += v
 print("media:", totale / len(voti))` },
 `<p>Ricordi i tipi? Se in una somma c'è anche un solo numero con la virgola, il risultato è un <code>float</code>: per questo a volte vedi <code>20.0</code> invece di <code>20</code>.</p>`],
-    task: `Calcola il totale della spesa e conta quanti prodotti costano <b>più di 3 euro</b>. Stampa prima il totale, poi il conteggio. Con questa lista deve uscire <code>20.0</code> e <code>3</code>.`,
+    task: `Calcola il totale della spesa e conta quanti prodotti costano <b>più di 3 euro</b>. Stampa prima il totale, poi il conteggio. Con questa lista deve uscire <code>20.0</code> e <code>3</code>. Proverò anche con un'altra lista di prezzi.`,
     starter: `prezzi = [4.5, 2, 3.5, 10]\n\n`,
     solution: `prezzi = [4.5, 2, 3.5, 10]
 
@@ -3263,7 +3273,7 @@ for g in grades:
     total += g
 print("average:", total / len(grades))` },
 `<p>Remember types? If a sum has even one decimal number in it, the result is a <code>float</code>: that's why you sometimes see <code>20.0</code> instead of <code>20</code>.</p>`],
-    task: `Work out the shopping total and count how many products cost <b>more than 3 euros</b>. Print the total first, then the count. With this list the output must be <code>20.0</code> and <code>3</code>.`,
+    task: `Work out the shopping total and count how many products cost <b>more than 3 euros</b>. Print the total first, then the count. With this list the output must be <code>20.0</code> and <code>3</code>. I'll also try another price list.`,
     starter: `prices = [4.5, 2, 3.5, 10]\n\n`,
     solution: `prices = [4.5, 2, 3.5, 10]
 
@@ -3364,7 +3374,7 @@ prezzi = [0.5, 0.8, 0.3]
 for i in range(len(frutti)):
     print(frutti[i], "costa", prezzi[i])` },
 `<p><code>len(frutti)</code> è 3, quindi <code>i</code> vale 0, 1 e 2: proprio gli indici validi. Se provi a leggere un indice che non esiste, come <code>frutti[3]</code>, Python si ferma con un <code>IndexError</code>.</p>`],
-    task: `Stampa la classifica numerata partendo da 1: <code>1. Ada: 30 punti</code>, <code>2. Bob: 25 punti</code>, <code>3. Cleo: 40 punti</code>. Leggi nomi e punti dalle due liste.`,
+    task: `Stampa la classifica numerata partendo da 1: <code>1. Ada: 30 punti</code>, <code>2. Bob: 25 punti</code>, <code>3. Cleo: 40 punti</code>. Leggi nomi e punti dalle due liste. Proverò anche con una classifica più corta.`,
     starter: `nomi = ["Ada", "Bob", "Cleo"]\npunti = [30, 25, 40]\n\n`,
     solution: `nomi = ["Ada", "Bob", "Cleo"]
 punti = [30, 25, 40]
@@ -3387,7 +3397,7 @@ prices = [0.5, 0.8, 0.3]
 for i in range(len(fruits)):
     print(fruits[i], "costs", prices[i])` },
 `<p><code>len(fruits)</code> is 3, so <code>i</code> takes 0, 1 and 2: exactly the valid indexes. If you try to read an index that doesn't exist, like <code>fruits[3]</code>, Python stops with an <code>IndexError</code>.</p>`],
-    task: `Print the ranking numbered from 1: <code>1. Ada: 30 points</code>, <code>2. Bob: 25 points</code>, <code>3. Cleo: 40 points</code>. Read names and points from the two lists.`,
+    task: `Print the ranking numbered from 1: <code>1. Ada: 30 points</code>, <code>2. Bob: 25 points</code>, <code>3. Cleo: 40 points</code>. Read names and points from the two lists. I'll also try a shorter ranking.`,
     starter: `names = ["Ada", "Bob", "Cleo"]\npoints = [30, 25, 40]\n\n`,
     solution: `names = ["Ada", "Bob", "Cleo"]
 points = [30, 25, 40]
@@ -3414,7 +3424,7 @@ while soldi > 0:
     soldi = soldi - 4
 print("Finiti!")` },
 `<p>Dentro il ciclo qualcosa deve cambiare, altrimenti la condizione resta vera per sempre e il ciclo non finisce mai. Se capita, premi <b>Ferma</b> (o Ctrl+C nel terminale).</p>`],
-    task: `Metti da parte <code>quota</code> euro alla settimana, partendo da 0. Con un ciclo while scopri quante settimane servono per arrivare <b>almeno</b> a 100 euro, e stampa <code>Servono 7 settimane</code>.`,
+    task: `Metti da parte <code>quota</code> euro alla settimana, partendo da 0. Con un ciclo while scopri quante settimane servono per arrivare <b>almeno</b> a 100 euro, e stampa <code>Servono 7 settimane</code>. Proverò anche con un'altra quota.`,
     starter: `risparmi = 0\nsettimane = 0\nquota = 15\n\n`,
     solution: `risparmi = 0
 settimane = 0
@@ -3440,7 +3450,7 @@ while money > 0:
     money = money - 4
 print("All gone!")` },
 `<p>Something must change inside the loop, otherwise the condition stays true forever and the loop never ends. If that happens, press <b>Stop</b> (or Ctrl+C in the terminal).</p>`],
-    task: `You save <code>amount</code> euros a week, starting from 0. With a while loop find out how many weeks it takes to reach <b>at least</b> 100 euros, and print <code>It takes 7 weeks</code>.`,
+    task: `You save <code>amount</code> euros a week, starting from 0. With a while loop find out how many weeks it takes to reach <b>at least</b> 100 euros, and print <code>It takes 7 weeks</code>. I'll also try another weekly amount.`,
     starter: `savings = 0\nweeks = 0\namount = 15\n\n`,
     solution: `savings = 0
 weeks = 0
@@ -3469,7 +3479,7 @@ print(f"It takes {weeks} weeks")`,
         break
     print("Hai scritto", parola)
 print("Finito")` }],
-    task: `Fai un piccolo menu: chiedi un comando finché l'utente non scrive <code>esci</code>. Se scrive <code>aiuto</code> stampa <code>Comandi: aiuto, esci</code>; per ogni altro comando stampa <code>Comando sconosciuto: salta</code> (con il comando scritto). Quando esce, stampa <code>Ciao!</code>.`,
+    task: `Fai un piccolo menu: chiedi un comando finché l'utente non scrive <code>esci</code>. Se scrive <code>aiuto</code> stampa <code>Comandi: aiuto, esci</code>; per ogni altro comando stampa <code>Comando sconosciuto: salta</code> (con il comando scritto). Quando esce, stampa <code>Ciao!</code>. Proverò con tanti comandi diversi.`,
     starter: `# Il menu che ripete\n\n`,
     solution: `while True:
     comando = input("Comando? ")
@@ -3497,7 +3507,7 @@ print("Ciao!")`,
         break
     print("You typed", word)
 print("Done")` }],
-    task: `Make a little menu: ask for a command until the user types <code>exit</code>. If they type <code>help</code> print <code>Commands: help, exit</code>; for any other command print <code>Unknown command: jump</code> (with the command they typed). When they leave, print <code>Bye!</code>.`,
+    task: `Make a little menu: ask for a command until the user types <code>exit</code>. If they type <code>help</code> print <code>Commands: help, exit</code>; for any other command print <code>Unknown command: jump</code> (with the command they typed). When they leave, print <code>Bye!</code>. I'll try lots of different commands.`,
     starter: `# The menu that repeats\n\n`,
     solution: `while True:
     command = input("Command? ")
@@ -3678,7 +3688,7 @@ else:
   it: {
     title: "Lo scontrino sbagliato",
     theory: [`<p>Lo scontrino salta un prodotto e il totale non torna. I bug sono due, ed entrambi riguardano il ciclo: uno nel numero di giri, uno nel rientro.</p>`],
-    task: `Correggi il programma: deve elencare tutti e tre i prodotti con il prezzo e stampare il totale giusto.`,
+    task: `Correggi il programma: deve elencare tutti e tre i prodotti con il prezzo e stampare il totale giusto. Proverò anche con altri prezzi.`,
     starter: `spesa = ["pane", "latte", "uova"]\nprezzi = [1.5, 1.2, 2.3]\ntotale = 0\n\nfor i in range(len(spesa) - 1):\n    print(spesa[i], prezzi[i])\ntotale = totale + prezzi[i]\n\nprint("Totale:", totale)\n`,
     solution: `spesa = ["pane", "latte", "uova"]
 prezzi = [1.5, 1.2, 2.3]
@@ -3698,7 +3708,7 @@ print("Totale:", totale)`,
   en: {
     title: "The wrong receipt",
     theory: [`<p>The receipt skips a product and the total doesn't add up. There are two bugs, both about the loop: one in the number of rounds, one in the indentation.</p>`],
-    task: `Fix the program: it must list all three products with their price and print the right total.`,
+    task: `Fix the program: it must list all three products with their price and print the right total. I'll also try other prices.`,
     starter: `shopping = ["bread", "milk", "eggs"]\nprices = [1.5, 1.2, 2.3]\ntotal = 0\n\nfor i in range(len(shopping) - 1):\n    print(shopping[i], prices[i])\ntotal = total + prices[i]\n\nprint("Total:", total)\n`,
     solution: `shopping = ["bread", "milk", "eggs"]
 prices = [1.5, 1.2, 2.3]
@@ -3735,7 +3745,7 @@ print(parola[1:4])     # yth
 print(parola[:2])      # Py: dall'inizio
 print("th" in parola)  # True` },
 `<p>E con <code>for</code> puoi scorrere le lettere una alla volta: <code>for lettera in parola:</code>.</p>`],
-    task: `Il codice di un biglietto è fatto così: le prime 3 lettere sono la città, poi 4 cifre per l'anno, poi il posto. Stampa, una per riga, la città, l'anno, il posto (dall'indice 7 alla fine) e quanti caratteri ha il codice. Deve uscire <code>ROM</code>, <code>2026</code>, <code>A12</code> e <code>10</code>.`,
+    task: `Il codice di un biglietto è fatto così: le prime 3 lettere sono la città, poi 4 cifre per l'anno, poi il posto. Stampa, una per riga, la città, l'anno, il posto (dall'indice 7 alla fine) e quanti caratteri ha il codice. Deve uscire <code>ROM</code>, <code>2026</code>, <code>A12</code> e <code>10</code>. Proverò anche con un altro codice.`,
     starter: `codice = "ROM2026A12"\n\n`,
     solution: `codice = "ROM2026A12"
 
@@ -3761,7 +3771,7 @@ print(word[1:4])     # yth
 print(word[:2])      # Py: from the start
 print("th" in word)  # True` },
 `<p>And with <code>for</code> you can go through the letters one at a time: <code>for letter in word:</code>.</p>`],
-    task: `A ticket code works like this: the first 3 letters are the city, then 4 digits for the year, then the seat. Print, one per line, the city, the year, the seat (from index 7 to the end) and how many characters the code has. The output must be <code>LON</code>, <code>2026</code>, <code>A12</code> and <code>10</code>.`,
+    task: `A ticket code works like this: the first 3 letters are the city, then 4 digits for the year, then the seat. Print, one per line, the city, the year, the seat (from index 7 to the end) and how many characters the code has. The output must be <code>LON</code>, <code>2026</code>, <code>A12</code> and <code>10</code>. I'll also try another code.`,
     starter: `code = "LON2026A12"\n\n`,
     solution: `code = "LON2026A12"
 
@@ -3789,7 +3799,7 @@ print(frase.strip())          # "Ciao Mondo": via gli spazi ai lati
 print(frase.replace("o", "0"))  # "  Cia0 M0nd0  ": ogni o diventa 0` },
 `<p><code>replace(vecchio, nuovo)</code> sostituisce il primo testo con il secondo, tutte le volte che compare. Distingue maiuscole e minuscole: qui la <code>o</code> minuscola cambia, una <code>O</code> maiuscola resterebbe com'è.</p>
 <p>Puoi anche metterne più di uno in fila: <code>frase.strip().upper()</code> prima toglie gli spazi, poi fa tutto maiuscolo.</p>`],
-    task: `Gli utenti scrivono le risposte in modo disordinato. Partendo da <code>risposta</code>, stampa: la risposta pulita (senza spazi ai lati e tutta minuscola), poi la stessa con <code>certo</code> sostituito da <code>volentieri</code>, poi la risposta pulita tutta maiuscola. Deve uscire <code>sì, certo</code>, <code>sì, volentieri</code> e <code>SÌ, CERTO</code>.`,
+    task: `Gli utenti scrivono le risposte in modo disordinato. Partendo da <code>risposta</code>, stampa: la risposta pulita (senza spazi ai lati e tutta minuscola), poi la stessa con <code>certo</code> sostituito da <code>volentieri</code>, poi la risposta pulita tutta maiuscola. Deve uscire <code>sì, certo</code>, <code>sì, volentieri</code> e <code>SÌ, CERTO</code>. Proverò anche con un'altra risposta.`,
     starter: `risposta = "   Sì, CERTO "\n\n`,
     solution: `risposta = "   Sì, CERTO "
 
@@ -3814,7 +3824,7 @@ print(phrase.strip())          # "Hello World": spaces gone from the sides
 print(phrase.replace("o", "0"))  # "  Hell0 W0rld  ": every o becomes 0` },
 `<p><code>replace(old, new)</code> swaps the first text for the second, every time it appears. It tells uppercase from lowercase: here the lowercase <code>o</code> changes, an uppercase <code>O</code> would stay as it is.</p>
 <p>You can chain more than one: <code>phrase.strip().upper()</code> first removes the spaces, then makes everything uppercase.</p>`],
-    task: `Users type their answers messily. Starting from <code>answer</code>, print: the clean answer (no spaces at the sides and all lowercase), then the same with <code>sure</code> replaced by <code>gladly</code>, then the clean answer all uppercase. The output must be <code>yes, sure</code>, <code>yes, gladly</code> and <code>YES, SURE</code>.`,
+    task: `Users type their answers messily. Starting from <code>answer</code>, print: the clean answer (no spaces at the sides and all lowercase), then the same with <code>sure</code> replaced by <code>gladly</code>, then the clean answer all uppercase. The output must be <code>yes, sure</code>, <code>yes, gladly</code> and <code>YES, SURE</code>. I'll also try another answer.`,
     starter: `answer = "   Yes, SURE "\n\n`,
     solution: `answer = "   Yes, SURE "
 
@@ -3842,7 +3852,7 @@ for lettera in testo:
         conta_a += 1
 print(conta_a)   # 3` },
 `<p>Per sapere se una lettera è una vocale basta <code>lettera in "aeiou"</code>; e se il testo ha delle maiuscole, scorri <code>testo.lower()</code>.</p>`],
-    task: `Conta le vocali e gli spazi della frase, maiuscole comprese, e stampa <code>Vocali: 9</code> e poi <code>Spazi: 4</code>.`,
+    task: `Conta le vocali e gli spazi della frase, maiuscole comprese, e stampa <code>Vocali: 9</code> e poi <code>Spazi: 4</code>. Proverò anche con un'altra frase.`,
     starter: `frase = "Il Codice Non Mente Mai"\n\n`,
     solution: `frase = "Il Codice Non Mente Mai"
 
@@ -3872,7 +3882,7 @@ for letter in text:
         count_a += 1
 print(count_a)   # 3` },
 `<p>To know whether a letter is a vowel, <code>letter in "aeiou"</code> is enough; and if the text has capitals, loop over <code>text.lower()</code>.</p>`],
-    task: `Count the vowels and the spaces in the sentence, capitals included, and print <code>Vowels: 9</code> and then <code>Spaces: 4</code>.`,
+    task: `Count the vowels and the spaces in the sentence, capitals included, and print <code>Vowels: 9</code> and then <code>Spaces: 4</code>. I'll also try another sentence.`,
     starter: `sentence = "Code Never Lies To You"\n\n`,
     solution: `sentence = "Code Never Lies To You"
 
@@ -3943,7 +3953,7 @@ greet()` },
 presenta("Ada", "Londra")
 presenta("Leo", "Vinci")` },
 `<p>Un parametro può avere un <b>valore predefinito</b>, usato quando l'argomento manca: <code>def saluta(nome, saluto="Ciao"):</code>. I parametri con il valore predefinito vanno in fondo.</p>`],
-    task: `Scrivi <code>biglietto(nome, posto, classe="seconda")</code> che stampa <code>Ada, posto 12, seconda classe</code> (con i dati ricevuti). Poi chiamala una volta senza la classe, per Ada al posto 12, e una volta per Bob al posto 3 in <code>prima</code> classe.`,
+    task: `Scrivi <code>biglietto(nome, posto, classe="seconda")</code> che stampa <code>Ada, posto 12, seconda classe</code> (con i dati ricevuti). Poi chiamala una volta senza la classe, per Ada al posto 12, e una volta per Bob al posto 3 in <code>prima</code> classe. Proverò anche la funzione con altri dati.`,
     starter: `# Scrivi la funzione biglietto e chiamala due volte\n\n`,
     solution: `def biglietto(nome, posto, classe="seconda"):
     print(f"{nome}, posto {posto}, {classe} classe")
@@ -3966,7 +3976,7 @@ biglietto("Bob", 3, "prima")`,
 introduce("Ada", "London")
 introduce("Leo", "Vinci")` },
 `<p>A parameter can have a <b>default value</b>, used when the argument is missing: <code>def greet(name, greeting="Hi"):</code>. Parameters with a default value go last.</p>`],
-    task: `Write <code>ticket(name, seat, travel_class="economy")</code> that prints <code>Ada, seat 12, economy class</code> (with the data it receives). Then call it once without the class, for Ada in seat 12, and once for Bob in seat 3 in <code>first</code> class.`,
+    task: `Write <code>ticket(name, seat, travel_class="economy")</code> that prints <code>Ada, seat 12, economy class</code> (with the data it receives). Then call it once without the class, for Ada in seat 12, and once for Bob in seat 3 in <code>first</code> class. I'll also try the function with other data.`,
     starter: `# Write the ticket function and call it twice\n\n`,
     solution: `def ticket(name, seat, travel_class="economy"):
     print(f"{name}, seat {seat}, {travel_class} class")
@@ -4060,7 +4070,7 @@ a = area_quadrato(3)
 print(a)                                    # 9
 print(area_quadrato(2) + area_quadrato(4))  # 20` },
 `<p><code>print</code> e <code>return</code> sono diversi: <code>print</code> mostra un valore nel terminale e basta, <code>return</code> lo consegna al programma. Una funzione senza <code>return</code> restituisce un valore speciale, <code>None</code>, cioè "niente". E dopo <code>return</code> la funzione è finita: le righe sotto non vengono eseguite.</p>`],
-    task: `Scrivi <code>prezzo_scontato(prezzo, sconto)</code> che restituisce il prezzo dopo lo sconto in percentuale (il prezzo meno prezzo per sconto diviso 100). Poi stampa quanto spendi in tutto per una felpa da 80 euro scontata del 25% e un cappello da 20 euro scontato del 10%: deve uscire <code>78.0</code>.`,
+    task: `Scrivi <code>prezzo_scontato(prezzo, sconto)</code> che restituisce il prezzo dopo lo sconto in percentuale (il prezzo meno prezzo per sconto diviso 100). Poi stampa quanto spendi in tutto per una felpa da 80 euro scontata del 25% e un cappello da 20 euro scontato del 10%: deve uscire <code>78.0</code>. Proverò anche la funzione con altri prezzi e sconti.`,
     starter: `# Scrivi la funzione, poi usala due volte\n\n`,
     solution: `def prezzo_scontato(prezzo, sconto):
     return prezzo - prezzo * sconto / 100
@@ -4083,7 +4093,7 @@ a = square_area(3)
 print(a)                                # 9
 print(square_area(2) + square_area(4))  # 20` },
 `<p><code>print</code> and <code>return</code> are different: <code>print</code> shows a value in the terminal and that's it, <code>return</code> hands it to the program. A function without <code>return</code> gives back a special value, <code>None</code>, meaning "nothing". And after <code>return</code> the function is over: the lines below don't run.</p>`],
-    task: `Write <code>discounted(price, discount)</code> that gives back the price after the percentage discount (the price minus price times discount divided by 100). Then print how much you spend in total on an 80-euro hoodie with 25% off and a 20-euro cap with 10% off: the output must be <code>78.0</code>.`,
+    task: `Write <code>discounted(price, discount)</code> that gives back the price after the percentage discount (the price minus price times discount divided by 100). Then print how much you spend in total on an 80-euro hoodie with 25% off and a 20-euro cap with 10% off: the output must be <code>78.0</code>. I'll also try the function with other prices and discounts.`,
     starter: `# Write the function, then use it twice\n\n`,
     solution: `def discounted(price, discount):
     return price - price * discount / 100
@@ -4207,7 +4217,7 @@ def descrivi(n):
 
 print(descrivi(4))
 print(descrivi(7))` }],
-    task: `Scrivi <code>conta_vocali(testo)</code> che restituisce quante vocali ha il testo (maiuscole comprese). Poi scrivi <code>piu_vocali(a, b)</code> che, usando <code>conta_vocali</code>, restituisce la parola con più vocali (la prima, se sono pari). Stampa <code>piu_vocali("cane", "elefante")</code>: deve uscire <code>elefante</code>.`,
+    task: `Scrivi <code>conta_vocali(testo)</code> che restituisce quante vocali ha il testo (maiuscole comprese). Poi scrivi <code>piu_vocali(a, b)</code> che, usando <code>conta_vocali</code>, restituisce la parola con più vocali (la prima, se sono pari). Stampa <code>piu_vocali("cane", "elefante")</code>: deve uscire <code>elefante</code>. Proverò anche le funzioni con altre parole.`,
     starter: `# Due funzioni: la seconda usa la prima\n\n`,
     solution: `def conta_vocali(testo):
     conta = 0
@@ -4243,7 +4253,7 @@ def describe(n):
 
 print(describe(4))
 print(describe(7))` }],
-    task: `Write <code>count_vowels(text)</code> that gives back how many vowels the text has (capitals included). Then write <code>more_vowels(a, b)</code> that, using <code>count_vowels</code>, gives back the word with more vowels (the first one, if they're equal). Print <code>more_vowels("cat", "elephant")</code>: the output must be <code>elephant</code>.`,
+    task: `Write <code>count_vowels(text)</code> that gives back how many vowels the text has (capitals included). Then write <code>more_vowels(a, b)</code> that, using <code>count_vowels</code>, gives back the word with more vowels (the first one, if they're equal). Print <code>more_vowels("cat", "elephant")</code>: the output must be <code>elephant</code>. I'll also try the functions with other words.`,
     starter: `# Two functions: the second uses the first\n\n`,
     solution: `def count_vowels(text):
     count = 0
@@ -4433,7 +4443,7 @@ else:
   it: {
     title: "Le funzioni distratte",
     theory: [`<p>Due funzioni, due bug. Una lavora ma non consegna il risultato, l'altra prende la lettera sbagliata.</p>`],
-    task: `Correggi il programma: deve stampare <code>Ciao, Ada!</code> e poi le iniziali <code>AL</code>.`,
+    task: `Correggi il programma: deve stampare <code>Ciao, Ada!</code> e poi le iniziali <code>AL</code>. Proverò anche le funzioni con altri nomi.`,
     starter: `def saluta(nome):\n    messaggio = "Ciao, " + nome + "!"\n\ndef iniziali(nome, cognome):\n    return nome[1] + cognome[1]\n\nprint(saluta("Ada"))\nprint(iniziali("Ada", "Lovelace"))\n`,
     solution: `def saluta(nome):
     messaggio = "Ciao, " + nome + "!"
@@ -4453,7 +4463,7 @@ print(iniziali("Ada", "Lovelace"))`,
   en: {
     title: "The absent-minded functions",
     theory: [`<p>Two functions, two bugs. One does the work but doesn't hand over the result, the other takes the wrong letter.</p>`],
-    task: `Fix the program: it must print <code>Hi, Ada!</code> and then the initials <code>AL</code>.`,
+    task: `Fix the program: it must print <code>Hi, Ada!</code> and then the initials <code>AL</code>. I'll also try the functions with other names.`,
     starter: `def greet(name):\n    message = "Hi, " + name + "!"\n\ndef initials(name, surname):\n    return name[1] + surname[1]\n\nprint(greet("Ada"))\nprint(initials("Ada", "Lovelace"))\n`,
     solution: `def greet(name):
     message = "Hi, " + name + "!"
@@ -4516,7 +4526,7 @@ auto["colore"] = "rosso"    # aggiunge una chiave nuova
 print(len(auto))            # 3 coppie
 print(auto)` },
 `<p>Dentro una f-string, per leggere una chiave usa le virgolette dell'altro tipo, <code>f"{auto['marca']}"</code>, perché quelle doppie chiudono già la stringa.</p>`],
-    task: `Il personaggio prende un colpo da 30 punti (togli 30 alla <code>vita</code>), sale di un <code>livello</code> e trova un'<code>arma</code>: aggiungi la chiave con il valore <code>spada</code>. Poi stampa <code>Kai ha 70 punti vita</code> leggendo i dati dal dizionario, e il numero di chiavi: <code>4</code>.`,
+    task: `Il personaggio prende un colpo da 30 punti (togli 30 alla <code>vita</code>), sale di un <code>livello</code> e trova un'<code>arma</code>: aggiungi la chiave con il valore <code>spada</code>. Poi stampa <code>Kai ha 70 punti vita</code> leggendo i dati dal dizionario, e il numero di chiavi: <code>4</code>. Alla fine controllerò anche cosa c'è nel dizionario.`,
     starter: `eroe = {"nome": "Kai", "vita": 100, "livello": 3}\n\n`,
     solution: `eroe = {"nome": "Kai", "vita": 100, "livello": 3}
 
@@ -4542,7 +4552,7 @@ car["colour"] = "red"       # adds a new key
 print(len(car))             # 3 pairs
 print(car)` },
 `<p>Inside an f-string, to read a key use the other kind of quotes, <code>f"{car['make']}"</code>, because the double ones already close the string.</p>`],
-    task: `The character takes a 30-point hit (take 30 off <code>life</code>), goes up a <code>level</code> and finds a <code>weapon</code>: add the key with the value <code>sword</code>. Then print <code>Kai has 70 life points</code> reading the data from the dictionary, and the number of keys: <code>4</code>.`,
+    task: `The character takes a 30-point hit (take 30 off <code>life</code>), goes up a <code>level</code> and finds a <code>weapon</code>: add the key with the value <code>sword</code>. Then print <code>Kai has 70 life points</code> reading the data from the dictionary, and the number of keys: <code>4</code>. At the end I'll also check what's in the dictionary.`,
     starter: `hero = {"name": "Kai", "life": 100, "level": 3}\n\n`,
     solution: `hero = {"name": "Kai", "life": 100, "level": 3}
 
@@ -4568,7 +4578,7 @@ print(len(hero))`,
 print("Ada" in rubrica)                     # True
 print(rubrica.get("Cleo", "sconosciuto"))   # sconosciuto
 # print(rubrica["Cleo"])  ->  KeyError: 'Cleo'` }],
-    task: `Il cliente chiede tre prodotti. Per ognuno stampa il prezzo, oppure che non è disponibile, così: <code>pane: 1.5</code>, <code>uova: non disponibile</code>, <code>latte: 1.2</code>. Usa un ciclo sulla lista <code>richiesta</code>.`,
+    task: `Il cliente chiede tre prodotti. Per ognuno stampa il prezzo, oppure che non è disponibile, così: <code>pane: 1.5</code>, <code>uova: non disponibile</code>, <code>latte: 1.2</code>. Usa un ciclo sulla lista <code>richiesta</code>. Proverò anche con un'altra lista di richieste.`,
     starter: `listino = {"pane": 1.5, "latte": 1.2, "mele": 2.0}\nrichiesta = ["pane", "uova", "latte"]\n\n`,
     solution: `listino = {"pane": 1.5, "latte": 1.2, "mele": 2.0}
 richiesta = ["pane", "uova", "latte"]
@@ -4590,7 +4600,7 @@ for prodotto in richiesta:
 print("Ada" in phonebook)                 # True
 print(phonebook.get("Cleo", "unknown"))   # unknown
 # print(phonebook["Cleo"])  ->  KeyError: 'Cleo'` }],
-    task: `The customer asks for three products. For each one print the price, or that it's not available, like this: <code>bread: 1.5</code>, <code>eggs: not available</code>, <code>milk: 1.2</code>. Use a loop over the list <code>order</code>.`,
+    task: `The customer asks for three products. For each one print the price, or that it's not available, like this: <code>bread: 1.5</code>, <code>eggs: not available</code>, <code>milk: 1.2</code>. Use a loop over the list <code>order</code>. I'll also try another list of requests.`,
     starter: `prices = {"bread": 1.5, "milk": 1.2, "apples": 2.0}\norder = ["bread", "eggs", "milk"]\n\n`,
     solution: `prices = {"bread": 1.5, "milk": 1.2, "apples": 2.0}
 order = ["bread", "eggs", "milk"]
@@ -4620,7 +4630,7 @@ for colore, quanti in conteggio.items():
     print(colore, quanti)` },
 `<p>È lo schema per <b>contare</b>: per ogni elemento prendi il conteggio attuale (0 se non c'è ancora) e aggiungi 1.</p>
 <p>E per trovare il più votato? Lo schema del <b>migliore finora</b>, come nei cicli sulle liste. Questa volta però ti servono due variabili che cambiano insieme: il numero di voti più alto visto finora e il nome di chi li ha.</p>`],
-    task: `Conta i voti dell'elezione del rappresentante di classe e stampa, nell'ordine in cui compaiono i candidati, <code>Ada: 3</code>, <code>Bob: 2</code> e <code>Cleo: 1</code>. Poi stampa <code>Vince Ada</code>, trovando chi ha più voti con un ciclo.`,
+    task: `Conta i voti dell'elezione del rappresentante di classe e stampa, nell'ordine in cui compaiono i candidati, <code>Ada: 3</code>, <code>Bob: 2</code> e <code>Cleo: 1</code>. Poi stampa <code>Vince Ada</code>, trovando chi ha più voti con un ciclo. Proverò anche con altri voti.`,
     starter: `voti = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]\n\n`,
     solution: `voti = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]
 
@@ -4655,7 +4665,7 @@ for colour, how_many in counts.items():
     print(colour, how_many)` },
 `<p>It's the pattern for <b>counting</b>: for each item take the current count (0 if it isn't there yet) and add 1.</p>
 <p>And to find who got the most? The <b>best so far</b> pattern, as in the loops over lists. This time, though, you need two variables that change together: the highest number of votes seen so far and the name of whoever has them.</p>`],
-    task: `Count the votes in the class representative election and print, in the order the candidates appear, <code>Ada: 3</code>, <code>Bob: 2</code> and <code>Cleo: 1</code>. Then print <code>Ada wins</code>, finding who has most votes with a loop.`,
+    task: `Count the votes in the class representative election and print, in the order the candidates appear, <code>Ada: 3</code>, <code>Bob: 2</code> and <code>Cleo: 1</code>. Then print <code>Ada wins</code>, finding who has most votes with a loop. I'll also try other votes.`,
     starter: `votes = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]\n\n`,
     solution: `votes = ["Ada", "Bob", "Ada", "Cleo", "Ada", "Bob"]
 
@@ -5348,7 +5358,7 @@ else:
   it: {
     title: "La rubrica capricciosa",
     theory: [`<p>Tre bug: due hanno la stessa causa (ricordi la prima regola della cartella 00_inizio?), il terzo è un errore di aritmetica. Nessuno dei tre ferma il programma: confronta bene l'output con quello richiesto.</p>`],
-    task: `Correggi il programma: deve stampare il numero di Ada, la lista dei nomi che iniziano con A e la metà dei contatti arrotondata per difetto: <code>333 111</code>, <code>['Ada', 'Alan']</code> e <code>Metà: 1</code>.`,
+    task: `Correggi il programma: deve stampare il numero di Ada, la lista dei nomi che iniziano con A e la metà dei contatti arrotondata per difetto: <code>333 111</code>, <code>['Ada', 'Alan']</code> e <code>Metà: 1</code>. Proverò anche con più contatti.`,
     starter: `rubrica = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}\n\ntry:\n    print(rubrica["ada"])\nexcept KeyError:\n    print("Contatto non trovato")\n\ncon_a = [nome for nome in rubrica if nome[0] == "a"]\nprint(con_a)\nprint("Metà:", len(rubrica) / 2)\n`,
     solution: `rubrica = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}
 
@@ -5369,7 +5379,7 @@ print("Metà:", len(rubrica) // 2)`,
   en: {
     title: "The moody phone book",
     theory: [`<p>Three bugs: two have the same cause (remember the first rule of the 00_start folder?), the third is an arithmetic mistake. None of them stops the program: compare the output carefully with the one required.</p>`],
-    task: `Fix the program: it must print Ada's number, the list of names starting with A and half the contacts rounded down: <code>333 111</code>, <code>['Ada', 'Alan']</code> and <code>Half: 1</code>.`,
+    task: `Fix the program: it must print Ada's number, the list of names starting with A and half the contacts rounded down: <code>333 111</code>, <code>['Ada', 'Alan']</code> and <code>Half: 1</code>. I'll also try more contacts.`,
     starter: `phonebook = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}\n\ntry:\n    print(phonebook["ada"])\nexcept KeyError:\n    print("Contact not found")\n\nwith_a = [name for name in phonebook if name[0] == "a"]\nprint(with_a)\nprint("Half:", len(phonebook) / 2)\n`,
     solution: `phonebook = {"Ada": "333 111", "Alan": "333 222", "Grace": "333 333"}
 
@@ -5409,7 +5419,7 @@ micio = Gatto("Max", 5)
 print(luna.nome, luna.eta)    # Luna 3
 print(micio.eta + luna.eta)   # 8` },
 `<p>Per creare un oggetto chiami la classe come una funzione, con gli argomenti di <code>__init__</code> tranne <code>self</code>, che Python mette da solo. Ogni oggetto ha i suoi attributi, che leggi con il punto.</p>`],
-    task: `Crea la classe <code>Libro</code> con gli attributi <code>titolo</code>, <code>autore</code> e <code>pagine</code>. Crea due libri: "Il barone rampante" di Calvino, 250 pagine, e "Pinocchio" di Collodi, 150 pagine. Stampa <code>Il barone rampante di Calvino, 250 pagine</code> per il primo, poi le pagine dei due libri insieme: <code>Pagine in tutto: 400</code>.`,
+    task: `Crea la classe <code>Libro</code> con gli attributi <code>titolo</code>, <code>autore</code> e <code>pagine</code>. Crea due libri: "Il barone rampante" di Calvino, 250 pagine, e "Pinocchio" di Collodi, 150 pagine. Stampa <code>Il barone rampante di Calvino, 250 pagine</code> per il primo, poi le pagine dei due libri insieme: <code>Pagine in tutto: 400</code>. Proverò anche la classe con altri dati.`,
     starter: `# La classe Libro\n\n`,
     solution: `class Libro:
     def __init__(self, titolo, autore, pagine):
@@ -5441,7 +5451,7 @@ kitty = Cat("Max", 5)
 print(luna.name, luna.age)    # Luna 3
 print(kitty.age + luna.age)   # 8` },
 `<p>To create an object you call the class like a function, with <code>__init__</code>'s arguments except <code>self</code>, which Python fills in by itself. Each object has its own attributes, which you read with a dot.</p>`],
-    task: `Create the class <code>Book</code> with the attributes <code>title</code>, <code>author</code> and <code>pages</code>. Create two books: "The Hobbit" by Tolkien, 310 pages, and "Matilda" by Dahl, 90 pages. Print <code>The Hobbit by Tolkien, 310 pages</code> for the first, then the pages of both books together: <code>Total pages: 400</code>.`,
+    task: `Create the class <code>Book</code> with the attributes <code>title</code>, <code>author</code> and <code>pages</code>. Create two books: "The Hobbit" by Tolkien, 310 pages, and "Matilda" by Dahl, 90 pages. Print <code>The Hobbit by Tolkien, 310 pages</code> for the first, then the pages of both books together: <code>Total pages: 400</code>. I'll also try the class with other data.`,
     starter: `# The Book class\n\n`,
     solution: `class Book:
     def __init__(self, title, author, pages):
@@ -5475,7 +5485,7 @@ print(f"Total pages: {first.pages + second.pages}")`,
 
 luna = Gatto("Luna")
 print(luna.presentati())` }],
-    task: `Scrivi la classe <code>Rettangolo</code> con <code>base</code> e <code>altezza</code> e tre metodi: <code>area()</code>, <code>perimetro()</code> ed <code>e_quadrato()</code>, che restituisce <code>True</code> se base e altezza sono uguali. Crea un rettangolo 5 per 3 e stampa area, perimetro e se è un quadrato: <code>15</code>, <code>16</code>, <code>False</code>.`,
+    task: `Scrivi la classe <code>Rettangolo</code> con <code>base</code> e <code>altezza</code> e tre metodi: <code>area()</code>, <code>perimetro()</code> ed <code>e_quadrato()</code>, che restituisce <code>True</code> se base e altezza sono uguali. Crea un rettangolo 5 per 3 e stampa area, perimetro e se è un quadrato: <code>15</code>, <code>16</code>, <code>False</code>. Proverò anche con un altro rettangolo.`,
     starter: `# La classe Rettangolo\n\n`,
     solution: `class Rettangolo:
     def __init__(self, base, altezza):
@@ -5514,7 +5524,7 @@ print(r.e_quadrato())`,
 
 luna = Cat("Luna")
 print(luna.introduce())` }],
-    task: `Write the class <code>Rectangle</code> with <code>width</code> and <code>height</code> and three methods: <code>area()</code>, <code>perimeter()</code> and <code>is_square()</code>, which gives back <code>True</code> if width and height are equal. Create a 5 by 3 rectangle and print area, perimeter and whether it's a square: <code>15</code>, <code>16</code>, <code>False</code>.`,
+    task: `Write the class <code>Rectangle</code> with <code>width</code> and <code>height</code> and three methods: <code>area()</code>, <code>perimeter()</code> and <code>is_square()</code>, which gives back <code>True</code> if width and height are equal. Create a 5 by 3 rectangle and print area, perimeter and whether it's a square: <code>15</code>, <code>16</code>, <code>False</code>. I'll also try another rectangle.`,
     starter: `# The Rectangle class\n\n`,
     solution: `class Rectangle:
     def __init__(self, width, height):
@@ -5678,7 +5688,7 @@ l.premi()
 print(l.accesa)   # True
 l.premi()
 print(l.accesa)   # False` }],
-    task: `Scrivi la classe <code>Conto</code>: parte con il <code>saldo</code> che le passi. <code>deposita(euro)</code> aggiunge al saldo; <code>preleva(euro)</code> toglie dal saldo solo se ci sono abbastanza soldi, altrimenti stampa <code>Fondi insufficienti</code> e il saldo non cambia. Crea un conto con 100 euro, deposita 50, preleva 200 e poi 30, e stampa <code>Saldo: 120</code>.`,
+    task: `Scrivi la classe <code>Conto</code>: parte con il <code>saldo</code> che le passi. <code>deposita(euro)</code> aggiunge al saldo; <code>preleva(euro)</code> toglie dal saldo solo se ci sono abbastanza soldi, altrimenti stampa <code>Fondi insufficienti</code> e il saldo non cambia. Crea un conto con 100 euro, deposita 50, preleva 200 e poi 30, e stampa <code>Saldo: 120</code>. Proverò anche con un altro conto.`,
     starter: `# La classe Conto\n\n`,
     solution: `class Conto:
     def __init__(self, saldo):
@@ -5721,7 +5731,7 @@ b.press()
 print(b.on)   # True
 b.press()
 print(b.on)   # False` }],
-    task: `Write the class <code>Account</code>: it starts with the <code>balance</code> you pass it. <code>deposit(euros)</code> adds to the balance; <code>withdraw(euros)</code> takes from the balance only if there's enough money, otherwise it prints <code>Insufficient funds</code> and the balance doesn't change. Create an account with 100 euros, deposit 50, withdraw 200 and then 30, and print <code>Balance: 120</code>.`,
+    task: `Write the class <code>Account</code>: it starts with the <code>balance</code> you pass it. <code>deposit(euros)</code> adds to the balance; <code>withdraw(euros)</code> takes from the balance only if there's enough money, otherwise it prints <code>Insufficient funds</code> and the balance doesn't change. Create an account with 100 euros, deposit 50, withdraw 200 and then 30, and print <code>Balance: 120</code>. I'll also try another account.`,
     starter: `# The Account class\n\n`,
     solution: `class Account:
     def __init__(self, balance):
@@ -6284,7 +6294,7 @@ print(f"{player.name}, games played: {player.games}. Record: {player.record} poi
   it: {
     title: "Il contatore rotto",
     theory: [`<p>L'ultimo boss. Una classe con tre bug: uno nella definizione del metodo, uno nel nome dell'attributo e uno nascosto in una chiamata che non chiama niente.</p>`],
-    task: `Correggi il programma: il contatore parte da 0, aumenta tre volte e deve stampare <code>3</code>.`,
+    task: `Correggi il programma: il contatore parte da 0, aumenta tre volte e deve stampare <code>3</code>. Proverò anche a chiamare il metodo un'altra volta.`,
     starter: `class Contatore:\n    def __init__(self):\n        self.valore = 0\n\n    def aumenta():\n        self.valore += 1\n\nc = Contatore()\nc.aumenta()\nc.aumenta\nc.aumenta()\nprint(c.Valore)\n`,
     solution: `class Contatore:
     def __init__(self):
@@ -6307,7 +6317,7 @@ print(c.valore)`,
   en: {
     title: "The broken counter",
     theory: [`<p>The last boss. A class with three bugs: one in the method's definition, one in the attribute's name and one hidden in a call that doesn't call anything.</p>`],
-    task: `Fix the program: the counter starts at 0, goes up three times and must print <code>3</code>.`,
+    task: `Fix the program: the counter starts at 0, goes up three times and must print <code>3</code>. I'll also try calling the method once more.`,
     starter: `class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def increase():\n        self.value += 1\n\nc = Counter()\nc.increase()\nc.increase\nc.increase()\nprint(c.Value)\n`,
     solution: `class Counter:
     def __init__(self):
@@ -6399,7 +6409,7 @@ plt.plot(giorni, passi, marker="o")
 plt.xlabel("Giorno")
 plt.ylabel("Passi")
 plt.show()` },
-`<p>Prova a cambiare i numeri, o a usare <code>plt.bar</code> al posto di <code>plt.plot</code> per un grafico a barre, e <code>plt.title</code> per dargli un titolo.</p>`],
+`<p>Nell'esempio prova a cambiare i numeri, o a usare <code>plt.bar</code> al posto di <code>plt.plot</code> per un grafico a barre, e <code>plt.title</code> per dargli un titolo.</p>`],
     task: `Disegna con <code>plt.bar</code> un grafico a barre dei voti <code>[6, 8, 7]</code> per le materie <code>["Mate", "Storia", "Inglese"]</code>, dagli il titolo <code>Voti del quadrimestre</code> e mostralo.`,
     starter: `import matplotlib.pyplot as plt\n\n`,
     solution: `import matplotlib.pyplot as plt
@@ -6428,7 +6438,7 @@ plt.plot(days, steps, marker="o")
 plt.xlabel("Day")
 plt.ylabel("Steps")
 plt.show()` },
-`<p>Try changing the numbers, or use <code>plt.bar</code> instead of <code>plt.plot</code> for a bar chart, and <code>plt.title</code> to give it a title.</p>`],
+`<p>In the example try changing the numbers, or use <code>plt.bar</code> instead of <code>plt.plot</code> for a bar chart, and <code>plt.title</code> to give it a title.</p>`],
     task: `With <code>plt.bar</code>, draw a bar chart of the grades <code>[6, 8, 7]</code> for the subjects <code>["Math", "History", "English"]</code>, give it the title <code>Term grades</code> and show it.`,
     starter: `import matplotlib.pyplot as plt\n\n`,
     solution: `import matplotlib.pyplot as plt
@@ -6768,7 +6778,7 @@ const UI = {
     statusTodo: "Scrivi il codice nell'editor e premi Esegui: la correzione è automatica.",
     hint: "Suggerimento", hideHint: "Nascondi suggerimento", sol: "Mostra soluzione", hideSol: "Nascondi soluzione",
     solTitle: "Una soluzione possibile", useSol: "Copia nell'editor",
-    prev: "← Indietro", next: "Avanti →", tryIt: "▶ Prova",
+    prev: "← Indietro", next: "Avanti →", tryIt: "▶ Prova", exReset: "↺ Originale", exAria: "Esempio: puoi modificarlo e provarlo",
     resetProgress: "Azzera progressi",
     confirmReset: (n) => `Vuoi azzerare i progressi? Perderai ${n} lezioni completate e il codice scritto nelle lezioni. I programmi della modalità Libero restano.`,
     yesReset: "Sì, azzera", cancel: "Annulla",
@@ -6856,7 +6866,7 @@ const UI = {
     statusTodo: "Write your code in the editor and press Run: it's checked automatically.",
     hint: "Hint", hideHint: "Hide hint", sol: "Show solution", hideSol: "Hide solution",
     solTitle: "One possible solution", useSol: "Copy to editor",
-    prev: "← Back", next: "Next →", tryIt: "▶ Try it",
+    prev: "← Back", next: "Next →", tryIt: "▶ Try it", exReset: "↺ Original", exAria: "Example: you can edit it and try it",
     resetProgress: "Reset progress",
     confirmReset: (n) => `Reset your progress? You'll lose ${n} completed lessons and the code written in lessons. Playground programs are kept.`,
     yesReset: "Yes, reset", cancel: "Cancel",
@@ -7730,7 +7740,7 @@ function save(fromSync) {
   if (!fromSync) scheduleSync();
 }
 
-const ui = { hint: 0, sol: false, order: null, renaming: false, confirmDel: false, quiz: null, mexpr: "i", msay: "", settings: { code: false, confirm: false, msg: "" } };
+const ui = { hint: 0, sol: false, order: null, renaming: false, confirmDel: false, quiz: null, mexpr: "i", msay: "", exCode: {}, settings: { code: false, confirm: false, msg: "" } };
 const t = (k, ...a) => { const v = UI[S.lang][k]; return typeof v === "function" ? v(...a) : v; };
 const level = () => LEVELS[S.current];
 const item = () => LESSON_BY_ID[level().id];
@@ -7885,18 +7895,18 @@ code.addEventListener("click", () => {
 });
 code.addEventListener("focus", () => { lastField = code; });
 
-function smartNewline() {
-  const v = code.value, s = code.selectionStart;
+function smartNewline(el = code) {
+  const v = el.value, s = el.selectionStart;
   const ls = v.lastIndexOf("\n", s - 1) + 1;
   const line = v.slice(ls, s);
   let ind = line.match(/^[ \t]*/)[0];
   if (/:\s*(#.*)?$/.test(line)) ind += "    ";
   else if (/^\s*(return|break|continue|pass|raise)\b/.test(line) && ind.length >= 4) ind = ind.slice(4);
-  insertAt(code, "\n" + ind);
+  insertAt(el, "\n" + ind);
 }
-function indentSelection(dedent) {
-  const v = code.value, s = code.selectionStart, e = code.selectionEnd;
-  if (!dedent && s === e) { insertAt(code, "    "); return; }
+function indentSelection(dedent, el = code) {
+  const v = el.value, s = el.selectionStart, e = el.selectionEnd;
+  if (!dedent && s === e) { insertAt(el, "    "); return; }
   const ls = v.lastIndexOf("\n", s - 1) + 1;
   const blockEnd = e > s && v[e - 1] === "\n" ? e - 1 : e;
   let le = v.indexOf("\n", blockEnd);
@@ -7904,10 +7914,10 @@ function indentSelection(dedent) {
   const block = v.slice(ls, le);
   const out = block.split("\n").map((l) => dedent ? l.replace(/^ {1,4}/, "") : "    " + l).join("\n");
   if (out === block) return;
-  code.setSelectionRange(ls, le);
-  insertAt(code, out);
-  if (s === e) { const pos = Math.max(ls, s + (out.length - block.length)); code.setSelectionRange(pos, pos); }
-  else code.setSelectionRange(ls, ls + out.length);
+  el.setSelectionRange(ls, le);
+  insertAt(el, out);
+  if (s === e) { const pos = Math.max(ls, s + (out.length - block.length)); el.setSelectionRange(pos, pos); }
+  else el.setSelectionRange(ls, ls + out.length);
 }
 code.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); runEditor(); return; }
@@ -8947,13 +8957,20 @@ function renderReadme() {
 
 /* ---------- Level: explanation on the left, quest above the editor ---------- */
 const questEl = $("quest");
+const exPaint = (src) => highlight(src) + (src.endsWith("\n") || !src ? " " : "");
 function renderLevel() {
   const lv = level(), it = item(), L = it[S.lang], w = WORLDS[lv.w], key = worldMascot(lv);
   const st = S.stars[lv.id] || 0;
   /* on quizzes and "order" levels there is nothing to type: the mascot invites to read */
   if (!ui.msay) { ui.msay = pickLine(key, noEditor() ? "read" : "hello", hashStr(lv.id + S.lang)); ui.mexpr = "i"; }
-  const theory = L.theory.map((b, k) => typeof b === "string" ? b :
-    `<div class="ex"><pre>${highlight(b.code)}</pre><div class="ex-foot"><button class="btn tiny" data-ex="${k}">${t("tryIt")}</button></div></div>`).join("");
+  /* examples can be edited and run: the edits last while the app is open, ↺ brings the original back */
+  const exKey = (k) => lv.id + ":" + S.lang + ":" + k;
+  const theory = L.theory.map((b, k) => {
+    if (typeof b === "string") return b;
+    const src = ui.exCode[exKey(k)] ?? b.code;
+    return `<div class="ex" data-exk="${k}"><div class="ex-code"><pre class="ex-hl" aria-hidden="true">${exPaint(src)}</pre><textarea class="ex-ta" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="${t("exAria")}">${escHtml(src)}</textarea></div>
+      <div class="ex-foot"><button class="btn tiny" data-exreset="${k}" ${src === b.code ? "hidden" : ""}>${t("exReset")}</button><button class="btn tiny" data-ex="${k}">${t("tryIt")}</button></div></div>`;
+  }).join("");
   const needs = it.needs === "full" && engine === "skulpt" ? `<div class="notice">${t("needsFull")}</div>` : "";
   const prevOk = S.current > 0, nextOk = S.current + 1 < LEVELS.length && unlocked(S.current + 1);
   panel.innerHTML = `
@@ -8969,7 +8986,23 @@ function renderLevel() {
       <button class="btn ${st ? "go" : ""}" id="next" ${nextOk ? "" : "disabled"}>${t("next")}</button>
     </div>`;
   drawLevelMascot();
-  panel.querySelectorAll("[data-ex]").forEach((b) => { b.onclick = () => runFile(L.theory[+b.dataset.ex].code, t("fileExample")); });
+  panel.querySelectorAll(".ex").forEach((box) => {
+    const k = +box.dataset.exk, orig = L.theory[k].code;
+    const ta = box.querySelector(".ex-ta"), hl = box.querySelector(".ex-hl"), back = box.querySelector("[data-exreset]");
+    const run = () => runFile(ta.value, t("fileExample"));
+    const paint = () => { hl.innerHTML = exPaint(ta.value); hl.scrollLeft = ta.scrollLeft; back.hidden = ta.value === orig; };
+    ta.addEventListener("input", () => { if (ta.value === orig) delete ui.exCode[exKey(k)]; else ui.exCode[exKey(k)] = ta.value; paint(); });
+    ta.addEventListener("scroll", () => { hl.scrollLeft = ta.scrollLeft; });
+    ta.addEventListener("focus", () => { lastField = ta; });
+    ta.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); return; }
+      if (e.key === "Tab" && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); indentSelection(e.shiftKey, ta); return; }
+      if (e.key === "Enter" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); smartNewline(ta); }
+    });
+    guardTyping(ta);
+    box.querySelector("[data-ex]").onclick = run;
+    back.onclick = () => { ta.value = orig; delete ui.exCode[exKey(k)]; paint(); ta.focus(); };
+  });
   $("to-map").onclick = () => setView("map");
   $("prev").onclick = () => goLesson(S.current - 1);
   $("next").onclick = () => goLesson(S.current + 1);
@@ -9961,7 +9994,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "594b302afb", APP_BUILT = "2026-11-08T21:43Z";
+const APP_VERSION = "0b89f377bc", APP_BUILT = "2026-11-08T22:00Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
