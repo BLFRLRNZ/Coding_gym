@@ -267,6 +267,20 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 #term .prow input { flex: 1; white-space: pre; }
 #term .tut { color: var(--term-tut); font-family: var(--f-body); }
 #term img.plot { display: block; max-width: min(100%, 640px); height: auto; background: var(--plot-bg); border-radius: 6px; margin: 6px 0; }
+/* Pygame Zero window: title bar, the canvas, and what the game prints */
+#term .gwin { display: block; width: fit-content; min-width: 180px; max-width: 100%; margin: 8px 0; border: 1px solid var(--term-line); border-radius: 10px; overflow: hidden; background: #000; font-family: var(--f-body); line-height: 1.3; }
+#term .gbar { width: 0; min-width: 100%; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding: 3px 4px 3px 12px; background: var(--side-bg); border-bottom: 1px solid var(--term-line); font-size: 0.82rem; }
+#term .gtitle { font-weight: 700; color: var(--term-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+#term .gsize { color: var(--term-dim); font-family: var(--f-mono); font-size: 0.74rem; white-space: nowrap; }
+#term .gclose { margin-left: auto; flex: none; border: 0; background: transparent; color: var(--term-dim); width: 30px; height: 30px; border-radius: 6px; font-size: 0.95rem; line-height: 1; }
+#term .gclose:hover { color: var(--term-err); background: rgba(255, 255, 255, 0.06); }
+#term .gview { position: relative; display: flex; justify-content: center; }
+#term .gview canvas { display: block; height: auto; max-width: 100%; outline: none; }
+#term .gview canvas:focus-visible { outline: 2px solid var(--term-prompt); outline-offset: -2px; }
+#term .gview img.gshot { display: block; height: auto; max-width: 100%; }
+#term .gfocus { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); pointer-events: none; background: rgba(6, 10, 19, 0.85); color: var(--term-fg); border: 1px solid var(--term-line); border-radius: 999px; padding: 4px 12px; font-size: 0.8rem; white-space: nowrap; }
+#term .gout { width: 0; min-width: 100%; box-sizing: border-box; margin: 0; max-height: 7.4em; overflow: auto; padding: 6px 10px; border-top: 1px solid var(--term-line); background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+#term .gwin.over .gbar { opacity: 0.7; }
 .note { font-size: 0.84rem; color: var(--muted); margin: 0; }
 
 /* Terminal page: terminal takes the wide column, guide sits beside it */
@@ -878,10 +892,23 @@ code b, pre b, #term b { font-family: inherit; }
 <div class="overlay" id="settings" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="set-title"></div></div>
 
 <script type="text/x-python" id="py-runner">
-import sys, ast, builtins, traceback, linecache, random, json, io, os, base64
+import sys, ast, builtins, traceback, linecache, random, json, io, os, base64, types, re
 
 os.environ.setdefault("MPLBACKEND", "AGG")
 from js import ppEmit
+
+# Pygame Zero for the games (src/pgz.py, put here by build.py): loaded the first time a program imports pgzrun
+_PGZ_SRC = "\"\"\"Pygame Zero for Arcode.\n\nThe same names and hooks as Pygame Zero (WIDTH, HEIGHT, TITLE, draw, update, on_key_down, screen, keyboard,\nkeys, mouse, clock, Rect), so a game written here also runs on a computer with `pip install pgzero`.\nA game starts like on a computer: `import pgzrun` at the top and `pgzrun.go()` at the end.\nNothing here touches the browser: a Game turns a step of time and the input events into a list of drawing\ncommands, which the app paints on a canvas and the tests can read.\n\"\"\"\nimport inspect\nimport math\nimport numbers\nimport re\nimport sys\nimport types\n\n# ---------- colours (pygame's names: where X11 and CSS disagree, pygame's value wins) ----------\n_CSS = set(\"\"\"aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown\nburlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod\ndarkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon\ndarkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey\ndodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey\nhoneydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral\nlightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue\nlightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine\nmediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise\nmediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered\norchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple\nrebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue\nslateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white\nwhitesmoke yellow yellowgreen\"\"\".split())\n_PYGAME = {\"green\": \"#00ff00\", \"gray\": \"#bebebe\", \"grey\": \"#bebebe\", \"maroon\": \"#b03060\", \"purple\": \"#a020f0\"}\n_HEX = set(\"0123456789abcdef\")\n\n\ndef _real(x):\n    return isinstance(x, numbers.Real) and not isinstance(x, bool)\n\n\ndef color(c):\n    \"\"\"A pygame colour (name, '#rrggbb', '#rrggbbaa' or a tuple of 3 or 4 numbers 0-255) as a CSS colour.\"\"\"\n    if isinstance(c, str):\n        s = c.lower().replace(\" \", \"\")\n        if s in _PYGAME:\n            return _PYGAME[s]\n        if s in _CSS:\n            return s\n        if s.startswith(\"#\") and len(s) in (7, 9) and set(s[1:]) <= _HEX:\n            return s\n        raise ValueError(\"invalid color name: \" + repr(c))\n    if isinstance(c, (tuple, list)) and len(c) in (3, 4):\n        v = []\n        for x in c:\n            if not _real(x) or not 0 <= x <= 255:\n                raise ValueError(\"invalid color argument: \" + repr(c))\n            v.append(int(x))\n        if len(v) == 3:\n            return \"rgb(%d,%d,%d)\" % tuple(v)\n        return \"rgba(%d,%d,%d,%.3f)\" % (v[0], v[1], v[2], v[3] / 255)\n    raise ValueError(\"invalid color argument: \" + repr(c))\n\n\ndef _num(x, what):\n    \"\"\"A plain number for the drawing commands (numpy numbers too); NaN and infinity can't be drawn.\"\"\"\n    if not _real(x):\n        raise TypeError(\"%s must be a number, not %s\" % (what, type(x).__name__))\n    x = int(x) if isinstance(x, numbers.Integral) else float(x)\n    if isinstance(x, float) and not math.isfinite(x):\n        raise ValueError(\"%s can't be %r\" % (what, x))\n    return x\n\n\ndef _point(p, what=\"pos\"):\n    try:\n        x, y = p\n    except (TypeError, ValueError):\n        raise TypeError(\"%s must be a pair of numbers (x, y), not %r\" % (what, p)) from None\n    return [_num(x, what), _num(y, what)]\n\n\n# ---------- Rect (like pygame's, keeping fractions like Pygame Zero's ZRect) ----------\nclass Rect:\n    __slots__ = (\"x\", \"y\", \"w\", \"h\")\n\n    def __init__(self, *args):\n        if len(args) == 1:\n            a = args[0]\n            if isinstance(a, Rect):\n                args = (a.x, a.y, a.w, a.h)\n            else:\n                try:\n                    args = tuple(a)\n                except TypeError:\n                    raise TypeError(\"Argument must be rect style object\") from None\n                if len(args) == 2:\n                    args = tuple(args[0]) + tuple(args[1])\n        elif len(args) == 2:\n            args = tuple(args[0]) + tuple(args[1])\n        if len(args) != 4:\n            raise TypeError(\"Argument must be rect style object\")\n        self.x, self.y, self.w, self.h = (_num(v, \"Rect\") for v in args)\n\n    width = property(lambda s: s.w, lambda s, v: setattr(s, \"w\", v))\n    height = property(lambda s: s.h, lambda s, v: setattr(s, \"h\", v))\n    size = property(lambda s: (s.w, s.h), lambda s, v: s._set_size(v))\n\n    def _set_size(self, v):\n        self.w, self.h = v\n\n    left = property(lambda s: s.x, lambda s, v: setattr(s, \"x\", v))\n    top = property(lambda s: s.y, lambda s, v: setattr(s, \"y\", v))\n    right = property(lambda s: s.x + s.w, lambda s, v: setattr(s, \"x\", v - s.w))\n    bottom = property(lambda s: s.y + s.h, lambda s, v: setattr(s, \"y\", v - s.h))\n    centerx = property(lambda s: s.x + s.w / 2, lambda s, v: setattr(s, \"x\", v - s.w / 2))\n    centery = property(lambda s: s.y + s.h / 2, lambda s, v: setattr(s, \"y\", v - s.h / 2))\n\n    def _pt(fx, fy):\n        return property(lambda s: (getattr(s, fx), getattr(s, fy)),\n                        lambda s, v: (setattr(s, fx, v[0]), setattr(s, fy, v[1])))\n    topleft = _pt(\"left\", \"top\")\n    topright = _pt(\"right\", \"top\")\n    bottomleft = _pt(\"left\", \"bottom\")\n    bottomright = _pt(\"right\", \"bottom\")\n    center = _pt(\"centerx\", \"centery\")\n    midtop = _pt(\"centerx\", \"top\")\n    midbottom = _pt(\"centerx\", \"bottom\")\n    midleft = _pt(\"left\", \"centery\")\n    midright = _pt(\"right\", \"centery\")\n    del _pt\n\n    def copy(self):\n        return Rect(self.x, self.y, self.w, self.h)\n\n    def move(self, *d):\n        dx, dy = d[0] if len(d) == 1 else d\n        return Rect(self.x + dx, self.y + dy, self.w, self.h)\n\n    def move_ip(self, *d):\n        dx, dy = d[0] if len(d) == 1 else d\n        self.x += dx\n        self.y += dy\n\n    def inflate(self, dx, dy):\n        return Rect(self.x - dx / 2, self.y - dy / 2, self.w + dx, self.h + dy)\n\n    def inflate_ip(self, dx, dy):\n        self.x, self.y, self.w, self.h = self.x - dx / 2, self.y - dy / 2, self.w + dx, self.h + dy\n\n    def clamp(self, *o):\n        \"\"\"A copy moved inside the other rect (centred on it if it doesn't fit).\"\"\"\n        o = Rect(*o)\n        x = o.x + (o.w - self.w) / 2 if self.w >= o.w else min(max(self.x, o.x), o.x + o.w - self.w)\n        y = o.y + (o.h - self.h) / 2 if self.h >= o.h else min(max(self.y, o.y), o.y + o.h - self.h)\n        return Rect(x, y, self.w, self.h)\n\n    def clamp_ip(self, *o):\n        r = self.clamp(*o)\n        self.x, self.y = r.x, r.y\n\n    def union(self, *o):\n        o = Rect(*o)\n        x, y = min(self.x, o.x), min(self.y, o.y)\n        return Rect(x, y, max(self.x + self.w, o.x + o.w) - x, max(self.y + self.h, o.y + o.h) - y)\n\n    def clip(self, *o):\n        o = Rect(*o)\n        x, y = max(self.x, o.x), max(self.y, o.y)\n        r, b = min(self.x + self.w, o.x + o.w), min(self.y + self.h, o.y + o.h)\n        if r <= x or b <= y:\n            return Rect(self.x, self.y, 0, 0)\n        return Rect(x, y, r - x, b - y)\n\n    def colliderect(self, *o):\n        o = Rect(*o)\n        return (self.w > 0 and self.h > 0 and o.w > 0 and o.h > 0 and\n                self.x < o.x + o.w and o.x < self.x + self.w and self.y < o.y + o.h and o.y < self.y + self.h)\n\n    def collidepoint(self, *p):\n        x, y = p[0] if len(p) == 1 else p\n        return self.x <= x < self.x + self.w and self.y <= y < self.y + self.h\n\n    def contains(self, *o):\n        o = Rect(*o)\n        return self.x <= o.x and self.y <= o.y and o.x + o.w <= self.x + self.w and o.y + o.h <= self.y + self.h\n\n    def collidelist(self, rects):\n        for i, r in enumerate(rects):\n            if self.colliderect(r):\n                return i\n        return -1\n\n    def collidelistall(self, rects):\n        return [i for i, r in enumerate(rects) if self.colliderect(r)]\n\n    def __iter__(self):\n        return iter((self.x, self.y, self.w, self.h))\n\n    def __len__(self):\n        return 4\n\n    def __getitem__(self, i):\n        return (self.x, self.y, self.w, self.h)[i]\n\n    def __eq__(self, o):\n        try:\n            return tuple(self) == tuple(Rect(o))\n        except TypeError:\n            return NotImplemented\n\n    def __repr__(self):\n        return \"<rect(%s, %s, %s, %s)>\" % (self.x, self.y, self.w, self.h)\n\n\nZRect = Rect\n\n\n# ---------- keys, keyboard, mouse ----------\nclass _Code(int):\n    \"\"\"A key or a mouse button, like the members of Pygame Zero's keys and mouse:\n    the same number as pygame (keys.A == 97), a name (key.name == \"A\"), printed as the number.\"\"\"\n    def __new__(cls, value, group, name):\n        o = int.__new__(cls, value)\n        o.name = name\n        o._label = group + \".\" + name\n        return o\n\n    @property\n    def value(self):\n        return int(self)\n\n    def __repr__(self):\n        return \"<%s: %d>\" % (self._label, int(self))\n\n    def __str__(self):\n        return str(int(self))\n\n\n# pygame's key codes (SDL 2), so that keys.A == 97 and chr(key) give the same results as on a computer\n_KEYCODES = {\"UNKNOWN\": 0, \"BACKSPACE\": 8, \"TAB\": 9, \"RETURN\": 13, \"ESCAPE\": 27, \"SPACE\": 32, \"PLUS\": 43, \"COMMA\": 44,\n             \"MINUS\": 45, \"PERIOD\": 46, \"SLASH\": 47, \"EQUALS\": 61, \"DELETE\": 127,\n             \"INSERT\": 1073741897, \"HOME\": 1073741898, \"PAGEUP\": 1073741899, \"END\": 1073741901, \"PAGEDOWN\": 1073741902,\n             \"RIGHT\": 1073741903, \"LEFT\": 1073741904, \"DOWN\": 1073741905, \"UP\": 1073741906,\n             \"LCTRL\": 1073742048, \"LSHIFT\": 1073742049, \"LALT\": 1073742050, \"RCTRL\": 1073742052, \"RSHIFT\": 1073742053,\n             \"RALT\": 1073742054}\nfor _i in range(10):\n    _KEYCODES[\"K_%d\" % _i] = 48 + _i\nfor _c in \"abcdefghijklmnopqrstuvwxyz\":\n    _KEYCODES[_c.upper()] = ord(_c)\nfor _i in range(1, 13):\n    _KEYCODES[\"F%d\" % _i] = 1073741881 + _i\n\n# key names as the app sends them (KeyboardEvent.key, lowercased) -> names of Pygame Zero's keys\n_KEYNAMES = {\"arrowleft\": \"LEFT\", \"arrowright\": \"RIGHT\", \"arrowup\": \"UP\", \"arrowdown\": \"DOWN\", \" \": \"SPACE\",\n             \"enter\": \"RETURN\", \"escape\": \"ESCAPE\", \"backspace\": \"BACKSPACE\", \"tab\": \"TAB\", \"delete\": \"DELETE\",\n             \"shift\": \"LSHIFT\", \"rshift\": \"RSHIFT\", \"control\": \"LCTRL\", \"alt\": \"LALT\", \"home\": \"HOME\", \"end\": \"END\",\n             \"pageup\": \"PAGEUP\", \"pagedown\": \"PAGEDOWN\", \"insert\": \"INSERT\",\n             \"+\": \"PLUS\", \"-\": \"MINUS\", \".\": \"PERIOD\", \",\": \"COMMA\", \"/\": \"SLASH\", \"=\": \"EQUALS\"}\nfor _c in \"abcdefghijklmnopqrstuvwxyz\":\n    _KEYNAMES[_c] = _c.upper()\nfor _c in \"0123456789\":\n    _KEYNAMES[_c] = \"K_\" + _c\nfor _i in range(1, 13):\n    _KEYNAMES[\"f%d\" % _i] = \"F%d\" % _i\n\nkeys = types.SimpleNamespace()\n_KEYS = {}\nfor _name, _code in _KEYCODES.items():\n    _KEYS[_name] = _Code(_code, \"keys\", _name)\n    setattr(keys, _name, _KEYS[_name])\n\nkeymods = types.SimpleNamespace(LSHIFT=1, RSHIFT=2, SHIFT=3, LCTRL=64, RCTRL=128, CTRL=192, LALT=256, RALT=512,\n                                ALT=768)\nmouse = types.SimpleNamespace(LEFT=_Code(1, \"mouse\", \"LEFT\"), MIDDLE=_Code(2, \"mouse\", \"MIDDLE\"),\n                              RIGHT=_Code(3, \"mouse\", \"RIGHT\"), WHEEL_UP=_Code(4, \"mouse\", \"WHEEL_UP\"),\n                              WHEEL_DOWN=_Code(5, \"mouse\", \"WHEEL_DOWN\"))\n_BUTTONS = {1: mouse.LEFT, 2: mouse.MIDDLE, 3: mouse.RIGHT, 4: mouse.WHEEL_UP, 5: mouse.WHEEL_DOWN}\n\n\nclass Keyboard:\n    \"\"\"keyboard.left, keyboard.a, keyboard[keys.SPACE]: True while the key is held down.\"\"\"\n    def __init__(self):\n        object.__setattr__(self, \"_down\", set())\n\n    def __getattr__(self, name):\n        if name.startswith(\"_\"):\n            raise AttributeError(name)\n        k = _KEYS.get(name.upper())\n        if k is None:\n            raise AttributeError(\"keyboard has no key called %r\" % name)\n        return k in self._down\n\n    def __getitem__(self, k):\n        return k in self._down\n\n    def __setattr__(self, name, value):\n        raise AttributeError(\"keyboard can't be changed: it tells which keys are held down\")\n\n\n# ---------- clock ----------\nclass Clock:\n    \"\"\"clock.schedule(f, 2) calls f in 2 seconds, clock.schedule_interval(f, 0.5) every half second.\"\"\"\n    def __init__(self):\n        self.t = 0.0\n        self._ev = []      # [due, seq, callback, interval or None]\n        self._seq = 0\n\n    def _add(self, cb, delay, interval):\n        if not callable(cb):\n            raise TypeError(\"the clock needs a function to call, not %s\" % type(cb).__name__)\n        self._seq += 1\n        self._ev.append([self.t + _num(delay, \"delay\"), self._seq, cb, interval])\n\n    def schedule(self, callback, delay):\n        self._add(callback, delay, None)\n\n    def schedule_unique(self, callback, delay):\n        self.unschedule(callback)\n        self._add(callback, delay, None)\n\n    def schedule_interval(self, callback, interval):\n        if _num(interval, \"interval\") <= 0:\n            raise ValueError(\"the interval must be more than 0 seconds\")\n        self._add(callback, interval, interval)\n\n    def unschedule(self, callback):\n        self._ev = [e for e in self._ev if e[2] != callback]\n\n    def next_in(self):\n        \"\"\"Seconds until the next call, or None when nothing is scheduled.\"\"\"\n        return max(0.0, min(e[0] for e in self._ev) - self.t) if self._ev else None\n\n    def tick(self, dt):\n        \"\"\"Moves time on and calls what's due, in order; returns how many calls were made.\"\"\"\n        self.t += dt\n        fired = 0\n        while fired < 1000:\n            due = [e for e in self._ev if e[0] <= self.t + 1e-9]\n            if not due:\n                break\n            e = min(due, key=lambda e: (e[0], e[1]))\n            if e[3] is None:\n                self._ev.remove(e)\n            else:\n                e[0] += e[3]\n                self._seq += 1\n                e[1] = self._seq\n            e[2]()\n            fired += 1\n        return fired\n\n\n# ---------- screen ----------\n_ANCHORS = (\"topleft\", \"midtop\", \"topright\", \"midleft\", \"center\", \"midright\", \"bottomleft\", \"midbottom\",\n            \"bottomright\")\n_IGNORED = {\"fontname\", \"sysfontname\", \"antialias\", \"bold\", \"italic\", \"underline\", \"gcolor\", \"surf\", \"cache\"}\n\n\ndef _text_opts(kw, where):\n    \"\"\"ptext's options as the app paints them: colour, size, background, alignment and effects.\"\"\"\n    c = color\n    o = {\"c\": c(kw.pop(\"color\", \"white\")), \"s\": _num(kw.pop(\"fontsize\", 24), \"fontsize\")}\n    bg = kw.pop(\"background\", None)\n    if bg is not None:\n        o[\"bg\"] = c(bg)\n    align = kw.pop(\"align\", None)   # by default the lines line up on the anchor's side\n    if align is not None:\n        if align not in (\"left\", \"center\", \"right\"):\n            raise ValueError(\"align must be 'left', 'center' or 'right', not %r\" % (align,))\n        o[\"al\"] = align\n    o[\"lh\"] = _num(kw.pop(\"lineheight\", 1.0), \"lineheight\")\n    width = kw.pop(\"width\", None)\n    if width is not None:\n        o[\"w\"] = _num(width, \"width\")\n    if \"alpha\" in kw:\n        o[\"a\"] = max(0.0, min(1.0, float(_num(kw.pop(\"alpha\"), \"alpha\"))))\n    owidth, ocolor = kw.pop(\"owidth\", None), kw.pop(\"ocolor\", \"black\")\n    if owidth:\n        o[\"ow\"], o[\"oc\"] = _num(owidth, \"owidth\"), c(ocolor)\n    shadow, scolor = kw.pop(\"shadow\", None), kw.pop(\"scolor\", \"black\")\n    if shadow:\n        o[\"sh\"], o[\"sc\"] = _point(shadow, \"shadow\"), c(scolor)\n    angle = kw.pop(\"angle\", 0)\n    if angle:\n        o[\"an\"] = _num(angle, \"angle\")\n    for k in list(kw):\n        if k in _IGNORED:\n            kw.pop(k)\n    if kw:\n        raise TypeError(\"%s() got an unexpected keyword argument %r\" % (where, next(iter(kw))))\n    return o\n\n\nclass _Draw:\n    def __init__(self, screen):\n        self._s = screen\n\n    def _w(self, width):\n        width = _num(width, \"width\")\n        if width < 0:\n            raise ValueError(\"the width of a line can't be negative\")\n        return width\n\n    def line(self, start, end, color_, width=1):\n        self._s._add([\"line\"] + _point(start, \"start\") + _point(end, \"end\") + [color(color_), self._w(width)])\n\n    def circle(self, pos, radius, color_, width=1):\n        self._s._add([\"circle\"] + _point(pos) + [_num(radius, \"radius\"), color(color_), False, self._w(width)])\n\n    def filled_circle(self, pos, radius, color_):\n        self._s._add([\"circle\"] + _point(pos) + [_num(radius, \"radius\"), color(color_), True, 0])\n\n    # like Pygame Zero, rect() and filled_rect() want a Rect, not a tuple\n    def rect(self, rect, color_, width=1):\n        if not isinstance(rect, Rect):\n            raise TypeError(\"screen.draw.rect() requires a rect to draw\")\n        self._s._add([\"rect\", rect.x, rect.y, rect.w, rect.h, color(color_), False, self._w(width)])\n\n    def filled_rect(self, rect, color_):\n        if not isinstance(rect, Rect):\n            raise TypeError(\"screen.draw.filled_rect() requires a rect to draw\")\n        self._s._add([\"rect\", rect.x, rect.y, rect.w, rect.h, color(color_), True, 0])\n\n    def polygon(self, points, color_, width=1):\n        self._s._add([\"poly\", [_point(p, \"point\") for p in points], color(color_), False, self._w(width)])\n\n    def filled_polygon(self, points, color_):\n        self._s._add([\"poly\", [_point(p, \"point\") for p in points], color(color_), True, 0])\n\n    def text(self, text, pos=None, **kw):\n        anchor, point = \"topleft\", pos\n        for k in _ANCHORS:\n            if k in kw:\n                anchor, point = k, kw.pop(k)\n        if point is None:\n            point = (0, 0)\n        self._s._add([\"text\", str(text)] + _point(point) + [anchor, _text_opts(kw, \"text\")])\n\n    def textbox(self, text, rect, **kw):\n        r = rect if isinstance(rect, Rect) else Rect(rect)\n        self._s._add([\"textbox\", str(text), r.x, r.y, r.w, r.h, _text_opts(kw, \"textbox\")])\n\n\nclass Screen:\n    \"\"\"The game window: screen.fill, screen.clear and screen.draw.<shape>.\"\"\"\n    def __init__(self, width, height):\n        self.width, self.height = width, height\n        self.draw = _Draw(self)\n        self.cmds = []\n\n    def _add(self, cmd):\n        self.cmds.append(cmd)\n\n    def bounds(self):\n        return Rect(0, 0, self.width, self.height)\n\n    def fill(self, color_, gcolor=None):\n        c = color(color_)\n        # everything drawn before in this step is covered: no need to send it\n        self.cmds = [[\"fill\", c, None if gcolor is None else color(gcolor)]]\n\n    def clear(self):\n        self.cmds = [[\"fill\", \"#000000\", None]]\n\n    def blit(self, *a, **k):\n        raise NotImplementedError(\"images aren't available in Arcode yet: draw with screen.draw\")\n\n\nclass _Missing:\n    def __init__(self, what):\n        self._what = what\n\n    def __getattr__(self, name):\n        if name.startswith(\"__\"):\n            raise AttributeError(name)\n        raise NotImplementedError(\"%s aren't available in Arcode yet\" % self._what)\n\n    def __call__(self, *a, **k):\n        raise NotImplementedError(\"%s aren't available in Arcode yet\" % self._what)\n\n\ndef Actor(*a, **k):\n    raise NotImplementedError(\"Actor needs image files, which Arcode doesn't have yet: draw with screen.draw\")\n\n\n# ---------- the game ----------\nHOOKS = {\"draw\": (), \"update\": (\"dt\",), \"on_key_down\": (\"key\", \"mod\", \"unicode\"), \"on_key_up\": (\"key\", \"mod\"),\n         \"on_mouse_down\": (\"pos\", \"button\"), \"on_mouse_up\": (\"pos\", \"button\"), \"on_mouse_move\": (\"pos\", \"rel\", \"buttons\")}\nMAX_SIDE = 2000\n\n\ndef uses_pgzero(src):\n    \"\"\"A program that imports pgzrun (or pgzero) gets Pygame Zero's names, like on a computer.\"\"\"\n    return bool(re.search(r\"\\b(pgzrun|pgzero)\\b\", src))\n\n\nclass _Quit(SystemExit):\n    pass\n\n\nclass Game:\n    def __init__(self, ns):\n        self.ns = ns\n        self.screen = Screen(800, 600)\n        self.keyboard = Keyboard()\n        self.clock = Clock()\n        self.hooks = {}\n        self.started = False     # pgzrun.go() was called\n        self.over = False\n        self.frames = 0\n        self.mouse_pos = (0, 0)\n        self.held = set()\n        self.title = \"Pygame Zero\"\n\n    def names(self):\n        \"\"\"What Pygame Zero gives every game without importing anything.\"\"\"\n        return {\"screen\": self.screen, \"keyboard\": self.keyboard, \"keys\": keys, \"keymods\": keymods, \"mouse\": mouse,\n                \"clock\": self.clock, \"Rect\": Rect, \"ZRect\": ZRect, \"Actor\": Actor, \"exit\": self.exit,\n                \"sounds\": _Missing(\"sounds\"), \"music\": _Missing(\"music\"), \"images\": _Missing(\"images\"),\n                \"tone\": _Missing(\"tones\"), \"animate\": _Missing(\"animations\")}\n\n    def install(self):\n        \"\"\"Puts the names in the program and makes `import pgzrun` and `from pgzero.builtins import *` work.\"\"\"\n        self.ns.update(self.names())\n        run = types.ModuleType(\"pgzrun\")\n        run.go = self.go\n        sys.modules[\"pgzrun\"] = run\n        pkg = types.ModuleType(\"pgzero\")\n        pkg.__path__ = []\n        pkg.__version__ = \"1.2.1\"\n        blt = types.ModuleType(\"pgzero.builtins\")\n        blt.__dict__.update(self.names())\n        blt.__all__ = list(self.names())\n        pkg.builtins = blt\n        sys.modules[\"pgzero\"] = pkg\n        sys.modules[\"pgzero.builtins\"] = blt\n\n    def go(self):\n        self.started = True\n\n    def exit(self, *a):\n        raise _Quit()\n\n    def setup(self):\n        \"\"\"After the program's own lines: the window's size and title, and the hooks it defined.\"\"\"\n        ns = self.ns\n        for name in (\"WIDTH\", \"HEIGHT\"):\n            v = ns.get(name, 800 if name == \"WIDTH\" else 600)\n            if not _real(v) or not 1 <= v <= MAX_SIDE:\n                raise ValueError(\"%s must be a number from 1 to %d, not %r\" % (name, MAX_SIDE, v))\n        self.screen.width, self.screen.height = int(ns.get(\"WIDTH\", 800)), int(ns.get(\"HEIGHT\", 600))\n        self.title = str(ns.get(\"TITLE\", \"Pygame Zero\"))\n        for name, allowed in HOOKS.items():\n            f = ns.get(name)\n            if f is None:\n                continue\n            if not callable(f):\n                raise TypeError(\"%s must be a function\" % name)\n            try:\n                params = list(inspect.signature(f).parameters.values())\n            except (TypeError, ValueError):\n                params = []\n            wanted = []\n            for p in params:\n                if p.kind in (p.VAR_POSITIONAL, p.VAR_KEYWORD):\n                    continue\n                if p.name not in allowed:\n                    if allowed:\n                        raise TypeError(\"%s() can only take %s, not '%s'\" % (name, \", \".join(allowed), p.name))\n                    raise TypeError(\"%s() takes no parameters, not '%s'\" % (name, p.name))\n                wanted.append(p.name)\n            self.hooks[name] = (f, wanted)\n        return {\"w\": self.screen.width, \"h\": self.screen.height, \"title\": self.title, \"hooks\": sorted(self.hooks)}\n\n    def _call(self, name, **given):\n        hook = self.hooks.get(name)\n        if hook:\n            f, wanted = hook\n            f(**{k: given[k] for k in wanted})\n            return True\n        return False\n\n    def _event(self, e):\n        \"\"\"One event from the app; True when a hook was called.\"\"\"\n        t = e.get(\"t\")\n        if t in (\"down\", \"up\"):\n            k = _KEYS[_KEYNAMES.get(str(e.get(\"key\", \"\")).lower(), \"UNKNOWN\")]\n            mod = int(e.get(\"mod\") or 0)\n            if t == \"down\":\n                self.keyboard._down.add(k)\n                return self._call(\"on_key_down\", key=k, mod=mod, unicode=str(e.get(\"unicode\") or \"\"))\n            self.keyboard._down.discard(k)\n            return self._call(\"on_key_up\", key=k, mod=mod)\n        if t in (\"mdown\", \"mup\", \"move\"):\n            p = e.get(\"pos\") or (0, 0)\n            pos = (int(p[0]), int(p[1]))\n            if t == \"move\":\n                rel = (pos[0] - self.mouse_pos[0], pos[1] - self.mouse_pos[1])\n                self.mouse_pos = pos\n                return self._call(\"on_mouse_move\", pos=pos, rel=rel,\n                                  buttons={_BUTTONS[b] for b in self.held if b in _BUTTONS})\n            b = int(e.get(\"button\") or 1)\n            self.mouse_pos = pos\n            if t == \"mdown\":\n                if b < 4:\n                    self.held.add(b)\n                return self._call(\"on_mouse_down\", pos=pos, button=_BUTTONS.get(b, mouse.LEFT))\n            self.held.discard(b)\n            return self._call(\"on_mouse_up\", pos=pos, button=_BUTTONS.get(b, mouse.LEFT))\n        if t == \"blur\":\n            self.keyboard._down.clear()\n            self.held.clear()\n        return False\n\n    def step(self, dt, events=()):\n        \"\"\"One step of the game, in Pygame Zero's order: events, clock, update(dt), draw().\n        Returns the drawing commands and whether the game goes on; errors in the hooks go up to the caller.\"\"\"\n        if self.over:\n            return [], False\n        self.screen.cmds = []\n        try:\n            handled = False\n            for e in events:\n                handled = self._event(e) or handled\n            fired = self.clock.tick(dt)\n            updated = self._call(\"update\", dt=dt)\n            # like Pygame Zero, draw() only runs when something may have changed\n            if self.frames == 0 or handled or fired or updated:\n                self._call(\"draw\")\n        except SystemExit:\n            self.over = True\n            return self.screen.cmds, False\n        finally:\n            self.frames += 1\n        return self.screen.cmds, True\n\n    def wait(self):\n        \"\"\"How long the app can wait before the next step when no event comes: 0 with update(),\n        the time to the next clock call, or -1 for 'only when something happens'.\"\"\"\n        if \"update\" in self.hooks:\n            return 0\n        n = self.clock.next_in()\n        return -1 if n is None else n\n"
+_PGZ_FILE = "<pgz>"
+
+
+def _pgz():
+    m = sys.modules.get("_pp_pgz")
+    if m is None:
+        m = types.ModuleType("_pp_pgz")
+        exec(compile(_PGZ_SRC, _PGZ_FILE, "exec"), m.__dict__)
+        sys.modules["_pp_pgz"] = m
+    return m
 
 
 class _NeedInput(BaseException):
@@ -948,6 +975,7 @@ def _input(prompt=""):
 
 
 builtins.input = _input
+_RUNNER_FILE = _input.__code__.co_filename
 
 
 def _fresh_ns():
@@ -988,7 +1016,10 @@ def _format_error(e, filename):
         tb = tb.tb_next
     if tb is None:
         tb = e.__traceback__
-    text = "".join(traceback.format_exception(type(e), e, tb))
+    te = traceback.TracebackException(type(e), e, tb)
+    # Pygame Zero's lines and the runner's own don't help the learner: the traceback ends at their line
+    te.stack = traceback.StackSummary.from_list([f for f in te.stack if f.filename not in (_PGZ_FILE, _RUNNER_FILE)])
+    text = "".join(te.format())
     line = None
     t = tb
     while t is not None:
@@ -1009,12 +1040,29 @@ def _restore_random():
 
 
 def _pp_reset():
-    global _ns
+    global _ns, _game
     _ns = _fresh_ns()
+    _game = None
+
+
+# The game whose window is open: the program has run, and the app now asks for one step at a time (_pp_frame)
+_game = None
+_game_file = None
+
+
+def _game_hint(ns, src, game):
+    """Why a game didn't open its window: pgzrun.go() is missing at the end, or import pgzrun at the top."""
+    if game is not None:
+        return "go"
+    f = ns.get("draw")
+    if isinstance(f, types.FunctionType) and f.__code__.co_argcount == 0 and "screen." in src:
+        return "import"
+    return None
 
 
 def _pp_run(payload):
-    global _ns
+    global _ns, _game, _game_file
+    _game = None
     p = json.loads(payload)
     src, filename, mode = p["src"], p["filename"], p["mode"]
     _st.update(skip=int(p.get("skip") or 0), pos=0, out=[], inputs=list(p.get("inputs") or []),
@@ -1031,7 +1079,12 @@ def _pp_run(payload):
         plt = sys.modules.get("matplotlib.pyplot")
         if plt is not None:
             plt.close("all")
-    status, err = "ok", None
+    # import pgzrun gives the program Pygame Zero's names; pgzrun.go() opens the window after the last line
+    game = None
+    if mode != "repl" and re.search(r"\b(pgzrun|pgzero)\b", src):
+        game = _pgz().Game(ns)
+        game.install()
+    status, err, info, hint = "ok", None, None, None
     try:
         if mode == "repl":
             tree = ast.parse(src, filename, "exec")
@@ -1056,6 +1109,15 @@ def _pp_run(payload):
         err = _format_error(e, filename)
     if _st["need"] is not None:
         status = "need_input"
+    if mode == "file" and status == "ok":
+        if game is not None and game.started:
+            try:
+                info = game.setup()
+                status, _game, _game_file = "game", game, filename
+            except Exception as e:
+                status, err = "error", _format_error(e, filename)
+        else:
+            hint = _game_hint(ns, src, game)
     if mode == "file" and status != "need_input":
         _ns = ns
     if mode == "test":
@@ -1065,11 +1127,42 @@ def _pp_run(payload):
         res["prompt"] = _st["need"]
     if err:
         res["tb"], res["name"], res["line"] = err
+    if info:
+        res["game"] = info
+    if hint:
+        res["hint"] = hint
+    return json.dumps(res)
+
+
+def _pp_frame(payload):
+    """One step of the open game: the app sends the time passed and the keys and clicks, and gets the drawing."""
+    global _game
+    p = json.loads(payload)
+    _st.update(skip=0, pos=0, out=[], inputs=[], need=None, silent=False, images=0)
+    g = _game
+    if g is None:
+        return json.dumps({"status": "quit", "cmds": [], "out": "", "wait": -1})
+    status, err, cmds = "ok", None, []
+    try:
+        cmds, alive = g.step(float(p.get("dt") or 0), p.get("events") or [])
+        if not alive:
+            status = "quit"
+    except _NeedInput as e:
+        r = RuntimeError("input() can't wait for an answer while the game is running: read the keys with on_key_down()")
+        r.__traceback__ = e.__traceback__
+        status, err, cmds = "error", _format_error(r, _game_file), g.screen.cmds
+    except BaseException as e:
+        status, err, cmds = "error", _format_error(e, _game_file), g.screen.cmds
+    res = {"status": status, "cmds": cmds, "out": "".join(_st["out"]), "wait": g.wait()}
+    if err:
+        res["tb"], res["name"], res["line"] = err
+    if status != "ok":
+        _game = None
     return json.dumps(res)
 </script>
 <script type="text/js-worker" id="py-worker">
 /* Runs Pyodide off the main thread so the page stays responsive and Stop can terminate it. */
-let py = null, runFn = null, resetFn = null, prepMpl = null;
+let py = null, runFn = null, resetFn = null, prepMpl = null, frameFn = null;
 self.ppEmit = (kind, text) => { self.postMessage({ t: "emit", kind: String(kind), text: String(text) }); };
 const errText = (err) => String((err && (err.message || err)) || "Error");
 self.onmessage = async (e) => {
@@ -1082,6 +1175,7 @@ self.onmessage = async (e) => {
       runFn = py.globals.get("_pp_run");
       resetFn = py.globals.get("_pp_reset");
       prepMpl = py.globals.get("_pp_prep_mpl");
+      frameFn = py.globals.get("_pp_frame");
       const ver = py.runPython("import sys\nsys.version.split()[0]");
       self.postMessage({ t: "ready", version: String(ver) });
     } else if (m.t === "run") {
@@ -1091,6 +1185,9 @@ self.onmessage = async (e) => {
       if (/matplotlib/.test(m.src)) prepMpl();
       const out = runFn(JSON.stringify(m));
       self.postMessage({ t: "done", id: m.id, res: JSON.parse(String(out)) });
+    } else if (m.t === "frame") {
+      /* one step of a Pygame Zero game: the page sends time and input, gets back what to draw */
+      self.postMessage({ t: "done", id: m.id, res: JSON.parse(String(frameFn(JSON.stringify(m)))) });
     } else if (m.t === "reset") {
       resetFn();
       self.postMessage({ t: "done", id: m.id, res: { status: "ok" } });
@@ -7146,7 +7243,20 @@ const UI = {
     libBasic: `<p>Questa è la versione base: le librerie esterne non sono disponibili. Apri la versione completa su <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.</p>`,
     needsFull: `Questa lezione usa una libreria esterna e funziona solo nella versione completa: <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.`,
     noteFull: "Python vero (Pyodide) che gira sul tuo dispositivo, senza installare nulla. I progressi restano salvati in questo browser.",
-    imgAlt: "Grafico creato dal programma"
+    imgAlt: "Grafico creato dal programma",
+    gameClose: "Chiudi la finestra del gioco", gameFocus: "Clicca sul gioco per usare i tasti",
+    gameAria: (n) => `Finestra del gioco «${n}»: clicca qui per usare i tasti`, gameShot: (n) => `Ultima schermata di «${n}»`,
+    gameBasic: "I giochi con Pygame Zero funzionano solo nella versione completa: blfrlrnz.github.io/Coding_gym",
+    gameNoGo: "La finestra del gioco non si è aperta: scrivi pgzrun.go() nell'ultima riga del programma.",
+    gameNoImport: "Per aprire la finestra del gioco scrivi import pgzrun nella prima riga e pgzrun.go() nell'ultima.",
+    gameStuck: "Il gioco non rispondeva più: forse dentro update() o draw() c'è un ciclo che non finisce. Ogni chiamata deve finire in fretta: a ripetere update() 60 volte al secondo ci pensa già Pygame Zero.",
+    gameColor: "Colore non valido: usa un nome inglese come \"red\" o \"blue\", un codice come \"#ff8800\" oppure tre numeri da 0 a 255, come (255, 136, 0).",
+    gameInput: "In un gioco input() non può aspettare la risposta: per leggere i tasti usa on_key_down(key).",
+    gameRect: "screen.draw.rect() e filled_rect() vogliono un Rect: per esempio Rect((x, y), (larghezza, altezza)).",
+    gameHook: "Le funzioni del gioco hanno parametri dai nomi fissi: update(dt), on_key_down(key), on_mouse_down(pos, button)… Usa quei nomi, oppure nessun parametro.",
+    gamePos: "Una posizione si scrive come coppia di numeri tra parentesi: (x, y).",
+    gameSize: "WIDTH e HEIGHT sono la larghezza e l'altezza della finestra: due numeri da 1 a 2000.",
+    gameMissing: "Immagini, suoni e Actor in Arcode non ci sono ancora: disegna con screen.draw (rect, circle, line, text)."
   },
   en: {
     title: "Arcode",
@@ -7234,7 +7344,20 @@ const UI = {
     libBasic: `<p>This is the basic version: external libraries aren't available. Open the full version at <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.</p>`,
     needsFull: `This lesson uses an external library and only works in the full version: <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.`,
     noteFull: "Real Python (Pyodide) running on your device, with nothing to install. Your progress stays saved in this browser.",
-    imgAlt: "Chart created by the program"
+    imgAlt: "Chart created by the program",
+    gameClose: "Close the game window", gameFocus: "Click the game to use the keys",
+    gameAria: (n) => `Game window "${n}": click here to use the keys`, gameShot: (n) => `Last screen of "${n}"`,
+    gameBasic: "Pygame Zero games only work in the full version: blfrlrnz.github.io/Coding_gym",
+    gameNoGo: "The game window didn't open: write pgzrun.go() on the last line of the program.",
+    gameNoImport: "To open the game window, write import pgzrun on the first line and pgzrun.go() on the last.",
+    gameStuck: "The game stopped responding: maybe update() or draw() has a loop that never ends. Each call must finish quickly: Pygame Zero already repeats update() 60 times a second.",
+    gameColor: "Invalid colour: use an English name like \"red\" or \"blue\", a code like \"#ff8800\" or three numbers from 0 to 255, like (255, 136, 0).",
+    gameInput: "In a game input() can't wait for an answer: to read the keys use on_key_down(key).",
+    gameRect: "screen.draw.rect() and filled_rect() want a Rect: for example Rect((x, y), (width, height)).",
+    gameHook: "The game's functions have parameters with fixed names: update(dt), on_key_down(key), on_mouse_down(pos, button)… Use those names, or no parameters.",
+    gamePos: "A position is written as a pair of numbers in brackets: (x, y).",
+    gameSize: "WIDTH and HEIGHT are the window's width and height: two numbers from 1 to 2000.",
+    gameMissing: "Images, sounds and Actor aren't in Arcode yet: draw with screen.draw (rect, circle, line, text)."
   }
 };
 
@@ -8519,6 +8642,8 @@ function onWorkerError(ev) {
   finishCall(null, { status: "error", tb: String((ev && ev.message) || "Worker error") + "\n", name: "Error", out: "", images: 0 });
 }
 function handleEmit(kind, text) {
+  /* while a game window is open, what the game prints goes under its window */
+  if (gameNow) { if (kind !== "img") gameNow.outBuf += text; return; }
   if (kind === "img") { termImage(text); return; }
   termWrite(text, kind === "err" ? "err" : kind === "echo" ? "typed" : null);
 }
@@ -8704,6 +8829,7 @@ function report(res, mode, fromEditor) {
   let h = ERR_HINTS[S.lang][res.name];
   if (/[“”„‟‘’‚‛]/.test(last) || /U\+(201[89ABCDEF])/.test(last)) h = t("smartErr");
   else if (/U\+(00A0|200[0-9AB]|202F|205F|3000|FEFF)/.test(last) || /non-printable/.test(last)) h = t("invisibleErr");
+  else { const g = GAME_ERRS.find(([re]) => re.test(last)); if (g) h = t(g[1]); }
   if (h) termWrite("→ " + h + "\n", "why");
   lastErr = res.line >= 1 ? res.line : 0;
   if (fromEditor && res.line >= 1) { errLine = res.line; renderGutter(); }
@@ -8728,12 +8854,274 @@ function updateRunUI() {
 function stopRun() {
   if (!running) return;
   stopReq = true;
+  if (gameNow) { stopGame(gameNow); return; }
   if (pendingInput) { const p = pendingInput; pendingInput = null; p.form.remove(); p.cancel(); }
   if (engine === "pyodide") {
     if (pendingCall) { finishCall(null, { status: "stopped", out: "", images: 0 }); restartWorker(true); }
   } else if (window.Sk) Sk.execLimit = 1;
 }
 stopBtn.onclick = stopRun;
+
+/* ---------- Pygame Zero games: the program runs in the worker, the page paints its window ---------- */
+/* The page drives the game: at most 60 steps a second, each one sending the time passed and the keys and clicks,
+   and painting what draw() drew. A step that doesn't come back in time means the program is stuck in a loop. */
+const GAME_FPS = 60, GAME_STUCK_MS = 4000, GAME_OUT_SHOWN = 8000, GAME_OUT_KEPT = 200000;
+const GAME_FONT = '"Helvetica Neue", Arial, "Liberation Sans", sans-serif';
+const GAME_ANCHOR = { topleft: [0, 0], midtop: [0.5, 0], topright: [1, 0], midleft: [0, 0.5], center: [0.5, 0.5], midright: [1, 0.5], bottomleft: [0, 1], midbottom: [0.5, 1], bottomright: [1, 1] };
+const GAME_UNI = { Enter: "\r", Backspace: "\b", Tab: "\t", Escape: "\x1b", Delete: "\x7f" };
+/* errors that come from the game's own rules get an explanation of their own */
+const GAME_ERRS = [
+  [/invalid color (name|argument)/, "gameColor"], [/input\(\) can't wait/, "gameInput"], [/requires a rect to draw/, "gameRect"],
+  [/\(\) (can only take|takes no parameters)/, "gameHook"], [/must be a pair of numbers/, "gamePos"],
+  [/(WIDTH|HEIGHT) must be a number/, "gameSize"], [/aren't available in Arcode|Actor needs image files/, "gameMissing"]
+];
+let gameNow = null;
+const gameFits = new Map();
+
+/* pygame's key names: letters and digits as on the keyboard's labels, the other keys by name */
+function gameKeyName(e) {
+  const k = e.key || "";
+  if (e.code === "ShiftRight") return "rshift";
+  if (k.length === 1) {
+    const lo = k.toLowerCase();
+    if (/^[a-z0-9 ]$/.test(lo)) return lo;
+    const m = /^(?:Key([A-Z])|Digit([0-9]))$/.exec(e.code || "");
+    return m ? (m[1] || m[2]).toLowerCase() : lo;
+  }
+  return k.toLowerCase();
+}
+const gameMod = (e) => (e.shiftKey ? 1 : 0) | (e.ctrlKey ? 64 : 0) | (e.altKey ? 256 : 0);
+
+function gamePaint(ctx, cmds, W, H) {
+  for (const c of cmds) {
+    ctx.save();
+    try { gameCmd(ctx, c, W, H); } catch (e) {}
+    ctx.restore();
+  }
+}
+function gameCmd(ctx, c, W, H) {
+  const k = c[0];
+  if (k === "fill") {
+    if (c[2]) { const gr = ctx.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, c[1]); gr.addColorStop(1, c[2]); ctx.fillStyle = gr; }
+    else ctx.fillStyle = c[1];
+    ctx.fillRect(0, 0, W, H);
+  } else if (k === "line") {
+    const [, x1, y1, x2, y2, col, wd] = c;
+    if (wd < 1) return;
+    const o = wd % 2 ? 0.5 : 0;
+    ctx.strokeStyle = col; ctx.lineWidth = wd;
+    ctx.beginPath(); ctx.moveTo(x1 + o, y1 + o); ctx.lineTo(x2 + o, y2 + o); ctx.stroke();
+  } else if (k === "circle") {
+    /* like pygame, an outline grows inwards from the radius */
+    const [, x, y, r, col, filled, wd] = c;
+    if (r <= 0) return;
+    ctx.beginPath();
+    if (filled || wd <= 0 || wd >= r) { ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill(); }
+    else { ctx.arc(x, y, r - wd / 2, 0, Math.PI * 2); ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.stroke(); }
+  } else if (k === "rect") {
+    const [, x, y, w, h, col, filled, wd] = c;
+    if (w <= 0 || h <= 0) return;
+    if (filled || wd <= 0 || wd * 2 >= Math.min(w, h)) { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); }
+    else { ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.strokeRect(x + wd / 2, y + wd / 2, w - wd, h - wd); }
+  } else if (k === "poly") {
+    const [, pts, col, filled, wd] = c;
+    if (pts.length < 2) return;
+    ctx.beginPath();
+    pts.forEach(([px, py], i) => (i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
+    ctx.closePath();
+    if (filled || wd <= 0) { ctx.fillStyle = col; ctx.fill(); }
+    else { ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.stroke(); }
+  } else if (k === "text") gameText(ctx, c[1], c[2], c[3], c[4], c[5]);
+  else if (k === "textbox") gameTextbox(ctx, c[1], c[2], c[3], c[4], c[5], c[6]);
+}
+/* Pygame Zero's text: fontsize as in pygame (whose default font is drawn at 0.6875 of it), anchors, wrapping, effects */
+function gameFont(ctx, s) { const px = Math.max(1, s * 0.6875); ctx.font = `bold ${px}px ${GAME_FONT}`; return px; }
+function gameWrap(ctx, text, maxW) {
+  const out = [];
+  for (const line of String(text).split("\n")) {
+    if (maxW == null) { out.push(line); continue; }
+    let cur = "";
+    for (const word of line.split(" ")) {
+      const next = cur ? cur + " " + word : word;
+      if (cur && ctx.measureText(next).width > maxW) { out.push(cur); cur = word; } else cur = next;
+    }
+    out.push(cur);
+  }
+  return out;
+}
+function gameText(ctx, text, x, y, anchor, o) {
+  const px = gameFont(ctx, o.s);
+  const lines = gameWrap(ctx, text, o.w);
+  const lineH = px * 1.2 * (o.lh == null ? 1 : o.lh);
+  const widths = lines.map((l) => ctx.measureText(l).width);
+  const bw = Math.max(0, ...widths), bh = lineH * (lines.length - 1) + px * 1.2;
+  const [hx, vy] = GAME_ANCHOR[anchor] || [0, 0];
+  const al = o.al || (hx === 0.5 ? "center" : hx === 1 ? "right" : "left");
+  if (o.a != null) ctx.globalAlpha = o.a;
+  if (o.an) { ctx.translate(x, y); ctx.rotate(-o.an * Math.PI / 180); ctx.translate(-x, -y); }
+  const left = x - bw * hx, top = y - bh * vy;
+  if (o.bg) { ctx.fillStyle = o.bg; ctx.fillRect(left, top, bw, bh); }
+  ctx.textBaseline = "middle";
+  const each = (fn) => lines.forEach((l, i) => fn(l, al === "center" ? left + (bw - widths[i]) / 2 : al === "right" ? left + bw - widths[i] : left, top + i * lineH + px * 0.6));
+  if (o.sh) { const dx = o.sh[0] * o.s / 18, dy = o.sh[1] * o.s / 18; ctx.fillStyle = o.sc; each((l, lx, ly) => ctx.fillText(l, lx + dx, ly + dy)); }
+  if (o.ow) { ctx.strokeStyle = o.oc; ctx.lineWidth = 2 * o.ow * o.s / 24; ctx.lineJoin = "round"; each((l, lx, ly) => ctx.strokeText(l, lx, ly)); }
+  ctx.fillStyle = o.c;
+  each((l, lx, ly) => ctx.fillText(l, lx, ly));
+}
+/* textbox: the biggest text that fits the rect, centred */
+function gameTextbox(ctx, text, x, y, w, h, o) {
+  if (w <= 0 || h <= 0) return;
+  const key = [text, w, h, o.lh].join("\u0000");
+  let s = gameFits.get(key);
+  if (s == null) {
+    const fits = (n) => {
+      const px = gameFont(ctx, n), lines = gameWrap(ctx, text, w);
+      return px * 1.2 * (o.lh == null ? 1 : o.lh) * (lines.length - 1) + px * 1.2 <= h && lines.every((l) => ctx.measureText(l).width <= w);
+    };
+    let lo = 1, hi = Math.ceil(h / 0.6875 / 1.2) + 1;
+    while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (fits(mid)) lo = mid; else hi = mid - 1; }
+    s = lo;
+    if (gameFits.size > 300) gameFits.clear();
+    gameFits.set(key, s);
+  }
+  gameText(ctx, text, x + w / 2, y + h / 2, "center", Object.assign({}, o, { s, w }));
+}
+function gameFlushOut(g) {
+  if (!g.outBuf) return;
+  g.shown = (g.shown + g.outBuf).slice(-GAME_OUT_SHOWN);
+  g.outBuf = "";
+  const first = g.outEl.hidden;
+  g.outEl.textContent = g.shown;
+  g.outEl.hidden = false;
+  g.outEl.scrollTop = g.outEl.scrollHeight;
+  if (first) { g.fit(); scrollTerm(); }
+}
+function stopGame(g) {
+  g.stop = true;
+  if (g.wake) g.wake(performance.now());
+  /* a step that doesn't come back: the program is stuck, and only restarting Python stops it */
+  if (pendingCall && g.sent && performance.now() - g.sent > 250) {
+    finishCall(null, { status: "stopped", out: "", images: 0 });
+    restartWorker(true);
+  }
+}
+async function playGame(res) {
+  const info = res.game, W = info.w, H = info.h, hooks = info.hooks || [];
+  const mouseHooks = hooks.some((h) => h.startsWith("on_mouse"));
+  newline();
+  const box = document.createElement("div");
+  box.className = "gwin";
+  box.innerHTML = `<div class="gbar"><span class="gtitle"></span><span class="gsize">${W} × ${H}</span>` +
+    `<button type="button" class="gclose" title="${escHtml(t("gameClose"))}" aria-label="${escHtml(t("gameClose"))}">✕</button></div>` +
+    `<div class="gview"><canvas tabindex="0"></canvas><div class="gfocus" hidden>${escHtml(t("gameFocus"))}</div></div>` +
+    `<pre class="gout" hidden></pre>`;
+  box.querySelector(".gtitle").textContent = info.title;
+  const cv = box.querySelector("canvas"), hint = box.querySelector(".gfocus"), outEl = box.querySelector(".gout");
+  cv.setAttribute("aria-label", t("gameAria", info.title));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+  if (mouseHooks) cv.style.touchAction = "none";
+  term.appendChild(box);
+  lastChar = "\n";
+  const g = gameNow = { box, cv, events: [], stop: false, wake: null, sent: 0, out: "", outBuf: "", shown: "", outEl, fit: null };
+  /* the whole window stays in view in the terminal; never bigger than the game's own size */
+  g.fit = () => {
+    const avail = Math.max(100, term.clientWidth - 24);
+    const tall = Math.max(140, term.clientHeight - 64 - (outEl.hidden ? 0 : outEl.offsetHeight));
+    cv.style.width = Math.max(40, Math.floor(W * Math.min(1, avail / W, tall / H))) + "px";
+  };
+  g.fit();
+  const ro = window.ResizeObserver ? new ResizeObserver(() => g.fit()) : null;
+  if (ro) ro.observe(term); else window.addEventListener("resize", g.fit);
+
+  const push = (ev) => { if (g.events.length < 300) g.events.push(ev); };
+  const posOf = (e) => {
+    const r = cv.getBoundingClientRect();
+    return [Math.floor((e.clientX - r.left) * W / r.width), Math.floor((e.clientY - r.top) * H / r.height)];
+  };
+  const button = (e) => (e.button === 1 ? 2 : e.button === 2 ? 3 : 1);
+  cv.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && (e.key === "c" || e.key === "C")) return;   /* Ctrl+C stops the program, as in the terminal */
+    if (e.metaKey || e.key === "Tab") return;                     /* Tab leaves the game */
+    e.preventDefault(); e.stopPropagation();
+    if (!e.repeat) push({ t: "down", key: gameKeyName(e), mod: gameMod(e), unicode: e.key.length === 1 ? e.key : (GAME_UNI[e.key] || "") });
+  });
+  cv.addEventListener("keyup", (e) => {
+    if (e.metaKey || e.key === "Tab") return;
+    e.preventDefault(); e.stopPropagation();
+    push({ t: "up", key: gameKeyName(e), mod: gameMod(e) });
+  });
+  cv.addEventListener("focus", () => { hint.hidden = true; });
+  cv.addEventListener("blur", () => { push({ t: "blur" }); if (!g.stop && !coarse) hint.hidden = false; });
+  cv.addEventListener("pointerdown", (e) => {
+    cv.focus({ preventScroll: true });
+    push({ t: "mdown", pos: posOf(e), button: button(e) });
+    if (mouseHooks) { e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {} }
+  });
+  cv.addEventListener("pointerup", (e) => push({ t: "mup", pos: posOf(e), button: button(e) }));
+  if (hooks.includes("on_mouse_move")) cv.addEventListener("pointermove", (e) => {
+    const last = g.events[g.events.length - 1], pos = posOf(e);
+    if (last && last.t === "move") last.pos = pos; else push({ t: "move", pos });
+  });
+  if (mouseHooks) cv.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const b = e.deltaY < 0 ? 4 : 5, pos = posOf(e);
+    push({ t: "mdown", pos, button: b }); push({ t: "mup", pos, button: b });
+  }, { passive: false });
+  cv.addEventListener("contextmenu", (e) => e.preventDefault());
+  box.querySelector(".gclose").onclick = () => stopRun();
+  cv.focus({ preventScroll: true });
+  scrollTerm();
+  try { box.scrollIntoView({ block: "nearest" }); } catch (e) {}
+
+  /* the game loop: a step per frame, at most 60 a second; a game without update() only steps when something happens */
+  let last = performance.now(), due = last, wait = 0, wakeAt = 0, r = { status: "ok" };
+  for (;;) {
+    const now = await new Promise((ok) => { g.wake = ok; requestAnimationFrame(ok); });
+    g.wake = null;
+    if (g.stop) break;
+    if (now < due - 2) continue;
+    if (wait !== 0 && !g.events.length && (wait < 0 || now < wakeAt)) continue;
+    due = Math.max(due + 1000 / GAME_FPS, now - 1000 / GAME_FPS);
+    const dt = Math.min(Math.max(now - last, 0) / 1000, wait === 0 ? 0.1 : 1);
+    last = now;
+    g.sent = performance.now();
+    r = await workerCall({ t: "frame", dt, events: g.events.splice(0) }, GAME_STUCK_MS);
+    g.sent = 0;
+    if (r.cmds && r.cmds.length) gamePaint(ctx, r.cmds, W, H);
+    if (r.out && g.out.length < GAME_OUT_KEPT) g.out += r.out;
+    gameFlushOut(g);
+    if (r.status !== "ok") break;
+    wait = r.wait == null ? 0 : r.wait;
+    if (wait > 0) wakeAt = performance.now() + wait * 1000;
+  }
+  gameNow = null;
+  g.stop = true;
+  gameFlushOut(g);
+  if (ro) ro.disconnect(); else window.removeEventListener("resize", g.fit);
+  hint.hidden = true;
+  /* the last screen stays in the terminal as a picture: a canvas takes a lot of memory */
+  try {
+    const shot = document.createElement("canvas");
+    shot.width = W; shot.height = H;
+    shot.getContext("2d").drawImage(cv, 0, 0, W, H);
+    const img = document.createElement("img");
+    img.className = "gshot"; img.alt = t("gameShot", info.title); img.src = shot.toDataURL("image/png");
+    img.style.width = cv.style.width;
+    cv.replaceWith(img);
+  } catch (e) {}
+  box.classList.add("over");
+  box.querySelector(".gclose").remove();
+  const out = (res.out || "") + g.out;
+  const base = { out, inputs: res.inputs || [], images: res.images || 0, game: info };
+  if (r.status === "error") return Object.assign(base, { status: "error", tb: r.tb, name: r.name, line: r.line });
+  if (r.status === "timeout") return Object.assign(base, { status: "timeout", stuck: true });
+  if (r.status === "stopped") return Object.assign(base, { status: "stopped" });
+  return Object.assign(base, { status: "ok" });
+}
 
 async function runFile(src, label, { fromEditor = false, lessonCheck = false } = {}) {
   if (!pyReady || running) return null;
@@ -8742,11 +9130,20 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false } =
   newline();
   if (term.childNodes.length) termWrite("\n");
   termWrite("$ python " + label + "\n", "cmd");
+  if (engine !== "pyodide" && /\b(pgzrun|pgzero)\b/.test(src)) {
+    termWrite(t("gameBasic") + "\n", "fail");
+    end(false);
+    return "error";
+  }
   const t0 = performance.now();
-  const res = await engineRun(src, label, "file");
+  let res = await engineRun(src, label, "file");
+  /* the program ran and called pgzrun.go(): its window opens here, until it's closed */
+  if (res.status === "game") res = await playGame(res);
   const secs = ((performance.now() - t0) / 1000).toFixed(2);
   const status = report(res, "file", fromEditor);
+  if (res.stuck) termWrite("→ " + t("gameStuck") + "\n", "why");
   if (status === "ok") termWrite(t("done", secs) + "\n", "dim");
+  if (status === "ok" && res.hint) termWrite("→ " + t(res.hint === "go" ? "gameNoGo" : "gameNoImport") + "\n", "why");
   if (lessonCheck && status === "ok") await checkLesson(res, src);
   else if (lessonCheck && status === "error") mascotReact("error");
   else if (S.view === "lessons" && ui.mexpr === "t") mascotReact(null);
@@ -10371,7 +10768,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "ad901dda9b", APP_BUILT = "2026-11-09T09:52Z";
+const APP_VERSION = "432df8dd37", APP_BUILT = "2026-11-09T10:45Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
