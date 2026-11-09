@@ -3939,6 +3939,73 @@ print(f"Spaces: {spaces}")`,
   }
 },
 {
+  id: "builtins", teaches: ["sum", "max", "min", "sorted"],
+  it: {
+    title: "Funzioni già pronte: sum, max, min, sorted",
+    theory: [
+`<p>Alcuni schemi che hai scritto a mano con i cicli sono così comuni che Python li ha già pronti, come funzioni che ricevono una lista e <b>restituiscono</b> un risultato:</p>
+<ul><li><code>sum(lista)</code> restituisce la somma dei numeri, come il totale accumulato nel ciclo;</li>
+<li><code>max(lista)</code> e <code>min(lista)</code> restituiscono il più grande e il più piccolo, come il migliore finora;</li>
+<li><code>sorted(lista)</code> restituisce una lista <b>nuova</b> con gli elementi in ordine crescente; con <code>sorted(lista, reverse=True)</code> l'ordine è decrescente. La lista di partenza non cambia.</li></ul>`,
+{ code: `voti = [7, 9, 6, 8]
+print(sum(voti))      # 30
+print(max(voti))      # 9
+print(min(voti))      # 6
+print(sorted(voti))   # [6, 7, 8, 9]
+print(voti)           # non è cambiata` },
+`<p>Insieme a <code>len</code> ti danno anche la media: <code>sum(voti) / len(voti)</code>. Funzionano pure con il testo: <code>sorted(["Ugo", "Ada", "Bob"])</code> mette i nomi in ordine alfabetico. E siccome somme e massimi li hai già calcolati a mano, sai cosa succede dentro.</p>`],
+    task: `Questi sono i punteggi delle partite di Ada. Stampa, una per riga: il totale, il punteggio migliore, il peggiore, la media e il podio, cioè i tre punteggi più alti, dal più alto in giù. Deve uscire <code>240</code>, <code>70</code>, <code>10</code>, <code>40.0</code> e <code>[70, 60, 50]</code>. Proverò anche con altri punteggi.`,
+    starter: `punti = [50, 20, 70, 30, 60, 10]\n\n`,
+    solution: `punti = [50, 20, 70, 30, 60, 10]
+
+print(sum(punti))
+print(max(punti))
+print(min(punti))
+print(sum(punti) / len(punti))
+print(sorted(punti, reverse=True)[:3])`,
+    hints: ["Quale funzione già pronta dà il totale, quale il più grande e quale il più piccolo? E per il podio: come metti i punteggi dal più alto, e come ne prendi solo i primi tre?",
+      "sum, max e min sulla lista, ognuna nel suo print. La media è la somma divisa per len. Il podio: sorted con reverse=True, e poi una fetta dall'inizio fino a 3."],
+    check: (o, c) => o === "240\n70\n10\n40.0\n[70, 60, 50]" && /\bsum\s*\(/.test(c) && /(^|[^.\w])max\s*\(/.test(c) && /(^|[^.\w])min\s*\(/.test(c) && /\bsorted\s*\(/.test(c),
+    why: (o, c) => (o === "240\n70\n10\n40.0\n[70, 60, 50]" ? "L'output è giusto, ma qui l'esercizio è usare le funzioni già pronte: sum, max, min e sorted." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /punti\s*=\s*\[[^\]]*\]/, "punti = [5, 15, 10]"), (o) => o === "30\n15\n5\n10.0\n[15, 10, 5]", "con punti = [5, 15, 10] doveva stampare 30, 15, 5, 10.0 e [15, 10, 5]"),
+      tcase(swapRe(c, /punti\s*=\s*\[[^\]]*\]/, "punti = [8, 3, 9, 1]"), (o) => o === "21\n9\n1\n5.25\n[9, 8, 3]", "con punti = [8, 3, 9, 1] doveva stampare 21, 9, 1, 5.25 e [9, 8, 3]")),
+    expect: "240\n70\n10\n40.0\n[70, 60, 50]"
+  },
+  en: {
+    title: "Ready-made functions: sum, max, min, sorted",
+    theory: [
+`<p>Some patterns you wrote by hand with loops are so common that Python already has them ready, as functions that receive a list and <b>give back</b> a result:</p>
+<ul><li><code>sum(list)</code> gives back the sum of the numbers, like the total built up in a loop;</li>
+<li><code>max(list)</code> and <code>min(list)</code> give back the biggest and the smallest, like the best so far;</li>
+<li><code>sorted(list)</code> gives back a <b>new</b> list with the items in increasing order; with <code>sorted(list, reverse=True)</code> the order is decreasing. The starting list doesn't change.</li></ul>`,
+{ code: `grades = [7, 9, 6, 8]
+print(sum(grades))      # 30
+print(max(grades))      # 9
+print(min(grades))      # 6
+print(sorted(grades))   # [6, 7, 8, 9]
+print(grades)           # unchanged` },
+`<p>Together with <code>len</code> they also give you the average: <code>sum(grades) / len(grades)</code>. They work with text too: <code>sorted(["Ugo", "Ada", "Bob"])</code> puts the names in alphabetical order. And since you've already worked out sums and maximums by hand, you know what happens inside.</p>`],
+    task: `These are the scores of Ada's games. Print, one per line: the total, the best score, the worst, the average and the podium, that is the three highest scores, from the highest down. The output must be <code>240</code>, <code>70</code>, <code>10</code>, <code>40.0</code> and <code>[70, 60, 50]</code>. I'll also try other scores.`,
+    starter: `scores = [50, 20, 70, 30, 60, 10]\n\n`,
+    solution: `scores = [50, 20, 70, 30, 60, 10]
+
+print(sum(scores))
+print(max(scores))
+print(min(scores))
+print(sum(scores) / len(scores))
+print(sorted(scores, reverse=True)[:3])`,
+    hints: ["Which ready-made function gives the total, which the biggest and which the smallest? And for the podium: how do you put the scores from the highest, and how do you take only the first three?",
+      "sum, max and min on the list, each in its own print. The average is the sum divided by len. The podium: sorted with reverse=True, then a slice from the start up to 3."],
+    check: (o, c) => o === "240\n70\n10\n40.0\n[70, 60, 50]" && /\bsum\s*\(/.test(c) && /(^|[^.\w])max\s*\(/.test(c) && /(^|[^.\w])min\s*\(/.test(c) && /\bsorted\s*\(/.test(c),
+    why: (o, c) => (o === "240\n70\n10\n40.0\n[70, 60, 50]" ? "The output is right, but the exercise here is using the ready-made functions: sum, max, min and sorted." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /scores\s*=\s*\[[^\]]*\]/, "scores = [5, 15, 10]"), (o) => o === "30\n15\n5\n10.0\n[15, 10, 5]", "with scores = [5, 15, 10] it had to print 30, 15, 5, 10.0 and [15, 10, 5]"),
+      tcase(swapRe(c, /scores\s*=\s*\[[^\]]*\]/, "scores = [8, 3, 9, 1]"), (o) => o === "21\n9\n1\n5.25\n[9, 8, 3]", "with scores = [8, 3, 9, 1] it had to print 21, 9, 1, 5.25 and [9, 8, 3]")),
+    expect: "240\n70\n10\n40.0\n[70, 60, 50]"
+  }
+},
+{
   id: "def0", kind: "order", indent: true, teaches: ["def"],
   it: {
     title: "Funzioni: un nome per un pezzo di codice",
@@ -4029,9 +4096,9 @@ ticket("Bob", 3, "first")`,
 {
   id: "retq", kind: "quiz", teaches: [],
   it: {
-    title: "Prevedi: return e None",
+    title: "Prevedi: return, None e variabili locali",
     theory: [
-`<p>Prima di rispondere, per ogni chiamata chiediti: la funzione <b>restituisce</b> qualcosa con <code>return</code>, o lo <b>stampa</b> soltanto? Quello che restituisce prende il posto della chiamata; se non c'è <code>return</code>, al suo posto c'è <code>None</code>.</p>`,
+`<p>Prima di rispondere, per ogni chiamata chiediti: la funzione <b>restituisce</b> qualcosa con <code>return</code>, o lo <b>stampa</b> soltanto? Quello che restituisce prende il posto della chiamata; se non c'è <code>return</code>, al suo posto c'è <code>None</code>. E le variabili create dentro la funzione restano lì dentro.</p>`,
 { code: `def triplo(n):
     return n * 3
 
@@ -4058,12 +4125,18 @@ print(saluta("Ada"))`, options: ["Ciao Ada", "Ciao Ada\nfine", "fine\nCiao Ada",
         return a
     return b
 
-print(massimo(3, 9), massimo(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"], correct: 0, explain: "Con 3 e 9 l'if è falso e si arriva al secondo return; con 7 e 2 il primo return esce subito con 7." }]
+print(massimo(3, 9), massimo(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"], correct: 0, explain: "Con 3 e 9 l'if è falso e si arriva al secondo return; con 7 e 2 il primo return esce subito con 7." },
+      { q: "Cosa stampa?", code: `def prova():
+    x = 5
+    return x + 1
+
+x = 1
+print(prova(), x)`, options: ["6 1", "6 5", "2 1", "6 6"], correct: 0, explain: "Dentro prova la x è locale e vale 5, quindi la funzione restituisce 6; la x di fuori è un'altra variabile e resta 1." }]
   },
   en: {
-    title: "Predict: return and None",
+    title: "Predict: return, None and local variables",
     theory: [
-`<p>Before answering, ask yourself for every call: does the function <b>give back</b> something with <code>return</code>, or does it only <b>print</b> it? What it gives back takes the place of the call; if there's no <code>return</code>, in its place there's <code>None</code>.</p>`,
+`<p>Before answering, ask yourself for every call: does the function <b>give back</b> something with <code>return</code>, or does it only <b>print</b> it? What it gives back takes the place of the call; if there's no <code>return</code>, in its place there's <code>None</code>. And variables created inside the function stay in there.</p>`,
 { code: `def triple(n):
     return n * 3
 
@@ -4090,7 +4163,13 @@ print(greet("Ada"))`, options: ["Hi Ada", "Hi Ada\ndone", "done\nHi Ada", "None"
         return a
     return b
 
-print(biggest(3, 9), biggest(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"], correct: 0, explain: "With 3 and 9 the if is false and we reach the second return; with 7 and 2 the first return leaves at once with 7." }]
+print(biggest(3, 9), biggest(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"], correct: 0, explain: "With 3 and 9 the if is false and we reach the second return; with 7 and 2 the first return leaves at once with 7." },
+      { q: "What does it print?", code: `def test():
+    x = 5
+    return x + 1
+
+x = 1
+print(test(), x)`, options: ["6 1", "6 5", "2 1", "6 6"], correct: 0, explain: "Inside test the x is local and is 5, so the function gives back 6; the x outside is a different variable and stays 1." }]
   }
 },
 {
@@ -4105,15 +4184,24 @@ print(biggest(3, 9), biggest(7, 2))`, options: ["9 7", "3 7", "9 2", "None None"
 a = area_quadrato(3)
 print(a)                                    # 9
 print(area_quadrato(2) + area_quadrato(4))  # 20` },
-`<p><code>print</code> e <code>return</code> sono diversi: <code>print</code> mostra un valore nel terminale e basta, <code>return</code> lo consegna al programma. Una funzione senza <code>return</code> restituisce un valore speciale, <code>None</code>, cioè "niente". E dopo <code>return</code> la funzione è finita: le righe sotto non vengono eseguite.</p>`],
+`<p><code>print</code> e <code>return</code> sono diversi: <code>print</code> mostra un valore nel terminale e basta, <code>return</code> lo consegna al programma. Una funzione senza <code>return</code> restituisce un valore speciale, <code>None</code>, cioè "niente". E dopo <code>return</code> la funzione è finita: le righe sotto non vengono eseguite.</p>
+<p>Le variabili create dentro una funzione, come i suoi parametri, sono <b>locali</b>: esistono solo mentre la funzione lavora, e fuori non si vedono. Quello che serve fuori esce con <code>return</code>.</p>`,
+{ code: `def doppio(n):
+    risultato = n * 2
+    return risultato
+
+print(doppio(5))
+print(risultato)`, error: true },
+`<p>La prima riga stampa 10; la seconda si ferma con un <code>NameError</code>, perché fuori dalla funzione <code>risultato</code> non esiste. E se fuori c'è una variabile con lo stesso nome, è un'altra variabile: la funzione non la tocca.</p>`],
     task: `Scrivi <code>prezzo_scontato(prezzo, sconto)</code> che restituisce il prezzo dopo lo sconto in percentuale (il prezzo meno prezzo per sconto diviso 100). Poi stampa quanto spendi in tutto per una felpa da 80 euro scontata del 25% e un cappello da 20 euro scontato del 10%: deve uscire <code>78.0</code>. Proverò anche la funzione con altri prezzi e sconti.`,
     starter: `# Scrivi la funzione, poi usala due volte\n\n`,
     solution: `def prezzo_scontato(prezzo, sconto):
-    return prezzo - prezzo * sconto / 100
+    risparmio = prezzo * sconto / 100
+    return prezzo - risparmio
 
 print(prezzo_scontato(80, 25) + prezzo_scontato(20, 10))`,
     hints: ["La funzione deve stampare o restituire? Come fai a sommare i risultati di due chiamate?",
-      "Nel def, una sola riga rientrata: return con il calcolo dello sconto. Fuori, un print con la somma di due chiamate."],
+      "Nel def calcola quanto risparmi in una variabile locale, poi return del prezzo meno il risparmio. Fuori, un print con la somma di due chiamate."],
     check: (o, c) => o === "78.0" && /\breturn\b/.test(c) && /def\s+prezzo_scontato\s*\(/.test(c),
     tests: (c) => [tcase(c + "\nprint(prezzo_scontato(50, 50))\nprint(prezzo_scontato(10, 0))", (o) => lastLines(o, 2) === "25.0\n10.0", "prezzo_scontato(50, 50) doveva dare 25.0 e prezzo_scontato(10, 0) 10.0")],
     expect: "78.0"
@@ -4128,15 +4216,24 @@ print(prezzo_scontato(80, 25) + prezzo_scontato(20, 10))`,
 a = square_area(3)
 print(a)                                # 9
 print(square_area(2) + square_area(4))  # 20` },
-`<p><code>print</code> and <code>return</code> are different: <code>print</code> shows a value in the terminal and that's it, <code>return</code> hands it to the program. A function without <code>return</code> gives back a special value, <code>None</code>, meaning "nothing". And after <code>return</code> the function is over: the lines below don't run.</p>`],
+`<p><code>print</code> and <code>return</code> are different: <code>print</code> shows a value in the terminal and that's it, <code>return</code> hands it to the program. A function without <code>return</code> gives back a special value, <code>None</code>, meaning "nothing". And after <code>return</code> the function is over: the lines below don't run.</p>
+<p>Variables created inside a function, like its parameters, are <b>local</b>: they only exist while the function is working, and outside they can't be seen. Whatever is needed outside comes out with <code>return</code>.</p>`,
+{ code: `def double(n):
+    result = n * 2
+    return result
+
+print(double(5))
+print(result)`, error: true },
+`<p>The first line prints 10; the second stops with a <code>NameError</code>, because outside the function <code>result</code> doesn't exist. And if outside there's a variable with the same name, it's a different variable: the function doesn't touch it.</p>`],
     task: `Write <code>discounted(price, discount)</code> that gives back the price after the percentage discount (the price minus price times discount divided by 100). Then print how much you spend in total on an 80-euro hoodie with 25% off and a 20-euro cap with 10% off: the output must be <code>78.0</code>. I'll also try the function with other prices and discounts.`,
     starter: `# Write the function, then use it twice\n\n`,
     solution: `def discounted(price, discount):
-    return price - price * discount / 100
+    saving = price * discount / 100
+    return price - saving
 
 print(discounted(80, 25) + discounted(20, 10))`,
     hints: ["Must the function print or give back? How do you add up the results of two calls?",
-      "In the def, a single indented line: return with the discount calculation. Outside, a print with the sum of two calls."],
+      "In the def work out how much you save in a local variable, then return the price minus the saving. Outside, a print with the sum of two calls."],
     check: (o, c) => o === "78.0" && /\breturn\b/.test(c) && /def\s+discounted\s*\(/.test(c),
     tests: (c) => [tcase(c + "\nprint(discounted(50, 50))\nprint(discounted(10, 0))", (o) => lastLines(o, 2) === "25.0\n10.0", "discounted(50, 50) had to give 25.0 and discounted(10, 0) 10.0")],
     expect: "78.0"
@@ -4150,7 +4247,8 @@ print(discounted(80, 25) + discounted(20, 10))`,
 `<p>Parte 4: il gioco è cresciuto, ed è ora di metterlo in ordine con le <b>funzioni</b>. Per chi gioca non cambia niente: l'output resta identico. Cambia per chi legge il codice, che si divide in pezzi con un nome e un compito solo. In questa parte ne crei due:</p>
 <ul><li><code>verdetto(n, segreto)</code> <b>restituisce</b> la frase del verdetto, invece di stamparla: nel ciclo la catena di <code>if</code> diventa una riga sola, che stampa quello che la funzione restituisce;</li>
 <li><code>punti_per(tentativi)</code> restituisce i punti, e la riga del risultato la usa.</li></ul>
-<p>Il <code>break</code> resta nel ciclo, perché una funzione non può far uscire dal ciclo chi la chiama: dopo aver stampato il verdetto, controlla tu se il numero è giusto.</p>`],
+<p>Il <code>break</code> resta nel ciclo, perché una funzione non può far uscire dal ciclo chi la chiama: dopo aver stampato il verdetto, controlla tu se il numero è giusto.</p>
+<p>I parametri possono chiamarsi come le variabili di fuori, per esempio <code>segreto</code> e <code>tentativi</code>: dentro la funzione sono variabili locali, e valgono i valori che la funzione riceve.</p>`],
     task: `Crea le funzioni <code>verdetto</code> e <code>punti_per</code>, con questi nomi, e usale nel gioco senza cambiare quello che stampa. Proverò anche le funzioni da sole e una partita con un altro segreto.`,
     solution: `segreto = 7
 max_tentativi = 5
@@ -4196,7 +4294,8 @@ else:
 `<p>Part 4: the game has grown, and it's time to tidy it up with <b>functions</b>. For the player nothing changes: the output stays identical. It changes for whoever reads the code, which splits into pieces with a name and a single job. In this part you create two of them:</p>
 <ul><li><code>verdict(n, secret)</code> <b>gives back</b> the verdict sentence, instead of printing it: in the loop the chain of <code>if</code>s becomes a single line, which prints what the function gives back;</li>
 <li><code>points_for(attempts)</code> gives back the points, and the result line uses it.</li></ul>
-<p>The <code>break</code> stays in the loop, because a function can't make whoever calls it leave a loop: after printing the verdict, check yourself whether the number is right.</p>`],
+<p>The <code>break</code> stays in the loop, because a function can't make whoever calls it leave a loop: after printing the verdict, check yourself whether the number is right.</p>
+<p>Parameters can have the same names as the variables outside, for example <code>secret</code> and <code>attempts</code>: inside the function they're local variables, and they hold the values the function receives.</p>`],
     task: `Create the functions <code>verdict</code> and <code>points_for</code>, with these names, and use them in the game without changing what it prints. I'll also try the functions on their own and a game with another secret.`,
     solution: `secret = 7
 max_attempts = 5
@@ -4340,7 +4439,9 @@ print(conta)`, options: ["4", "2", "11", "1"], correct: 0, explain: "Nella parol
       { q: "Cosa stampa?", code: `numeri = [4, 7, 10]
 for i in range(len(numeri)):
     numeri[i] = numeri[i] // 2
-print(numeri)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Ogni elemento viene sostituito dalla sua metà intera: 4 // 2, 7 // 2, 10 // 2." }]
+print(numeri)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Ogni elemento viene sostituito dalla sua metà intera: 4 // 2, 7 // 2, 10 // 2." },
+      { q: "Cosa stampa?", code: `punti = [4, 9, 2]
+print(max(punti) - min(punti), sorted(punti)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max dà 9 e min dà 2, quindi 9 - 2 fa 7. sorted(punti) è [2, 4, 9], e il suo primo elemento è 2." }]
   },
   en: {
     title: "Review: text and functions",
@@ -4368,7 +4469,9 @@ print(count)`, options: ["4", "2", "11", "1"], correct: 0, explain: "There are f
       { q: "What does it print?", code: `numbers = [4, 7, 10]
 for i in range(len(numbers)):
     numbers[i] = numbers[i] // 2
-print(numbers)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Each item is replaced by its whole half: 4 // 2, 7 // 2, 10 // 2." }]
+print(numbers)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Each item is replaced by its whole half: 4 // 2, 7 // 2, 10 // 2." },
+      { q: "What does it print?", code: `scores = [4, 9, 2]
+print(max(scores) - min(scores), sorted(scores)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max gives 9 and min gives 2, so 9 - 2 is 7. sorted(scores) is [2, 4, 9], and its first item is 2." }]
   }
 },
 {
@@ -6531,7 +6634,7 @@ const WORLDS = [
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
   { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "best", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
-  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "def0", "params", "def", "retq", "build4a", "fcall", "ripasso4", "build4", "boss4"],
+  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "builtins", "def0", "params", "def", "retq", "build4a", "fcall", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
   { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "build5a", "math", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori, moduli" }, en: { name: "Tools", tag: "Dictionaries, errors, modules" } },
@@ -6558,7 +6661,7 @@ const FILE_BASE = {
   listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"], best: ["il_migliore.py", "the_best.py"],
   index: ["posizioni.py", "positions.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
   ripasso3: ["ripasso.py", "review.py"], build3: ["costruisci_gioco.py", "build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
-  str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"],
+  str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"], builtins: ["funzioni_pronte.py", "ready_made_functions.py"],
   def0: ["def.py", "def.py"], params: ["parametri.py", "parameters.py"], def: ["return.py", "return.py"],
   retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], ripasso4: ["ripasso.py", "review.py"],
   build4a: ["costruisci_verdetto.py", "build_verdict.py"], build4: ["costruisci_partita.py", "build_play.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
@@ -10059,7 +10162,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "4681f0cc9b", APP_BUILT = "2026-11-08T22:51Z";
+const APP_VERSION = "9168829999", APP_BUILT = "2026-11-09T08:19Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
