@@ -38,7 +38,7 @@ In ordine di difficoltà: **Python** (pronto), HTML e CSS, JavaScript, SQL, Type
 - **La quest** di ogni livello sta in un riquadro sopra l'editor, separata dalla spiegazione.
 - **Aiuti a gradini**: il primo suggerimento è una domanda che ti indirizza, il secondo è il piano a parole; la soluzione si sblocca solo dopo.
 - **Stelle**: ★★★ senza aiuti, ★★ con i suggerimenti, ★ con la soluzione; nei quiz contano gli errori. Puoi rigiocare un livello per prenderle tutte.
-- **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice: un grado a metà della prima cartella, poi uno per cartella, quando ne batti il boss.
+- **Byte e gradi**: ogni livello vale dei byte; con i byte sali di grado, da Principiante a Maestro del codice: un grado a metà della prima cartella, poi uno per cartella, quando ne batti il boss. Toccando il grado in alto si apre l'elenco di tutti i gradi del percorso: quelli raggiunti, quello attuale, quanto manca al prossimo e in quale cartella arriva ognuno.
 - **Suoni morbidi** quando superi un livello, disattivabili.
 - **Account**: scegli un nome utente e una password; i progressi di ogni account sono separati e restano sul dispositivo. Puoi usare l'app anche come ospite, avere più account sullo stesso dispositivo, cambiare la password ed eliminare l'account. Alla creazione ricevi un **codice di recupero** (mostrato una sola volta) per rientrare se dimentichi la password. Password e codice non vengono mai salvati in chiaro (PBKDF2).
 - **Salvataggio**: dalle impostazioni puoi salvare i progressi in un file o in un codice da copiare, e ripristinarli anche su un altro dispositivo; il ripristino unisce i progressi invece di sovrascriverli.
@@ -88,7 +88,7 @@ Sorted by difficulty: **Python** (ready), HTML and CSS, JavaScript, SQL, TypeScr
 - **The quest** of each level sits in its own box above the editor, apart from the explanation.
 - **Help in steps**: the first hint is a question that points the way, the second is the plan in words; the solution unlocks only after them.
 - **Stars**: ★★★ with no help, ★★ with the hints, ★ with the solution; in quizzes, mistakes count. Replay a level to collect them all.
-- **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master: one halfway through the first folder, then one per folder, when you beat its boss.
+- **Bytes and ranks**: every level is worth bytes; bytes raise your rank, from Beginner to Code master: one halfway through the first folder, then one per folder, when you beat its boss. Tapping the rank at the top opens the list of all the ranks of the path: the ones reached, the current one, how much is left to the next and which folder brings each one.
 - **Soft sounds** when you pass a level, and you can turn them off.
 - **Accounts**: pick a username and a password; each account's progress is kept separate and stays on the device. You can also play as a guest, keep several accounts on one device, change the password and delete the account. When you sign up you get a **recovery code** (shown only once) to get back in if you forget the password. Passwords and codes are never stored in clear text (PBKDF2).
 - **Saving**: from Settings you can save progress to a file or a copyable code, and restore it, even on another device; restoring merges progress instead of overwriting it.

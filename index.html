@@ -296,6 +296,32 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 .rbytes { font-family: var(--f-mono); font-size: 0.76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .rbar { width: 54px; height: 6px; border-radius: 99px; background: var(--code-bg); overflow: hidden; }
 .rbar i { display: block; height: 100%; background: var(--mustard); border-radius: 99px; }
+button.rank { font-family: inherit; color: inherit; line-height: 1.2; cursor: pointer; text-align: left; }
+button.rank:hover { border-color: var(--mustard); }
+button.rank:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* The ranks of the path */
+.rkcard { width: min(560px, 100%); }
+.rk-now { background: var(--code-bg); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; }
+.rk-now p { margin: 0; }
+.rk-now b { font-family: var(--f-display); font-size: 1.2rem; }
+.rk-big { height: 10px; border-radius: 99px; background: var(--paper); overflow: hidden; }
+.rk-big i { display: block; height: 100%; background: var(--mustard); border-radius: 99px; }
+.rk-how { margin: 0; font-size: 0.85rem; }
+.rk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rk { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); }
+.rk-m { width: 38px; display: grid; place-items: center; }
+.rk-m .px { width: 38px; height: 34px; }
+.rk-start { width: 30px; height: 30px; border-radius: 50%; background: var(--code-bg); color: var(--muted); font-size: 0.75rem; }
+.rk-main { display: grid; gap: 2px; min-width: 0; }
+.rk-name { font-weight: 700; }
+.rk-where { font-size: 0.8rem; color: var(--muted); }
+.rk-at { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rk.done .rk-at { color: var(--ok); }
+.rk.cur { border: 2px solid var(--mustard); padding: 7px 11px; }
+.rk.cur .rk-at { color: var(--ok); }
+.rk.lock { opacity: 0.62; }
+.rk.lock .rk-m .px { filter: grayscale(1); }
+.rk-you { display: inline-block; margin-left: 6px; padding: 0 8px; border-radius: 99px; border: 1px solid var(--mustard); font-size: 0.7rem; font-weight: 700; vertical-align: 1px; }
 #sound .mute { display: none; }
 #sound.muted .mute { display: inline; }
 #sound.muted .waves { display: none; }
@@ -506,6 +532,7 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 .hud .rbytes { color: var(--term-dim); }
 .hud .rbar { background: var(--term-line); }
 .hud .rbar i { background: var(--term-prompt); }
+.hud button.rank:hover { border-color: var(--term-prompt); }
 .hud .icon-btn { background: transparent; border-color: var(--term-line); color: var(--term-fg); }
 .hud .icon-btn:hover { border-color: var(--term-prompt); }
 
@@ -771,7 +798,7 @@ code b, pre b, #term b { font-family: inherit; }
         <button id="tab-lessons" role="tab" aria-selected="true" data-t="tabLessons">Mondi</button>
         <button id="tab-lab" role="tab" aria-selected="false" data-t="tabLab">Lab</button>
       </div>
-      <div class="rank" id="rank"><span class="rname" id="rank-name"></span><span class="rbar" aria-hidden="true"><i id="rank-bar"></i></span><span class="rbytes" id="rank-bytes"></span></div>
+      <button class="rank" id="rank" type="button" aria-haspopup="dialog"><span class="rname" id="rank-name"></span><span class="rbar" aria-hidden="true"><i id="rank-bar"></i></span><span class="rbytes" id="rank-bytes"></span></button>
       <button class="acct-btn" id="acct-btn"></button>
       <button class="icon-btn" id="sound" aria-pressed="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 7.5v5h3.2L10.5 16V4L6.2 7.5z" fill="currentColor"/><path class="waves" d="M13 7.2a3.6 3.6 0 0 1 0 5.6M15.3 4.8a7 7 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path class="mute" d="M13.2 7.5l4.5 5M17.7 7.5l-4.5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
       <button class="icon-btn" id="open-settings"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 6h7M14 6h3M3 14h3M10 14h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="6" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="14" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
@@ -847,6 +874,7 @@ code b, pre b, #term b { font-family: inherit; }
 
 <div class="overlay" id="cele" hidden><div class="ocard cele" role="dialog" aria-modal="true" aria-labelledby="cele-title"></div></div>
 <div class="overlay" id="acct" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="acct-title"></div></div>
+<div class="overlay" id="ranks" hidden><div class="ocard setcard rkcard" role="dialog" aria-modal="true" aria-labelledby="ranks-title"></div></div>
 <div class="overlay" id="settings" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="set-title"></div></div>
 
 <script type="text/x-python" id="py-runner">
@@ -7287,16 +7315,17 @@ function rankAt(wid, half) {
   n += WORLDS[wi].levels.length;
   return twoStarBytes(n - 1) + 64;
 }
+/* w: the folder that brings the rank (halfway through it, or at its boss) */
 const RANKS = [
-  { at: 0, it: "Principiante", en: "Beginner" },
-  { at: rankAt("w0", true), it: "Apprendista", en: "Apprentice" },
-  { at: rankAt("w0"), it: "Scripter", en: "Scripter" },
-  { at: rankAt("w1"), it: "Debugger", en: "Debugger" },
-  { at: rankAt("w2"), it: "Costruttore", en: "Builder" },
-  { at: rankAt("w3"), it: "Sviluppatore", en: "Developer" },
-  { at: rankAt("w4"), it: "Architetto", en: "Architect" },
-  { at: rankAt("w5"), it: "Pythonista", en: "Pythonista" },
-  { at: rankAt("w6"), it: "Maestro del codice", en: "Code master" }
+  { at: 0, w: -1, it: "Principiante", en: "Beginner" },
+  { at: rankAt("w0", true), w: 0, half: true, it: "Apprendista", en: "Apprentice" },
+  { at: rankAt("w0"), w: 0, it: "Scripter", en: "Scripter" },
+  { at: rankAt("w1"), w: 1, it: "Debugger", en: "Debugger" },
+  { at: rankAt("w2"), w: 2, it: "Costruttore", en: "Builder" },
+  { at: rankAt("w3"), w: 3, it: "Sviluppatore", en: "Developer" },
+  { at: rankAt("w4"), w: 4, it: "Architetto", en: "Architect" },
+  { at: rankAt("w5"), w: 5, it: "Pythonista", en: "Pythonista" },
+  { at: rankAt("w6"), w: 6, it: "Maestro del codice", en: "Code master" }
 ];
 function rankOf(bytes) { let r = 0; RANKS.forEach((x, i) => { if (bytes >= x.at) r = i; }); return r; }
 function fmtBytes(b) { return b >= 1024 ? (b / 1024).toFixed(1).replace(/\.0$/, "") + " KB" : b + " B"; }
@@ -7581,7 +7610,12 @@ Object.assign(UI.it, {
   lastBackup: (d) => `Ultimo salvataggio: ${d}`, neverBackup: "Non hai ancora salvato i progressi.",
   restored: "Progressi ripristinati.", restoreFail: "Questo file o codice non è valido. Controlla di averlo copiato per intero.",
   fileSaved: "File creato: lo trovi nei download.",
-  resetAll: "Ricomincia da zero", confirmResetAll: "Vuoi cancellare tutti i progressi, le stelle e i byte? I programmi della modalità Libero restano.", yesResetAll: "Sì, cancella tutto", close: "Chiudi",
+  ranksTitle: "I gradi del percorso", ranksOpen: "Tocca per vedere tutti i gradi del percorso",
+    ranksNext: (r, b) => `Al prossimo grado, ${r}, mancano ${b}.`, ranksMax: "Hai raggiunto il grado più alto. Complimenti!",
+    ranksHow: "Ogni livello superato vale 64 B (un boss 128 B), più 32 B per ogni stella. C'è un grado a metà della prima cartella, poi uno per ogni cartella: arriva quando ne batti il boss, o anche prima se prendi tre stelle.",
+    rankStart: "il punto di partenza", rankHalf: (d) => `a metà di ${d}`, rankBoss: (d) => `al boss di ${d}`,
+    rankLevels: (n, m) => `${n} di ${m} livelli fatti`, rankYou: "sei qui",
+    resetAll: "Ricomincia da zero", confirmResetAll: "Vuoi cancellare tutti i progressi, le stelle e i byte? I programmi della modalità Libero restano.", yesResetAll: "Sì, cancella tutto", close: "Chiudi",
   bossLabel: (n) => `Boss · ${n}`, mascotSays: (n) => `${n} dice`
 });
 Object.assign(UI.en, {
@@ -7654,7 +7688,12 @@ Object.assign(UI.en, {
   lastBackup: (d) => `Last saved: ${d}`, neverBackup: "You haven't saved your progress yet.",
   restored: "Progress restored.", restoreFail: "This file or code isn't valid. Check that you copied all of it.",
   fileSaved: "File created: you'll find it in your downloads.",
-  resetAll: "Start over", confirmResetAll: "Delete all progress, stars and bytes? Playground programs are kept.", yesResetAll: "Yes, delete everything", close: "Close",
+  ranksTitle: "The ranks of the path", ranksOpen: "Tap to see all the ranks of the path",
+    ranksNext: (r, b) => `To the next rank, ${r}, you need ${b} more.`, ranksMax: "You've reached the highest rank. Well done!",
+    ranksHow: "Every level you pass is worth 64 B (a boss 128 B), plus 32 B for each star. There's a rank halfway through the first folder, then one for each folder: it comes when you beat its boss, or even sooner if you take three stars.",
+    rankStart: "where everyone starts", rankHalf: (d) => `halfway through ${d}`, rankBoss: (d) => `at the boss of ${d}`,
+    rankLevels: (n, m) => `${n} of ${m} levels done`, rankYou: "you're here",
+    resetAll: "Start over", confirmResetAll: "Delete all progress, stars and bytes? Playground programs are kept.", yesResetAll: "Yes, delete everything", close: "Close",
   bossLabel: (n) => `Boss · ${n}`, mascotSays: (n) => `${n} says`
 });
 
@@ -8947,7 +8986,46 @@ function renderRank() {
   const pct = next ? ((S.bytes - RANKS[r].at) / (next.at - RANKS[r].at)) * 100 : 100;
   $("rank-bar").style.width = Math.max(4, Math.min(100, pct)) + "%";
   $("rank").title = next ? t("rankNext", fmtBytes(next.at - S.bytes)) : t("rankMax");
+  $("rank").setAttribute("aria-label", `${RANKS[r][S.lang]}, ${fmtBytes(S.bytes)}. ${t("ranksOpen")}`);
+  /* the ranks screen, when open, follows the bytes (renderRank also runs at startup, before the screen exists) */
+  if (!$("ranks").hidden) renderRanks();
 }
+
+/* ---------- The ranks of the path: tapping the rank in the header shows them all, each with the folder that brings it ---------- */
+const ranksEl = $("ranks");
+const doneIn = (wi) => WORLDS[wi].levels.filter((id) => S.stars[id]).length;
+function renderRanks() {
+  const r = rankOf(S.bytes), next = RANKS[r + 1];
+  const pct = next ? ((S.bytes - RANKS[r].at) / (next.at - RANKS[r].at)) * 100 : 100;
+  const rows = RANKS.map((k, i) => {
+    const w = WORLDS[k.w], st = i < r ? "done" : i === r ? "cur" : "lock";
+    const where = !w ? t("rankStart") : t(k.half ? "rankHalf" : "rankBoss", dirName(w, S.lang));
+    const lv = w ? " · " + t("rankLevels", doneIn(k.w), w.levels.length) : "";
+    return `<li class="rk ${st}"><span class="rk-m${w ? "" : " rk-start"}" ${w ? `data-m="${w.mascot}"` : ""} aria-hidden="true">${w ? "" : "▶"}</span>
+      <span class="rk-main"><span class="rk-name">${escHtml(k[S.lang])}${i === r ? ` <span class="rk-you">${t("rankYou")}</span>` : ""}</span><span class="rk-where">${escHtml(where + lv)}</span></span>
+      <span class="rk-at">${i <= r ? "✓ " : ""}${fmtBytes(k.at)}</span></li>`;
+  }).join("");
+  const label = next ? t("ranksNext", next[S.lang], fmtBytes(next.at - S.bytes)) : t("ranksMax");
+  ranksEl.querySelector(".ocard").innerHTML = `
+    <div class="set-head"><h2 id="ranks-title">${t("ranksTitle")}</h2><button class="btn tiny" id="ranks-close">${t("close")}</button></div>
+    <div class="rk-now"><p><b>${escHtml(RANKS[r][S.lang])}</b> · <span class="mono">${fmtBytes(S.bytes)}</span></p>
+      <div class="rk-big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(Math.min(100, pct))}" aria-label="${escHtml(label)}"><i style="width:${Math.max(3, Math.min(100, pct))}%"></i></div>
+      <p class="muted">${escHtml(label)}</p></div>
+    <p class="muted rk-how">${t("ranksHow")}</p>
+    <ol class="rk-list">${rows}</ol>`;
+  ranksEl.querySelectorAll(".rk-m[data-m]").forEach((m) => m.appendChild(mascotCanvas(m.dataset.m, "i", "")));
+  $("ranks-close").onclick = closeRanks;
+}
+function openRanks() {
+  renderRanks();
+  ranksEl.hidden = false;
+  $("ranks-close").focus();
+  const cur = ranksEl.querySelector(".rk.cur");
+  if (cur) cur.scrollIntoView({ block: "nearest" });
+}
+function closeRanks() { ranksEl.hidden = true; $("rank").focus(); }
+$("rank").onclick = openRanks;
+ranksEl.addEventListener("click", (e) => { if (e.target === ranksEl) closeRanks(); });
 
 /* ---------- Completing a level ---------- */
 function completeLevel() {
@@ -9531,6 +9609,7 @@ setEl.addEventListener("click", (e) => { if (e.target === setEl) closeSettings()
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!cele.hidden) closeCele();
+  else if (!ranksEl.hidden) closeRanks();
   else if (!setEl.hidden) closeSettings();
   else if (!acctEl.hidden) closeAccount();
 });
@@ -10162,7 +10241,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "9168829999", APP_BUILT = "2026-11-09T08:19Z";
+const APP_VERSION = "37c3209640", APP_BUILT = "2026-11-09T09:31Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
