@@ -298,6 +298,33 @@ html.staged, html.staged body { overflow: hidden; overscroll-behavior: none; }
 .stage .btn { background: transparent; color: var(--term-fg); border-color: var(--term-line); box-shadow: none; }
 .stage .btn.primary { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); }
 .sfocus { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); pointer-events: none; background: rgba(6, 10, 19, 0.85); border: 1px solid var(--term-line); border-radius: 999px; padding: 4px 12px; font-size: 0.8rem; white-space: nowrap; }
+/* On-screen controls: a cross of arrows and round buttons, under the game (or at its sides on a phone held sideways) */
+.spad { flex: none; order: 9; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 18px 14px; border-top: 1px solid var(--term-line); background: #05080f; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+.spad[hidden] { display: none; }
+.sdpad { position: relative; flex: none; width: 160px; height: 160px; touch-action: none; }
+.sdpad.row { width: 170px; height: 76px; }
+.sdir { position: absolute; width: 56px; height: 56px; display: grid; place-items: center; border-radius: 14px; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--term-line); color: var(--term-fg); transition: background 0.06s; }
+.sdir svg { width: 22px; height: 22px; }
+.sdir.up { left: 52px; top: 0; }
+.sdir.down { left: 52px; bottom: 0; }
+.sdir.left { left: 0; top: 52px; }
+.sdir.right { right: 0; top: 52px; }
+.sdir.left svg { transform: rotate(-90deg); }
+.sdir.right svg { transform: rotate(90deg); }
+.sdir.down svg { transform: rotate(180deg); }
+.sdpad.row .sdir { top: 0; width: 76px; height: 76px; border-radius: 18px; }
+.sdir.on, .sact.on { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; }
+.sacts { display: flex; flex-wrap: wrap-reverse; justify-content: flex-end; align-items: center; gap: 10px; max-width: 52%; }
+.sact { min-width: 66px; height: 66px; padding: 0 14px; border-radius: 33px; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--term-line); color: var(--term-fg); font: inherit; font-weight: 700; font-size: 0.95rem; touch-action: none; transition: background 0.06s; }
+.stage.pad-side .spad { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; border-top: 0; background: transparent; pointer-events: none; padding: 12px calc(18px + env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) calc(18px + env(safe-area-inset-left, 0px)); }
+.stage.pad-side .spad > * { pointer-events: auto; }
+.stage.pad-side .sacts { max-width: 146px; }
+.stage.pad-side .sdir, .stage.pad-side .sact { background: rgba(5, 8, 15, 0.55); }
+.stage.pad-side .sdir.on, .stage.pad-side .sact.on { background: var(--term-prompt); }
+/* long press on the game: a ring that fills, then the right click (the flag) */
+.sring { position: absolute; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; border: 3px solid var(--term-prompt); pointer-events: none; animation: sring 0.45s linear forwards; }
+.sring.go { background: rgba(242, 193, 78, 0.35); animation: none; }
+@keyframes sring { from { transform: scale(0.35); opacity: 0.25; } to { transform: scale(1); opacity: 0.95; } }
 .sout { flex: none; margin: 0; max-height: 5.4em; overflow: auto; padding: 6px 12px; border-top: 1px solid var(--term-line); background: var(--term-bg); color: var(--term-fg); font-family: var(--f-mono); font-size: 0.8rem; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .note { font-size: 0.84rem; color: var(--muted); margin: 0; }
 
@@ -7267,6 +7294,8 @@ const UI = {
     sPause: "Pausa", sResume: "Riprendi", sRestart: "Ricomincia", sFull: "Schermo intero", sWindow: "Riduci", sClose: "Chiudi",
     sPaused: "In pausa", sError: "Errore", sErrLine: (n) => `Errore alla riga ${n}`, sGoLine: (n) => `Vai alla riga ${n}`,
     gameRestart: "↻ Si ricomincia da capo",
+    padToggle: "Comandi", padToggleAria: "Mostra o nascondi i comandi sullo schermo", padArrows: "Frecce",
+    padSpace: "Spazio", padEnter: "Invio", padDel: "Canc",
     gameBasic: "I giochi con Pygame Zero funzionano solo nella versione completa: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "La finestra del gioco non si è aperta: scrivi pgzrun.go() nell'ultima riga del programma.",
     gameNoImport: "Per aprire la finestra del gioco scrivi import pgzrun nella prima riga e pgzrun.go() nell'ultima.",
@@ -7371,6 +7400,8 @@ const UI = {
     sPause: "Pause", sResume: "Resume", sRestart: "Restart", sFull: "Full screen", sWindow: "Exit full screen", sClose: "Close",
     sPaused: "Paused", sError: "Error", sErrLine: (n) => `Error on line ${n}`, sGoLine: (n) => `Go to line ${n}`,
     gameRestart: "↻ Starting over",
+    padToggle: "Controls", padToggleAria: "Show or hide the on-screen controls", padArrows: "Arrows",
+    padSpace: "Space", padEnter: "Enter", padDel: "Del",
     gameBasic: "Pygame Zero games only work in the full version: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "The game window didn't open: write pgzrun.go() on the last line of the program.",
     gameNoImport: "To open the game window, write import pgzrun on the first line and pgzrun.go() on the last.",
@@ -9051,10 +9082,12 @@ function openStage(info) {
     stageEl.className = "stage";
     stageEl.innerHTML =
       `<div class="sbar"><span class="stitle"></span><span class="ssize"></span><span class="sstate"></span><span class="sbtns">` +
-      ["pause", "restart", "full", "close"].map((k) => `<button type="button" class="sbtn${k === "close" ? " close" : ""}" data-s="${k}"></button>`).join("") +
+      ["pause", "restart", "pad", "full", "close"].map((k) => `<button type="button" class="sbtn${k === "close" ? " close" : ""}" data-s="${k}"></button>`).join("") +
       `</span></div><div class="sview"><canvas tabindex="0"></canvas><div class="sveil" hidden></div><div class="sfocus" hidden></div></div>` +
       `<pre class="sout" hidden></pre>`;
     stageEl.addEventListener("click", stageClick);
+    /* Ctrl+C stops the game from anywhere on its screen, as in the terminal */
+    stageEl.addEventListener("keydown", (e) => { if (running && e.ctrlKey && (e.key === "c" || e.key === "C")) { e.preventDefault(); stopRun(); } });
     stageQ(".sview").addEventListener("pointerdown", (e) => { if (e.target === e.currentTarget && gameNow) gameNow.cv.focus({ preventScroll: true }); });
     if (window.ResizeObserver) { stageRO = new ResizeObserver(() => requestAnimationFrame(stageFit)); stageRO.observe(stageQ(".sview")); }
     stageMode = stageWantsFull() ? "full" : "win";
@@ -9088,7 +9121,8 @@ function mountStage() {
 function stageGrow() {
   if (!stageEl || stageMode !== "win" || grid.classList.contains("termview") || !stageGame) { termCard.style.height = ""; return; }
   /* room for the game, and for the pause or the error over it */
-  const need = Math.max(stageGame.h, stageEl.classList.contains("dead") ? 300 : 200) + 110 + (stageQ(".sout").hidden ? 0 : 80);
+  const pad = stageEl.querySelector(".spad");
+  const need = Math.max(stageGame.h, stageEl.classList.contains("dead") ? 300 : 200) + 110 + (stageQ(".sout").hidden ? 0 : 80) + (pad && !pad.hidden ? 190 : 0);
   termCard.style.height = `max(var(--term-h), min(${need}px, 78vh))`;
 }
 function closeStage() {
@@ -9145,7 +9179,9 @@ const SICONS = {
   restart: '<path d="M13 8.5A5 5 0 1 1 11.3 4.3" /><path d="M12.5 1.8v3.3H9.2"/>',
   full: '<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>',
   win: '<path d="M6 2.5V6H2.5M13.5 6H10V2.5M10 13.5V10h3.5M2.5 10H6v3.5"/>',
-  close: '<path d="M4 4l8 8M12 4l-8 8"/>'
+  close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+  arrow: '<path d="M8 3.2l5.6 7.6H2.4z" fill="currentColor" stroke="none"/>',
+  pad: '<path d="M5.4 4.8h5.2a3.4 3.4 0 0 1 3.3 4.2l-.7 2.7a1.5 1.5 0 0 1-2.6.6L9.4 11H6.6l-1.2 1.3a1.5 1.5 0 0 1-2.6-.6L2.1 9a3.4 3.4 0 0 1 3.3-4.2z"/><path d="M5 6.9v2.2M3.9 8h2.2"/><circle cx="10.8" cy="8" r=".7" fill="currentColor" stroke="none"/>'
 };
 const sIcon = (k) => `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${SICONS[k]}</svg>`;
 function stageLabels() {
@@ -9160,6 +9196,10 @@ function stageLabels() {
   set("restart", "restart", t("sRestart"));
   set("full", stageMode === "full" ? "win" : "full", t(stageMode === "full" ? "sWindow" : "sFull"));
   set("close", "close", t("sClose"), t("gameClose"));
+  set("pad", "pad", t("padToggle"), t("padToggleAria"));
+  const padBtn = stageQ('[data-s="pad"]');
+  padBtn.hidden = !(g && g.pad);
+  padBtn.setAttribute("aria-pressed", String(padShown()));
   stageQ('[data-s="pause"]').hidden = !g;
   stageQ(".sstate").textContent = paused ? t("sPaused") : stageEl.classList.contains("dead") ? t("sError") : "";
 }
@@ -9171,6 +9211,7 @@ function stageClick(e) {
   else if (k === "resume") { if (g) setPaused(g, false); }
   else if (k === "restart") restartGame();
   else if (k === "full") setStageMode(stageMode === "full" ? "win" : "full", true);
+  else if (k === "pad") { ui.stagePad = !padShown(); applyPad(); }
   else if (k === "close") {
     if (g) { stopRun(); return; }
     const full = stageMode === "full";
@@ -9183,6 +9224,7 @@ function setPaused(g, on) {
   g.paused = on;
   const veil = stageQ(".sveil");
   if (on) {
+    if (g.pad) g.pad.reset();
     g.events.length = 0;
     veil.innerHTML = `<div class="spanel"><b>${escHtml(t("sPaused"))}</b><button type="button" class="btn primary sgo" data-s="resume">${sIcon("play")}${escHtml(t("sResume"))}</button></div>`;
     veil.hidden = false;
@@ -9208,6 +9250,8 @@ function rerun() {
 function showStageError(r, fromEditor) {
   if (!stageEl) return;
   stageEl.classList.add("dead");
+  const pad = stageEl.querySelector(".spad");
+  if (pad) pad.hidden = true;
   const last = String(r.tb || r.name || "Error").replace(/\s+$/, "").split("\n").pop();
   const h = errHint(r.name, last), line = r.line >= 1 ? r.line : 0;
   const veil = stageQ(".sveil");
@@ -9244,8 +9288,17 @@ function gotoLine(n) {
 function stageFit() {
   const g = stageGame;
   if (!stageEl || !g) return;
+  /* a phone held sideways: the controls go to the sides of the game instead of under it */
+  stageEl.classList.toggle("pad-side", stageMode === "full" && window.innerWidth > window.innerHeight * 1.15);
   const view = stageQ(".sview"), cv = g.cv;
-  const aw = Math.max(40, view.clientWidth - 12), ah = Math.max(40, view.clientHeight - 12);
+  let aw = Math.max(40, view.clientWidth - 12);
+  const ah = Math.max(40, view.clientHeight - 12);
+  /* controls at the sides: the game stays between them */
+  const pad = stageEl.querySelector(".spad");
+  if (stageEl.classList.contains("pad-side") && pad && !pad.hidden) {
+    const side = Math.max(0, ...[...pad.children].map((c) => c.getBoundingClientRect().width)) + 30;
+    aw = Math.max(40, aw - 2 * side);
+  }
   let k = Math.min(aw / g.w, ah / g.h);
   if (stageMode !== "full") k = Math.min(k, 1);
   const cw = Math.max(20, Math.floor(g.w * k)), ch = Math.max(20, Math.floor(g.h * k));
@@ -9264,30 +9317,150 @@ function stageFit() {
   g.redraw = true;
 }
 
-async function playGame(res, fromEditor) {
+/* ---------- Controls on the screen: arrows and buttons that reach the game as keys ---------- */
+/* Only the keys the game uses, read from its code (keys.LEFT, keyboard.space...): the arrows (or W A S D) as a cross,
+   the other keys as round buttons. Shown on touch screens; the bar's button shows or hides them anywhere. */
+const PAD_LONG_MS = 450, PAD_SWIPE_PX = 24;
+const padShown = () => (ui.stagePad != null ? ui.stagePad : coarse);
+function padKeyInfo(n) {
+  if (/^[A-Z]$/.test(n)) return { key: n.toLowerCase(), u: n.toLowerCase(), label: n };
+  const d = /^K_([0-9])$/.exec(n);
+  if (d) return { key: d[1], u: d[1], label: d[1] };
+  if (/^F([1-9]|1[0-2])$/.test(n)) return { key: n.toLowerCase(), u: "", label: n };
+  const sp = {
+    SPACE: [" ", " ", t("padSpace")], RETURN: ["enter", "\r", t("padEnter")], ESCAPE: ["escape", "\x1b", "Esc"], BACKSPACE: ["backspace", "\b", "⌫"],
+    TAB: ["tab", "\t", "Tab"], DELETE: ["delete", "\x7f", t("padDel")], LSHIFT: ["shift", "", "Shift"], RSHIFT: ["rshift", "", "Shift"],
+    LCTRL: ["control", "", "Ctrl"], LALT: ["alt", "", "Alt"], PLUS: ["+", "+", "+"], MINUS: ["-", "-", "−"], PERIOD: [".", ".", "."],
+    COMMA: [",", ",", ","], SLASH: ["/", "/", "/"], EQUALS: ["=", "=", "="], HOME: ["home", "", "Home"], END: ["end", "", "End"]
+  }[n];
+  return sp ? { key: sp[0], u: sp[1], label: sp[2] } : null;
+}
+function padPlan(src) {
+  const names = [];
+  const add = (n) => { if (!names.includes(n)) names.push(n); };
+  for (const m of src.matchAll(/\bkeys\.([A-Z][A-Z0-9_]*)/g)) add(m[1]);
+  for (const m of src.matchAll(/\bkeyboard\.([A-Za-z][A-Za-z0-9_]*)/g)) add(m[1].toUpperCase());
+  const ARROWS = { LEFT: "arrowleft", RIGHT: "arrowright", UP: "arrowup", DOWN: "arrowdown" }, WASD = { LEFT: "A", RIGHT: "D", UP: "W", DOWN: "S" };
+  let dirs = {};
+  const taken = new Set();
+  for (const d in ARROWS) if (names.includes(d)) { dirs[d] = { key: ARROWS[d], u: "" }; taken.add(d); }
+  if (!taken.size && ((names.includes("A") && names.includes("D")) || (names.includes("W") && names.includes("S"))))
+    for (const d in WASD) if (names.includes(WASD[d])) { dirs[d] = { key: WASD[d].toLowerCase(), u: WASD[d].toLowerCase() }; taken.add(WASD[d]); }
+  let acts = names.filter((n) => !taken.has(n) && !(n in ARROWS)).map(padKeyInfo).filter(Boolean);
+  acts = acts.filter((a, i) => acts.findIndex((b) => b.key === a.key) === i).slice(0, 6);
+  /* a game that reads the keys without naming any: the arrows and the space bar */
+  if (!Object.keys(dirs).length && !acts.length && /def\s+on_key_(down|up)\s*\(|\bkeyboard\b/.test(src)) {
+    for (const d in ARROWS) dirs[d] = { key: ARROWS[d], u: "" };
+    acts = [padKeyInfo("SPACE")];
+  }
+  return { dirs, acts, any: Object.keys(dirs).length + acts.length > 0 };
+}
+function buildPad(g, plan, push) {
+  const old = stageEl.querySelector(".spad");
+  if (old) old.remove();
+  if (!plan.any) return;
+  const el = document.createElement("div");
+  el.className = "spad";
+  const dirs = ["UP", "LEFT", "RIGHT", "DOWN"].filter((d) => plan.dirs[d]);
+  const row = dirs.length && dirs.every((d) => d === "LEFT" || d === "RIGHT");
+  el.innerHTML = (dirs.length ? `<div class="sdpad${row ? " row" : ""}" role="group" aria-label="${escHtml(t("padArrows"))}">` +
+      dirs.map((d) => `<span class="sdir ${d.toLowerCase()}" data-d="${d}">${sIcon("arrow")}</span>`).join("") + `</div>` : "") +
+    (plan.acts.length ? `<div class="sacts">` + plan.acts.map((a, i) => `<button type="button" class="sact" tabindex="-1" data-i="${i}">${escHtml(a.label)}</button>`).join("") + `</div>` : "");
+  stageEl.appendChild(el);
+  const press = (k) => push({ t: "down", key: k.key, mod: 0, unicode: k.u });
+  const release = (k) => push({ t: "up", key: k.key, mod: 0 });
+  /* the cross follows the finger: sliding from one arrow to the next releases the first */
+  const dpad = el.querySelector(".sdpad");
+  let ptr = null, cur = null;
+  const setDir = (d, quiet) => {
+    if (d === cur) return;
+    if (cur) { if (!quiet) release(plan.dirs[cur]); dpad.querySelector(`[data-d="${cur}"]`).classList.remove("on"); }
+    cur = d;
+    if (d) { press(plan.dirs[d]); dpad.querySelector(`[data-d="${d}"]`).classList.add("on"); }
+  };
+  const follow = (e) => {
+    const r = dpad.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    const dead = Math.min(r.width, r.height) * 0.14;
+    let d = null;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) > dead) {
+      const h = dx < 0 ? "LEFT" : "RIGHT", v = dy < 0 ? "UP" : "DOWN";
+      const first = Math.abs(dx) >= Math.abs(dy) ? h : v, second = first === h ? v : h;
+      d = plan.dirs[first] ? first : plan.dirs[second] && Math.min(Math.abs(dx), Math.abs(dy)) > dead ? second : null;
+    }
+    setDir(d);
+  };
+  if (dpad) {
+    dpad.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (ptr !== null) return;
+      ptr = e.pointerId;
+      try { dpad.setPointerCapture(e.pointerId); } catch (x) {}
+      follow(e);
+    });
+    dpad.addEventListener("pointermove", (e) => { if (e.pointerId === ptr) follow(e); });
+    const lift = (e) => { if (e.pointerId === ptr) { ptr = null; setDir(null); } };
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((n) => dpad.addEventListener(n, lift));
+  }
+  el.querySelectorAll(".sact").forEach((b) => {
+    const k = plan.acts[+b.dataset.i];
+    b.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (b.classList.contains("on")) return;
+      try { b.setPointerCapture(e.pointerId); } catch (x) {}
+      b.classList.add("on");
+      press(k);
+    });
+    const lift = () => { if (b.classList.contains("on")) { b.classList.remove("on"); release(k); } };
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach((n) => b.addEventListener(n, lift));
+  });
+  el.addEventListener("contextmenu", (e) => e.preventDefault());
+  g.pad = {
+    el,
+    /* the pause lets everything go: nothing stays pressed */
+    reset() { ptr = null; setDir(null, true); el.querySelectorAll(".sact.on").forEach((b) => b.classList.remove("on")); }
+  };
+  el.hidden = !padShown();
+}
+function applyPad() {
+  const g = stageGame;
+  if (!stageEl || !g || !g.pad) return;
+  g.pad.el.hidden = !padShown() || stageEl.classList.contains("dead");
+  if (g.pad.el.hidden) g.pad.reset();
+  stageGrow();
+  stageLabels();
+  requestAnimationFrame(stageFit);
+}
+
+async function playGame(res, fromEditor, src) {
   const info = res.game, W = info.w, H = info.h, hooks = info.hooks || [];
   const mouseHooks = hooks.some((h) => h.startsWith("on_mouse"));
+  const plan = padPlan(src || "");
   openStage(info);
   const cv = document.createElement("canvas");
   cv.tabIndex = 0;
   cv.setAttribute("aria-label", t("gameAria", info.title));
   stageQ(".sview canvas").replaceWith(cv);
-  if (mouseHooks) cv.style.touchAction = "none";
+  /* on a touch screen: a swipe is an arrow for games played with the arrows and without the mouse (2048, Snake);
+     with the mouse, a tap is a click and, if the game uses the right button, a long press is a right click (the flag) */
+  const swipeDirs = !mouseHooks && Object.keys(plan.dirs).length ? plan.dirs : null;
+  const longPress = mouseHooks && /\bmouse\.RIGHT\b|\bbutton\s*==\s*3\b/.test(src || "");
+  if (mouseHooks || swipeDirs) cv.style.touchAction = "none";
   const ctx = cv.getContext("2d");
   const hint = stageQ(".sfocus"), outEl = stageQ(".sout");
-  const g = gameNow = stageGame = { w: W, h: H, cv, ctx, events: [], stop: false, paused: false, restart: false, wake: null, sent: 0, out: "", outBuf: "", shown: "", outEl, redraw: false, painted: false };
+  const g = gameNow = stageGame = { w: W, h: H, cv, ctx, events: [], stop: false, paused: false, restart: false, wake: null, sent: 0, out: "", outBuf: "", shown: "", outEl, redraw: false, painted: false, pad: null };
+  const push = (ev) => { if (!g.paused && g.events.length < 300) g.events.push(ev); };
+  buildPad(g, plan, push);
   stageGrow();
   stageFit();
   stageLabels();
 
-  const push = (ev) => { if (!g.paused && g.events.length < 300) g.events.push(ev); };
   const posOf = (e) => {
     const r = cv.getBoundingClientRect();
     return [Math.floor((e.clientX - r.left) * W / r.width), Math.floor((e.clientY - r.top) * H / r.height)];
   };
   const button = (e) => (e.button === 1 ? 2 : e.button === 2 ? 3 : 1);
   cv.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && (e.key === "c" || e.key === "C")) { e.preventDefault(); stopRun(); return; }   /* as in the terminal */
+    if (e.ctrlKey && (e.key === "c" || e.key === "C")) return;   /* the game screen stops the program, as in the terminal */
     if (e.metaKey || e.key === "Tab") return;                                                     /* Tab leaves the game */
     e.preventDefault(); e.stopPropagation();
     if (!e.repeat) push({ t: "down", key: gameKeyName(e), mod: gameMod(e), unicode: e.key.length === 1 ? e.key : (GAME_UNI[e.key] || "") });
@@ -9299,16 +9472,74 @@ async function playGame(res, fromEditor) {
   });
   cv.addEventListener("focus", () => { hint.hidden = true; });
   cv.addEventListener("blur", () => { push({ t: "blur" }); if (!g.stop && !g.paused && !coarse) hint.hidden = false; });
+  const moveHook = hooks.includes("on_mouse_move");
+  const pushMove = (pos) => { const last = g.events[g.events.length - 1]; if (last && last.t === "move") last.pos = pos; else push({ t: "move", pos }); };
+  let touch = null;   /* the finger on the game, for swipes and long presses */
+  const ring = (e, cls) => {
+    const v = stageQ(".sview").getBoundingClientRect(), el = document.createElement("div");
+    el.className = "sring" + (cls ? " " + cls : "");
+    el.style.left = (e.clientX - v.left) + "px"; el.style.top = (e.clientY - v.top) + "px";
+    stageQ(".sview").appendChild(el);
+    return el;
+  };
   cv.addEventListener("pointerdown", (e) => {
     cv.focus({ preventScroll: true });
+    if (e.pointerType === "touch" && (swipeDirs || longPress)) {
+      e.preventDefault();
+      if (touch) return;   /* one finger at a time on the game */
+      try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      touch = { id: e.pointerId, x: e.clientX, y: e.clientY, pos: posOf(e), long: false, moved: false, swiped: false, timer: 0, ring: null };
+      if (longPress) {
+        touch.ring = ring(e);
+        touch.timer = setTimeout(() => {
+          if (!touch || touch.moved) return;
+          touch.long = true;
+          touch.ring.classList.add("go");
+          push({ t: "mdown", pos: touch.pos, button: 3 });
+          try { if (navigator.vibrate) navigator.vibrate(15); } catch (x) {}
+        }, PAD_LONG_MS);
+      }
+      return;
+    }
     push({ t: "mdown", pos: posOf(e), button: button(e) });
     if (mouseHooks) { e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {} }
   });
-  cv.addEventListener("pointerup", (e) => push({ t: "mup", pos: posOf(e), button: button(e) }));
-  if (hooks.includes("on_mouse_move")) cv.addEventListener("pointermove", (e) => {
-    const last = g.events[g.events.length - 1], pos = posOf(e);
-    if (last && last.t === "move") last.pos = pos; else push({ t: "move", pos });
+  cv.addEventListener("pointermove", (e) => {
+    if (touch && e.pointerId === touch.id) {
+      const dx = e.clientX - touch.x, dy = e.clientY - touch.y, far = Math.hypot(dx, dy);
+      if (swipeDirs) {
+        if (!touch.swiped && far > PAD_SWIPE_PX) {
+          touch.swiped = true;
+          const k = swipeDirs[Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "LEFT" : "RIGHT") : (dy < 0 ? "UP" : "DOWN")];
+          if (k) { push({ t: "down", key: k.key, mod: 0, unicode: k.u }); setTimeout(() => push({ t: "up", key: k.key, mod: 0 }), 120); }
+        }
+        return;
+      }
+      if (!touch.long && !touch.moved && far > 10) {
+        clearTimeout(touch.timer);
+        touch.moved = true;
+        if (touch.ring) { touch.ring.remove(); touch.ring = null; }
+        push({ t: "mdown", pos: touch.pos, button: 1 });
+      }
+      if (touch.moved && moveHook) pushMove(posOf(e));
+      return;
+    }
+    if (moveHook) pushMove(posOf(e));
   });
+  const touchEnd = (e, cancel) => {
+    if (!touch || e.pointerId !== touch.id) return false;
+    clearTimeout(touch.timer);
+    const pos = posOf(e), tc = touch;
+    touch = null;
+    if (tc.ring) { const r = tc.ring; if (tc.long) setTimeout(() => r.remove(), 250); else r.remove(); }
+    if (swipeDirs) return true;
+    if (tc.long) push({ t: "mup", pos, button: 3 });
+    else if (tc.moved) push({ t: "mup", pos, button: 1 });
+    else if (!cancel) { push({ t: "mdown", pos: tc.pos, button: 1 }); push({ t: "mup", pos: tc.pos, button: 1 }); }
+    return true;
+  };
+  cv.addEventListener("pointerup", (e) => { if (!touchEnd(e, false)) push({ t: "mup", pos: posOf(e), button: button(e) }); });
+  cv.addEventListener("pointercancel", (e) => { touchEnd(e, true); });
   if (mouseHooks) cv.addEventListener("wheel", (e) => {
     e.preventDefault();
     const b = e.deltaY < 0 ? 4 : 5, pos = posOf(e);
@@ -9382,7 +9613,7 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false, re
   const t0 = performance.now();
   let res = await engineRun(src, label, "file");
   /* the program ran and called pgzrun.go(): its window opens, until it's closed */
-  if (res.status === "game") res = await playGame(res, fromEditor);
+  if (res.status === "game") res = await playGame(res, fromEditor, src);
   else if (stageEl) closeStage();
   if (res.status === "restart") {
     newline(); termWrite(t("gameRestart") + "\n", "dim");
@@ -11020,7 +11251,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "17fee9a6d7", APP_BUILT = "2026-11-09T11:11Z";
+const APP_VERSION = "22cc0cf7a2", APP_BUILT = "2026-11-09T11:28Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
