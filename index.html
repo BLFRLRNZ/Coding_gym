@@ -642,11 +642,23 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 .pj-head p { margin: 0; color: var(--term-dim); max-width: 66ch; }
 .projcard .btn { background: transparent; color: var(--term-fg); border-color: var(--term-line); box-shadow: none; }
 .projcard .btn.primary { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); }
-.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); grid-auto-flow: row dense; gap: 12px; }
+/* the path of the game being looked at, across the whole row under its card */
+.pj-path { grid-column: 1 / -1; background: #0b1222; border: 1px solid var(--term-prompt); border-radius: 14px; padding: 14px 16px 16px; }
+.pj-path h3 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; }
+.pp-sub { margin: 4px 0 12px; font-size: 0.84rem; color: var(--term-dim); max-width: 80ch; }
+.pp-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px 20px; }
+.pp-head { font-size: 0.8rem; color: var(--term-dim); padding-bottom: 4px; border-bottom: 1px solid var(--term-line); }
+.pp-head span { font-family: var(--f-mono); color: var(--term-prompt); margin-right: 4px; }
+.pp-group ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.pp-group li { font-size: 0.86rem; line-height: 1.4; }
+.pp-group li span { display: block; color: var(--term-dim); }
+.pp-soon { font-style: normal; font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--term-dim); border: 1px dashed var(--term-dim); border-radius: 5px; padding: 0 5px; }
 .pcard { display: flex; flex-direction: column; text-align: left; padding: 0; border-radius: 14px; background: #0b1222; color: var(--term-fg); border: 1px solid var(--term-line); overflow: hidden; font: inherit; cursor: pointer; }
 .pcard:hover { border-color: var(--term-dim); }
 .pcard.sel { border-color: var(--term-prompt); box-shadow: 0 0 0 3px color-mix(in srgb, var(--term-prompt) 35%, transparent); }
 .pcard:focus-visible { outline: 3px solid var(--term-prompt); outline-offset: 2px; }
+.pcard.look:not(.sel) { border-color: var(--term-fg); }
 .pc-screen { display: block; height: 132px; background: var(--pc); border-bottom: 1px solid var(--term-line); }
 .pc-screen canvas { display: block; width: 100%; height: 100%; }
 .pcard.soon .pc-screen { filter: saturate(0.6) brightness(0.8); }
@@ -7096,6 +7108,247 @@ const PROJECTS = [
 ];
 const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map((p) => [p.id, p]));
 
+/* ---------- The parts map: the same eleven slots for every project ----------
+   Where each part sits in the course (folder and build level) and the common rule of what it adds: 00-03 in the
+   terminal, 04 functions and then the Pygame Zero window, 05 chance, dictionaries and records, 06 classes and the full
+   game, 07 the project on your own computer. A part uses only what the course has explained up to its level. */
+const PART_SLOTS = [
+  { id: "p0", w: 0, level: "build0" }, { id: "p1", w: 1, level: "build1" }, { id: "p2", w: 2, level: "build2" },
+  { id: "p3", w: 3, level: "build3" }, { id: "p4", w: 4, level: "build4a" }, { id: "p5", w: 4, level: "build4" },
+  { id: "p6", w: 5, level: "build5a" }, { id: "p7", w: 5, level: "build5" }, { id: "p8", w: 6, level: "build6a" },
+  { id: "p9", w: 6, level: "final" }, { id: "p10", w: 7, level: null }
+];
+/* the common rule, folder by folder */
+const PART_RULE = {
+  it: ["Nel terminale, solo con print", "Variabili, conti e input", "Le regole con if", "Liste e cicli: la partita a turni",
+    "Funzioni, poi la finestra", "Il caso, dizionari e record", "Classi: il gioco completo", "Sul tuo computer"],
+  en: ["In the terminal, just with print", "Variables, sums and input", "The rules with if", "Lists and loops: a turn-based game",
+    "Functions, then the window", "Chance, dictionaries and records", "Classes: the full game", "On your computer"]
+};
+/* lessons the projects need that the course doesn't have yet (they come with the course built on projects) */
+const PROJECT_LESSONS = [
+  { w: 3, after: "index", it: ["Liste di liste: le griglie", "griglia[riga][colonna], e due for uno dentro l'altro per stamparla"],
+    en: ["Lists of lists: grids", "grid[row][column], and two nested for loops to print it"] },
+  { w: 4, after: "fcall", it: ["La finestra del gioco", "import pgzrun, WIDTH e HEIGHT, draw(), screen.fill, Rect e screen.draw, pgzrun.go()"],
+    en: ["The game window", "import pgzrun, WIDTH and HEIGHT, draw(), screen.fill, Rect and screen.draw, pgzrun.go()"] },
+  { w: 4, after: "fcall", it: ["Tasti e movimento", "update(), keyboard, on_key_down(key) e global"],
+    en: ["Keys and movement", "update(), keyboard, on_key_down(key) and global"] },
+  { w: 4, after: "fcall", it: ["Clic e tempo", "on_mouse_down(pos) e clock.schedule_interval"],
+    en: ["Clicks and time", "on_mouse_down(pos) and clock.schedule_interval"] },
+  { w: 7, after: "pip", it: ["Costruisci: il progetto sul tuo computer", "la parte 10 di ogni progetto"],
+    en: ["Build: your project on your computer", "part 10 of every project"] }
+];
+/* What every part adds, one line each: [title, what it adds]. built: the parts already in the course. */
+const PROJECT_PARTS = {
+  guess: { built: ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"],
+    it: [["La copertina", "Il titolo del gioco e le regole, stampati con print e qualche simbolo."],
+      ["Il primo tentativo", "Chiedi il nome e un numero, poi stampa la distanza dal segreto e i punti."],
+      ["Il verdetto", "Con if, elif ed else dici «più alto», «più basso» o «giusto»; un numero fuori dal campo vale 0."],
+      ["Cinque tentativi", "La domanda e il verdetto vanno in un ciclo che si ferma al numero giusto o dopo 5 tentativi."],
+      ["Le prime funzioni", "Il verdetto e i punti diventano due funzioni, e il gioco stampa le stesse cose di prima."],
+      ["La partita è una funzione", "Tutta la partita entra in partita(segreto), pronta da giocare con qualsiasi segreto."],
+      ["Il segreto a caso", "Il segreto lo sceglie random, e chi scrive una parola invece di un numero può riprovare."],
+      ["I livelli", "Facile, medio o difficile: un dizionario dice quanto è grande il campo di ogni livello."],
+      ["Il giocatore", "La classe Giocatore ricorda nome, partite e record, e alla fine stampa il riepilogo."],
+      ["Giochi ancora?", "Le partite si ripetono finché il giocatore vuole, con il riepilogo alla fine."],
+      ["A colori", "Con pip install rich gli indizi diventano colorati: la prima libreria esterna nel tuo progetto."]],
+    en: [["The cover", "The game's title and rules, printed with print and a few symbols."],
+      ["The first guess", "Ask for a name and a number, then print the distance from the secret and the points."],
+      ["The verdict", "With if, elif and else say “higher”, “lower” or “right”; a number out of range scores 0."],
+      ["Five tries", "The question and the verdict go in a loop that stops at the right number or after 5 tries."],
+      ["The first functions", "The verdict and the points become two functions, and the game prints the same as before."],
+      ["The game is a function", "The whole game goes into play(secret), ready to play with any secret."],
+      ["A random secret", "random picks the secret, and whoever types a word instead of a number can try again."],
+      ["Levels", "Easy, medium or hard: a dictionary says how big the range of each level is."],
+      ["The player", "The Player class remembers name, games and record, and prints the summary at the end."],
+      ["Play again?", "Games repeat as long as the player wants, with the summary at the end."],
+      ["In colour", "With pip install rich the hints get colours: the first external library in your project."]] },
+  maze: {
+    it: [["La mappa", "Il labirinto disegnato con print: muri #, l'entrata S, l'uscita E e i comandi."],
+      ["Dove sei", "La tua posizione sta in due variabili: chiedi quanti passi fare e stampa dove arrivi e quanto manca all'uscita."],
+      ["Muri e uscita", "Con if controlli le lettere w a s d, i bordi del labirinto e l'arrivo all'uscita."],
+      ["Il labirinto vero", "La mappa diventa una griglia: un ciclo ti fa camminare passo dopo passo, i muri ti fermano, le mosse si contano."],
+      ["Funzioni per muoversi", "Stampare la mappa, controllare una casella e fare un passo diventano funzioni."],
+      ["Nella finestra", "Il labirinto si disegna a quadretti in una finestra e ti muovi con le frecce."],
+      ["Monete a caso", "Monete sparse a caso nelle caselle libere: raccoglile tutte prima di uscire."],
+      ["Più labirinti e record", "Una lista di labirinti uno dopo l'altro, e un dizionario con il record di mosse di ognuno."],
+      ["L'esploratore", "Il giocatore diventa un oggetto con posizione, mosse e monete."],
+      ["I fantasmi", "Fantasmi che vanno avanti e indietro: una squadra di oggetti da evitare, con le vite."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo labirinto gira anche sul computer, con lo stesso codice."]],
+    en: [["The map", "The maze drawn with print: walls #, the start S, the exit E and the commands."],
+      ["Where you are", "Your position is in two variables: ask how many steps to take and print where you end up and how far the exit is."],
+      ["Walls and exit", "With if you check the letters w a s d, the edges of the maze and reaching the exit."],
+      ["The real maze", "The map becomes a grid: a loop walks you step by step, walls stop you, moves are counted."],
+      ["Functions to move", "Printing the map, checking a square and taking a step become functions."],
+      ["In a window", "The maze is drawn in squares in a window and you move with the arrows."],
+      ["Random coins", "Coins scattered at random on free squares: collect them all before you leave."],
+      ["More mazes and records", "A list of mazes one after another, and a dictionary with the record of moves for each."],
+      ["The explorer", "The player becomes an object with position, moves and coins."],
+      ["The ghosts", "Ghosts going back and forth: a team of objects to dodge, with lives."],
+      ["On your computer", "With pip install pgzero your maze runs on your computer too, with the same code."]] },
+  memory: {
+    it: [["Il tavolo", "Le 12 carte coperte disegnate con print, con i numeri delle posizioni e le regole."],
+      ["Dove sta la carta", "Chiedi due posizioni e calcola riga e colonna di ognuna con // e %."],
+      ["Coppia o no", "Con if confronti le due carte: coppia, carte diverse o posizioni non valide."],
+      ["La partita", "Le carte in una lista, un ciclo che dura finché trovi tutte le coppie, e il conto delle mosse."],
+      ["Funzioni per il tavolo", "Stampare il tavolo, controllare una coppia e capire se è finita diventano funzioni."],
+      ["Nella finestra", "Le carte si disegnano in una finestra, si girano con un clic e si ricoprono dopo un secondo."],
+      ["Mescolate", "Le carte si mescolano a caso a ogni partita."],
+      ["Record e tempo", "Il tempo di gioco e un dizionario con il record di mosse per ogni grandezza del tavolo."],
+      ["La carta è un oggetto", "Una classe Carta con il simbolo e i metodi per girarla e confrontarla."],
+      ["Tavoli più grandi", "Livelli con più carte, una squadra di oggetti Carta e una nuova partita quando vuoi."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Memory gira anche sul computer, con lo stesso codice."]],
+    en: [["The table", "The 12 face-down cards drawn with print, with their position numbers and the rules."],
+      ["Where the card is", "Ask for two positions and work out the row and column of each with // and %."],
+      ["Pair or not", "With if compare the two cards: a pair, different cards or invalid positions."],
+      ["The game", "The cards in a list, a loop that lasts until you find all the pairs, and the count of moves."],
+      ["Functions for the table", "Printing the table, checking a pair and seeing if it's over become functions."],
+      ["In a window", "The cards are drawn in a window, turn over with a click and turn back after a second."],
+      ["Shuffled", "The cards are shuffled at random every game."],
+      ["Records and time", "The playing time and a dictionary with the record of moves for each table size."],
+      ["The card is an object", "A Card class with its symbol and the methods to turn it and compare it."],
+      ["Bigger tables", "Levels with more cards, a team of Card objects and a new game whenever you like."],
+      ["On your computer", "With pip install pgzero your Memory runs on your computer too, with the same code."]] },
+  snake: {
+    it: [["Il campo", "Il campo con i bordi, il serpente e la mela, disegnati con print, più i comandi."],
+      ["La testa si muove", "La testa sta in due variabili: chiedi quanti passi fare e con % la fai rientrare dall'altro lato."],
+      ["Le regole", "Con if muovi la testa con w a s d, controlli i bordi e se hai preso la mela."],
+      ["Il serpente si allunga", "Il corpo è una lista di posizioni che cresce a ogni mela; il ciclo finisce quando sbatti o ti mordi la coda."],
+      ["Funzioni per il serpente", "Muovere la testa, disegnare il campo e controllare gli scontri diventano funzioni."],
+      ["Nella finestra", "Il serpente corre da solo in una finestra, a scatti regolari, e cambi direzione con le frecce."],
+      ["La mela a caso", "La mela compare in un posto a caso, mai sopra il serpente."],
+      ["Punti e record", "Il punteggio sullo schermo e un dizionario con il record per ogni velocità."],
+      ["Il serpente è un oggetto", "Una classe Serpente con il corpo, la direzione e i metodi per muoversi e crescere."],
+      ["La partita completa", "Mele diverse (una squadra di oggetti), la velocità che sale e la ripartenza con Spazio."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Snake gira anche sul computer, con lo stesso codice."]],
+    en: [["The field", "The field with its edges, the snake and the apple, drawn with print, plus the commands."],
+      ["The head moves", "The head is in two variables: ask how many steps to take and use % to bring it back in from the other side."],
+      ["The rules", "With if you move the head with w a s d, check the edges and whether you got the apple."],
+      ["The snake grows", "The body is a list of positions that grows with every apple; the loop ends when you crash or bite your tail."],
+      ["Functions for the snake", "Moving the head, drawing the field and checking for crashes become functions."],
+      ["In a window", "The snake runs by itself in a window, in regular steps, and you steer with the arrows."],
+      ["A random apple", "The apple appears in a random place, never on top of the snake."],
+      ["Points and records", "The score on the screen and a dictionary with the record for each speed."],
+      ["The snake is an object", "A Snake class with its body, its direction and the methods to move and grow."],
+      ["The full game", "Different apples (a team of objects), the speed going up and restarting with Space."],
+      ["On your computer", "With pip install pgzero your Snake runs on your computer too, with the same code."]] },
+  connect4: {
+    it: [["La griglia", "La griglia vuota di 7 colonne e 6 righe, con i numeri delle colonne e le regole, disegnata con print."],
+      ["A chi tocca", "I nomi dei due giocatori, la colonna scelta con input e il turno calcolato con %."],
+      ["Mosse valide", "Con if controlli che la colonna esista e non sia piena, e dici chi gioca."],
+      ["I dischi cadono", "La griglia diventa una lista di liste: il disco cade fino in fondo, i turni si alternano, quattro in fila vince."],
+      ["Funzioni per la griglia", "Stampare la griglia, far cadere un disco e controllare chi vince diventano funzioni."],
+      ["Nella finestra", "La griglia blu in una finestra: clicchi su una colonna e il disco cade."],
+      ["Contro il computer", "Il computer sceglie a caso una colonna valida."],
+      ["Vittorie e diagonali", "Contano anche le diagonali, e un dizionario tiene le vittorie di ogni giocatore."],
+      ["La griglia è un oggetto", "Una classe Griglia con i metodi per far cadere i dischi e trovare il vincitore."],
+      ["Un avversario più furbo", "Il computer blocca le tue file da tre, con il tabellone delle vittorie e la rivincita."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Forza 4 gira anche sul computer, con lo stesso codice."]],
+    en: [["The grid", "The empty grid of 7 columns and 6 rows, with column numbers and the rules, drawn with print."],
+      ["Whose turn", "The two players' names, the column chosen with input and the turn worked out with %."],
+      ["Valid moves", "With if check that the column exists and isn't full, and say who plays."],
+      ["Discs fall", "The grid becomes a list of lists: the disc falls to the bottom, turns alternate, four in a row wins."],
+      ["Functions for the grid", "Printing the grid, dropping a disc and checking who wins become functions."],
+      ["In a window", "The blue grid in a window: click on a column and the disc falls."],
+      ["Against the computer", "The computer picks a random valid column."],
+      ["Wins and diagonals", "Diagonals count too, and a dictionary keeps each player's wins."],
+      ["The grid is an object", "A Grid class with the methods to drop discs and find the winner."],
+      ["A smarter opponent", "The computer blocks your lines of three, with the scoreboard and a rematch."],
+      ["On your computer", "With pip install pgzero your Connect Four runs on your computer too, with the same code."]] },
+  "2048": {
+    it: [["Il tabellone", "Un tabellone 4×4 con qualche tessera, disegnato con print, e le regole."],
+      ["Potenze di 2", "Chiedi un esponente e calcola la tessera con **: quante unioni servono per arrivare a 2048?"],
+      ["Due tessere si uniscono", "Con if decidi se due tessere vicine si uniscono, e se hai raggiunto 2048."],
+      ["Una riga scorre", "La riga è una lista: tolti gli zeri, le tessere uguali si uniscono; poi tutto il tabellone, in un ciclo."],
+      ["Funzioni per scorrere", "Far scorrere una riga e tutto il tabellone, e stamparlo, diventano funzioni; max trova la tessera più grande."],
+      ["Nella finestra", "Le tessere colorate in una finestra: le muovi con le frecce, o scorrendo il dito sul telefono."],
+      ["Nuove tessere", "Dopo ogni mossa compare un 2 (a volte un 4) in una casella vuota scelta a caso."],
+      ["Colori e record", "Un dizionario dà il colore a ogni valore, un altro tiene il record."],
+      ["Il tabellone è un oggetto", "Una classe Tabellone con la griglia, i punti e i metodi per scorrere e aggiungere tessere."],
+      ["La partita completa", "Il gioco capisce quando non ci sono più mosse, e puoi annullare l'ultima mossa."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo 2048 gira anche sul computer, con lo stesso codice."]],
+    en: [["The board", "A 4×4 board with a few tiles, drawn with print, and the rules."],
+      ["Powers of 2", "Ask for an exponent and work out the tile with **: how many merges does it take to reach 2048?"],
+      ["Two tiles merge", "With if decide whether two neighbouring tiles merge, and whether you've reached 2048."],
+      ["A row slides", "The row is a list: without the zeros, equal tiles merge; then the whole board, in a loop."],
+      ["Functions to slide", "Sliding a row and the whole board, and printing it, become functions; max finds the biggest tile."],
+      ["In a window", "Coloured tiles in a window: move them with the arrows, or with a swipe on a phone."],
+      ["New tiles", "After every move a 2 (sometimes a 4) appears on a random empty square."],
+      ["Colours and records", "A dictionary gives each value its colour, another keeps the record."],
+      ["The board is an object", "A Board class with the grid, the points and the methods to slide and add tiles."],
+      ["The full game", "The game sees when there are no moves left, and you can undo the last move."],
+      ["On your computer", "With pip install pgzero your 2048 runs on your computer too, with the same code."]] },
+  breakout: {
+    it: [["Il muro", "Il muro di mattoncini, la racchetta e la pallina disegnati con print, più le regole."],
+      ["La pallina vola", "Posizione e velocità della pallina in variabili: calcola dove sarà dopo un certo numero di passi."],
+      ["I rimbalzi", "Con if la pallina rimbalza sui bordi e sulla racchetta, oppure va persa."],
+      ["Il muro si sgretola", "I mattoncini in una lista: un ciclo muove la pallina passo dopo passo e toglie quelli colpiti."],
+      ["Funzioni per la pallina", "Muovere la pallina, rimbalzare e colpire un mattoncino diventano funzioni."],
+      ["Nella finestra", "In tempo reale: update() muove la pallina, le frecce la racchetta, i Rect trovano gli scontri."],
+      ["Partenza a caso", "La pallina parte con un angolo a caso, e qualche mattoncino nasconde un bonus."],
+      ["Colori e punti", "Dizionari per il colore e i punti di ogni fila, e il record per livello."],
+      ["La pallina è un oggetto", "Una classe Palla con posizione, velocità e i metodi per muoversi e rimbalzare."],
+      ["Livelli e vite", "Mattoncini oggetto che resistono a più colpi, livelli diversi e tre vite."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Breakout gira anche sul computer, con lo stesso codice."]],
+    en: [["The wall", "The wall of bricks, the paddle and the ball drawn with print, plus the rules."],
+      ["The ball flies", "The ball's position and speed in variables: work out where it will be after a number of steps."],
+      ["Bounces", "With if the ball bounces off the edges and the paddle, or it's lost."],
+      ["The wall crumbles", "The bricks in a list: a loop moves the ball step by step and removes the bricks it hits."],
+      ["Functions for the ball", "Moving the ball, bouncing and hitting a brick become functions."],
+      ["In a window", "In real time: update() moves the ball, the arrows move the paddle, Rects find the collisions."],
+      ["A random start", "The ball starts at a random angle, and some bricks hide a bonus."],
+      ["Colours and points", "Dictionaries for the colour and points of each row, and the record for each level."],
+      ["The ball is an object", "A Ball class with position, speed and the methods to move and bounce."],
+      ["Levels and lives", "Brick objects that take several hits, different levels and three lives."],
+      ["On your computer", "With pip install pgzero your Breakout runs on your computer too, with the same code."]] },
+  mines: {
+    it: [["Il campo coperto", "La griglia di caselle coperte con i numeri di righe e colonne, disegnata con print."],
+      ["Scegli una casella", "Chiedi riga e colonna, e calcola il numero della casella e la distanza da una mina."],
+      ["Boom o salvo", "Con if dici se è una mina, se la casella esiste e se c'è una mina lì accanto (con abs)."],
+      ["Contare le vicine", "Le mine in una lista: due cicli contano quelle intorno a ogni casella, e la partita va avanti finché non scoppia."],
+      ["Funzioni per il campo", "Contare le vicine, scoprire una casella e aprire le zone vuote diventano funzioni."],
+      ["Nella finestra", "Clic per scoprire, clic destro per la bandierina (tocco lungo sul telefono)."],
+      ["Mine a caso", "Le mine si piazzano a caso, tutte in caselle diverse."],
+      ["Colori e record", "Un dizionario colora i numeri, un altro tiene il record di tempo per ogni difficoltà."],
+      ["La casella è un oggetto", "Una classe Casella che sa se è una mina, se è scoperta, se ha la bandierina e quante mine ha intorno."],
+      ["La partita completa", "Tre difficoltà, il primo clic sempre sicuro, il tempo e la schermata della vittoria."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Campo minato gira anche sul computer, con lo stesso codice."]],
+    en: [["The covered field", "The grid of covered squares with row and column numbers, drawn with print."],
+      ["Pick a square", "Ask for row and column, and work out the square's number and its distance from a mine."],
+      ["Boom or safe", "With if say whether it's a mine, whether the square exists and whether there's a mine next to it (with abs)."],
+      ["Counting neighbours", "The mines in a list: two loops count those around each square, and the game goes on until something blows up."],
+      ["Functions for the field", "Counting neighbours, uncovering a square and opening empty areas become functions."],
+      ["In a window", "Click to uncover, right-click for the flag (a long press on a phone)."],
+      ["Random mines", "The mines are placed at random, all on different squares."],
+      ["Colours and records", "A dictionary colours the numbers, another keeps the time record for each difficulty."],
+      ["The square is an object", "A Square class that knows if it's a mine, if it's uncovered, if it has a flag and how many mines are around it."],
+      ["The full game", "Three difficulties, the first click always safe, the timer and the winning screen."],
+      ["On your computer", "With pip install pgzero your Minesweeper runs on your computer too, with the same code."]] },
+  tetris: {
+    it: [["Il pozzo", "Il pozzo vuoto con un pezzo che cade, disegnati con print, più i comandi."],
+      ["Il pezzo si sposta", "Colonna e riga del pezzo in variabili; con % la rotazione torna a 0 dopo la terza."],
+      ["Bordi e fondo", "Con if il pezzo non esce dai bordi e si ferma quando tocca il fondo."],
+      ["Pezzi e righe", "Il pozzo è una lista di liste, i pezzi sono liste di quadretti: cadono in un ciclo e le righe piene spariscono."],
+      ["Funzioni per i pezzi", "Controllare se un pezzo entra, fissarlo, ruotarlo e togliere le righe piene diventano funzioni."],
+      ["Nella finestra", "I pezzi cadono da soli in una finestra; con le frecce li sposti, li giri e li fai scendere."],
+      ["Il prossimo pezzo", "Il pezzo successivo è scelto a caso fra i sette, e lo vedi in anteprima."],
+      ["Forme, colori e punti", "Un dizionario con le forme e i colori, un altro con i punti per 1, 2, 3 o 4 righe."],
+      ["Il pezzo è un oggetto", "Una classe Pezzo con i quadretti, la posizione e i metodi per muoversi e ruotare."],
+      ["I livelli", "Ogni 10 righe si sale di livello e i pezzi cadono più in fretta; game over e nuova partita."],
+      ["Sul tuo computer", "Con pip install pgzero il tuo Tetris gira anche sul computer, con lo stesso codice."]],
+    en: [["The well", "The empty well with a falling piece, drawn with print, plus the commands."],
+      ["The piece moves", "The piece's column and row in variables; with % the rotation goes back to 0 after the third."],
+      ["Edges and bottom", "With if the piece doesn't leave the edges and stops when it reaches the bottom."],
+      ["Pieces and rows", "The well is a list of lists, pieces are lists of squares: they fall in a loop and full rows disappear."],
+      ["Functions for the pieces", "Checking if a piece fits, fixing it, rotating it and removing full rows become functions."],
+      ["In a window", "Pieces fall by themselves in a window; with the arrows you move them, turn them and drop them."],
+      ["The next piece", "The next piece is picked at random among the seven, and you see it in a preview."],
+      ["Shapes, colours and points", "A dictionary with the shapes and colours, another with the points for 1, 2, 3 or 4 rows."],
+      ["The piece is an object", "A Piece class with its squares, its position and the methods to move and rotate."],
+      ["Levels", "Every 10 rows you level up and pieces fall faster; game over and a new game."],
+      ["On your computer", "With pip install pgzero your Tetris runs on your computer too, with the same code."]] }
+};
+
 
 /* ================= Content (no DOM access in this block) ================= */
 
@@ -7416,6 +7669,9 @@ const UI = {
     projSwitchMsg: (n, o) => `Passi a ${n}, e ${o} resta salvato. Nei prossimi livelli Costruisci ${n} riparte dalla parte giusta, con le parti precedenti già pronte.`,
     projApps: "Più avanti potrai scegliere anche un programma utile, non solo un gioco.",
     projLabel: "Progetto", projChange: "Cambia", projAria: (n) => `Progetto: ${n}. Tocca per cambiarlo`,
+    projHint: "Tocca un gioco per vedere come lo costruirai, cartella per cartella.",
+    projPath: (n) => `${n}, parte per parte`, projPartSoon: "presto", projRule4Term: "Funzioni (sempre nel terminale)",
+    projPathSub: "Una o due parti per cartella: ognuna riparte dal tuo codice e aggiunge una cosa sola, con quello che la cartella ha appena spiegato.",
     gameBasic: "I giochi con Pygame Zero funzionano solo nella versione completa: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "La finestra del gioco non si è aperta: scrivi pgzrun.go() nell'ultima riga del programma.",
     gameNoImport: "Per aprire la finestra del gioco scrivi import pgzrun nella prima riga e pgzrun.go() nell'ultima.",
@@ -7533,6 +7789,9 @@ const UI = {
     projSwitchMsg: (n, o) => `You switch to ${n}, and ${o} stays saved. In the next Build levels ${n} starts from the right part, with the earlier parts ready-made.`,
     projApps: "Later on you'll also be able to choose a useful program, not just a game.",
     projLabel: "Project", projChange: "Change", projAria: (n) => `Project: ${n}. Tap to change it`,
+    projHint: "Tap a game to see how you'll build it, folder by folder.",
+    projPath: (n) => `${n}, part by part`, projPartSoon: "soon", projRule4Term: "Functions (still in the terminal)",
+    projPathSub: "One or two parts per folder: each starts from your code and adds a single thing, with what the folder has just explained.",
     gameBasic: "Pygame Zero games only work in the full version: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "The game window didn't open: write pgzrun.go() on the last line of the program.",
     gameNoImport: "To open the game window, write import pgzrun on the first line and pgzrun.go() on the last.",
@@ -10781,12 +11040,13 @@ document.addEventListener("keydown", (e) => {
 /* "Cosa vuoi costruire?" opens after the opening screen until a project is chosen; later it opens from the
    explorer and from the settings. Projects whose parts aren't in the course yet show as coming soon. */
 const projEl = $("projects");
-const PJ = { sel: null, msg: "", first: false, raf: 0, cvs: [], io: null, last: 0 };
+const PJ = { sel: null, look: null, msg: "", first: false, raf: 0, cvs: [], io: null, last: 0 };
 function maybeAskProject() { if (!S.project && projEl.hidden) openProjects(true); }
 function openProjects(first) {
   PJ.first = !!first && !S.project;
   PJ.sel = S.project || PROJECTS.find((p) => p.ready).id;
-  PJ.msg = "";
+  PJ.look = null;
+  PJ.msg = t("projHint");
   renderProjects();
   projEl.hidden = false;
   const b = projEl.querySelector(`.pcard[data-proj="${PJ.sel}"]`);
@@ -10805,12 +11065,12 @@ function renderProjects(focusId) {
     const meter = [1, 2, 3].map((k) => `<i class="${k <= p.diff ? "on" : ""}"></i>`).join("");
     const state = !p.ready ? `<span class="cart-soon">${t("soon")}</span>` : p.id === cur ? `<span class="pc-yours">${t("projYours")}</span>` : `<span class="pc-ready">${t("projReady")}</span>`;
     const label = [d.name, d.tag, t("diffLabel", word), where, !p.ready ? t("soon") : p.id === cur ? t("projYours") : t("projReady")].join(". ");
-    return `<button type="button" class="pcard ${p.ready ? "ready" : "soon"}${p.id === PJ.sel ? " sel" : ""}" data-proj="${p.id}" style="--pc:${p.color}" aria-pressed="${p.id === PJ.sel}" aria-label="${escHtml(label)}">
+    return `<button type="button" class="pcard ${p.ready ? "ready" : "soon"}${p.id === PJ.sel ? " sel" : ""}${p.id === PJ.look ? " look" : ""}" data-proj="${p.id}" style="--pc:${p.color}" aria-pressed="${p.id === PJ.sel}" aria-label="${escHtml(label)}">
       <span class="pc-screen"><canvas data-prev="${p.id}" aria-hidden="true"></canvas></span>
       <span class="pc-info"><span class="pc-name">${escHtml(d.name)}</span><span class="pc-tag">${escHtml(d.tag)}</span>
         <span class="pc-learn"><em>${t("projLearn")}</em>${d.learn.map((x) => `<span>${escHtml(x)}</span>`).join("")}</span>
         <span class="pc-meta"><span class="cart-diff"><span class="meter" aria-hidden="true">${meter}</span><em>${word}</em></span><span class="pc-where">${where}</span></span>
-        <span class="pc-state">${state}</span></span></button>`;
+        <span class="pc-state">${state}</span></span></button>` + (p.id === PJ.look ? pathHtml(p) : "");
   }).join("");
   const name = sel && sel[S.lang].name;
   const go = sel && sel.ready ? (PJ.sel === cur ? t("projKeep", name) : cur ? t("projSwitch", name) : t("projStart", name)) : "";
@@ -10823,6 +11083,7 @@ function renderProjects(focusId) {
   projEl.querySelectorAll(".pcard").forEach((b) => {
     b.onclick = () => {
       const p = PROJECT_BY_ID[b.dataset.proj], ready = PROJECTS.find((x) => x.ready);
+      PJ.look = p.id;
       if (!p.ready) { PJ.msg = t("projSoonMsg", p[S.lang].name, (PROJECT_BY_ID[S.project] || ready)[S.lang].name); }
       else {
         PJ.sel = p.id;
@@ -10834,7 +11095,28 @@ function renderProjects(focusId) {
   const c = $("proj-close"); if (c) c.onclick = closeProjects;
   const g = $("proj-go"); if (g) g.onclick = chooseProject;
   if (focusId) { const f = projEl.querySelector(`.pcard[data-proj="${focusId}"]`); if (f) f.focus({ preventScroll: true }); }
+  /* the path opens under the card: if it starts low on the screen, bring its beginning into view */
+  const path = projEl.querySelector(".pj-path");
+  if (path && focusId) {
+    const top = path.getBoundingClientRect().top;
+    if (top > window.innerHeight * 0.7) projEl.scrollBy({ top: top - window.innerHeight * 0.4, behavior: "smooth" });
+  }
   bindPreviews();
+}
+/* How a project grows, folder by folder: the common rule and the one or two parts of each folder */
+function pathHtml(p) {
+  const parts = PROJECT_PARTS[p.id], name = p[S.lang].name;
+  if (!parts) return "";
+  const groups = [];
+  PART_SLOTS.forEach((slot, i) => {
+    let g = groups.find((x) => x.w === slot.w);
+    if (!g) groups.push(g = { w: slot.w, items: [] });
+    const [title, what] = parts[S.lang][i], soon = p.ready && !(parts.built || []).includes(slot.id);
+    g.items.push(`<li><b>${escHtml(title)}</b>${soon ? ` <em class="pp-soon">${t("projPartSoon")}</em>` : ""}<span>${escHtml(what)}</span></li>`);
+  });
+  const rule = (w) => (p.where === "term" && w === 4 ? t("projRule4Term") : PART_RULE[S.lang][w]);
+  return `<section class="pj-path" aria-label="${escHtml(t("projPath", name))}"><h3>${escHtml(t("projPath", name))}</h3><p class="pp-sub">${t("projPathSub")}</p>
+    <div class="pp-groups">${groups.map((g) => `<div class="pp-group"><div class="pp-head"><span>${escHtml(dirName(WORLDS[g.w], S.lang))}</span> ${escHtml(rule(g.w))}</div><ul>${g.items.join("")}</ul></div>`).join("")}</div></section>`;
 }
 function chooseProject() {
   const p = PROJECT_BY_ID[PJ.sel];
@@ -11747,7 +12029,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "8471099e46", APP_BUILT = "2026-11-09T13:02Z";
+const APP_VERSION = "cc58303d36", APP_BUILT = "2026-11-09T13:18Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
