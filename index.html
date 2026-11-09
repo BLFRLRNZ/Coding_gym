@@ -633,6 +633,50 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
 .cart.ready { border-color: var(--term-prompt); box-shadow: 0 0 0 3px color-mix(in srgb, var(--term-prompt) 35%, transparent); }
 .cart:focus-visible { outline: 3px solid var(--term-prompt); outline-offset: 2px; }
 .ws-msg { margin: 0; font-family: var(--f-mono); color: var(--muted); min-height: 1.4em; }
+/* Project chooser: "Cosa vuoi costruire?", dark like the cartridges, each game playing in its card */
+#projects { place-items: start center; padding-bottom: 0; }
+.projcard { width: min(1040px, 100%); background: var(--side-bg); color: var(--term-fg); border-color: var(--term-line); padding: 22px 22px 0; gap: 14px; }
+.pj-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.pj-head .eyebrow { color: var(--term-prompt); }
+.pj-head h2 { margin: 4px 0 6px; font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; text-wrap: balance; }
+.pj-head p { margin: 0; color: var(--term-dim); max-width: 66ch; }
+.projcard .btn { background: transparent; color: var(--term-fg); border-color: var(--term-line); box-shadow: none; }
+.projcard .btn.primary { background: var(--term-prompt); border-color: var(--term-prompt); color: #15203a; box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35); }
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+.pcard { display: flex; flex-direction: column; text-align: left; padding: 0; border-radius: 14px; background: #0b1222; color: var(--term-fg); border: 1px solid var(--term-line); overflow: hidden; font: inherit; cursor: pointer; }
+.pcard:hover { border-color: var(--term-dim); }
+.pcard.sel { border-color: var(--term-prompt); box-shadow: 0 0 0 3px color-mix(in srgb, var(--term-prompt) 35%, transparent); }
+.pcard:focus-visible { outline: 3px solid var(--term-prompt); outline-offset: 2px; }
+.pc-screen { display: block; height: 132px; background: var(--pc); border-bottom: 1px solid var(--term-line); }
+.pc-screen canvas { display: block; width: 100%; height: 100%; }
+.pcard.soon .pc-screen { filter: saturate(0.6) brightness(0.8); }
+.pc-info { display: grid; gap: 8px; padding: 12px 14px 14px; align-content: start; flex: 1; }
+.pc-name { font-family: var(--f-display); font-weight: 700; font-size: 1.25rem; }
+.pc-tag { font-size: 0.86rem; color: var(--term-dim); line-height: 1.4; }
+.pc-learn { display: flex; flex-wrap: wrap; gap: 4px 5px; font-size: 0.74rem; }
+.pc-learn em { width: 100%; font-style: normal; font-family: var(--f-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--term-dim); }
+.pc-learn span { border: 1px solid var(--term-line); border-radius: 999px; padding: 1px 8px; }
+.pc-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pcard .meter i.on { background: var(--term-prompt); }
+.pc-where { font-family: var(--f-mono); font-size: 0.72rem; color: var(--term-dim); }
+.pc-state { font-family: var(--f-mono); font-size: 0.8rem; margin-top: auto; }
+.pc-ready { color: var(--term-ok); }
+.pc-yours { color: var(--term-prompt); font-weight: 700; }
+.pj-apps { margin: 0; font-size: 0.84rem; color: var(--term-dim); }
+.pj-foot { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 -22px; padding: 12px 22px calc(14px + env(safe-area-inset-bottom, 0px)); background: var(--side-bg); border-top: 1px solid var(--term-line); border-radius: 0 0 18px 18px; }
+.pj-msg { margin: 0; flex: 1 1 260px; min-height: 1.3em; font-size: 0.88rem; }
+.pj-foot .btn.primary { flex: none; margin-left: auto; }
+.pj-msg:empty { display: none; }
+@media (max-width: 560px) {
+  .projcard { padding: 16px 14px 0; }
+  .pj-foot { margin: 0 -14px; padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .pj-head h2 { font-size: 1.55rem; }
+  .pc-screen { height: 118px; }
+  .pj-foot .btn.primary { width: 100%; }
+}
+.ide-proj { border: 1px solid var(--term-line); background: transparent; color: var(--term-dim); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 0.8rem; }
+.ide-proj b { color: var(--term-fg); }
+.ide-proj:hover { border-color: var(--term-prompt); }
 .ide-back { border: 0; background: none; color: var(--term-dim); font-family: var(--f-mono); font-size: 0.8rem; padding: 4px 6px 4px 0; }
 .ide-back:hover { color: var(--term-fg); }
 @media (max-width: 560px) {
@@ -934,6 +978,7 @@ code b, pre b, #term b { font-family: inherit; }
 <div class="overlay" id="cele" hidden><div class="ocard cele" role="dialog" aria-modal="true" aria-labelledby="cele-title"></div></div>
 <div class="overlay" id="acct" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="acct-title"></div></div>
 <div class="overlay" id="ranks" hidden><div class="ocard setcard rkcard" role="dialog" aria-modal="true" aria-labelledby="ranks-title"></div></div>
+<div class="overlay" id="projects" hidden><div class="ocard projcard" role="dialog" aria-modal="true" aria-labelledby="proj-title"></div></div>
 <div class="overlay" id="settings" hidden><div class="ocard setcard" role="dialog" aria-modal="true" aria-labelledby="set-title"></div></div>
 
 <script type="text/x-python" id="py-runner">
@@ -6997,6 +7042,60 @@ for (const l of LESSONS) for (const lang of ["it", "en"]) {
   if (l.from && d.starter === undefined) d.starter = LESSON_FROM[l.from][lang].solution + "\n\n";
 }
 
+/* ---------- The projects: what the learner builds along the whole path ----------
+   Chosen at the start ("Cosa vuoi costruire?") and changeable later. A project isn't one level: it grows a part at a
+   time in the build levels of every folder, as long as the lessons have something new to give it, and each part
+   uses only what has been explained by then. "Indovina il numero" lives in the terminal; the other games start in
+   the terminal and move to a Pygame Zero window in 04. ready: its parts are in the course. diff: 1 easy - 3 hard. */
+const PROJECTS = [
+  { id: "guess", kind: "game", ready: true, diff: 1, where: "term", color: "#1f8a5b",
+    it: { name: "Indovina il numero", tag: "Il computer pensa un numero e tu provi a indovinarlo, con gli indizi «più alto» e «più basso». Tutto nel terminale.",
+      learn: ["print e input", "if ed elif", "cicli", "funzioni", "numeri a caso", "classi"] },
+    en: { name: "Guess the number", tag: "The computer thinks of a number and you try to guess it, with the hints “higher” and “lower”. All in the terminal.",
+      learn: ["print and input", "if and elif", "loops", "functions", "random numbers", "classes"] } },
+  { id: "maze", kind: "game", ready: false, diff: 1, where: "window", color: "#5b4bb7",
+    it: { name: "Labirinto", tag: "Trova la strada verso l'uscita: prima con i comandi scritti nel terminale, poi con le frecce in una finestra.",
+      learn: ["liste di liste", "coordinate", "if per i muri", "tasti e finestra"] },
+    en: { name: "Maze", tag: "Find the way to the exit: first with commands typed in the terminal, then with the arrows in a window.",
+      learn: ["lists of lists", "coordinates", "if for the walls", "keys and window"] } },
+  { id: "memory", kind: "game", ready: false, diff: 1, where: "window", color: "#b5476b",
+    it: { name: "Memory", tag: "Gira due carte alla volta e ricorda dove sono: trova tutte le coppie con meno mosse possibili.",
+      learn: ["liste", "mescolare a caso", "clic del mouse", "tempo e record"] },
+    en: { name: "Memory", tag: "Turn two cards at a time and remember where they are: find all the pairs in as few moves as you can.",
+      learn: ["lists", "random shuffling", "mouse clicks", "time and records"] } },
+  { id: "snake", kind: "game", ready: false, diff: 2, where: "window", color: "#2f7d32",
+    it: { name: "Snake", tag: "Guidi un serpente che mangia e si allunga: non deve toccare i bordi né la sua coda.",
+      learn: ["liste e coordinate", "tasti e update()", "collisioni", "punteggio e record"] },
+    en: { name: "Snake", tag: "Steer a snake that eats and grows longer: it mustn't touch the edges or its own tail.",
+      learn: ["lists and coordinates", "keys and update()", "collisions", "score and records"] } },
+  { id: "connect4", kind: "game", ready: false, diff: 2, where: "window", color: "#1d4fa8",
+    it: { name: "Forza 4", tag: "Due giocatori lasciano cadere dischi in sette colonne: vince chi ne mette quattro in fila.",
+      learn: ["liste di liste", "turni", "controllare le file", "clic del mouse"] },
+    en: { name: "Connect Four", tag: "Two players drop discs into seven columns: whoever lines up four wins.",
+      learn: ["lists of lists", "turns", "checking the lines", "mouse clicks"] } },
+  { id: "2048", kind: "game", ready: false, diff: 2, where: "window", color: "#b0702a",
+    it: { name: "2048", tag: "Fai scorrere le tessere: due numeri uguali si uniscono, fino ad arrivare a 2048.",
+      learn: ["liste di liste", "funzioni", "unire le righe", "tasti e scorrimenti"] },
+    en: { name: "2048", tag: "Slide the tiles: two equal numbers merge, all the way up to 2048.",
+      learn: ["lists of lists", "functions", "merging rows", "keys and swipes"] } },
+  { id: "breakout", kind: "game", ready: false, diff: 2, where: "window", color: "#a33b2f",
+    it: { name: "Breakout", tag: "Con una racchetta fai rimbalzare la pallina contro un muro di mattoncini, finché non lo abbatti tutto.",
+      learn: ["Rect e collisioni", "velocità e rimbalzi", "liste di mattoncini", "vite e punteggio"] },
+    en: { name: "Breakout", tag: "Bounce the ball off a paddle into a wall of bricks, until you knock it all down.",
+      learn: ["Rect and collisions", "speed and bounces", "lists of bricks", "lives and score"] } },
+  { id: "mines", kind: "game", ready: false, diff: 3, where: "window", color: "#4f5d6e",
+    it: { name: "Campo minato", tag: "Scopri le caselle senza far scoppiare le mine: i numeri dicono quante ce ne sono intorno.",
+      learn: ["liste di liste", "contare i vicini", "aprire le caselle vuote", "clic e bandierine"] },
+    en: { name: "Minesweeper", tag: "Uncover the squares without setting off the mines: the numbers say how many are around.",
+      learn: ["lists of lists", "counting neighbours", "opening empty squares", "clicks and flags"] } },
+  { id: "tetris", kind: "game", ready: false, diff: 3, where: "window", color: "#6a3fa0",
+    it: { name: "Tetris", tag: "Pezzi che cadono, da girare e incastrare: ogni riga completa sparisce. Il più impegnativo.",
+      learn: ["liste di liste", "rotazioni", "il tempo che scorre", "righe complete"] },
+    en: { name: "Tetris", tag: "Falling pieces to turn and fit together: every full row disappears. The most demanding one.",
+      learn: ["lists of lists", "rotations", "time passing", "full rows"] } }
+];
+const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map((p) => [p.id, p]));
+
 
 /* ================= Content (no DOM access in this block) ================= */
 
@@ -7308,6 +7407,15 @@ const UI = {
     gameRestart: "↻ Si ricomincia da capo",
     padToggle: "Comandi", padToggleAria: "Mostra o nascondi i comandi sullo schermo", padArrows: "Frecce",
     padSpace: "Spazio", padEnter: "Invio", padDel: "Canc",
+    projEyebrow: "Il tuo progetto", projTitle: "Cosa vuoi costruire?",
+    projSub: "Lungo tutto il percorso costruisci un progetto tuo: ogni cartella gli aggiunge un pezzo, con quello che hai appena imparato, finché non è completo. Puoi cambiarlo quando vuoi.",
+    projLearn: "Cosa impari", projTerm: "Solo terminale", projWin: "Terminale, poi finestra", projReady: "▶ Disponibile", projYours: "★ Il tuo progetto",
+    projStart: (n) => `Inizia con ${n}`, projKeep: (n) => `Continua con ${n}`, projSwitch: (n) => `Passa a ${n}`,
+    projSoonMsg: (n, g) => `${n} è in costruzione e arriverà presto. Intanto puoi iniziare con ${g}: quando ${n} sarà pronto potrai passarci, e le parti dei livelli che avrai già superato arriveranno pronte.`,
+    projPickMsg: (n) => `${n}: lo costruirai pezzo per pezzo nei livelli Costruisci di ogni cartella.`,
+    projSwitchMsg: (n, o) => `Passi a ${n}, e ${o} resta salvato. Nei prossimi livelli Costruisci ${n} riparte dalla parte giusta, con le parti precedenti già pronte.`,
+    projApps: "Più avanti potrai scegliere anche un programma utile, non solo un gioco.",
+    projLabel: "Progetto", projChange: "Cambia", projAria: (n) => `Progetto: ${n}. Tocca per cambiarlo`,
     gameBasic: "I giochi con Pygame Zero funzionano solo nella versione completa: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "La finestra del gioco non si è aperta: scrivi pgzrun.go() nell'ultima riga del programma.",
     gameNoImport: "Per aprire la finestra del gioco scrivi import pgzrun nella prima riga e pgzrun.go() nell'ultima.",
@@ -7416,6 +7524,15 @@ const UI = {
     gameRestart: "↻ Starting over",
     padToggle: "Controls", padToggleAria: "Show or hide the on-screen controls", padArrows: "Arrows",
     padSpace: "Space", padEnter: "Enter", padDel: "Del",
+    projEyebrow: "Your project", projTitle: "What do you want to build?",
+    projSub: "All along the path you build a project of your own: every folder adds a piece to it, with what you have just learnt, until it's complete. You can change it whenever you like.",
+    projLearn: "What you learn", projTerm: "Terminal only", projWin: "Terminal, then window", projReady: "▶ Available", projYours: "★ Your project",
+    projStart: (n) => `Start with ${n}`, projKeep: (n) => `Carry on with ${n}`, projSwitch: (n) => `Switch to ${n}`,
+    projSoonMsg: (n, g) => `${n} is being built and is coming soon. Meanwhile you can start with ${g}: when ${n} is ready you can switch to it, and the parts of the levels you have already passed will come ready-made.`,
+    projPickMsg: (n) => `${n}: you'll build it piece by piece in the Build levels of every folder.`,
+    projSwitchMsg: (n, o) => `You switch to ${n}, and ${o} stays saved. In the next Build levels ${n} starts from the right part, with the earlier parts ready-made.`,
+    projApps: "Later on you'll also be able to choose a useful program, not just a game.",
+    projLabel: "Project", projChange: "Change", projAria: (n) => `Project: ${n}. Tap to change it`,
     gameBasic: "Pygame Zero games only work in the full version: blfrlrnz.github.io/Coding_gym",
     gameNoGo: "The game window didn't open: write pgzrun.go() on the last line of the program.",
     gameNoImport: "To open the game window, write import pgzrun on the first line and pgzrun.go() on the last.",
@@ -7613,6 +7730,8 @@ const LANGS = [
     it: { name: "Rust", tag: "Sicuro e velocissimo, ma severo: il compilatore non perdona." }, en: { name: "Rust", tag: "Safe and blazing fast, but strict: the compiler doesn't forgive." } }
 ];
 const DIFF = { it: ["", "facile", "accessibile", "media", "impegnativa", "difficile"], en: ["", "easy", "approachable", "medium", "challenging", "hard"] };
+/* difficulty of a project, from 1 to 3 */
+const PDIFF = { it: ["", "facile", "media", "difficile"], en: ["", "easy", "medium", "hard"] };
 const fileName = (id, lang) => FILES[id][lang === "en" ? 1 : 0];
 const dirName = (w, lang) => w.dir[lang] || w.dir.it;
 const LESSON_BY_ID = {};
@@ -8088,6 +8207,8 @@ function mergeStates(local, incoming) {
   }
   out.programs = [...progs.values()];
   out.tutorialDone = !!(out.tutorialDone || inc.tutorialDone);
+  /* the project: the one already chosen here stays, otherwise the other copy's */
+  out.project = out.project || inc.project || null;
   out.lastBackup = [out.lastBackup, inc.lastBackup].filter(Boolean).sort().pop() || null;
   out.updatedAt = Math.max(out.updatedAt || 0, inc.updatedAt || 0);
   return out;
@@ -8208,7 +8329,7 @@ const storeKey = () => stateKeyFor(ACC.current);
 function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
-  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null });
+  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null });
 let S = DEFAULTS();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
@@ -8219,6 +8340,8 @@ function sanitize() {
   for (const k of ["stars", "attempt", "code", "won"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
   for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
   if (!(S.bytes >= 0)) S.bytes = 0;
+  /* the project: one that exists and is ready; whoever already had progress was building "Indovina il numero" */
+  if (!(PROJECT_BY_ID[S.project] && PROJECT_BY_ID[S.project].ready)) S.project = Object.keys(S.stars).length ? "guess" : null;
   if (!S.codeAt || typeof S.codeAt !== "object") S.codeAt = {};
   /* A new version of the course: stars stay, but drafts and attempts of the changed tasks go. Before version 2
      every task changed; after it, COURSE_CHANGED lists the levels of each version */
@@ -10192,6 +10315,7 @@ function renderMap() {
   }).join("");
   mapEl.innerHTML = `<div class="ide">
     <div class="ide-bar"><button class="ide-back" id="to-worlds">${t("backWorlds")}</button><span class="ide-title">${t("explorer").toUpperCase()} <span>~/${S.world}</span></span>
+      ${S.project ? `<button class="ide-proj" id="map-proj" aria-label="${escHtml(t("projAria", PROJECT_BY_ID[S.project][S.lang].name))}">${t("projLabel")}: <b>${escHtml(PROJECT_BY_ID[S.project][S.lang].name)}</b></button>` : ""}
       <span class="ide-stars">${t("mapStars", got, total)}</span><button class="btn primary" id="map-go">${t("continueBtn")}</button></div>
     <div class="ide-body"><nav class="tree" aria-label="${escHtml(t("explorer"))}">${tree}</nav><article class="readme" id="readme"></article></div></div>`;
   renderReadme();
@@ -10206,6 +10330,7 @@ function renderMap() {
   });
   mapEl.querySelectorAll(".tr-file").forEach((b) => { b.onclick = () => { const i = +b.dataset.lv; if (unlocked(i)) goLesson(i); }; });
   $("map-go").onclick = () => goLesson(cur);
+  const mp = $("map-proj"); if (mp) mp.onclick = () => openProjects(false);
   $("to-worlds").onclick = () => setView("worlds");
 }
 function renderReadme() {
@@ -10538,6 +10663,7 @@ function renderSettings() {
     <div class="set-row"><span>${t("setFont")}</span><div class="row"><button class="btn tiny" id="font-down" aria-label="${t("fontDown")}">A−</button><span class="mono">${S.fontSize}px</span><button class="btn tiny" id="font-up" aria-label="${t("fontUp")}">A+</button></div></div>
     <div class="set-row"><span>${t("setSound")}</span>${seg("sound", [["1", t("on")], ["0", t("off")]], S.sound ? "1" : "0")}</div>
     <div class="set-row"><span>${t("setIntro")}</span>${seg("intro", [["1", t("introOn")], ["0", t("introOff")]], S.intro ? "1" : "0")}</div>
+    ${S.project ? `<div class="set-row"><span>${t("projLabel")}</span><div class="row"><b>${escHtml(PROJECT_BY_ID[S.project][S.lang].name)}</b><button class="btn tiny" id="set-proj">${t("projChange")}</button></div></div>` : ""}
     ${updatesHtml()}
     <div class="set-save">
       <div class="set-save-head"><div class="fl-m"></div><div><h3>${t("setSave")}</h3><p>${t("saveInfo")}</p><p class="muted">${S.lastBackup ? t("lastBackup", fmtDate(S.lastBackup)) : t("neverBackup")}</p></div></div>
@@ -10562,6 +10688,7 @@ function renderSettings() {
     };
   });
   $("set-close").onclick = closeSettings;
+  const sp = $("set-proj"); if (sp) sp.onclick = () => { closeSettings(); openProjects(false); };
   $("upd-check").onclick = checkUpdateNow;
   const ug = $("upd-go"); if (ug) ug.onclick = applyUpdate;
   $("font-down").onclick = () => { S.fontSize = Math.max(11, S.fontSize - 1); save(); applyFont(); syncScroll(); renderSettings(); };
@@ -10646,11 +10773,353 @@ document.addEventListener("keydown", (e) => {
   else if (!ranksEl.hidden) closeRanks();
   else if (!setEl.hidden) closeSettings();
   else if (!acctEl.hidden) closeAccount();
+  else if (!projEl.hidden) closeProjects();
 });
 
 
+/* ---------- The project: what you build along the whole path ---------- */
+/* "Cosa vuoi costruire?" opens after the opening screen until a project is chosen; later it opens from the
+   explorer and from the settings. Projects whose parts aren't in the course yet show as coming soon. */
+const projEl = $("projects");
+const PJ = { sel: null, msg: "", first: false, raf: 0, cvs: [], io: null, last: 0 };
+function maybeAskProject() { if (!S.project && projEl.hidden) openProjects(true); }
+function openProjects(first) {
+  PJ.first = !!first && !S.project;
+  PJ.sel = S.project || PROJECTS.find((p) => p.ready).id;
+  PJ.msg = "";
+  renderProjects();
+  projEl.hidden = false;
+  const b = projEl.querySelector(`.pcard[data-proj="${PJ.sel}"]`);
+  if (b) b.focus({ preventScroll: true });
+  startPreviews();
+}
+function closeProjects() {
+  if (!S.project) return;   /* the first time, a project has to be chosen */
+  projEl.hidden = true;
+  stopPreviews();
+}
+function renderProjects(focusId) {
+  const cur = S.project, sel = PROJECT_BY_ID[PJ.sel];
+  const cards = PROJECTS.map((p) => {
+    const d = p[S.lang], word = PDIFF[S.lang][p.diff], where = t(p.where === "term" ? "projTerm" : "projWin");
+    const meter = [1, 2, 3].map((k) => `<i class="${k <= p.diff ? "on" : ""}"></i>`).join("");
+    const state = !p.ready ? `<span class="cart-soon">${t("soon")}</span>` : p.id === cur ? `<span class="pc-yours">${t("projYours")}</span>` : `<span class="pc-ready">${t("projReady")}</span>`;
+    const label = [d.name, d.tag, t("diffLabel", word), where, !p.ready ? t("soon") : p.id === cur ? t("projYours") : t("projReady")].join(". ");
+    return `<button type="button" class="pcard ${p.ready ? "ready" : "soon"}${p.id === PJ.sel ? " sel" : ""}" data-proj="${p.id}" style="--pc:${p.color}" aria-pressed="${p.id === PJ.sel}" aria-label="${escHtml(label)}">
+      <span class="pc-screen"><canvas data-prev="${p.id}" aria-hidden="true"></canvas></span>
+      <span class="pc-info"><span class="pc-name">${escHtml(d.name)}</span><span class="pc-tag">${escHtml(d.tag)}</span>
+        <span class="pc-learn"><em>${t("projLearn")}</em>${d.learn.map((x) => `<span>${escHtml(x)}</span>`).join("")}</span>
+        <span class="pc-meta"><span class="cart-diff"><span class="meter" aria-hidden="true">${meter}</span><em>${word}</em></span><span class="pc-where">${where}</span></span>
+        <span class="pc-state">${state}</span></span></button>`;
+  }).join("");
+  const name = sel && sel[S.lang].name;
+  const go = sel && sel.ready ? (PJ.sel === cur ? t("projKeep", name) : cur ? t("projSwitch", name) : t("projStart", name)) : "";
+  projEl.querySelector(".ocard").innerHTML = `
+    <div class="pj-head"><div><div class="eyebrow">${t("projEyebrow")}</div><h2 id="proj-title">${t("projTitle")}</h2><p>${t("projSub")}</p></div>
+      ${PJ.first ? "" : `<button class="btn tiny" id="proj-close">${t("close")}</button>`}</div>
+    <div class="pcards">${cards}</div>
+    <p class="pj-apps">${t("projApps")}</p>
+    <div class="pj-foot"><p class="pj-msg" id="proj-msg" role="status">${escHtml(PJ.msg)}</p>${go ? `<button class="btn primary" id="proj-go">${escHtml(go)}</button>` : ""}</div>`;
+  projEl.querySelectorAll(".pcard").forEach((b) => {
+    b.onclick = () => {
+      const p = PROJECT_BY_ID[b.dataset.proj], ready = PROJECTS.find((x) => x.ready);
+      if (!p.ready) { PJ.msg = t("projSoonMsg", p[S.lang].name, (PROJECT_BY_ID[S.project] || ready)[S.lang].name); }
+      else {
+        PJ.sel = p.id;
+        PJ.msg = S.project && p.id !== S.project ? t("projSwitchMsg", p[S.lang].name, PROJECT_BY_ID[S.project][S.lang].name) : t("projPickMsg", p[S.lang].name);
+      }
+      renderProjects(p.id);
+    };
+  });
+  const c = $("proj-close"); if (c) c.onclick = closeProjects;
+  const g = $("proj-go"); if (g) g.onclick = chooseProject;
+  if (focusId) { const f = projEl.querySelector(`.pcard[data-proj="${focusId}"]`); if (f) f.focus({ preventScroll: true }); }
+  bindPreviews();
+}
+function chooseProject() {
+  const p = PROJECT_BY_ID[PJ.sel];
+  if (!p || !p.ready) return;
+  S.project = p.id;
+  save();
+  if (S.sound) { sfxUnlock(); SFX.right(); }
+  projEl.hidden = true;
+  stopPreviews();
+  if (S.view === "map") renderMap();
+  if (!setEl.hidden) renderSettings();
+}
+projEl.addEventListener("click", (e) => { if (e.target === projEl) closeProjects(); });
+
+/* Animated previews: each game playing by itself in its card, drawn on a 200 x 120 stage */
+const PV_W = 200, PV_H = 120;
+function startPreviews() {
+  stopPreviews();
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const t0 = performance.now();
+  const frame = (now) => {
+    PJ.raf = 0;
+    if (projEl.hidden) return;
+    if (now - PJ.last >= 30) {   /* about 30 frames a second is plenty */
+      PJ.last = now;
+      for (const p of PJ.cvs) if (p.vis) drawPreview(p, reduce ? 4.2 : (now - t0) / 1000);
+    }
+    if (!reduce) PJ.raf = requestAnimationFrame(frame);
+  };
+  PJ.raf = requestAnimationFrame(frame);
+  PJ.reduce = reduce;
+}
+function stopPreviews() { if (PJ.raf) cancelAnimationFrame(PJ.raf); PJ.raf = 0; }
+function bindPreviews() {
+  if (PJ.io) PJ.io.disconnect();
+  PJ.cvs = [...projEl.querySelectorAll("canvas[data-prev]")].map((cv) => ({ cv, id: cv.dataset.prev, st: {}, vis: !window.IntersectionObserver }));
+  if (window.IntersectionObserver) {
+    PJ.io = new IntersectionObserver((es) => es.forEach((e) => {
+      const p = PJ.cvs.find((x) => x.cv === e.target);
+      if (!p) return;
+      p.vis = e.isIntersecting;
+      if (p.vis && PJ.reduce) drawPreview(p, 4.2);
+    }), { root: projEl });
+    PJ.cvs.forEach((p) => PJ.io.observe(p.cv));
+  }
+  PJ.last = 0;
+}
+function drawPreview(p, t) {
+  const cv = p.cv, w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h || !PREVIEWS[p.id]) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), bw = Math.round(w * dpr), bh = Math.round(h * dpr);
+  if (cv.width !== bw || cv.height !== bh) { cv.width = bw; cv.height = bh; }
+  const c = cv.getContext("2d"), k = Math.min(bw / PV_W, bh / PV_H);
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = PV_BG[p.id]; c.fillRect(0, 0, bw, bh);
+  c.setTransform(k, 0, 0, k, (bw - PV_W * k) / 2, (bh - PV_H * k) / 2);
+  c.save();
+  try { PREVIEWS[p.id](c, t, p.st); } catch (e) {}
+  c.restore();
+}
+const PV_BG = { guess: "#0e1628", maze: "#140f2b", memory: "#24101b", snake: "#10261a", connect4: "#0d1a33", "2048": "#2a1d10", breakout: "#1c0f0d", mines: "#151b23", tetris: "#150f24" };
+const pvRect = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+const pvDot = (c, x, y, r, col) => { c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); };
+/* a path that goes round a rectangle of cells, for the snake */
+const PV_LOOP = (() => {
+  const p = [];
+  for (let x = 2; x <= 17; x++) p.push([x, 2]);
+  for (let y = 3; y <= 9; y++) p.push([17, y]);
+  for (let x = 16; x >= 2; x--) p.push([x, 9]);
+  for (let y = 8; y >= 3; y--) p.push([2, y]);
+  return p;
+})();
+const PV_MAZE = ["####################", "#S   #     #       #", "# ## # ### # ##### #", "# #    #   #     # #", "# # #### ### ### # #", "#   #      #   #   #",
+  "### # #### # # ### #", "#   #    # # #   # #", "# ###### # # ### # #", "#        #   #     E", "####################"];
+const PV_MAZE_PATH = (() => {
+  let s, e;
+  PV_MAZE.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === "S") s = [x, y]; if (ch === "E") e = [x, y]; }));
+  const prev = new Map([[s.join(), null]]), q = [s];
+  while (q.length) {
+    const [x, y] = q.shift();
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (PV_MAZE[ny] && PV_MAZE[ny][nx] && PV_MAZE[ny][nx] !== "#" && !prev.has(nx + "," + ny)) { prev.set(nx + "," + ny, [x, y]); q.push([nx, ny]); }
+    }
+  }
+  const path = [];
+  for (let p = e; p; p = prev.get(p.join())) path.unshift(p);
+  return path;
+})();
+/* the mines: where they are, the numbers around them, and the order in which a click opens the empty squares */
+const PV_MINES = (() => {
+  const W = 12, H = 7, mines = new Set(["1,1", "5,0", "9,1", "10,4", "3,5", "7,5", "11,6", "0,6"]);
+  const n = (x, y) => { let k = 0; for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if ((dx || dy) && mines.has((x + dx) + "," + (y + dy))) k++; return k; };
+  const order = [], seen = new Set(["6,3"]), q = [[6, 3]];
+  while (q.length) {
+    const [x, y] = q.shift();
+    order.push([x, y]);
+    if (n(x, y)) continue;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+      const nx = x + dx, ny = y + dy, k = nx + "," + ny;
+      if (nx >= 0 && ny >= 0 && nx < W && ny < H && !seen.has(k) && !mines.has(k)) { seen.add(k); q.push([nx, ny]); }
+    }
+  }
+  return { W, H, mines, n, order };
+})();
+const PV_TILE = { 2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "#fff"], 16: ["#f59563", "#fff"], 32: ["#f67c5f", "#fff"], 64: ["#f65e3b", "#fff"] };
+const PV_2048 = [
+  [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]],
+  [[4, 0, 0, 0], [0, 0, 0, 0], [4, 0, 0, 0], [2, 0, 2, 0]],
+  [[8, 0, 4, 0], [2, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 2]],
+  [[0, 0, 8, 4], [0, 0, 0, 2], [0, 2, 0, 0], [0, 0, 0, 2]],
+  [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 8, 4], [2, 2, 0, 4]],
+  [[0, 0, 0, 0], [0, 0, 0, 0], [8, 4, 0, 0], [4, 4, 0, 0]],
+  [[0, 0, 0, 0], [2, 0, 0, 0], [8, 4, 0, 0], [8, 0, 0, 0]]
+];
+const PV_ARROWS = ["", "←", "↑", "→", "↓", "←", "←"];
+const PV_PIECES = { I: [[[0, 0], [1, 0], [2, 0], [3, 0]], "#4dd0e1"], O: [[[0, 0], [1, 0], [0, 1], [1, 1]], "#ffd54f"], T: [[[0, 0], [1, 0], [2, 0], [1, 1]], "#ba68c8"],
+  L: [[[0, 0], [0, 1], [0, 2], [1, 2]], "#ffb74d"], S: [[[1, 0], [2, 0], [0, 1], [1, 1]], "#81c784"] };
+const PV_DROPS = [["I", 0], ["O", 4], ["I", 6], ["T", 2], ["L", 8], ["S", 4], ["O", 0]];
+const PREVIEWS = {
+  guess(c, t) {
+    const L = S.lang === "it"
+      ? [["Ho pensato un numero tra 1 e 100", "#8592ad"], ["> 50", "#f2c14e"], ["Più alto!", "#dbe3f1"], ["> 75", "#f2c14e"], ["Più basso!", "#dbe3f1"], ["> 62", "#f2c14e"], ["Indovinato in 3 tentativi! ★", "#6fd39a"]]
+      : [["I'm thinking of a number from 1 to 100", "#8592ad"], ["> 50", "#f2c14e"], ["Higher!", "#dbe3f1"], ["> 75", "#f2c14e"], ["Lower!", "#dbe3f1"], ["> 62", "#f2c14e"], ["Got it in 3 tries! ★", "#6fd39a"]];
+    const T = t % 9;
+    c.font = "8.5px ui-monospace, Menlo, Consolas, monospace";
+    c.textBaseline = "top";
+    let y = 9;
+    for (let k = 0; k < L.length; k++) {
+      const t0 = 0.3 + k * 1.05;
+      if (T < t0) break;
+      const [s, col] = L[k];
+      const n = s.startsWith(">") ? Math.min(s.length, Math.floor((T - t0) * 12) + 1) : s.length;
+      c.fillStyle = col; c.fillText(s.slice(0, n), 10, y);
+      y += 14.5;
+    }
+    if (Math.floor(T * 2) % 2 === 0) pvRect(c, 10, Math.min(y, 108), 5, 9, "#f2c14e");
+  },
+  maze(c, t) {
+    const C = 10, y0 = 5, path = PV_MAZE_PATH, n = path.length, T = t % (n / 6 + 1.6);
+    PV_MAZE.forEach((r, y) => [...r].forEach((ch, x) => {
+      if (ch === "#") pvRect(c, x * C, y0 + y * C, C, C, "#5b4bb7");
+      else if (ch === "E") pvRect(c, x * C + 1, y0 + y * C + 1, C - 2, C - 2, "#6fd39a");
+    }));
+    const k = Math.min(n - 1, T * 6), i = Math.floor(k), f = k - i, a = path[i], b = path[Math.min(n - 1, i + 1)];
+    for (let j = 0; j < i; j++) pvDot(c, path[j][0] * C + 5, y0 + path[j][1] * C + 5, 1.2, "rgba(242, 193, 78, 0.45)");
+    pvDot(c, (a[0] + (b[0] - a[0]) * f) * C + 5, y0 + (a[1] + (b[1] - a[1]) * f) * C + 5, 3.6, "#f2c14e");
+  },
+  memory(c, t) {
+    const SY = [0, 1, 2, 3, 4, 0, 5, 1, 2, 4, 3, 5], picks = [[0, 5], [1, 2], [1, 7], [3, 8], [2, 8], [3, 10], [4, 9], [6, 11]];
+    const COL = ["#ef5350", "#42a5f5", "#ffca28", "#66bb6a", "#ab47bc", "#ff7043"];
+    const T = t % (picks.length * 1.15 + 1.5), up = new Set(), done = new Set();
+    picks.forEach(([a, b], k) => {
+      const t0 = k * 1.15;
+      if (T < t0) return;
+      const match = SY[a] === SY[b];
+      if (match && T >= t0 + 0.35) { done.add(a); done.add(b); }
+      else if (T < t0 + 1.0) { up.add(a); if (T >= t0 + 0.35) up.add(b); }
+    });
+    for (let i = 0; i < 12; i++) {
+      const x = 22 + (i % 4) * 41, y = 6 + Math.floor(i / 4) * 37, face = up.has(i) || done.has(i);
+      pvRect(c, x, y, 34, 32, face ? (done.has(i) ? "#3b2a33" : "#f5efe6") : "#b5476b");
+      if (!face) { c.strokeStyle = "rgba(255, 255, 255, 0.25)"; c.lineWidth = 1; c.strokeRect(x + 3.5, y + 3.5, 27, 25); continue; }
+      const cx = x + 17, cy = y + 16, col = COL[SY[i]], s = SY[i];
+      c.globalAlpha = done.has(i) ? 0.55 : 1;
+      c.fillStyle = col;
+      c.beginPath();
+      if (s === 0) c.arc(cx, cy, 8, 0, Math.PI * 2);
+      else if (s === 1) c.rect(cx - 7, cy - 7, 14, 14);
+      else if (s === 2) { c.moveTo(cx, cy - 9); c.lineTo(cx + 9, cy + 7); c.lineTo(cx - 9, cy + 7); }
+      else if (s === 3) { c.moveTo(cx, cy - 9); c.lineTo(cx + 8, cy); c.lineTo(cx, cy + 9); c.lineTo(cx - 8, cy); }
+      else if (s === 4) for (let k = 0; k < 10; k++) { const r = k % 2 ? 4 : 9, an = -Math.PI / 2 + k * Math.PI / 5; c.lineTo(cx + r * Math.cos(an), cy + r * Math.sin(an)); }
+      else { c.moveTo(cx, cy + 8); c.bezierCurveTo(cx - 12, cy - 1, cx - 5, cy - 11, cx, cy - 4); c.bezierCurveTo(cx + 5, cy - 11, cx + 12, cy - 1, cx, cy + 8); }
+      c.closePath(); c.fill();
+      c.globalAlpha = 1;
+    }
+  },
+  snake(c, t) {
+    const C = 10, N = PV_LOOP.length, h = Math.floor(t * 7) % N, apples = [9, 21, 33];
+    for (let x = 0; x < 20; x++) for (let y = 0; y < 12; y++) if ((x + y) % 2) pvRect(c, x * C, y * C, C, C, "rgba(255, 255, 255, 0.025)");
+    const eaten = apples.filter((a) => a <= h).length, len = 4 + eaten * 2, next = apples.find((a) => a > h);
+    if (next != null) pvDot(c, PV_LOOP[next][0] * C + 5, PV_LOOP[next][1] * C + 5, 4, "#e53935");
+    for (let i = len - 1; i >= 0; i--) {
+      const [x, y] = PV_LOOP[((h - i) % N + N) % N];
+      pvRect(c, x * C + 1, y * C + 1, C - 2, C - 2, i === 0 ? "#b5f27a" : i % 2 ? "#6fd39a" : "#4fb57e");
+    }
+    const [hx, hy] = PV_LOOP[h];
+    pvDot(c, hx * C + 3.5, hy * C + 3.5, 1.2, "#10261a"); pvDot(c, hx * C + 6.5, hy * C + 3.5, 1.2, "#10261a");
+  },
+  connect4(c, t) {
+    const moves = [2, 2, 3, 3, 4, 4, 5], C = 15, x0 = 47, y0 = 12, T = t % 8.5, heights = [0, 0, 0, 0, 0, 0, 0];
+    pvRect(c, x0 - 4, y0 - 4, 7 * C + 8, 6 * C + 8, "#1d4fa8");
+    for (let x = 0; x < 7; x++) for (let y = 0; y < 6; y++) pvDot(c, x0 + x * C + C / 2, y0 + y * C + C / 2, 5.6, "#0d1a33");
+    const win = T > 6.1 && Math.floor(T * 4) % 2 === 0;
+    moves.forEach((col, k) => {
+      const t0 = 0.4 + k * 0.8, row = 5 - heights[col]++;
+      if (T < t0) return;
+      const f = Math.min(1, (T - t0) / 0.35), y = -1 + (row + 1) * f * f;
+      const red = k % 2 === 0, winning = red && k >= 0 && [0, 2, 4, 6].includes(k);
+      pvDot(c, x0 + col * C + C / 2, y0 + y * C + C / 2, 5.6, red ? (win && winning ? "#ffab91" : "#e53935") : "#fdd835");
+    });
+  },
+  "2048"(c, t) {
+    const T = t % (PV_2048.length * 1.3), k = Math.floor(T / 1.3), f = (T % 1.3) / 1.3, B = PV_2048[k], P = PV_2048[(k + PV_2048.length - 1) % PV_2048.length];
+    const s = 24, g = 4, x0 = 52, y0 = 4;
+    pvRect(c, x0 - g, y0 - g + 2, 4 * s + 5 * g - 2, 4 * s + 5 * g - 2, "#bbada0");
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) {
+      const v = B[y][x], px = x0 + x * (s + g) - g / 2, py = y0 + y * (s + g) + 2;
+      pvRect(c, px, py, s, s, "#cdc1b4");
+      if (!v) continue;
+      const pop = v !== P[y][x] ? Math.min(1, 0.5 + f * 4) : 1, d = (s - s * pop) / 2, [bg, fg] = PV_TILE[v] || PV_TILE[64];
+      pvRect(c, px + d, py + d, s * pop, s * pop, bg);
+      c.fillStyle = fg; c.font = `bold ${v > 8 ? 9 : 11}px Arial, sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText(String(v), px + s / 2, py + s / 2 + 0.5);
+    }
+    if (f < 0.35 && PV_ARROWS[k]) { c.globalAlpha = 1 - f / 0.35; c.fillStyle = "#fff"; c.font = "bold 30px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(PV_ARROWS[k], 180, 60); c.globalAlpha = 1; }
+  },
+  breakout(c, t, st) {
+    if (!st.b || t < st.t || !st.bricks.length || st.lost) {
+      st.bricks = [];
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 8; x++) st.bricks.push([8 + x * 23.5, 10 + y * 9, y]);
+      Object.assign(st, { b: [100, 84], v: [62, -78], px: 100, t, lost: false });
+    }
+    const dt = Math.min(0.05, Math.max(0, t - st.t));
+    st.t = t;
+    const b = st.b, v = st.v;
+    b[0] += v[0] * dt; b[1] += v[1] * dt;
+    if (b[0] < 3 || b[0] > 197) { v[0] = -v[0]; b[0] = Math.max(3, Math.min(197, b[0])); }
+    if (b[1] < 3) { v[1] = Math.abs(v[1]); }
+    const hit = st.bricks.findIndex(([x, y]) => b[0] > x - 2 && b[0] < x + 22 && b[1] > y - 2 && b[1] < y + 9);
+    if (hit >= 0) { st.bricks.splice(hit, 1); v[1] = -v[1]; }
+    st.px += Math.max(-90 * dt, Math.min(90 * dt, b[0] - st.px));
+    if (b[1] > 106 && b[1] < 112 && Math.abs(b[0] - st.px) < 20 && v[1] > 0) { v[1] = -Math.abs(v[1]); v[0] += (b[0] - st.px) * 1.5; v[0] = Math.max(-95, Math.min(95, v[0])); }
+    if (b[1] > 124) st.lost = true;
+    const COL = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"];
+    st.bricks.forEach(([x, y, r]) => pvRect(c, x, y, 21.5, 7, COL[r]));
+    pvRect(c, st.px - 18, 108, 36, 5, "#dbe3f1");
+    pvDot(c, b[0], b[1], 3, "#ffffff");
+  },
+  mines(c, t) {
+    const M = PV_MINES, C = 14, x0 = 16, y0 = 11, T = t % 8.5, open = new Set(M.order.slice(0, Math.max(0, Math.floor((T - 0.6) * 22))).map((p) => p.join()));
+    const flag = T > 5.2 ? "9,1" : null, NC = ["", "#1e88e5", "#43a047", "#e53935", "#5e35b1"];
+    for (let y = 0; y < M.H; y++) for (let x = 0; x < M.W; x++) {
+      const px = x0 + x * C, py = y0 + y * C, key = x + "," + y;
+      if (open.has(key)) {
+        pvRect(c, px, py, C - 1, C - 1, "#c9d2dc");
+        const n = M.n(x, y);
+        if (n) { c.fillStyle = NC[n]; c.font = "bold 9px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(String(n), px + C / 2 - 0.5, py + C / 2); }
+      } else {
+        pvRect(c, px, py, C - 1, C - 1, "#4f5d6e");
+        pvRect(c, px, py, C - 1, 1.5, "#6b7a8c");
+        if (key === flag) { pvRect(c, px + 5, py + 3, 1.3, 8, "#dbe3f1"); c.fillStyle = "#e53935"; c.beginPath(); c.moveTo(px + 6.3, py + 3); c.lineTo(px + 11, py + 5); c.lineTo(px + 6.3, py + 7); c.fill(); }
+      }
+    }
+  },
+  tetris(c, t) {
+    const C = 7, x0 = 65, y0 = 4, W = 10, H = 16, T = t % 11;
+    const board = Array.from({ length: H }, () => Array(W).fill(null));
+    let now = 0.2, falling = null, flash = null;
+    for (const [name, px] of PV_DROPS) {
+      const [cells, col] = PV_PIECES[name];
+      let land = 0;
+      while (land + 1 <= H - 1 && cells.every(([cx, cy]) => land + 1 + cy < H && !board[land + 1 + cy][px + cx])) land++;
+      const dur = (land + 2) / 10;
+      if (T < now + dur) { falling = { cells, col, px, y: Math.min(land, -2 + (T - now) * 10) }; break; }
+      cells.forEach(([cx, cy]) => { board[land + cy][px + cx] = col; });
+      now += dur;
+      const full = board.map((r, i) => (r.every(Boolean) ? i : -1)).filter((i) => i >= 0);
+      if (full.length) {
+        if (T < now + 0.5) { flash = full; break; }
+        full.forEach((i) => { board.splice(i, 1); board.unshift(Array(W).fill(null)); });
+        now += 0.5;
+      }
+    }
+    pvRect(c, x0 - 2, y0 - 2, W * C + 4, H * C + 4, "#2b2140");
+    pvRect(c, x0, y0, W * C, H * C, "#0b0716");
+    board.forEach((r, y) => r.forEach((col, x) => {
+      if (col) pvRect(c, x0 + x * C + 0.5, y0 + y * C + 0.5, C - 1, C - 1, flash && flash.includes(y) && Math.floor(T * 8) % 2 ? "#ffffff" : col);
+    }));
+    if (falling) falling.cells.forEach(([cx, cy]) => { const yy = falling.y + cy; if (yy >= 0) pvRect(c, x0 + (falling.px + cx) * C + 0.5, y0 + yy * C + 0.5, C - 1, C - 1, falling.col); });
+  }
+};
+
 /* ---------- Progress fields (what an account owns) ---------- */
-const PROGRESS_KEYS = ["stars", "bytes", "code", "codeAt", "programs", "tutorialDone", "lastBackup", "updatedAt"];
+const PROGRESS_KEYS = ["stars", "bytes", "code", "codeAt", "programs", "tutorialDone", "lastBackup", "updatedAt", "project"];
 function applyProgress(m) {
   for (const k of PROGRESS_KEYS) if (m[k] !== undefined) S[k] = m[k];
   sanitize();
@@ -10693,6 +11162,7 @@ function switchAccount(user, carried, opts = {}) {
   applyStatic();
   setView("worlds");
   syncNow();
+  if (!IN.open && acctEl.hidden) maybeAskProject();
 }
 
 /* ---------- Account window ---------- */
@@ -10710,7 +11180,8 @@ function openAccount(mode) {
   acctEl.hidden = false;
   const f = acctEl.querySelector(".acct-body input, .acct-body button"); if (f) f.focus();
 }
-function closeAccount() { acctEl.hidden = true; }
+/* a new account (or a fresh guest after logging out) chooses its project once the account window is closed */
+function closeAccount() { acctEl.hidden = true; if (!IN.open) maybeAskProject(); }
 function fmtDay(iso) { try { return new Date(iso).toLocaleDateString(S.lang === "it" ? "it-IT" : "en-GB", { dateStyle: "long" }); } catch (e) { return iso; } }
 const field = (id, label, type, ac, val = "", hint = "") => `<label class="ff" for="${id}"><span>${label}</span>
   <input class="field" id="${id}" name="${id}" type="${type}" autocomplete="${ac}" autocapitalize="off" autocorrect="off" spellcheck="false" value="${escHtml(val)}">${hint ? `<small>${hint}</small>` : ""}</label>`;
@@ -11228,6 +11699,7 @@ function skipIntro() {
 function closeIntro() {
   if (!IN.open) return;
   IN.open = false; IN.on = false; cancelAnimationFrame(IN.raf);
+  maybeAskProject();
   document.body.classList.remove("intro-open"); wrapEl.inert = false;
   introEl.classList.add("leaving");
   setTimeout(() => {
@@ -11275,7 +11747,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "452c9f818c", APP_BUILT = "2026-11-09T11:44Z";
+const APP_VERSION = "8471099e46", APP_BUILT = "2026-11-09T13:02Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
@@ -11289,6 +11761,7 @@ applyStatic();
 measureWork();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureWork);
 if (!updFrom) startIntro();
+if (!IN.open) maybeAskProject();
 termWrite(t("loadingFull") + "\n", "dim");
 /* ---------- Updates ---------- */
 /* The installable app asks its own site; the preview on Claude can only compare with the site and reload */
