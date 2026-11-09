@@ -255,6 +255,15 @@ textarea#code:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-soft); }
 #term .fail { color: var(--term-prompt); }
 #term .typed { color: var(--term-prompt); }
 #term .ps { color: var(--term-dim); }
+/* ANSI colours in the output (rich, colorama...), tuned for the dark terminal; ab- are the bright ones, ak- backgrounds */
+#term .a-black { color: #7d8597; } #term .a-red { color: #ff6b6b; } #term .a-green { color: #5fd38d; } #term .a-yellow { color: #f2c14e; }
+#term .a-blue { color: #6ea8fe; } #term .a-magenta { color: #d68cf5; } #term .a-cyan { color: #4dd4e0; } #term .a-white { color: #e6edf6; }
+#term .ab-black { color: #a3abbd; } #term .ab-red { color: #ff9393; } #term .ab-green { color: #8ef0b0; } #term .ab-yellow { color: #ffe08a; }
+#term .ab-blue { color: #9cc4ff; } #term .ab-magenta { color: #ebb2ff; } #term .ab-cyan { color: #8af0f7; } #term .ab-white { color: #ffffff; }
+#term .ak-black { background: #2a3142; } #term .ak-red { background: #8f2f2f; } #term .ak-green { background: #1f6b41; } #term .ak-yellow { background: #7a5c12; }
+#term .ak-blue { background: #24477e; } #term .ak-magenta { background: #6a2f84; } #term .ak-cyan { background: #18606a; } #term .ak-white { background: #c9d1de; color: #0e1628; }
+#term .a-bold { font-weight: 700; } #term .a-dim { opacity: 0.7; } #term .a-it { font-style: italic; } #term .a-ul { text-decoration: underline; }
+#term .a-rev { background: var(--term-fg); color: var(--term-bg); }
 #term form { margin: 0; }
 #term .tin { display: inline; }
 #term .prow { display: flex; }
@@ -282,6 +291,11 @@ html.staged, html.staged body { overflow: hidden; overscroll-behavior: none; }
 .sbtn.close:hover { border-color: var(--term-err); color: var(--term-err); }
 .sbtn:focus-visible { outline: 2px solid var(--term-prompt); outline-offset: 1px; }
 @container (max-width: 640px) { .sbtn .sl, .ssize { display: none; } .sbtn { padding: 4px 8px; } }
+/* on a level, Close starts the check: it keeps its word even when the bar is narrow, short and in the check's colour */
+.sbtn.checks { color: var(--term-ok); border-color: color-mix(in srgb, var(--term-ok) 55%, transparent); }
+.sbtn.checks:hover { color: var(--term-ok); border-color: var(--term-ok); }
+.sbtn.checks .sl-short { display: none; }
+@container (max-width: 640px) { .sbtn.checks .sl-short { display: inline; } }
 .sview { flex: 1 1 0; min-height: 0; position: relative; display: grid; place-items: center; overflow: hidden; }
 .sview canvas { display: block; outline: none; background: #000; box-shadow: 0 0 0 1px var(--term-line); }
 .sview canvas:focus-visible { box-shadow: 0 0 0 2px var(--term-prompt); }
@@ -997,6 +1011,10 @@ code b, pre b, #term b { font-family: inherit; }
 import sys, ast, builtins, traceback, linecache, random, json, io, os, base64, types, re
 
 os.environ.setdefault("MPLBACKEND", "AGG")
+# the terminal on the page shows colours (rich, colorama...) and is 80 columns wide, like a real one
+os.environ.setdefault("FORCE_COLOR", "1")
+os.environ.setdefault("COLUMNS", "80")
+os.environ.setdefault("PYTHON_COLORS", "0")   # Python's own tracebacks stay plain: the app explains them
 from js import ppEmit
 
 # Pygame Zero for the games (src/pgz.py, put here by build.py): loaded the first time a program imports pgzrun
@@ -1309,9 +1327,9 @@ self.onmessage = async (e) => {
    lessons, a "predict" quiz, a review that mixes old and new, a "build" level (one game that grows
    folder after folder) and a boss to debug. Kinds: "code" (default), "quiz", "order" (put the lines
    in order and set the indentation). Hints come in two steps: a question, then the plan in words. */
-const COURSE_VER = 6;
+const COURSE_VER = 7;
 /* Levels whose task changed in a version: saved drafts and attempts of these levels are dropped (stars stay) */
-const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"], 6: ["str"] };
+const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"], 6: ["str"], 7: ["build0"] };
 
 /* Python's int() accepts spaces around the number, a sign and _ between digits */
 const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
@@ -1334,6 +1352,38 @@ const GT_PRE = `\nimport pgzrun as _pz\n_t = _pz._tester()\nprint(${JSON.stringi
 const afterMark = (o) => { const i = o.lastIndexOf(GT_MARK); return i < 0 ? "" : o.slice(i + GT_MARK.length).replace(/^\n/, ""); };
 const gtcase = (c, script, ok, desc, extra) => tcase(c == null ? null : c.replace(/\s*$/, "\n") + GT_PRE + script,
   (o) => ok(afterMark(o)), desc, Object.assign({ game: true }, extra || {}));
+/* Why a Pygame Zero program isn't a game yet: the first piece missing, in words (null when nothing is missing).
+   more: the level's own pieces, [regex, Italian, English] */
+const PGZ_NEEDS = [
+  [/^[ \t]*import\s+pgzrun\b/m, "In cima manca import pgzrun: senza, Python non conosce Pygame Zero.", "import pgzrun is missing at the top: without it, Python doesn't know Pygame Zero."],
+  [/^def\s+draw\s*\(\s*\)\s*:/m, "Il disegno va dentro def draw():, la funzione che Pygame Zero chiama da solo per disegnare.", "The drawing goes inside def draw():, the function Pygame Zero calls by itself to draw."],
+  [/^pgzrun\.go\s*\(\s*\)/m, "Manca pgzrun.go() nell'ultima riga, senza rientro: è la riga che fa partire il gioco.", "pgzrun.go() is missing on the last line, without indentation: it's the line that starts the game."]
+];
+const pgzWhy = (c, lang, more) => {
+  for (const [re, it, en] of PGZ_NEEDS.concat(more || [])) if (!re.test(c)) return lang === "en" ? en : it;
+  return null;
+};
+/* The colour a piece of text comes out in, read from the ANSI codes in the raw output (rich writes them): "red",
+   "green"... (bright ones count as the same colour), null for the normal colour, undefined if the text isn't there */
+const ANSI_NAMES = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+function colourOf(raw, text) {
+  raw = String(raw || "");
+  const at = raw.replace(/\x1b\[[0-9;]*m/g, (m) => "\0".repeat(m.length)).indexOf(text);
+  if (at < 0) return undefined;
+  let fg = null, m;
+  const re = /\x1b\[([0-9;]*)m/g;
+  while ((m = re.exec(raw)) && m.index < at) {
+    const ps = m[1] === "" ? [0] : m[1].split(";").map(Number);
+    for (let i = 0; i < ps.length; i++) {
+      const p = ps[i];
+      if (p === 0 || p === 39) fg = null;
+      else if (p >= 30 && p <= 37) fg = ANSI_NAMES[p - 30];
+      else if (p >= 90 && p <= 97) fg = ANSI_NAMES[p - 90];
+      else if (p === 38 || p === 48) { if (p === 38) fg = "other"; i += ps[i + 1] === 5 ? 2 : 4; }
+    }
+  }
+  return fg;
+}
 
 /* ---------- "Indovina il numero": one game that grows over nine parts, a small step each ----------
    1 one guess, distance and points · 2 a verdict, out of range gives 0 points · 3 up to 5 attempts in a loop,
@@ -1346,7 +1396,9 @@ const GAME_PART = {
   6: { random: true, nan: true },
   7: { random: true, nan: true, levels: true },
   8: { random: true, nan: true, levels: true, record: true },
-  9: { random: true, nan: true, levels: true, record: true, replay: true }
+  9: { random: true, nan: true, levels: true, record: true, replay: true },
+  /* part 10 (07): the same game, with the verdicts in colour (rich) */
+  10: { random: true, nan: true, levels: true, record: true, replay: true }
 };
 const GAME_MAX = 5;
 const gamePoints = (t) => 10 * (GAME_MAX + 1 - t);
@@ -1737,52 +1789,60 @@ print("two")  # print("three")`, options: ["two", "one\ntwo\nthree", "two\nthree
   }
 },
 {
-  id: "build0", build: true, teaches: [],
+  id: "build0", build: true, part: 0, teaches: [],
   it: {
-    title: "Costruisci: il biglietto da visita",
+    title: "Costruisci: la copertina del gioco",
     theory: [
-`<p>Il primo programma tutto tuo, da scrivere partendo da zero. Un biglietto da visita nel terminale: una cornice sopra e sotto, in mezzo chi sei e un numero calcolato da Python. Per esempio:</p>
-<pre class="term-sample">==============
-Ada Lovelace
-Programmatrice
-2027
-==============</pre>
-<p>Cornice, nome e calcolo sceglili tu.</p>`],
-    task: `Scrivi un programma che stampa un biglietto da visita di almeno 4 righe: la prima e l'ultima fatte solo di simboli (come <code>=</code> o <code>*</code>), in mezzo il tuo nome e un numero calcolato da Python (per esempio <code>2026 + 1</code>). In cima metti un commento che dice di chi è il biglietto.`,
+`<p>Da qui comincia il tuo progetto: lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, quello che il giocatore vede appena parte il gioco: una cornice sopra e sotto, in mezzo il titolo, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">******************************
+INDOVINA IL NUMERO
+Penso un numero da 1 a 100:
+prova a indovinarlo!
+Tentativi a disposizione:
+5
+******************************</pre>
+<p>Cornice, regole e calcolo sceglili tu: il titolo però è quello del gioco.</p>`],
+    task: `Scrivi la copertina del gioco, di almeno 4 righe: la prima e l'ultima fatte solo di simboli (come <code>*</code> o <code>=</code>), in mezzo il titolo <code>Indovina il numero</code>, almeno una regola e un numero calcolato da Python (per esempio <code>2 + 3</code>). In cima metti un commento con il nome del gioco e il tuo.`,
     starter: ``,
-    solution: `# Il biglietto di Ada
-print("==============")
-print("Ada Lovelace")
-print("Programmatrice")
-print(2026 + 1)
-print("==============")`,
-    hints: ["Quanti print ti servono per avere la cornice sopra, il nome, il numero e la cornice sotto?",
-      "Prima riga: un commento con #. Poi un print di simboli, un print con il tuo nome, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
-    check: (o, c) => !buildCardWhy(o, c, "it"),
-    why: (o, c) => buildCardWhy(o, c, "it")
+    solution: `# Indovina il numero, di Ada
+print("******************************")
+print("INDOVINA IL NUMERO")
+print("Penso un numero da 1 a 100:")
+print("prova a indovinarlo!")
+print("Tentativi a disposizione:")
+print(2 + 3)
+print("******************************")`,
+    hints: ["Quanti print ti servono per la cornice sopra, il titolo, le regole, il numero e la cornice sotto?",
+      "Prima riga: un commento con #. Poi un print di simboli, un print con il titolo, uno o due print con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !coverWhy(o, c, "it"),
+    why: (o, c) => coverWhy(o, c, "it")
   },
   en: {
-    title: "Build: the business card",
+    title: "Build: the game's cover",
     theory: [
-`<p>Your first program of your own, written from scratch. A business card in the terminal: a frame above and below, and in between who you are and a number worked out by Python. For example:</p>
-<pre class="term-sample">==============
-Ada Lovelace
-Programmer
-2027
-==============</pre>
-<p>You choose the frame, the name and the calculation.</p>`],
-    task: `Write a program that prints a business card of at least 4 lines: the first and the last made only of symbols (like <code>=</code> or <code>*</code>), and in between your name and a number worked out by Python (for example <code>2026 + 1</code>). At the top, put a comment saying whose card it is.`,
+`<p>Your project starts here: you'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, what the player sees as soon as the game starts: a frame above and below, and in between the title, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">******************************
+GUESS THE NUMBER
+I'm thinking of a number from 1 to 100:
+try to guess it!
+Attempts you have:
+5
+******************************</pre>
+<p>You choose the frame, the rules and the calculation; the title, though, is the game's.</p>`],
+    task: `Write the game's cover, at least 4 lines long: the first and the last made only of symbols (like <code>*</code> or <code>=</code>), and in between the title <code>Guess the number</code>, at least one rule and a number worked out by Python (for example <code>2 + 3</code>). At the top, put a comment with the game's name and yours.`,
     starter: ``,
-    solution: `# Ada's card
-print("==============")
-print("Ada Lovelace")
-print("Programmer")
-print(2026 + 1)
-print("==============")`,
-    hints: ["How many prints do you need for the frame above, the name, the number and the frame below?",
-      "First line: a comment with #. Then a print of symbols, a print with your name, a print with a calculation without quotes, and the print of symbols again."],
-    check: (o, c) => !buildCardWhy(o, c, "en"),
-    why: (o, c) => buildCardWhy(o, c, "en")
+    solution: `# Guess the number, by Ada
+print("******************************")
+print("GUESS THE NUMBER")
+print("I'm thinking of a number from 1 to 100:")
+print("try to guess it!")
+print("Attempts you have:")
+print(2 + 3)
+print("******************************")`,
+    hints: ["How many prints do you need for the frame above, the title, the rules, the number and the frame below?",
+      "First line: a comment with #. Then a print of symbols, a print with the title, one or two prints with the rules, a print with a calculation without quotes, and the print of symbols again."],
+    check: (o, c) => !coverWhy(o, c, "en"),
+    why: (o, c) => coverWhy(o, c, "en")
   }
 },
 {
@@ -1820,16 +1880,19 @@ print("Ready!")`,
 }
 ];
 
-/* Business card: free content, fixed shape. Returns what is still missing, or null. */
-function buildCardWhy(o, c, lang) {
+/* The game's cover: free content, fixed shape (a frame, the title, a rule, a number worked out by Python).
+   Returns what is still missing, or null. */
+function coverWhy(o, c, lang) {
   const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
   const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
   const firstCode = (c.trim().split("\n")[0] || "").trim();
-  if (r.length < 4) return it ? "Il biglietto deve avere almeno 4 righe." : "The card needs at least 4 lines.";
+  if (r.length < 4) return it ? "La copertina deve avere almeno 4 righe." : "The cover needs at least 4 lines.";
   if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
-  if (!r.slice(1, -1).some((l) => /[A-Za-zÀ-ÿ]/.test(l))) return it ? "In mezzo ci vuole il tuo nome." : "Your name has to be in the middle.";
-  if (!/print\s*\(\s*[\d.]+\s*[-+*/]\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(2026 + 1)." : "A number worked out by Python is missing, like print(2026 + 1).";
-  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento che dice di chi è il biglietto." : "The program must start with a comment saying whose card it is.";
+  const mid = r.slice(1, -1);
+  if (!mid.some((l) => (it ? /indovina\s+il\s+numero/i : /guess\s+the\s+number/i).test(l))) return it ? "In mezzo ci vuole il titolo del gioco: Indovina il numero." : "The game's title has to be in the middle: Guess the number.";
+  if (mid.filter((l) => /[A-Za-zÀ-ÿ]/.test(l)).length < 2) return it ? "Oltre al titolo scrivi almeno una regola del gioco." : "Besides the title, write at least one rule of the game.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(2 + 3)." : "A number worked out by Python is missing, like print(2 + 3).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
   return null;
 }
 
@@ -2354,7 +2417,7 @@ print(7 / 2 + 0.5)`, options: ["<class 'float'>\n4.0", "<class 'int'>\n4", "<cla
   it: {
     title: "Costruisci: indovina il numero, parte 1",
     theory: [
-`<p>Da qui in avanti costruisci un gioco vero, un pezzo per cartella: <b>indovina il numero</b>. Ogni parte riparte dal tuo codice della parte prima e lo fa crescere: alla fine il gioco avrà indizi, tentativi, livelli, numeri casuali e il record.</p>
+`<p>Nella cartella 00 hai fatto la copertina: adesso il tuo progetto, <b>Indovina il numero</b>, diventa un gioco vero, un pezzo per cartella. Da qui ogni parte riparte dal tuo codice della parte prima e lo fa crescere: alla fine il gioco avrà indizi, tentativi, livelli, numeri casuali, il record e i colori.</p>
 <p>Parte 1: il computer ha un numero segreto (per ora sempre 7) e il giocatore fa un tentativo. Il programma dice quanto ci è andato vicino e assegna dei punti: 10 meno la distanza. Per la distanza ti serve <code>abs()</code>, che toglie il segno meno: <code>abs(3 - 8)</code> fa 5.</p>
 <p>Una partita deve andare esattamente così (il giocatore risponde <i>Ada</i> e <i>5</i>):</p>
 <pre class="term-sample">Come ti chiami? Ada
@@ -2380,7 +2443,7 @@ print(f"Distanza: {distanza}, punti: {10 - distanza}")`,
   en: {
     title: "Build: guess the number, part 1",
     theory: [
-`<p>From here on you build a real game, one piece per folder: <b>guess the number</b>. Each part starts from your code of the part before and makes it grow: in the end the game will have clues, attempts, levels, random numbers and the record.</p>
+`<p>In folder 00 you made the cover: now your project, <b>Guess the number</b>, becomes a real game, one piece per folder. From here each part starts from your code of the part before and makes it grow: in the end the game will have clues, attempts, levels, random numbers, the record and colours.</p>
 <p>Part 1: the computer has a secret number (always 7 for now) and the player makes a guess. The program says how close it was and gives points: 10 minus the distance. For the distance you need <code>abs()</code>, which drops the minus sign: <code>abs(3 - 8)</code> is 5.</p>
 <p>A game must go exactly like this (the player answers <i>Ada</i> and <i>5</i>):</p>
 <pre class="term-sample">What's your name? Ada
@@ -3676,6 +3739,111 @@ for i in range(len(names)):
   }
 },
 {
+  id: "grid", teaches: ["index2"],
+  it: {
+    title: "Griglie: liste di liste",
+    theory: [
+`<p>Una lista può contenere altre liste. Così si costruisce una <b>griglia</b>, come il campo di un gioco: una lista di <b>righe</b>, e ogni riga è una lista di caselle.</p>`,
+{ code: `mappa = [
+    ["#", "#", "#", "#"],
+    ["#", ".", ".", "#"],
+    ["#", "#", "#", "#"],
+]
+print(mappa[1][2])     # riga 1, colonna 2
+mappa[1][1] = "@"      # cambia una casella
+for riga in mappa:     # una riga alla volta...
+    disegno = ""
+    for casella in riga:          # ...e le sue caselle
+        disegno = disegno + casella
+    print(disegno)` },
+`<p><code>mappa[1]</code> è la riga di indice 1, e <code>mappa[1][2]</code> la casella di indice 2 dentro quella riga: <b>prima la riga, poi la colonna</b>. <code>len(mappa)</code> dice quante righe ci sono, <code>len(mappa[0])</code> quante caselle ha la prima riga.</p>
+<p>Per stampare tutta la griglia servono due for, uno dentro l'altro: quello di fuori prende una riga alla volta, quello di dentro le sue caselle, che si attaccano in un testo da stampare.</p>`],
+    task: `Metti il giocatore <code>@</code> nella casella della riga <code>r</code> e della colonna <code>c</code>, poi stampa il campo riga per riga, con ogni casella seguita da uno spazio, e sotto quante righe ha il campo: <code>Righe: 3</code>. Proverò anche con il giocatore in un'altra casella.`,
+    starter: `campo = [
+    [".", ".", ".", "."],
+    [".", "#", ".", "T"],
+    [".", ".", ".", "."],
+]
+r = 2
+c = 3
+
+`,
+    solution: `campo = [
+    [".", ".", ".", "."],
+    [".", "#", ".", "T"],
+    [".", ".", ".", "."],
+]
+r = 2
+c = 3
+
+campo[r][c] = "@"
+for fila in campo:
+    testo = ""
+    for cella in fila:
+        testo = testo + cella + " "
+    print(testo)
+print(f"Righe: {len(campo)}")`,
+    hints: ["Per cambiare una casella servono due indici: quale viene prima, la riga o la colonna? E per stampare, chi scorre le righe e chi le caselle di una riga?",
+      "Assegna la chiocciola al campo con l'indice r e poi l'indice c. Poi un for sulle righe del campo: dentro parti da un testo vuoto, con un secondo for aggiungi ogni casella seguita da uno spazio e stampa il testo. Alla fine stampa Righe: con len del campo."],
+    check: (o, c) => o === ". . . .\n. # . T\n. . . @\nRighe: 3" && /\w[ \t]*\[[^\]\n]*\][ \t]*\[/.test(c) && /\bfor\b[\s\S]*\n\s+for\b/.test(c),
+    why: (o, c) => (!/\bfor\b[\s\S]*\n\s+for\b/.test(c) ? "Per stampare la griglia servono due for, uno dentro l'altro: uno per le righe e uno per le caselle." : null),
+    tests: (c) => tlist(tcase(swapRe(c, /\br\s*=\s*2\b/, "r = 0") && c.replace(/\br\s*=\s*2\b/, "r = 0").replace(/\bc\s*=\s*3\b/, "c = 0"),
+      (o) => o === "@ . . .\n. # . T\n. . . .\nRighe: 3", "con r = 0 e c = 0 il giocatore doveva stare nell'angolo in alto a sinistra")),
+    expect: ". . . .\n. # . T\n. . . @\nRighe: 3"
+  },
+  en: {
+    title: "Grids: lists of lists",
+    theory: [
+`<p>A list can hold other lists. That's how you build a <b>grid</b>, like the field of a game: a list of <b>rows</b>, and each row is a list of squares.</p>`,
+{ code: `level = [
+    ["#", "#", "#", "#"],
+    ["#", ".", ".", "#"],
+    ["#", "#", "#", "#"],
+]
+print(level[1][2])     # row 1, column 2
+level[1][1] = "@"      # change a square
+for row in level:      # one row at a time...
+    picture = ""
+    for square in row:            # ...and its squares
+        picture = picture + square
+    print(picture)` },
+`<p><code>level[1]</code> is the row at index 1, and <code>level[1][2]</code> is the square at index 2 inside that row: <b>first the row, then the column</b>. <code>len(level)</code> says how many rows there are, <code>len(level[0])</code> how many squares the first row has.</p>
+<p>To print the whole grid you need two for loops, one inside the other: the outer one takes one row at a time, the inner one its squares, which get joined into a text to print.</p>`],
+    task: `Put the player <code>@</code> on the square at row <code>r</code> and column <code>c</code>, then print the field row by row, with each square followed by a space, and below it how many rows the field has: <code>Rows: 3</code>. I'll also try with the player on another square.`,
+    starter: `field = [
+    [".", ".", ".", "."],
+    [".", "#", ".", "T"],
+    [".", ".", ".", "."],
+]
+r = 2
+c = 3
+
+`,
+    solution: `field = [
+    [".", ".", ".", "."],
+    [".", "#", ".", "T"],
+    [".", ".", ".", "."],
+]
+r = 2
+c = 3
+
+field[r][c] = "@"
+for line in field:
+    text = ""
+    for cell in line:
+        text = text + cell + " "
+    print(text)
+print(f"Rows: {len(field)}")`,
+    hints: ["To change a square you need two indexes: which comes first, the row or the column? And to print, which loop goes through the rows and which through the squares of a row?",
+      "Assign the at sign to the field with index r and then index c. Then a for over the rows of the field: inside, start from an empty text, with a second for add each square followed by a space, and print the text. At the end print Rows: with the len of the field."],
+    check: (o, c) => o === ". . . .\n. # . T\n. . . @\nRows: 3" && /\w[ \t]*\[[^\]\n]*\][ \t]*\[/.test(c) && /\bfor\b[\s\S]*\n\s+for\b/.test(c),
+    why: (o, c) => (!/\bfor\b[\s\S]*\n\s+for\b/.test(c) ? "To print the grid you need two for loops, one inside the other: one for the rows and one for the squares." : null),
+    tests: (c) => tlist(tcase(swapRe(c, /\br\s*=\s*2\b/, "r = 0") && c.replace(/\br\s*=\s*2\b/, "r = 0").replace(/\bc\s*=\s*3\b/, "c = 0"),
+      (o) => o === "@ . . .\n. # . T\n. . . .\nRows: 3", "with r = 0 and c = 0 the player had to be in the top left corner")),
+    expect: ". . . .\n. # . T\n. . . @\nRows: 3"
+  }
+},
+{
   id: "while", teaches: ["while"],
   it: {
     title: "Ripetere con while",
@@ -3992,7 +4160,64 @@ print("Total:", total)`,
 ];
 
 
-/* ---------- 04_funzioni: strings as sequences, string methods, def, parameters, return and None ---------- */
+/* ---------- 04_funzioni: strings as sequences, string methods, def, parameters, return and None, then the
+   Pygame Zero window (draw, keys, clicks and time), which every project uses from here on ---------- */
+/* The window levels: what each one needs besides import, draw() and pgzrun.go() (see pgzWhy), and the hidden tests
+   that play the program without a screen */
+const PGZ_GLOBAL = [/^[ \t]+global\s+\w+/m, "Una funzione che cambia una variabile di fuori ha bisogno di global, per esempio global nave_x.", "A function that changes a variable outside needs global, for example global ship_x."];
+const WIN_NEEDS = [[/\bRect\s*\(/, "I rettangoli si disegnano con un Rect: screen.draw.filled_rect(Rect((x, y), (larghezza, altezza)), colore).", "Rectangles are drawn with a Rect: screen.draw.filled_rect(Rect((x, y), (width, height)), colour)."]];
+const KEYS_NEEDS = [
+  [/^def\s+update\s*\(\s*\)\s*:/m, "Il movimento va in def update():, che Pygame Zero chiama 60 volte al secondo.", "The movement goes in def update():, which Pygame Zero calls 60 times a second."],
+  [/\bkeyboard\.right\b/, "Dentro update(), keyboard.right dice se la freccia destra è tenuta premuta.", "Inside update(), keyboard.right says whether the right arrow is held down."],
+  [/\bkeyboard\.left\b/, "Dentro update(), keyboard.left dice se la freccia sinistra è tenuta premuta.", "Inside update(), keyboard.left says whether the left arrow is held down."],
+  PGZ_GLOBAL,
+  [/^def\s+on_key_down\s*\(/m, "Lo Spazio va in def on_key_down(key):, che Pygame Zero chiama una volta per ogni tasto premuto.", "Space goes in def on_key_down(key):, which Pygame Zero calls once for every key pressed."],
+  [/\bkeys\.SPACE\b/, "In on_key_down confronta key con keys.SPACE, il nome del tasto Spazio.", "In on_key_down compare key with keys.SPACE, the name of the Space key."]
+];
+const CLICK_NEEDS = [
+  [/^def\s+on_mouse_down\s*\(/m, "Il clic va in def on_mouse_down(pos):, che Pygame Zero chiama a ogni clic con il punto cliccato.", "The click goes in def on_mouse_down(pos):, which Pygame Zero calls at every click with the point clicked."],
+  PGZ_GLOBAL,
+  [/\bclock\.schedule_interval\s*\(/, "Per far scendere il tempo, consegna la tua funzione a clock.schedule_interval, con 1 secondo.", "To make the time go down, hand your function to clock.schedule_interval, with 1 second."],
+  [/\bclock\.schedule_interval\s*\(\s*\w+\s*,/, "In clock.schedule_interval scrivi il nome della funzione senza parentesi: a chiamarla ci pensa l'orologio.", "In clock.schedule_interval write the function's name without brackets: the clock takes care of calling it."]
+];
+const winTests = (c, lang) => {
+  const it = lang === "it", label = it ? "Casa mia" : "My house";
+  return [
+    gtcase(c, "_t.step()\nprint(_t.size)", (o) => o === "(400, 300)", it ? "la finestra è larga 400 e alta 300" : "the window is 400 wide and 300 high"),
+    gtcase(c, "_t.step()\nprint(_t.background())", (o) => o === "skyblue", it ? "lo sfondo è skyblue" : "the background is skyblue"),
+    gtcase(c, "_t.step()\nprint(_t.rects('white'))", (o) => o === "[(100, 120, 200, 150)]",
+      it ? "il muro è un rettangolo white in (100, 120), largo 200 e alto 150" : "the wall is a white rectangle at (100, 120), 200 wide and 150 high"),
+    gtcase(c, "_t.step()\nr, d, m = _t.rects(), (180, 190, 40, 80), (100, 120, 200, 150)\nprint(d in _t.rects('brown') and m in r and r.index(d) > r.index(m))", (o) => o === "True",
+      it ? "la porta è un rettangolo brown in (180, 190), largo 40 e alto 80, disegnato dopo il muro" : "the door is a brown rectangle at (180, 190), 40 wide and 80 high, drawn after the wall"),
+    gtcase(c, "_t.step()\nprint(" + JSON.stringify(label) + " in _t.texts())", (o) => o === "True", it ? `c'è la scritta ${label}` : `the text ${label} is there`)
+  ];
+};
+const keysTests = (c, lang) => {
+  const it = lang === "it";
+  return [
+    gtcase(c, "_t.step()\n_t.hold('right', 10)\nprint(_t.rects('cyan'))", (o) => o === "[(170, 160, 40, 20)]",
+      it ? "tenendo premuta la freccia destra per 10 chiamate di update(), la navicella va avanti di 40 pixel" : "holding the right arrow for 10 calls of update(), the ship moves 40 pixels right"),
+    gtcase(c, "_t.step()\n_t.hold('left', 10)\nprint(_t.rects('cyan'))", (o) => o === "[(90, 160, 40, 20)]",
+      it ? "tenendo premuta la freccia sinistra per 10 chiamate di update(), la navicella torna indietro di 40 pixel" : "holding the left arrow for 10 calls of update(), the ship moves 40 pixels left"),
+    gtcase(c, "_t.step(30)\nprint(_t.rects('cyan'))", (o) => o === "[(130, 160, 40, 20)]",
+      it ? "senza tasti premuti la navicella sta ferma" : "with no keys pressed the ship stays still"),
+    gtcase(c, "_t.step()\n_t.tap('space')\nprint(_t.rects('white'), _t.rects('cyan'))", (o) => o === "[(130, 160, 40, 20)] []",
+      it ? "premendo Spazio la navicella diventa white" : "pressing Space turns the ship white")
+  ];
+};
+const clickTests = (c, lang) => {
+  const it = lang === "it", w = it ? "Tempo" : "Time";
+  return [
+    gtcase(c, "_t.step()\nprint(_t.circles('red'), " + JSON.stringify(w + ": 30") + " in _t.texts())", (o) => o === "[(200, 150, 20)] True",
+      it ? "all'inizio il cerchio rosso è in (200, 150), con raggio 20, e c'è scritto Tempo: 30" : "at the start the red circle is at (200, 150), with radius 20, and it says Time: 30"),
+    gtcase(c, "_t.step()\n_t.click((60, 70))\nprint(_t.circles('red'))", (o) => o === "[(60, 70, 20)]",
+      it ? "dopo un clic in (60, 70) il cerchio rosso è lì" : "after a click at (60, 70) the red circle is there"),
+    gtcase(c, "_t.step()\n_t.wait(3.5)\nprint(" + JSON.stringify(w + ": 27") + " in _t.texts())", (o) => o === "True",
+      it ? "dopo 3 secondi e mezzo c'è scritto Tempo: 27" : "after 3 and a half seconds it says Time: 27"),
+    gtcase(c, "_t.step()\n_t.wait(33)\nprint(" + JSON.stringify(w + ": 0") + " in _t.texts())", (o) => o === "True",
+      it ? "dopo 33 secondi il tempo si è fermato a 0" : "after 33 seconds the time has stopped at 0")
+  ];
+};
 const C04 = [
 {
   id: "str", teaches: ["slice"],
@@ -4649,6 +4874,381 @@ print(more_vowels("cat", "elephant"))`,
   }
 },
 {
+  id: "pgzwin", needs: "full", teaches: ["import", "pgzrun", "draw()", "screen", "Rect"],
+  it: {
+    title: "La finestra del gioco",
+    theory: [
+`<p>Finora i tuoi programmi scrivevano nel terminale. Adesso apri una <b>finestra</b> e ci disegni dentro, con <b>Pygame Zero</b>. È un <b>modulo</b>, cioè un pezzo di Python già scritto da altri: lo carichi con <code>import</code>, e si chiama <code>pgzrun</code>.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300      # la larghezza della finestra, in pixel
+HEIGHT = 200     # l'altezza
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_rect(Rect((20, 130), (260, 50)), "green")
+    screen.draw.filled_circle((240, 50), 25, "yellow")
+    screen.draw.text("Che bel prato!", (20, 20))
+
+pgzrun.go()` },
+`<p>Premi ▶ Prova e si apre la finestra. <code>WIDTH</code> e <code>HEIGHT</code> dicono quanto è grande. Dentro <code>draw()</code> scrivi cosa c'è sullo schermo: è Pygame Zero a chiamarla, ogni volta che la finestra va disegnata, tu non la chiami mai. <code>screen</code> è lo schermo: <code>screen.fill</code> lo colora tutto, <code>screen.draw</code> ci disegna sopra, una riga dopo l'altra, e quello che viene dopo copre quello che c'era. L'ultima riga, <code>pgzrun.go()</code>, fa partire il gioco.</p>
+<p>Le posizioni sono coppie di numeri tra parentesi, <code>(x, y)</code>: x va da sinistra a destra, y <b>dall'alto in basso</b>, quindi <code>(0, 0)</code> è l'angolo in alto a sinistra. Un rettangolo è un <code>Rect</code>: la posizione del suo angolo in alto a sinistra e la sua misura, <code>Rect((x, y), (larghezza, altezza))</code>. I colori si scrivono con il nome inglese: "red", "white", "skyblue"...</p>`],
+    task: `Disegna una casetta in una finestra larga 400 e alta 300: lo sfondo <code>"skyblue"</code>, il muro un rettangolo <code>"white"</code> con l'angolo in (100, 120), largo 200 e alto 150, la porta un rettangolo <code>"brown"</code> in (180, 190), largo 40 e alto 80, e la scritta <code>Casa mia</code> in (10, 10). Esegui per vederla: quando chiudi la finestra, proverò il gioco senza schermo, e misure, colori e rettangoli devono essere proprio questi.`,
+    starter: `# La casetta, in una finestra di Pygame Zero\n\n`,
+    solution: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+
+def draw():
+    screen.fill("skyblue")
+    screen.draw.filled_rect(Rect((100, 120), (200, 150)), "white")
+    screen.draw.filled_rect(Rect((180, 190), (40, 80)), "brown")
+    screen.draw.text("Casa mia", (10, 10))
+
+pgzrun.go()`,
+    hints: ["Quali righe ha ogni programma di Pygame Zero, in cima e in fondo? E se la porta sta sopra il muro, quale dei due va disegnato prima?",
+      "In cima import pgzrun, WIDTH e HEIGHT. Poi def draw(): con dentro, rientrati, screen.fill con lo sfondo, due screen.draw.filled_rect con un Rect ciascuno (prima il muro, poi la porta) e screen.draw.text con la scritta. In fondo, senza rientro, pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "it", WIN_NEEDS),
+    why: (o, c) => pgzWhy(c, "it", WIN_NEEDS),
+    tests: (c) => winTests(c, "it")
+  },
+  en: {
+    title: "The game window",
+    theory: [
+`<p>So far your programs wrote in the terminal. Now you open a <b>window</b> and draw in it, with <b>Pygame Zero</b>. It's a <b>module</b>, that is a piece of Python already written by other people: you load it with <code>import</code>, and it's called <code>pgzrun</code>.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300      # the width of the window, in pixels
+HEIGHT = 200     # the height
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_rect(Rect((20, 130), (260, 50)), "green")
+    screen.draw.filled_circle((240, 50), 25, "yellow")
+    screen.draw.text("What a nice lawn!", (20, 20))
+
+pgzrun.go()` },
+`<p>Press ▶ Try and the window opens. <code>WIDTH</code> and <code>HEIGHT</code> say how big it is. Inside <code>draw()</code> you write what's on the screen: Pygame Zero calls it, every time the window needs drawing, you never call it yourself. <code>screen</code> is the screen: <code>screen.fill</code> colours all of it, <code>screen.draw</code> draws on it, one line after the other, and what comes later covers what was there. The last line, <code>pgzrun.go()</code>, starts the game.</p>
+<p>Positions are pairs of numbers in brackets, <code>(x, y)</code>: x goes from left to right, y <b>from top to bottom</b>, so <code>(0, 0)</code> is the top left corner. A rectangle is a <code>Rect</code>: the position of its top left corner and its size, <code>Rect((x, y), (width, height))</code>. Colours are written by their name: "red", "white", "skyblue"...</p>`],
+    task: `Draw a little house in a window 400 wide and 300 high: the background <code>"skyblue"</code>, the wall a <code>"white"</code> rectangle with its corner at (100, 120), 200 wide and 150 high, the door a <code>"brown"</code> rectangle at (180, 190), 40 wide and 80 high, and the text <code>My house</code> at (10, 10). Run it to see it: when you close the window, I'll test the game without a screen, and sizes, colours and rectangles must be exactly these.`,
+    starter: `# The little house, in a Pygame Zero window\n\n`,
+    solution: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+
+def draw():
+    screen.fill("skyblue")
+    screen.draw.filled_rect(Rect((100, 120), (200, 150)), "white")
+    screen.draw.filled_rect(Rect((180, 190), (40, 80)), "brown")
+    screen.draw.text("My house", (10, 10))
+
+pgzrun.go()`,
+    hints: ["Which lines does every Pygame Zero program have, at the top and at the bottom? And if the door is on top of the wall, which of the two must be drawn first?",
+      "At the top import pgzrun, WIDTH and HEIGHT. Then def draw(): with, indented inside, screen.fill with the background, two screen.draw.filled_rect with a Rect each (first the wall, then the door) and screen.draw.text with the text. At the bottom, without indentation, pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "en", WIN_NEEDS),
+    why: (o, c) => pgzWhy(c, "en", WIN_NEEDS),
+    tests: (c) => winTests(c, "en")
+  }
+},
+{
+  id: "pgzkeys", needs: "full", teaches: ["update()", "keyboard", "global", "on_key_down", "keys"],
+  it: {
+    title: "Tasti e movimento",
+    theory: [
+`<p>In un gioco le cose si muovono: a ogni istante qualcosa cambia e la finestra si ridisegna. Oltre a <code>draw()</code>, Pygame Zero chiama da solo altre funzioni, se le scrivi: per esempio <code>update()</code> e <code>on_key_down(key)</code>.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+x = 140
+colore = "orange"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_circle((x, 100), 15, colore)
+
+def update():
+    global x                 # la x di fuori, non una nuova
+    if keyboard.right:       # vero finché tieni premuta la freccia destra
+        x += 3
+    if keyboard.left:
+        x -= 3
+
+def on_key_down(key):
+    global colore
+    if key == keys.SPACE:    # una volta sola, quando premi Spazio
+        colore = "red"
+
+pgzrun.go()` },
+`<p><code>update()</code> viene chiamata 60 volte al secondo, prima di ogni disegno: è il posto dove muovere le cose. <code>keyboard</code> dice quali tasti sono tenuti premuti in quel momento: <code>keyboard.right</code> è vero finché tieni premuta la freccia destra, e a ogni chiamata il cerchio avanza di 3 pixel. Le altre frecce sono <code>keyboard.left</code>, <code>keyboard.up</code> e <code>keyboard.down</code>, le lettere <code>keyboard.a</code>, <code>keyboard.w</code> e così via.</p>
+<p><code>on_key_down(key)</code> invece viene chiamata <b>una volta</b> per ogni tasto premuto, e <code>key</code> dice quale: lo confronti con i nomi di <code>keys</code>, come <code>keys.SPACE</code> per lo Spazio, <code>keys.UP</code> o <code>keys.A</code>. Sul telefono, accanto al gioco compaiono le frecce e i pulsanti dei tasti che il programma usa.</p>
+<p>E <code>global</code>? Quando una funzione assegna un valore a una variabile, Python ne crea una nuova, solo sua, che sparisce a fine chiamata. Con <code>global x</code> la funzione usa invece la <code>x</code> di fuori, la stessa che <code>draw()</code> disegna. Senza, Python si ferma con un <code>UnboundLocalError</code>.</p>`],
+    task: `Fai muovere la navicella: finché tieni premuta una freccia, destra o sinistra, <code>nave_x</code> cambia di 4 pixel a ogni chiamata di <code>update()</code>. Premendo Spazio la navicella diventa bianca (<code>"white"</code>). Esegui e provala: quando chiudi la finestra, proverò io, tenendo premute le frecce e premendo Spazio.`,
+    starter: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+nave_x = 130
+colore = "cyan"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_rect(Rect((nave_x, 160), (40, 20)), colore)
+
+`,
+    solution: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+nave_x = 130
+colore = "cyan"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_rect(Rect((nave_x, 160), (40, 20)), colore)
+
+def update():
+    global nave_x
+    if keyboard.right:
+        nave_x += 4
+    if keyboard.left:
+        nave_x -= 4
+
+def on_key_down(key):
+    global colore
+    if key == keys.SPACE:
+        colore = "white"
+
+pgzrun.go()`,
+    hints: ["Quale funzione chiama Pygame Zero 60 volte al secondo, e quale una volta per ogni tasto? E cosa serve perché una funzione cambi la nave_x di fuori, invece di crearne una nuova?",
+      "Scrivi def update(): con global nave_x e due if, uno con keyboard.right e uno con keyboard.left, che aggiungono o tolgono 4. Poi def on_key_down(key): con global colore e un if che confronta key con keys.SPACE e mette il bianco nel colore. In fondo pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "it", KEYS_NEEDS),
+    why: (o, c) => pgzWhy(c, "it", KEYS_NEEDS),
+    tests: (c) => keysTests(c, "it")
+  },
+  en: {
+    title: "Keys and movement",
+    theory: [
+`<p>In a game things move: at every moment something changes and the window is drawn again. Besides <code>draw()</code>, Pygame Zero calls other functions by itself, if you write them: for example <code>update()</code> and <code>on_key_down(key)</code>.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+x = 140
+colour = "orange"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_circle((x, 100), 15, colour)
+
+def update():
+    global x                 # the x outside, not a new one
+    if keyboard.right:       # true as long as you hold the right arrow
+        x += 3
+    if keyboard.left:
+        x -= 3
+
+def on_key_down(key):
+    global colour
+    if key == keys.SPACE:    # just once, when you press Space
+        colour = "red"
+
+pgzrun.go()` },
+`<p><code>update()</code> is called 60 times a second, before every drawing: it's the place to move things. <code>keyboard</code> says which keys are held down at that moment: <code>keyboard.right</code> is true as long as you hold the right arrow, and at every call the circle moves 3 pixels. The other arrows are <code>keyboard.left</code>, <code>keyboard.up</code> and <code>keyboard.down</code>, the letters <code>keyboard.a</code>, <code>keyboard.w</code> and so on.</p>
+<p><code>on_key_down(key)</code> instead is called <b>once</b> for every key pressed, and <code>key</code> says which one: you compare it with the names in <code>keys</code>, like <code>keys.SPACE</code> for Space, <code>keys.UP</code> or <code>keys.A</code>. On a phone, the arrows and the buttons for the keys the program uses show up beside the game.</p>
+<p>And <code>global</code>? When a function assigns a value to a variable, Python makes a new one, all its own, that disappears when the call ends. With <code>global x</code> the function uses the <code>x</code> outside instead, the same one <code>draw()</code> draws. Without it, Python stops with an <code>UnboundLocalError</code>.</p>`],
+    task: `Make the spaceship move: as long as you hold an arrow, right or left, <code>ship_x</code> changes by 4 pixels at every call of <code>update()</code>. Pressing Space turns the ship white (<code>"white"</code>). Run it and try it: when you close the window, I'll test it, holding the arrows and pressing Space.`,
+    starter: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+ship_x = 130
+colour = "cyan"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_rect(Rect((ship_x, 160), (40, 20)), colour)
+
+`,
+    solution: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+ship_x = 130
+colour = "cyan"
+
+def draw():
+    screen.fill("black")
+    screen.draw.filled_rect(Rect((ship_x, 160), (40, 20)), colour)
+
+def update():
+    global ship_x
+    if keyboard.right:
+        ship_x += 4
+    if keyboard.left:
+        ship_x -= 4
+
+def on_key_down(key):
+    global colour
+    if key == keys.SPACE:
+        colour = "white"
+
+pgzrun.go()`,
+    hints: ["Which function does Pygame Zero call 60 times a second, and which one once for every key? And what's needed so that a function changes the ship_x outside, instead of making a new one?",
+      "Write def update(): with global ship_x and two ifs, one with keyboard.right and one with keyboard.left, that add or take away 4. Then def on_key_down(key): with global colour and an if that compares key with keys.SPACE and puts white in the colour. At the bottom pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "en", KEYS_NEEDS),
+    why: (o, c) => pgzWhy(c, "en", KEYS_NEEDS),
+    tests: (c) => keysTests(c, "en")
+  }
+},
+{
+  id: "pgzclick", needs: "full", teaches: ["on_mouse_down", "clock"],
+  it: {
+    title: "Clic e tempo",
+    theory: [
+`<p>Due cose che servono a quasi tutti i giochi: sapere dove clicchi e far passare il tempo.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+punto = (150, 100)
+secondi = 0
+
+def draw():
+    screen.fill("darkgreen")
+    screen.draw.filled_circle(punto, 10, "yellow")
+    screen.draw.text(f"Secondi: {secondi}", (10, 10))
+
+def on_mouse_down(pos):     # a ogni clic: pos è il punto cliccato
+    global punto
+    punto = pos
+
+def conta():
+    global secondi
+    secondi += 1
+
+clock.schedule_interval(conta, 1)    # conta() una volta al secondo
+pgzrun.go()` },
+`<p><code>on_mouse_down(pos)</code> viene chiamata a ogni clic, o a ogni tocco sul telefono: <code>pos</code> è la coppia <code>(x, y)</code> del punto toccato, e nell'esempio il cerchio ci salta sopra.</p>
+<p><code>clock</code> è l'orologio di Pygame Zero. <code>clock.schedule_interval(conta, 1)</code> gli chiede di chiamare <code>conta</code> ogni secondo, per sempre; <code>clock.schedule(conta, 3)</code> una volta sola, dopo 3 secondi. Attento: qui <code>conta</code> va scritta <b>senza parentesi</b>, perché non la chiami tu adesso, la consegni all'orologio, che la chiamerà al momento giusto.</p>`],
+    task: `Un bersaglio: il cerchio rosso salta dove clicchi, e il tempo in alto parte da 30 e scende di 1 ogni secondo, fino a fermarsi a 0. Esegui e provalo: quando chiudi la finestra, proverò io a cliccare e ad aspettare.`,
+    starter: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+bersaglio = (200, 150)
+tempo = 30
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_circle(bersaglio, 20, "red")
+    screen.draw.text(f"Tempo: {tempo}", (10, 10))
+
+`,
+    solution: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+bersaglio = (200, 150)
+tempo = 30
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_circle(bersaglio, 20, "red")
+    screen.draw.text(f"Tempo: {tempo}", (10, 10))
+
+def on_mouse_down(pos):
+    global bersaglio
+    bersaglio = pos
+
+def scendi():
+    global tempo
+    if tempo > 0:
+        tempo -= 1
+
+clock.schedule_interval(scendi, 1)
+pgzrun.go()`,
+    hints: ["Quale funzione chiama Pygame Zero a ogni clic, e cosa le passa? E per far scendere il tempo, chi deve chiamare la tua funzione ogni secondo?",
+      "Scrivi def on_mouse_down(pos): che, con global, mette pos nel bersaglio. Poi una funzione senza parametri che, con global, toglie 1 al tempo solo se è più di 0, e consegnala a clock.schedule_interval con 1 secondo, prima di pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "it", CLICK_NEEDS),
+    why: (o, c) => pgzWhy(c, "it", CLICK_NEEDS),
+    tests: (c) => clickTests(c, "it")
+  },
+  en: {
+    title: "Clicks and time",
+    theory: [
+`<p>Two things almost every game needs: knowing where you click and letting time pass.</p>`,
+{ code: `import pgzrun
+
+WIDTH = 300
+HEIGHT = 200
+spot = (150, 100)
+seconds = 0
+
+def draw():
+    screen.fill("darkgreen")
+    screen.draw.filled_circle(spot, 10, "yellow")
+    screen.draw.text(f"Seconds: {seconds}", (10, 10))
+
+def on_mouse_down(pos):     # at every click: pos is the point clicked
+    global spot
+    spot = pos
+
+def count():
+    global seconds
+    seconds += 1
+
+clock.schedule_interval(count, 1)    # count() once a second
+pgzrun.go()` },
+`<p><code>on_mouse_down(pos)</code> is called at every click, or every tap on a phone: <code>pos</code> is the pair <code>(x, y)</code> of the point touched, and in the example the circle jumps onto it.</p>
+<p><code>clock</code> is Pygame Zero's clock. <code>clock.schedule_interval(count, 1)</code> asks it to call <code>count</code> every second, forever; <code>clock.schedule(count, 3)</code> just once, after 3 seconds. Careful: here <code>count</code> is written <b>without brackets</b>, because you don't call it now, you hand it to the clock, which will call it at the right time.</p>`],
+    task: `A target: the red circle jumps where you click, and the time at the top starts at 30 and goes down by 1 every second, until it stops at 0. Run it and try it: when you close the window, I'll test it, clicking and waiting.`,
+    starter: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+target = (200, 150)
+time_left = 30
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_circle(target, 20, "red")
+    screen.draw.text(f"Time: {time_left}", (10, 10))
+
+`,
+    solution: `import pgzrun
+
+WIDTH = 400
+HEIGHT = 300
+target = (200, 150)
+time_left = 30
+
+def draw():
+    screen.fill("navy")
+    screen.draw.filled_circle(target, 20, "red")
+    screen.draw.text(f"Time: {time_left}", (10, 10))
+
+def on_mouse_down(pos):
+    global target
+    target = pos
+
+def tick():
+    global time_left
+    if time_left > 0:
+        time_left -= 1
+
+clock.schedule_interval(tick, 1)
+pgzrun.go()`,
+    hints: ["Which function does Pygame Zero call at every click, and what does it pass to it? And to make the time go down, who must call your function every second?",
+      "Write def on_mouse_down(pos): that, with global, puts pos in the target. Then a function without parameters that, with global, takes 1 away from the time only if it's more than 0, and hand it to clock.schedule_interval with 1 second, before pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "en", CLICK_NEEDS),
+    why: (o, c) => pgzWhy(c, "en", CLICK_NEEDS),
+    tests: (c) => clickTests(c, "en")
+  }
+},
+{
   id: "ripasso4", kind: "quiz", review: true, teaches: [],
   it: {
     title: "Ripasso: testo e funzioni",
@@ -5238,11 +5838,11 @@ print(f"Total: {tickets * 5} euros")`,
   }
 },
 {
-  id: "mod", teaches: ["import", "random.randint", "random.choice"],
+  id: "mod", teaches: ["random.randint", "random.choice"],
   it: {
     title: "Moduli: il caso con random",
     theory: [
-`<p>Python ha tanti <b>moduli</b> pronti, cioè raccolte di funzioni: li carichi con <code>import</code> e usi le loro funzioni con il punto. Il modulo <code>random</code> fa scelte a caso.</p>`,
+`<p>Python ha tanti <b>moduli</b> pronti, come <code>pgzrun</code> per le finestre: raccolte di funzioni che carichi con <code>import</code> e usi con il punto. Il modulo <code>random</code> fa scelte a caso.</p>`,
 { code: `import random
 
 print(random.randint(1, 100))              # un intero da 1 a 100, estremi compresi
@@ -5266,7 +5866,7 @@ print(f"Tocca a {giocatore}")`,
   en: {
     title: "Modules: chance with random",
     theory: [
-`<p>Python has lots of ready-made <b>modules</b>, that is collections of functions: you load them with <code>import</code> and use their functions with a dot. The <code>random</code> module makes random choices.</p>`,
+`<p>Python has lots of ready-made <b>modules</b>, like <code>pgzrun</code> for windows: collections of functions that you load with <code>import</code> and use with a dot. The <code>random</code> module makes random choices.</p>`,
 { code: `import random
 
 print(random.randint(1, 100))              # a whole number from 1 to 100, both included
@@ -6808,7 +7408,26 @@ print(c.value)`,
 ];
 
 
-/* ---------- 07_librerie: pip, numpy and charts (they need full Python; the folder keeps the id "bonus") ---------- */
+/* ---------- 07_librerie: pip, numpy and charts (they need full Python; the folder keeps the id "bonus") ----------
+   and the last part of the project: "Indovina il numero" in colour with rich, the first library from outside */
+const RICH_PRINT = /^[ \t]*from\s+rich\s+import\s+(\(\s*)?([\w\s,]*,\s*)?print\b/m;
+const richWhy = (o, c, lang) => {
+  const it = lang === "it";
+  if (!RICH_PRINT.test(c)) return it ? "In cima serve from rich import print: è il print di rich che capisce i tag dei colori." : "At the top you need from rich import print: it's rich's print that understands the colour tags.";
+  if (/\[\/?[a-z_ ]+\]/.test(o)) return it ? "Nell'output si vedono i tag tra parentesi quadre: arrivano a un print che non è quello di rich." : "The square-bracket tags show up in the output: they reach a print that isn't rich's.";
+  return null;
+};
+/* Hidden tests of the colours: a game with every hint (loaded dice: the secret of "facile" is 5), and the colour each
+   hint comes out in, read from the codes rich writes */
+const COLOUR_GAME = { it: ["Ada", "facile", "0", "8", "2", "5", "no"], en: ["Ada", "easy", "0", "8", "2", "5", "no"] };
+const COLOUR_IT = { red: "rosso", cyan: "azzurro", magenta: "viola", green: "verde" };
+const colourTests = (lang) => (c) => {
+  const T = GAME[lang], it = lang === "it", ins = COLOUR_GAME[lang];
+  return [[T.out(10).replace(/:.*$/, ""), "red"], [T.low, "cyan"], [T.high, "magenta"], [T.win, "green"]].map(([text, col]) =>
+    tcase(RIG("b // 2") + c, (o, raw) => colourOf(raw, text) === col,
+      it ? `con le risposte ${ins.join(", ")}, «${text}» doveva uscire ${COLOUR_IT[col]} (${col})` : `with the answers ${ins.join(", ")}, “${text}” had to come out ${col}`,
+      { inputs: ins, rand: true }));
+};
 const CBONUS = [
 {
   id: "pip", needs: "full", teaches: ["ModuleNotFoundError"],
@@ -6873,6 +7492,187 @@ print("Average:", sum(temperatures) / len(temperatures))`,
       : /\bexcept\b/.test(c) && !/except\s+(\(\s*)?(ModuleNotFoundError|ImportError)/.test(c) ? "Here the error to catch is the one of the missing library: except ModuleNotFoundError." : null),
     tests: (c) => tlist(tcase(swapRe(c, /\[\s*18\s*,\s*21\s*,\s*25\s*,\s*22\s*\]/, "[10, 20]"), (o) => o === "easy_weather is missing: install it with pip install easy_weather\nAverage: 15.0", "with the backup data [10, 20] it had to print Average: 15.0")),
     expect: "easy_weather is missing: install it with pip install easy_weather\nAverage: 21.5"
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], rig: "b // 2",
+  it: {
+    title: "Costruisci: indovina il numero a colori",
+    sample: ["Ada", "medio", "30", "12", "25", "si", "facile", "5", "no"],
+    theory: [
+`<p>L'ultima parte del tuo progetto usa una libreria che non è dentro Python: <b>rich</b>, che colora il testo nel terminale. Sul tuo computer si installa una volta sola, nel terminale del sistema, con <code>pip install rich</code>. Qui in Arcode lo scrivi nel terminale qui sotto: l'app se lo ricorda, e se Python riparte la reinstalla da sola.</p>
+<p>In cima al programma, <code>from rich import print</code> prende il <code>print</code> di rich al posto di quello di Python. Funziona come prima, ma capisce i <b>tag</b> tra parentesi quadre: il testo tra <code>[green]</code> e <code>[/green]</code> esce verde.</p>`,
+{ code: `from rich import print
+
+print("[green]Tutto a posto![/green]")
+print("[bold red]Attenzione:[/bold red] il ponte è chiuso")
+print("Il cielo è [blue]blu[/blue] e il prato [green]verde[/green]")` },
+`<p>I colori hanno il nome inglese: <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code>; <code>bold</code> scrive in grassetto, e si possono unire, come in <code>[bold red]</code>. I tag possono stare anche in una f-string o nel testo che una funzione restituisce: basta che arrivino al <code>print</code> di rich. <code>input</code> invece resta quello di sempre, senza colori.</p>`],
+    task: `Nel terminale scrivi <code>pip install rich</code>, poi colora gli indizi del gioco: il messaggio <code>Fuori dal campo</code> in rosso (<code>red</code>), <code>Troppo basso!</code> in azzurro (<code>cyan</code>), <code>Troppo alto!</code> in viola (<code>magenta</code>) e <code>Indovinato!</code> in verde (<code>green</code>). Tutto il resto resta com'è. Proverò una partita con un numero fuori dal campo e tutti gli indizi, e guarderò i colori.`,
+    solution: `import random
+from rich import print
+
+max_tentativi = 5
+livelli = {"facile": 10, "medio": 50, "difficile": 100}
+
+def verdetto(n, segreto, massimo):
+    if n < 1 or n > massimo:
+        return f"[red]Fuori dal campo: scegli da 1 a {massimo}![/red]"
+    elif n == segreto:
+        return "[green]Indovinato![/green]"
+    elif n < segreto:
+        return "[cyan]Troppo basso![/cyan]"
+    return "[magenta]Troppo alto![/magenta]"
+
+def punti_per(tentativi):
+    return 10 * (max_tentativi + 1 - tentativi)
+
+def leggi_numero():
+    while True:
+        try:
+            return int(input("Il tuo numero? "))
+        except ValueError:
+            print("Scrivi un numero!")
+
+def partita(segreto, massimo):
+    tentativi = 0
+    while tentativi < max_tentativi:
+        tentativo = leggi_numero()
+        tentativi += 1
+        print(verdetto(tentativo, segreto, massimo))
+        if tentativo == segreto:
+            return tentativi
+    return 0
+
+class Giocatore:
+    def __init__(self, nome):
+        self.nome = nome
+        self.partite = 0
+        self.record = 0
+
+    def registra(self, punti):
+        self.partite += 1
+        if punti > self.record:
+            self.record = punti
+            return True
+        return False
+
+giocatore = Giocatore(input("Come ti chiami? "))
+print(f"Ciao {giocatore.nome}!")
+while True:
+    scelta = input("Livello (facile/medio/difficile)? ")
+    massimo = livelli.get(scelta, 10)
+    segreto = random.randint(1, massimo)
+    print(f"Ho un numero segreto da 1 a {massimo}.")
+    tentativi = partita(segreto, massimo)
+    punti = 0
+    if tentativi > 0:
+        punti = punti_per(tentativi)
+        print(f"Ce l'hai fatta! Tentativi: {tentativi}, punti: {punti}")
+    else:
+        print(f"Tentativi finiti! Il segreto era {segreto}. Punti: 0")
+    if giocatore.registra(punti):
+        print("Nuovo record!")
+    if input("Giochi ancora? (si/no) ") != "si":
+        break
+print(f"{giocatore.nome}, partite giocate: {giocatore.partite}. Record: {giocatore.record} punti")`,
+    hints: ["Quale riga dà al programma il print di rich? E dove nascono i testi degli indizi: in quale funzione li racchiudi tra i tag?",
+      "In cima, sotto import random, prendi print da rich. Poi in verdetto racchiudi ogni testo restituito tra i tag del suo colore, per esempio [green] prima e [/green] dopo Indovinato!; il resto del programma non cambia."],
+    check: gameCheck("it", 10, [/class\s+Giocatore/, /def\s+registra\s*\(\s*self/, /randint/, RICH_PRINT]), expect: (x) => gameExpect("it", 10, x.inputs, x.out),
+    why: (o, c) => richWhy(o, c, "it"),
+    tests: (c) => gameTests("it", 10, [["Ada", "medio", "30", "12", "25", "si", "facile", "5", "no"], ["Bob", "difficile", "1", "2", "3", "4", "5", "no"], ["Cleo", "facile", "5", "si", "facile", "1", "5", "si", "boh", "x", "5", "no"]])(c).concat([
+      tcase(RIG("b // 2") + c + `\ng = Giocatore("Zoe")\nprint(g.registra(30), g.registra(20), g.registra(40))\nprint(g.record, g.partite)`,
+        (o) => lastLines(o, 2) === "True False True\n40 3",
+        "Giocatore(\"Zoe\") con registra(30), registra(20) e registra(40) doveva dare True, False, True, con record 40 e 3 partite", { inputs: ["X", "facile", "5", "no"], rand: true })], colourTests("it")(c))
+  },
+  en: {
+    title: "Build: guess the number in colour",
+    sample: ["Ada", "medium", "30", "12", "25", "yes", "easy", "5", "no"],
+    theory: [
+`<p>The last part of your project uses a library that isn't inside Python: <b>rich</b>, which colours the text in the terminal. On your computer you install it just once, in the system's terminal, with <code>pip install rich</code>. Here in Arcode you type it in the terminal below: the app remembers it, and if Python restarts it installs it again by itself.</p>
+<p>At the top of the program, <code>from rich import print</code> takes rich's <code>print</code> instead of Python's. It works as before, but it understands the <b>tags</b> in square brackets: the text between <code>[green]</code> and <code>[/green]</code> comes out green.</p>`,
+{ code: `from rich import print
+
+print("[green]All good![/green]")
+print("[bold red]Warning:[/bold red] the bridge is closed")
+print("The sky is [blue]blue[/blue] and the lawn [green]green[/green]")` },
+`<p>Colours are called by their name: <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code>; <code>bold</code> writes in bold, and they can be combined, as in <code>[bold red]</code>. Tags can also go in an f-string or in the text a function gives back: all that matters is that they reach rich's <code>print</code>. <code>input</code> stays the usual one, without colours.</p>`],
+    task: `In the terminal type <code>pip install rich</code>, then colour the game's hints: the <code>Out of range</code> message in red (<code>red</code>), <code>Too low!</code> in cyan (<code>cyan</code>), <code>Too high!</code> in purple (<code>magenta</code>) and <code>You got it!</code> in green (<code>green</code>). Everything else stays as it is. I'll test a game with a number out of range and all the hints, and check the colours.`,
+    solution: `import random
+from rich import print
+
+max_attempts = 5
+levels = {"easy": 10, "medium": 50, "hard": 100}
+
+def verdict(n, secret, top):
+    if n < 1 or n > top:
+        return f"[red]Out of range: pick from 1 to {top}![/red]"
+    elif n == secret:
+        return "[green]You got it![/green]"
+    elif n < secret:
+        return "[cyan]Too low![/cyan]"
+    return "[magenta]Too high![/magenta]"
+
+def points_for(attempts):
+    return 10 * (max_attempts + 1 - attempts)
+
+def read_number():
+    while True:
+        try:
+            return int(input("Your number? "))
+        except ValueError:
+            print("Type a number!")
+
+def play(secret, top):
+    attempts = 0
+    while attempts < max_attempts:
+        guess = read_number()
+        attempts += 1
+        print(verdict(guess, secret, top))
+        if guess == secret:
+            return attempts
+    return 0
+
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.games = 0
+        self.record = 0
+
+    def register(self, points):
+        self.games += 1
+        if points > self.record:
+            self.record = points
+            return True
+        return False
+
+player = Player(input("What's your name? "))
+print(f"Hi {player.name}!")
+while True:
+    choice = input("Level (easy/medium/hard)? ")
+    top = levels.get(choice, 10)
+    secret = random.randint(1, top)
+    print(f"I have a secret number from 1 to {top}.")
+    attempts = play(secret, top)
+    points = 0
+    if attempts > 0:
+        points = points_for(attempts)
+        print(f"You made it! Attempts: {attempts}, points: {points}")
+    else:
+        print(f"Out of attempts! The secret was {secret}. Points: 0")
+    if player.register(points):
+        print("New record!")
+    if input("Play again? (yes/no) ") != "yes":
+        break
+print(f"{player.name}, games played: {player.games}. Record: {player.record} points")`,
+    hints: ["Which line gives the program rich's print? And where are the hints' texts born: in which function do you wrap them in tags?",
+      "At the top, below import random, take print from rich. Then in verdict wrap every text given back in the tags of its colour, for example [green] before and [/green] after You got it!; the rest of the program doesn't change."],
+    check: gameCheck("en", 10, [/class\s+Player/, /def\s+register\s*\(\s*self/, /randint/, RICH_PRINT]), expect: (x) => gameExpect("en", 10, x.inputs, x.out),
+    why: (o, c) => richWhy(o, c, "en"),
+    tests: (c) => gameTests("en", 10, [["Ada", "medium", "30", "12", "25", "yes", "easy", "5", "no"], ["Bob", "hard", "1", "2", "3", "4", "5", "no"], ["Cleo", "easy", "5", "yes", "easy", "1", "5", "yes", "what", "x", "5", "no"]])(c).concat([
+      tcase(RIG("b // 2") + c + `\ng = Player("Zoe")\nprint(g.register(30), g.register(20), g.register(40))\nprint(g.record, g.games)`,
+        (o) => lastLines(o, 2) === "True False True\n40 3",
+        "Player(\"Zoe\") with register(30), register(20) and register(40) had to give True, False, True, with record 40 and 3 games", { inputs: ["X", "easy", "5", "no"], rand: true })], colourTests("en")(c))
   }
 },
 {
@@ -6999,23 +7799,23 @@ const WORLDS = [
     it: { name: "Le basi", tag: "Variabili, conti, tipi e input" }, en: { name: "The basics", tag: "Variables, math, types and input" } },
   { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "textcmp", "logic", "parity", "ripasso2", "build2", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
-  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "best", "index", "while", "whilein", "ripasso3", "build3", "boss3"],
+  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "best", "index", "grid", "while", "whilein", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
-  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "builtins", "def0", "params", "def", "retq", "build4a", "fcall", "ripasso4", "build4", "boss4"],
-    it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
+  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "builtins", "def0", "params", "def", "retq", "build4a", "fcall", "pgzwin", "pgzkeys", "pgzclick", "ripasso4", "build4", "boss4"],
+    it: { name: "Testo e funzioni", tag: "Stringhe, def e return, poi la finestra del gioco" }, en: { name: "Text and functions", tag: "Strings, def and return, then the game window" } },
   { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "build5a", "math", "imports", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori e librerie" }, en: { name: "Tools", tag: "Dictionaries, errors and libraries" } },
   { id: "w6", dir: { it: "06_oggetti", en: "06_objects" }, mascot: "pip", levels: ["class", "method", "classq", "state", "build6a", "objlist", "ripasso6", "final", "boss6"],
     it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
-  { id: "bonus", dir: { it: "07_librerie", en: "07_libraries" }, mascot: "bit", levels: ["pip", "numpy", "plot"],
-    it: { name: "Librerie", tag: "pip, numpy e grafici" }, en: { name: "Libraries", tag: "pip, numpy and charts" } }
+  { id: "bonus", dir: { it: "07_librerie", en: "07_libraries" }, mascot: "bit", levels: ["pip", "build7", "numpy", "plot"],
+    it: { name: "Librerie", tag: "pip, il progetto a colori, numpy e grafici" }, en: { name: "Libraries", tag: "pip, the project in colour, numpy and charts" } }
 ];
 /* Every level is a file inside its folder: [Italian, English]. The number in front comes from the level's
    position in the folder (bosses have none), so a new level renumbers the files after it by itself. */
 const FILE_BASE = {
   print: ["primo_programma.py", "first_program.py"], how: ["prevedi_print.py", "predict_print.py"], rules: ["regole.py", "rules.py"],
   comments: ["commenti.py", "comments.py"], errors: ["errori.py", "errors.py"], ripasso0: ["ripasso.py", "review.py"],
-  build0: ["costruisci_biglietto.py", "build_card.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"], var: ["variabili.py", "variables.py"],
+  build0: ["costruisci_copertina.py", "build_cover.py"], boss0: ["boss_benvenuto.py", "boss_welcome.py"], var: ["variabili.py", "variables.py"],
   num: ["numeri.py", "numbers.py"], update: ["aggiornare.py", "updating.py"], cambia: ["prevedi_valori.py", "predict_values.py"],
   divmod: ["resto.py", "remainder.py"], fstr: ["fstring.py", "fstrings.py"], typeof: ["tipi.py", "types.py"],
   types: ["conversioni.py", "conversions.py"], input: ["input.py", "input.py"], ripasso1: ["ripasso.py", "review.py"],
@@ -7026,11 +7826,12 @@ const FILE_BASE = {
   boss2: ["boss_termometro.py", "boss_thermometer.py"], for: ["for.py", "for.py"], step: ["passo.py", "step.py"],
   rangeq: ["prevedi_range.py", "predict_range.py"], count: ["contare.py", "counting.py"], list: ["liste.py", "lists.py"],
   listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"], best: ["il_migliore.py", "the_best.py"],
-  index: ["posizioni.py", "positions.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
+  index: ["posizioni.py", "positions.py"], grid: ["griglie.py", "grids.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
   ripasso3: ["ripasso.py", "review.py"], build3: ["costruisci_gioco.py", "build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
   str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"], builtins: ["funzioni_pronte.py", "ready_made_functions.py"],
   def0: ["def.py", "def.py"], params: ["parametri.py", "parameters.py"], def: ["return.py", "return.py"],
-  retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], ripasso4: ["ripasso.py", "review.py"],
+  retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], pgzwin: ["finestra.py", "window.py"], pgzkeys: ["tasti.py", "keys.py"],
+  pgzclick: ["clic_e_tempo.py", "clicks_and_time.py"], ripasso4: ["ripasso.py", "review.py"],
   build4a: ["costruisci_verdetto.py", "build_verdict.py"], build4: ["costruisci_partita.py", "build_play.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
   dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
   try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], imports: ["importare.py", "importing.py"], math: ["moduli_math.py", "math_module.py"],
@@ -7038,27 +7839,37 @@ const FILE_BASE = {
   boss5: ["boss_rubrica.py", "boss_phonebook.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
   classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
   ripasso6: ["grande_ripasso.py", "big_review.py"], build6a: ["costruisci_giocatore.py", "build_player.py"], final: ["sfida_finale.py", "final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
-  pip: ["pip_install.py", "pip_install.py"], numpy: ["numpy.py", "numpy.py"], plot: ["grafici.py", "charts.py"]
+  pip: ["pip_install.py", "pip_install.py"], build7: ["costruisci_colori.py", "build_colours.py"], numpy: ["numpy.py", "numpy.py"], plot: ["grafici.py", "charts.py"]
 };
 const FILES = {};
-for (const w of WORLDS) w.levels.forEach((id, k) => {
-  FILES[id] = FILE_BASE[id].map((f) => (f.startsWith("boss_") ? f : String(k + 1).padStart(2, "0") + "_" + f));
-});
+/* a project's build level can have file names of its own (file: [Italian, English]) */
+function nameFiles(byId) {
+  for (const w of WORLDS) w.levels.forEach((id, k) => {
+    const own = (byId && byId[id] && byId[id].file) || FILE_BASE[id];
+    FILES[id] = own.map((f) => (f.startsWith("boss_") ? f : String(k + 1).padStart(2, "0") + "_" + f));
+  });
+}
+nameFiles(null);
 /* Normalise: a fixed expected output becomes a function; an "order" level's solution is its lines; a part of the
    game starts from the solution of the part before (the app uses the learner's own code when there is one) */
-const LESSON_FROM = Object.fromEntries(LESSONS.map((l) => [l.id, l]));
-for (const l of LESSONS) for (const lang of ["it", "en"]) {
-  const d = l[lang];
-  if (typeof d.expect === "string") { const v = d.expect; d.expect = () => v; }
-  if (l.kind === "order" && !d.solution) d.solution = d.lines.join("\n");
-  if (l.from && d.starter === undefined) d.starter = LESSON_FROM[l.from][lang].solution + "\n\n";
+function readyLessons(list) {
+  const byId = Object.fromEntries(list.map((l) => [l.id, l]));
+  for (const l of list) for (const lang of ["it", "en"]) {
+    const d = l[lang];
+    if (typeof d.expect === "string") { const v = d.expect; d.expect = () => v; }
+    if (l.kind === "order" && !d.solution) d.solution = d.lines.join("\n");
+    if (l.from && d.starter === undefined) d.starter = byId[l.from][lang].solution + "\n\n";
+  }
+  return byId;
 }
+const LESSON_FROM = readyLessons(LESSONS);
 
 /* ---------- The projects: what the learner builds along the whole path ----------
    Chosen at the start ("Cosa vuoi costruire?") and changeable later. A project isn't one level: it grows a part at a
    time in the build levels of every folder, as long as the lessons have something new to give it, and each part
    uses only what has been explained by then. "Indovina il numero" lives in the terminal; the other games start in
-   the terminal and move to a Pygame Zero window in 04. ready: its parts are in the course. diff: 1 easy - 3 hard. */
+   the terminal and move to a Pygame Zero window in 04, where everyone learns the window. ready: its parts are in the
+   course. diff: 1 easy - 3 hard. */
 const PROJECTS = [
   { id: "guess", kind: "game", ready: true, diff: 1, where: "term", color: "#1f8a5b",
     it: { name: "Indovina il numero", tag: "Il computer pensa un numero e tu provi a indovinarlo, con gli indizi «più alto» e «più basso». Tutto nel terminale.",
@@ -7111,36 +7922,24 @@ const PROJECT_BY_ID = Object.fromEntries(PROJECTS.map((p) => [p.id, p]));
 /* ---------- The parts map: the same eleven slots for every project ----------
    Where each part sits in the course (folder and build level) and the common rule of what it adds: 00-03 in the
    terminal, 04 functions and then the Pygame Zero window, 05 chance, dictionaries and records, 06 classes and the full
-   game, 07 the project on your own computer. A part uses only what the course has explained up to its level. */
+   game, 07 a library installed with pip (rich for the colours, pgzero to play on your computer). A part uses only
+   what the course has explained up to its level. */
 const PART_SLOTS = [
   { id: "p0", w: 0, level: "build0" }, { id: "p1", w: 1, level: "build1" }, { id: "p2", w: 2, level: "build2" },
   { id: "p3", w: 3, level: "build3" }, { id: "p4", w: 4, level: "build4a" }, { id: "p5", w: 4, level: "build4" },
   { id: "p6", w: 5, level: "build5a" }, { id: "p7", w: 5, level: "build5" }, { id: "p8", w: 6, level: "build6a" },
-  { id: "p9", w: 6, level: "final" }, { id: "p10", w: 7, level: null }
+  { id: "p9", w: 6, level: "final" }, { id: "p10", w: 7, level: "build7" }
 ];
 /* the common rule, folder by folder */
 const PART_RULE = {
   it: ["Nel terminale, solo con print", "Variabili, conti e input", "Le regole con if", "Liste e cicli: la partita a turni",
-    "Funzioni, poi la finestra", "Il caso, dizionari e record", "Classi: il gioco completo", "Sul tuo computer"],
+    "Funzioni, poi la finestra", "Il caso, dizionari e record", "Classi: il gioco completo", "Le librerie, con pip"],
   en: ["In the terminal, just with print", "Variables, sums and input", "The rules with if", "Lists and loops: a turn-based game",
-    "Functions, then the window", "Chance, dictionaries and records", "Classes: the full game", "On your computer"]
+    "Functions, then the window", "Chance, dictionaries and records", "Classes: the full game", "Libraries, with pip"]
 };
-/* lessons the projects need that the course doesn't have yet (they come with the course built on projects) */
-const PROJECT_LESSONS = [
-  { w: 3, after: "index", it: ["Liste di liste: le griglie", "griglia[riga][colonna], e due for uno dentro l'altro per stamparla"],
-    en: ["Lists of lists: grids", "grid[row][column], and two nested for loops to print it"] },
-  { w: 4, after: "fcall", it: ["La finestra del gioco", "import pgzrun, WIDTH e HEIGHT, draw(), screen.fill, Rect e screen.draw, pgzrun.go()"],
-    en: ["The game window", "import pgzrun, WIDTH and HEIGHT, draw(), screen.fill, Rect and screen.draw, pgzrun.go()"] },
-  { w: 4, after: "fcall", it: ["Tasti e movimento", "update(), keyboard, on_key_down(key) e global"],
-    en: ["Keys and movement", "update(), keyboard, on_key_down(key) and global"] },
-  { w: 4, after: "fcall", it: ["Clic e tempo", "on_mouse_down(pos) e clock.schedule_interval"],
-    en: ["Clicks and time", "on_mouse_down(pos) and clock.schedule_interval"] },
-  { w: 7, after: "pip", it: ["Costruisci: il progetto sul tuo computer", "la parte 10 di ogni progetto"],
-    en: ["Build: your project on your computer", "part 10 of every project"] }
-];
 /* What every part adds, one line each: [title, what it adds]. built: the parts already in the course. */
 const PROJECT_PARTS = {
-  guess: { built: ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"],
+  guess: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["La copertina", "Il titolo del gioco e le regole, stampati con print e qualche simbolo."],
       ["Il primo tentativo", "Chiedi il nome e un numero, poi stampa la distanza dal segreto e i punti."],
       ["Il verdetto", "Con if, elif ed else dici «più alto», «più basso» o «giusto»; un numero fuori dal campo vale 0."],
@@ -7349,6 +8148,17 @@ const PROJECT_PARTS = {
       ["On your computer", "With pip install pgzero your Tetris runs on your computer too, with the same code."]] }
 };
 
+/* ---------- Every project's build levels ----------
+   The course has one build level per slot (build0, build1 ... final, build7): what's in it depends on the project.
+   PROJECT_BUILDS[project][slot level] is that project's lesson for the slot, with the same id, so stars, unlocking
+   and the path don't change when the project does; drafts and the code that passed are kept per project. The
+   lessons in LESSONS are "Indovina il numero"'s; a project without a lesson for a slot keeps that one. */
+const SLOT_LEVELS = PART_SLOTS.map((sl) => sl.level);
+const PROJECT_BUILDS = { guess: Object.fromEntries(SLOT_LEVELS.map((id) => [id, LESSON_FROM[id]])) };
+/* adds a project's build lessons (a file per project, after this one): they start from the parts before them */
+function addProjectBuilds(project, lessons) { PROJECT_BUILDS[project] = readyLessons(lessons); }
+
+
 
 /* ================= Content (no DOM access in this block) ================= */
 
@@ -7556,11 +8366,16 @@ const CHEAT = [
   [`lista = [1, 2, 3]`, "lista", "list"],
   [`lista.append(4)`, "aggiunge in fondo", "adds at the end"],
   [`len(lista)`, "quanti elementi", "how many items"],
+  [`griglia[r][c]`, "casella di una lista di liste", "a square of a list of lists"],
   [`d = {"a": 1}`, "dizionario", "dictionary"],
   [`def f(n):`, "crea una funzione", "defines a function"],
   [`return n * 2`, "restituisce un valore", "gives back a value"],
   [`try:  /  except:`, "gestisce gli errori", "handles errors"],
-  [`import random`, "carica un modulo", "loads a module"]
+  [`import random`, "carica un modulo", "loads a module"],
+  [`def draw():`, "Pygame Zero: disegna la finestra", "Pygame Zero: draws the window"],
+  [`def update():`, "Pygame Zero: 60 volte al secondo", "Pygame Zero: 60 times a second"],
+  [`global x`, "una funzione cambia la x di fuori", "a function changes the x outside"],
+  [`from rich import print`, "print con i colori: [red]…[/red]", "print with colours: [red]…[/red]"]
 ];
 
 const UI = {
@@ -7637,6 +8452,8 @@ const UI = {
     pipInstalling: (p) => `Installazione di ${p}…`, pipDone: (p) => `Installato: ${p}. Ora puoi importarlo.`,
     pipFail: "Non sono riuscito a installarlo. Funziona con le librerie scritte solo in Python o già preparate per il browser; controlla anche che il nome sia giusto.",
     pipBasic: "pip install funziona solo nella versione completa: blfrlrnz.github.io/Coding_gym",
+    pipHint: (m) => `Questa libreria non è installata: nel terminale qui sotto scrivi pip install ${m}, poi esegui di nuovo.`,
+    pipAgain: (p) => `Python è ripartito: reinstallo ${p}, che avevi installato con pip…`,
     termEyebrow: "Terminale", termHeading: "Python interattivo",
     termIntro: "<p>Scrivi un comando dopo <code>&gt;&gt;&gt;</code> e premi Invio: Python lo esegue subito. Se un comando finisce con i due punti, il terminale aspetta le righe successive; premi Invio su una riga vuota per eseguire.</p>",
     tutTitle: "Tutorial guidato", tutDesc: (n) => `${n} passi, circa 5 minuti: impari a usare il terminale scrivendo i tuoi primi comandi.`,
@@ -7654,6 +8471,7 @@ const UI = {
     noteFull: "Python vero (Pyodide) che gira sul tuo dispositivo, senza installare nulla. I progressi restano salvati in questo browser.",
     imgAlt: "Grafico creato dal programma",
     gameClose: "Chiudi il gioco", gameFocus: "Clicca sul gioco per usare i tasti",
+    sCloseCheck: "Chiudi e verifica", sCheckShort: "Verifica", gameCloseCheck: "Chiudi il gioco: poi la verifica ci gioca da sola",
     gameAria: (n) => `Schermo del gioco «${n}»: clicca qui per usare i tasti`, stageAria: (n) => `Gioco «${n}»`,
     sPause: "Pausa", sResume: "Riprendi", sRestart: "Ricomincia", sFull: "Schermo intero", sWindow: "Riduci", sClose: "Chiudi",
     sPaused: "In pausa", sError: "Errore", sErrLine: (n) => `Errore alla riga ${n}`, sGoLine: (n) => `Vai alla riga ${n}`,
@@ -7682,7 +8500,9 @@ const UI = {
     gameHook: "Le funzioni del gioco hanno parametri dai nomi fissi: update(dt), on_key_down(key), on_mouse_down(pos, button)… Usa quei nomi, oppure nessun parametro.",
     gamePos: "Una posizione si scrive come coppia di numeri tra parentesi: (x, y).",
     gameSize: "WIDTH e HEIGHT sono la larghezza e l'altezza della finestra: due numeri da 1 a 2000.",
-    gameMissing: "Immagini, suoni e Actor in Arcode non ci sono ancora: disegna con screen.draw (rect, circle, line, text)."
+    gameMissing: "Immagini, suoni e Actor in Arcode non ci sono ancora: disegna con screen.draw (rect, circle, line, text).",
+    gameClock: "All'orologio va dato il nome della funzione, senza parentesi: clock.schedule_interval(conta, 1). Con le parentesi la chiami subito, e all'orologio arriva solo il suo risultato.",
+    gameKeyboard: "keyboard conosce i tasti con il loro nome inglese: keyboard.left, keyboard.right, keyboard.space, keyboard.a..."
   },
   en: {
     title: "Arcode",
@@ -7757,6 +8577,8 @@ const UI = {
     pipInstalling: (p) => `Installing ${p}…`, pipDone: (p) => `Installed: ${p}. You can import it now.`,
     pipFail: "I couldn't install it. It works with libraries written only in Python or already built for the browser; also check that the name is right.",
     pipBasic: "pip install only works in the full version: blfrlrnz.github.io/Coding_gym",
+    pipHint: (m) => `This library isn't installed: in the terminal below type pip install ${m}, then run again.`,
+    pipAgain: (p) => `Python restarted: installing ${p} again, which you had installed with pip…`,
     termEyebrow: "Terminal", termHeading: "Interactive Python",
     termIntro: "<p>Type a command after <code>&gt;&gt;&gt;</code> and press Enter: Python runs it right away. If a command ends with a colon, the terminal waits for the next lines; press Enter on an empty line to run it.</p>",
     tutTitle: "Guided tutorial", tutDesc: (n) => `${n} steps, about 5 minutes: learn the terminal by typing your first commands.`,
@@ -7774,6 +8596,7 @@ const UI = {
     noteFull: "Real Python (Pyodide) running on your device, with nothing to install. Your progress stays saved in this browser.",
     imgAlt: "Chart created by the program",
     gameClose: "Close the game", gameFocus: "Click the game to use the keys",
+    sCloseCheck: "Close and check", sCheckShort: "Check", gameCloseCheck: "Close the game: then the check plays it by itself",
     gameAria: (n) => `Game screen "${n}": click here to use the keys`, stageAria: (n) => `Game "${n}"`,
     sPause: "Pause", sResume: "Resume", sRestart: "Restart", sFull: "Full screen", sWindow: "Exit full screen", sClose: "Close",
     sPaused: "Paused", sError: "Error", sErrLine: (n) => `Error on line ${n}`, sGoLine: (n) => `Go to line ${n}`,
@@ -7802,7 +8625,9 @@ const UI = {
     gameHook: "The game's functions have parameters with fixed names: update(dt), on_key_down(key), on_mouse_down(pos, button)… Use those names, or no parameters.",
     gamePos: "A position is written as a pair of numbers in brackets: (x, y).",
     gameSize: "WIDTH and HEIGHT are the window's width and height: two numbers from 1 to 2000.",
-    gameMissing: "Images, sounds and Actor aren't in Arcode yet: draw with screen.draw (rect, circle, line, text)."
+    gameMissing: "Images, sounds and Actor aren't in Arcode yet: draw with screen.draw (rect, circle, line, text).",
+    gameClock: "The clock must be given the function's name, without brackets: clock.schedule_interval(count, 1). With brackets you call it straight away, and the clock only gets its result.",
+    gameKeyboard: "keyboard knows the keys by their English name: keyboard.left, keyboard.right, keyboard.space, keyboard.a..."
   }
 };
 
@@ -7819,9 +8644,9 @@ const ERR_HINTS = {
     AttributeError: "Questo tipo di valore non ha il metodo che stai usando. Controlla il nome dopo il punto.",
     TimeoutError: "Il programma girava da troppo tempo. Forse c'è un ciclo infinito: controlla che la condizione del while prima o poi diventi falsa.",
     RecursionError: "Una funzione continua a chiamare se stessa senza mai fermarsi.",
-    UnboundLocalError: "Stai usando una variabile dentro una funzione prima di averle dato un valore.",
+    UnboundLocalError: "Dentro una funzione stai usando una variabile prima di averle dato un valore. Se è una variabile di fuori che la funzione deve cambiare, scrivi global e il suo nome nella prima riga della funzione.",
     ImportError: "Questo modulo non è disponibile qui.",
-    ModuleNotFoundError: "Questo modulo non è disponibile qui."
+    ModuleNotFoundError: "Questo modulo qui non c'è: controlla come l'hai scritto."
   },
   en: {
     NameError: "Python doesn't know this name. Check that it's spelled exactly as when you created it, or that text is inside quotes.",
@@ -7835,9 +8660,9 @@ const ERR_HINTS = {
     AttributeError: "This kind of value doesn't have the method you're using. Check the name after the dot.",
     TimeoutError: "The program ran for too long. Maybe there's an infinite loop: check that the while condition eventually becomes false.",
     RecursionError: "A function keeps calling itself and never stops.",
-    UnboundLocalError: "You're using a variable inside a function before giving it a value.",
+    UnboundLocalError: "Inside a function you're using a variable before giving it a value. If it's a variable outside that the function must change, write global and its name on the function's first line.",
     ImportError: "This module isn't available here.",
-    ModuleNotFoundError: "This module isn't available here."
+    ModuleNotFoundError: "This module isn't here: check how you spelled it."
   }
 };
 
@@ -7940,7 +8765,7 @@ function highlight(src) {
   return out + escHtml(src.slice(last));
 }
 function norm(s) {
-  return String(s).replace(/\r/g, "").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trim();
+  return String(s).replace(/\r/g, "").replace(/\x1b\[[0-9;]*m/g, "").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").trim();
 }
 /* Builds the code that silently replays earlier terminal input before the new code runs */
 const SENT = "__PALESTRA_MARK__";
@@ -7997,6 +8822,50 @@ const LESSON_BY_ID = {};
 for (const l of LESSONS) LESSON_BY_ID[l.id] = l;
 const LEVELS = [];
 WORLDS.forEach((w, wi) => w.levels.forEach((id, n) => LEVELS.push({ id, w: wi, n, boss: !!LESSON_BY_ID[id].boss })));
+/* The project being built decides what's in the build levels: that project's lessons go in the slots (same ids, so
+   the path, the stars and the unlocking don't move; titles, tasks, checks and file names change). A project
+   without its own lesson for a slot keeps "Indovina il numero"'s. Gives back the project now in the slots. */
+for (const id of SLOT_LEVELS) LESSON_BY_ID[id].project = "guess";
+let PROJECT_NOW = "guess";
+function useProject(id) {
+  const now = PROJECT_BUILDS[id] ? id : "guess";
+  for (const slot of SLOT_LEVELS) {
+    const l = PROJECT_BUILDS[now][slot] || PROJECT_BUILDS.guess[slot];
+    l.project = PROJECT_BUILDS[now][slot] ? now : "guess";
+    LESSON_BY_ID[slot] = l;
+    const at = LESSONS.findIndex((x) => x.id === slot);
+    if (at >= 0) LESSONS[at] = l;
+  }
+  nameFiles(LESSON_BY_ID);
+  PROJECT_NOW = now;
+  return now;
+}
+/* Where a level's draft and passed code are kept: per project for the build levels, since each project has its own */
+const codeKey = (id, lang) => lang + ":" + (LESSON_BY_ID[id] && LESSON_BY_ID[id].project ? LESSON_BY_ID[id].project + ":" : "") + id;
+/* The drafts of a saved state from an older version of the course, brought up to this one (in place): the levels
+   whose task changed lose them and their attempts ("build3" for every project, "snake:build3" for one), and from
+   version 7 every project keeps its own drafts of the build levels (the ones before were "Indovina il numero"'s).
+   Before version 2 every task changed, so nothing is kept. */
+function upgradeDrafts(st) {
+  for (const k of ["code", "codeAt", "won", "attempt"]) if (!st[k] || typeof st[k] !== "object" || Array.isArray(st[k])) st[k] = {};
+  const old = st.courseVer;
+  if (!(old >= 2)) { st.code = {}; st.codeAt = {}; st.won = {}; st.attempt = {}; return st; }
+  const drop = (entry) => {
+    const [proj, id] = entry.includes(":") ? entry.split(":") : [null, entry];
+    for (const lang of ["it", "en"]) {
+      const keys = PROJECTS.filter((p) => !proj || p.id === proj).map((p) => lang + ":" + p.id + ":" + id);
+      if (!proj) keys.push(lang + ":" + id);
+      for (const k of keys) { delete st.code[k]; delete st.codeAt[k]; delete st.won[k]; }
+    }
+    delete st.attempt[id];
+  };
+  const move = (from, to) => {
+    for (const box of [st.code, st.codeAt, st.won]) if (from in box) { if (!(to in box)) box[to] = box[from]; delete box[from]; }
+  };
+  for (let v = old + 1; v <= COURSE_VER; v++) for (const entry of COURSE_CHANGED[v] || []) drop(entry);
+  if (old < 7) for (const id of SLOT_LEVELS) for (const lang of ["it", "en"]) move(lang + ":" + id, lang + ":guess:" + id);
+  return st;
+}
 
 /* Bytes: the XP of the gym */
 const STAR_BYTES = 32, FIRST_BYTES = 64, BOSS_BYTES = 128;
@@ -8450,14 +9319,16 @@ function mergeStates(local, incoming) {
   out.bytes = Math.max(totalBytes(out.stars), 0);
   out.code = Object.assign({}, out.code || {});
   out.codeAt = Object.assign({}, out.codeAt || {});
-  /* drafts from an older version of the course belong to tasks that have changed */
-  const incCode = inc.courseVer === COURSE_VER ? inc.code || {} : {};
+  /* drafts from an older version of the course come up to this one first (those of changed tasks go); a newer
+     version's are left alone */
+  const up = inc.courseVer <= COURSE_VER ? upgradeDrafts(JSON.parse(JSON.stringify({ courseVer: inc.courseVer, code: inc.code, codeAt: inc.codeAt, won: inc.won }))) : null;
+  const incCode = up ? up.code : {};
   for (const k in incCode) {
-    const mine = out.codeAt[k] || 0, theirs = (inc.codeAt || {})[k] || 0;
+    const mine = out.codeAt[k] || 0, theirs = up.codeAt[k] || 0;
     if (out.code[k] === undefined || theirs > mine) { out.code[k] = incCode[k]; out.codeAt[k] = theirs; }
   }
   /* the code that passed each level: what's already there stays, the rest comes in */
-  out.won = Object.assign({}, inc.courseVer === COURSE_VER ? inc.won || {} : {}, out.won || {});
+  out.won = Object.assign({}, up ? up.won : {}, out.won || {});
   const progs = new Map((out.programs || []).map((p) => [p.id, p]));
   for (const p of inc.programs || []) {
     if (!p || typeof p.code !== "string") continue;
@@ -8588,7 +9459,7 @@ const storeKey = () => stateKeyFor(ACC.current);
 function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
-  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null });
+  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [] });
 let S = DEFAULTS();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
@@ -8601,21 +9472,19 @@ function sanitize() {
   if (!(S.bytes >= 0)) S.bytes = 0;
   /* the project: one that exists and is ready; whoever already had progress was building "Indovina il numero" */
   if (!(PROJECT_BY_ID[S.project] && PROJECT_BY_ID[S.project].ready)) S.project = Object.keys(S.stars).length ? "guess" : null;
+  /* its lessons go in the build levels ("Indovina il numero"'s until one is chosen) */
+  useProject(S.project || "guess");
   if (!S.codeAt || typeof S.codeAt !== "object") S.codeAt = {};
+  if (!Array.isArray(S.pip)) S.pip = [];
+  S.pip = S.pip.filter((x) => typeof x === "string" && /^[\w.\-\[\]=<>!~]{1,60}$/.test(x)).slice(-20);
   /* A new version of the course: stars stay, but drafts and attempts of the changed tasks go. Before version 2
      every task changed; after it, COURSE_CHANGED lists the levels of each version */
   let moved = false;
   if (S.courseVer !== COURSE_VER) {
     const old = S.courseVer;
-    if (!(old >= 2)) {
-      moved = old !== undefined || Object.keys(S.code).length > 0 || Object.keys(S.stars).length > 0;
-      if (moved) { S.code = {}; S.codeAt = {}; S.attempt = {}; S.won = {}; S.curId = null; }
-    } else {
-      for (let v = old + 1; v <= COURSE_VER; v++) for (const id of COURSE_CHANGED[v] || []) {
-        for (const lang of ["it", "en"]) { delete S.code[lang + ":" + id]; delete S.codeAt[lang + ":" + id]; delete S.won[lang + ":" + id]; }
-        delete S.attempt[id];
-      }
-    }
+    moved = !(old >= 2) && (old !== undefined || Object.keys(S.code).length > 0 || Object.keys(S.stars).length > 0);
+    if (moved) S.curId = null;
+    if (!(old > COURSE_VER)) upgradeDrafts(S);
     S.courseVer = COURSE_VER;
   }
   /* bytes always follow from the stars (first pass + every star), so they can't drift */
@@ -8663,7 +9532,10 @@ const isOrder = () => S.mode === "lessons" && item().kind === "order";
 const noEditor = () => isQuiz() || isOrder();
 const activeProgram = () => S.programs.find((p) => p.id === S.active) || S.programs[0];
 const termFocus = () => S.view === "lab" && ui.labFocus === "term";
-function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && S.stars[LEVELS[i].id]) i++; return i; }
+/* On basic Python (Skulpt, when the full one can't load) the levels that need the full one don't block the path */
+let skipFull = false;
+const passable = (lv) => !!S.stars[lv.id] || (skipFull && LESSON_BY_ID[lv.id].needs === "full");
+function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && passable(LEVELS[i])) i++; return i; }
 /* Levels open in order; a level already completed always stays open (new levels can appear before it) */
 const unlocked = (k) => k <= maxUnlocked() || !!S.stars[LEVELS[k].id];
 const worldMascot = (lv) => lv.boss ? "papera" : WORLDS[lv.w].mascot;
@@ -8764,7 +9636,7 @@ function updateFileName() {
 }
 /* A part of the game starts from the part before: the learner's own code, if they passed it, else its solution */
 function ownCarry(id) {
-  const from = LESSON_BY_ID[id].from, own = from && S.stars[from] ? S.won[S.lang + ":" + from] : null;
+  const from = LESSON_BY_ID[id].from, own = from && S.stars[from] ? S.won[codeKey(from, S.lang)] : null;
   return typeof own === "string" && own.trim() ? own : null;
 }
 function starterFor(id) {
@@ -8776,7 +9648,7 @@ function loadEditor() {
   if (S.mode === "free") code.value = activeProgram().code;
   else if (noEditor()) code.value = "";
   else {
-    const key = S.lang + ":" + level().id;
+    const key = codeKey(level().id, S.lang);
     code.value = S.code[key] !== undefined ? S.code[key] : starterFor(level().id);
   }
   errLine = 0;
@@ -8787,7 +9659,7 @@ function loadEditor() {
 function persistEditor() {
   if (S.mode === "free") { const p = activeProgram(); if (p && p.code !== code.value) { p.code = code.value; p.mtime = Date.now(); } }
   else if (!noEditor()) {
-    const k = S.lang + ":" + level().id;
+    const k = codeKey(level().id, S.lang);
     if (S.code[k] !== code.value) { S.code[k] = code.value; S.codeAt[k] = Date.now(); }
   }
   save();
@@ -8908,13 +9780,69 @@ symbar.addEventListener("click", (e) => {
 
 /* ---------- Terminal ---------- */
 function scrollTerm() { term.scrollTop = term.scrollHeight; }
-function termWrite(text, cls) {
+function termWrite(text, cls, css) {
   if (!text) return;
-  if (cls) { const sp = document.createElement("span"); sp.className = cls; sp.textContent = text; term.appendChild(sp); }
+  if (cls || css) { const sp = document.createElement("span"); if (cls) sp.className = cls; if (css) sp.style.cssText = css; sp.textContent = text; term.appendChild(sp); }
   else term.appendChild(document.createTextNode(text));
   lastChar = text[text.length - 1];
   while (term.childNodes.length > 6000 && term.firstChild !== promptRow) term.removeChild(term.firstChild);
   scrollTerm();
+}
+/* Colours in a program's output, as in a real terminal: the ANSI codes that rich, colorama and the like write.
+   The state carries over from one write to the next, and starts again with every program; an escape cut in two by
+   the writes waits for its other half. */
+const ANSI_COLS = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+let ansi = null, ansiCarry = "";
+const ansiReset = () => { ansi = null; ansiCarry = ""; };
+function termOut(text, cls) {
+  text = ansiCarry + text; ansiCarry = "";
+  if (!ansi && !text.includes("\x1b")) { termWrite(text, cls); return; }
+  text = text.replace(/\x1b\][^\x07\x1b]*(\x07|\x1b\\)/g, "");   /* links and window titles: not shown */
+  const cut = /\x1b(\[[0-9;]*)?$/.exec(text);
+  if (cut) { ansiCarry = cut[0]; text = text.slice(0, cut.index); }
+  const re = /\x1b\[([0-9;]*)([A-Za-z])/g;
+  let at = 0, m;
+  while ((m = re.exec(text))) {
+    if (m.index > at) ansiWrite(text.slice(at, m.index), cls);
+    if (m[2] === "m") ansiSgr(m[1]);
+    at = re.lastIndex;
+  }
+  if (at < text.length) ansiWrite(text.slice(at).replace(/\x1b/g, ""), cls);
+}
+/* 256 colours: the 16 named ones, a 6x6x6 cube, 24 greys */
+function ansi256(n) {
+  if (!(n >= 0 && n <= 255)) return null;
+  if (n < 16) return null;
+  if (n >= 232) { const v = 8 + (n - 232) * 10; return `rgb(${v},${v},${v})`; }
+  const k = n - 16, c = (x) => (x ? 55 + x * 40 : 0);
+  return `rgb(${c(Math.floor(k / 36))},${c(Math.floor(k / 6) % 6)},${c(k % 6)})`;
+}
+function ansiSgr(params) {
+  const ps = params === "" ? [0] : params.split(";").map((x) => parseInt(x, 10) || 0);
+  const a = ansi || {};
+  for (let i = 0; i < ps.length; i++) {
+    const p = ps[i];
+    if (p === 0) for (const k of Object.keys(a)) delete a[k];
+    else if (p === 1) a.b = 1; else if (p === 2) a.d = 1; else if (p === 3) a.i = 1; else if (p === 4) a.u = 1; else if (p === 7) a.r = 1;
+    else if (p === 22) { delete a.b; delete a.d; } else if (p === 23) delete a.i; else if (p === 24) delete a.u; else if (p === 27) delete a.r;
+    else if ((p >= 30 && p <= 37) || (p >= 90 && p <= 97)) { a.fg = (p >= 90 ? "ab-" : "a-") + ANSI_COLS[p % 10]; delete a.fgc; }
+    else if ((p >= 40 && p <= 47) || (p >= 100 && p <= 107)) { a.bg = "ak-" + ANSI_COLS[p % 10]; delete a.bgc; }
+    else if (p === 39) { delete a.fg; delete a.fgc; } else if (p === 49) { delete a.bg; delete a.bgc; }
+    else if (p === 38 || p === 48) {
+      const fg = p === 38, named = ps[i + 1] === 5 && ps[i + 2] < 16 ? ps[i + 2] : -1;
+      const css = ps[i + 1] === 5 ? ansi256(ps[i + 2]) : ps[i + 1] === 2 ? `rgb(${ps[i + 2] & 255},${ps[i + 3] & 255},${ps[i + 4] & 255})` : null;
+      i += ps[i + 1] === 5 ? 2 : ps[i + 1] === 2 ? 4 : 0;
+      if (named >= 0) { if (fg) { a.fg = (named >= 8 ? "ab-" : "a-") + ANSI_COLS[named % 8]; delete a.fgc; } else { a.bg = "ak-" + ANSI_COLS[named % 8]; delete a.bgc; } }
+      else if (css) { if (fg) { a.fgc = css; delete a.fg; } else { a.bgc = css; delete a.bg; } }
+    }
+  }
+  ansi = Object.keys(a).length ? a : null;
+}
+function ansiWrite(text, cls) {
+  const a = ansi;
+  if (!a) { termWrite(text, cls); return; }
+  const c = [cls, a.fg, a.bg, a.b && "a-bold", a.d && "a-dim", a.i && "a-it", a.u && "a-ul", a.r && "a-rev"].filter(Boolean).join(" ");
+  termWrite(text, c, (a.fgc ? "color:" + a.fgc + ";" : "") + (a.bgc ? "background:" + a.bgc : ""));
 }
 function termImage(b64) {
   newline();
@@ -9080,7 +10008,7 @@ function startWorker(url) {
     const timer = setTimeout(() => settle(false), 120000);
     w.onmessage = (e) => {
       const m = e.data;
-      if (m.t === "ready") { worker = w; pyVersion = m.version; w.onmessage = onWorkerMessage; w.onerror = onWorkerError; settle(true); }
+      if (m.t === "ready") { worker = w; pyVersion = m.version; pipHere = new Set(); w.onmessage = onWorkerMessage; w.onerror = onWorkerError; settle(true); }
       else if (m.t === "fail") settle(false);
     };
     w.onerror = (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); settle(false); };
@@ -9101,7 +10029,8 @@ function handleEmit(kind, text) {
   /* while a game window is open, what the game prints goes under its window */
   if (gameNow) { if (kind !== "img") gameNow.outBuf += text; return; }
   if (kind === "img") { termImage(text); return; }
-  termWrite(text, kind === "err" ? "err" : kind === "echo" ? "typed" : null);
+  if (kind === "echo") termWrite(text, "typed");
+  else termOut(text, kind === "err" ? "err" : null);
 }
 function finishCall(id, res) {
   if (!pendingCall || (id != null && pendingCall.id !== id)) return;
@@ -9133,6 +10062,7 @@ async function restartWorker(announce) {
 /* Runs code; when the program asks for input, it asks here and runs again with the answers so far */
 /* Hidden tests pass their answers up front (preset): a test that asks for more just fails */
 async function pyExec(src, filename, mode, { silent = false, inputs: preset = null } = {}) {
+  await ensurePip(src, silent);
   const seed = rnd(), inputs = preset ? preset.slice() : [];
   let skip = 0;
   for (;;) {
@@ -9278,7 +10208,8 @@ function report(res, mode, fromEditor) {
     return "stopped";
   }
   if (res.status === "reset") { termWrite(t("replReset") + "\n", "dim"); return "reset"; }
-  if (res.status !== "error") return "ok";
+  /* a run that works takes away the mark of the error before (after a pip install the code doesn't change) */
+  if (res.status !== "error") { if (fromEditor && errLine) { errLine = 0; renderGutter(); } return "ok"; }
   const lines = String(res.tb || res.name || "Error").replace(/\s+$/, "").split("\n");
   const last = lines.pop();
   if (lines.length) termWrite(lines.join("\n") + "\n", "dim");
@@ -9294,9 +10225,14 @@ function errHint(name, last) {
   if (/[“”„‟‘’‚‛]/.test(last) || /U\+(201[89ABCDEF])/.test(last)) return t("smartErr");
   if (/U\+(00A0|200[0-9AB]|202F|205F|3000|FEFF)/.test(last) || /non-printable/.test(last)) return t("invisibleErr");
   const g = GAME_ERRS.find(([re]) => re.test(last));
-  return g ? t(g[1]) : ERR_HINTS[S.lang][name] || "";
+  if (g) return t(g[1]);
+  /* a library that isn't installed: the pip line to write, with the name to install (not always the imported one) */
+  const mod = /No module named '([\w.]+)'/.exec(last);
+  if (mod && engine === "pyodide") { const m = mod[1].split(".")[0]; return t("pipHint", PIP_NAMES[m] || m); }
+  return ERR_HINTS[S.lang][name] || "";
 }
-function begin() { running = true; stopReq = false; hidePrompt(); replBuf = []; updateRunUI(); }
+const PIP_NAMES = { PIL: "pillow", sklearn: "scikit-learn", bs4: "beautifulsoup4", yaml: "pyyaml", cv2: "opencv-python", dateutil: "python-dateutil" };
+function begin() { running = true; stopReq = false; hidePrompt(); replBuf = []; ansiReset(); updateRunUI(); }
 function end(refocus) {
   running = false; updateRunUI(); showPrompt();
   if (refocus) focusPrompt();
@@ -9334,7 +10270,8 @@ const GAME_UNI = { Enter: "\r", Backspace: "\b", Tab: "\t", Escape: "\x1b", Dele
 const GAME_ERRS = [
   [/invalid color (name|argument)/, "gameColor"], [/input\(\) can't wait/, "gameInput"], [/requires a rect to draw/, "gameRect"],
   [/\(\) (can only take|takes no parameters)/, "gameHook"], [/must be a pair of numbers/, "gamePos"],
-  [/(WIDTH|HEIGHT) must be a number/, "gameSize"], [/aren't available in Arcode|Actor needs image files/, "gameMissing"]
+  [/(WIDTH|HEIGHT) must be a number/, "gameSize"], [/aren't available in Arcode|Actor needs image files/, "gameMissing"],
+  [/the clock needs a function/, "gameClock"], [/keyboard has no key called/, "gameKeyboard"]
 ];
 let gameNow = null;
 const gameFits = new Map();
@@ -9449,7 +10386,8 @@ function gameTextbox(ctx, text, x, y, w, h, o) {
 }
 function gameFlushOut(g) {
   if (!g.outBuf) return;
-  g.shown = (g.shown + g.outBuf).slice(-GAME_OUT_SHOWN);
+  /* under the game, plain text: the colour codes go */
+  g.shown = (g.shown + g.outBuf.replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")).slice(-GAME_OUT_SHOWN);
   g.outBuf = "";
   const first = g.outEl.hidden;
   g.outEl.textContent = g.shown;
@@ -9580,6 +10518,7 @@ const SICONS = {
   full: '<path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/>',
   win: '<path d="M6 2.5V6H2.5M13.5 6H10V2.5M10 13.5V10h3.5M2.5 10H6v3.5"/>',
   close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+  check: '<path d="M3 8.5l3.2 3.2L13 4.8"/>',
   arrow: '<path d="M8 3.2l5.6 7.6H2.4z" fill="currentColor" stroke="none"/>',
   pad: '<path d="M5.4 4.8h5.2a3.4 3.4 0 0 1 3.3 4.2l-.7 2.7a1.5 1.5 0 0 1-2.6.6L9.4 11H6.6l-1.2 1.3a1.5 1.5 0 0 1-2.6-.6L2.1 9a3.4 3.4 0 0 1 3.3-4.2z"/><path d="M5 6.9v2.2M3.9 8h2.2"/><circle cx="10.8" cy="8" r=".7" fill="currentColor" stroke="none"/>'
 };
@@ -9595,7 +10534,12 @@ function stageLabels() {
   set("pause", paused ? "play" : "pause", t(paused ? "sResume" : "sPause"));
   set("restart", "restart", t("sRestart"));
   set("full", stageMode === "full" ? "win" : "full", t(stageMode === "full" ? "sWindow" : "sFull"));
-  set("close", "close", t("sClose"), t("gameClose"));
+  /* on a level, closing the game is what starts the check: the button says so */
+  const checks = !!(lastRun && lastRun.lessonCheck && g);
+  set("close", checks ? "check" : "close", t(checks ? "sCloseCheck" : "sClose"), t(checks ? "gameCloseCheck" : "gameClose"));
+  const cb = stageQ('[data-s="close"]');
+  cb.classList.toggle("checks", checks);
+  if (checks) cb.insertAdjacentHTML("beforeend", `<span class="sl-short">${escHtml(t("sCheckShort"))}</span>`);
   set("pad", "pad", t("padToggle"), t("padToggleAria"));
   const padBtn = stageQ('[data-s="pad"]');
   padBtn.hidden = !(g && g.pad);
@@ -10060,13 +11004,34 @@ async function runPip(args) {
     termWrite(t("pipInstalling", pkgs.join(", ")) + "\n", "dim");
     const res = await workerCall({ t: "pip", pkgs });
     newline();
-    if (res.status === "ok") termWrite(t("pipDone", pkgs.join(", ")) + "\n", "pass");
+    if (res.status === "ok") {
+      termWrite(t("pipDone", pkgs.join(", ")) + "\n", "pass");
+      for (const p of pkgs) { pipHere.add(p); S.pip = S.pip.filter((x) => x !== p).concat([p]).slice(-20); }
+      save();
+    }
     else if (res.status === "error") {
       termWrite(String(res.tb || "").trim().split("\n").pop() + "\n", "err");
       termWrite("→ " + t("pipFail") + "\n", "why");
     } else report(res, "repl", false);
   }
   end(true);
+}
+/* What the learner installs with pip stays installed, as on a computer: when Python starts again (Stop, a reload),
+   the first program that imports it installs it again by itself */
+let pipHere = new Set();
+const PIP_IMPORTS = Object.fromEntries(Object.entries(PIP_NAMES).map(([m, p]) => [p, m]));
+async function ensurePip(src, silent) {
+  if (engine !== "pyodide" || !S.pip.length) return;
+  const want = S.pip.filter((p) => {
+    if (pipHere.has(p)) return false;
+    const base = p.split(/[=<>!~[]/)[0], mod = (PIP_IMPORTS[base.toLowerCase()] || base).replace(/-/g, "_");
+    return new RegExp("^[ \\t]*(from|import)[ \\t]+" + mod.replace(/\./g, "\\.") + "\\b", "m").test(src);
+  });
+  if (!want.length) return;
+  if (!silent) { newline(); termWrite(t("pipAgain", want.join(", ")) + "\n", "dim"); }
+  /* once per Python: if it can't be installed now (offline), the import error says what to do */
+  want.forEach((p) => pipHere.add(p));
+  await workerCall({ t: "pip", pkgs: want });
 }
 async function checkLesson(res, src) {
   const L = lesson();
@@ -10080,7 +11045,8 @@ async function checkLesson(res, src) {
     for (const tc of tests) {
       const r = await engineRun(tc.code, "test.py", "test", { silent: true, inputs: tc.inputs || [] });
       if (stopReq) return;
-      if (r.status !== "ok" || !tc.ok(norm(r.out || ""))) {
+      /* ok() sees the output as the learner reads it, and the raw one too (with the colour codes) */
+      if (r.status !== "ok" || !tc.ok(norm(r.out || ""), String(r.out || ""))) {
         /* a game was played by the check: the messages say so, and a game error gets its explanation */
         const gm = tc.game ? "Game" : "", last = String(r.tb || r.name || "").trim().split("\n").pop();
         newline(); termWrite(t("testFail" + gm, tc.desc) + "\n", "fail");
@@ -10095,7 +11061,7 @@ async function checkLesson(res, src) {
   }
   termWrite(t("pass", S.current === LEVELS.length - 1) + "\n", "pass");
   /* the code that passed: the next part of the game starts from it */
-  S.won[S.lang + ":" + level().id] = src;
+  S.won[codeKey(level().id, S.lang)] = src;
   completeLevel();
 }
 /* Shows the learner exactly where their output differs from the required one */
@@ -10797,7 +11763,7 @@ function orderShuffle(lines, seed) {
 function orderInit(L) {
   const id = level().id, shuf = orderShuffle(L.lines, hashStr(id + S.lang));
   const o = { shuf, prog: [], sel: -1, err: 0 };
-  const saved = S.code[S.lang + ":" + id];
+  const saved = S.code[codeKey(id, S.lang)];
   if (typeof saved === "string") {
     const free = shuf.slice();
     for (const raw of saved.split("\n")) {
@@ -10814,7 +11780,7 @@ const orderPool = (o) => { const used = new Set(o.prog.map((p) => p.k)); return 
 const orderCode = (L, o) => o.prog.map((p) => "    ".repeat(p.ind) + L.lines[p.k].trim()).join("\n");
 const orderSolved = (L) => ({ shuf: orderShuffle(L.lines, hashStr(level().id + S.lang)), prog: L.lines.map((ln, k) => ({ k, ind: levelOfIndent(ln) })), sel: -1, err: 0 });
 function orderSave(L) {
-  const key = S.lang + ":" + level().id, v = orderCode(L, ui.order);
+  const key = codeKey(level().id, S.lang), v = orderCode(L, ui.order);
   if (S.code[key] !== v) { S.code[key] = v; S.codeAt[key] = Date.now(); save(); }
 }
 function orderHtml(L, st) {
@@ -11121,11 +12087,20 @@ function pathHtml(p) {
 function chooseProject() {
   const p = PROJECT_BY_ID[PJ.sel];
   if (!p || !p.ready) return;
+  /* the draft on screen stays with the project it was written for */
+  if (S.view === "lessons" && S.mode === "lessons" && !running) persistEditor();
+  const was = PROJECT_NOW;
   S.project = p.id;
+  const now = useProject(p.id);
   save();
   if (S.sound) { sfxUnlock(); SFX.right(); }
   projEl.hidden = true;
   stopPreviews();
+  /* another project: its own build levels take the place of the others' */
+  if (now !== was) {
+    ui.exCode = {}; ui.hint = 0; ui.sol = false; ui.order = null;
+    if (S.view === "lessons" && !running) { renderPanel(); loadEditor(); }
+  }
   if (S.view === "map") renderMap();
   if (!setEl.hidden) renderSettings();
 }
@@ -12029,7 +13004,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "cc58303d36", APP_BUILT = "2026-11-09T13:18Z";
+const APP_VERSION = "dfde3f9ec1", APP_BUILT = "2026-11-09T14:17Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
@@ -12125,7 +13100,7 @@ setInterval(checkUpdate, 15 * 60 * 1000);
   if (ok) { engine = "pyodide"; pyStatus = "full"; }
   else {
     ok = await loadSkulpt();
-    if (ok) { engine = "skulpt"; pyStatus = "basic"; termWrite(t("fallback") + "\n", "dim"); }
+    if (ok) { engine = "skulpt"; pyStatus = "basic"; skipFull = true; termWrite(t("fallback") + "\n", "dim"); }
     else pyStatus = "fail";
   }
   pyReady = ok;
