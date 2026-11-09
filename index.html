@@ -5272,6 +5272,65 @@ print(round(math.pi * radius ** 2, 2))`,
   }
 },
 {
+  id: "imports", teaches: ["fromimport", "as"], sample: [],
+  it: {
+    title: "Tre modi di importare",
+    theory: [
+`<p><code>random</code> e <code>math</code> sono <b>librerie</b>: codice già scritto da altri, pronto da usare (in Python si chiamano anche moduli). Arrivano insieme a Python, come tante altre: tutte insieme formano la <b>libreria standard</b>. Ci sono tre modi di importarle:</p>`,
+{ code: `import math               # tutta la libreria: si scrive math.sqrt
+from math import pi       # solo un pezzo: si scrive pi, senza math.
+import random as rnd      # con un nome corto: si scrive rnd.choice
+
+print(math.sqrt(49))           # 7.0
+print(round(pi, 2))            # 3.14
+print(rnd.choice(["sì", "no"]))  # sì oppure no` },
+`<p>Con <code>from ... import</code> prendi solo i pezzi che ti servono, anche più di uno separati da virgole, e li usi senza il nome della libreria davanti. Con <code>as</code> dai alla libreria un nome più corto: lo vedrai sempre con le librerie esterne, per esempio <code>import numpy as np</code>.</p>
+<p>Per scoprire cosa c'è in una libreria, scrivi nel terminale <code>import math</code> e poi <code>help(math)</code> oppure <code>dir(math)</code>.</p>`],
+    task: `Importa da <code>math</code> soltanto <code>sqrt</code> e <code>pi</code>, e importa <code>random</code> con il nome corto <code>rnd</code>. Poi stampa, una per riga: il lato di un quadrato di area 81, la circonferenza di un cerchio di raggio 5 arrotondata a 2 cifre (2 per pi greco per il raggio) e il tiro di un dado da 1 a 6. Deve uscire <code>9.0</code>, <code>31.42</code> e un numero da 1 a 6. Per controllarlo truccherò il dado.`,
+    starter: `# Tre import, poi tre print\n\n`,
+    solution: `from math import sqrt, pi
+import random as rnd
+
+print(sqrt(81))
+print(round(2 * pi * 5, 2))
+print(rnd.randint(1, 6))`,
+    hints: ["Quale forma di import ti fa scrivere sqrt senza math davanti? E quale dà a random il nome rnd?",
+      "Prima riga: from math import con i due nomi separati da una virgola. Seconda: import random as rnd. Poi i tre print: sqrt di 81, round della circonferenza con 2 cifre, rnd.randint da 1 a 6."],
+    check: (o, c) => { const l = o.split("\n"); return l.length === 3 && l[0] === "9.0" && l[1] === "31.42" && /^[1-6]$/.test(l[2]) && /^\s*from\s+math\s+import\s+[^\n]*\bsqrt\b/m.test(c) && /^\s*from\s+math\s+import\s+[^\n]*\bpi\b/m.test(c) && /^\s*import\s+random\s+as\s+rnd\b/m.test(c) && !/\bmath\s*\./.test(c); },
+    why: (o, c) => (/\bmath\s*\./.test(c) ? "Qui sqrt e pi vanno importati con from math import: così si scrivono senza math. davanti." : /^\s*import\s+random\b(?!\s+as)/m.test(c) ? "Importa random con il nome corto: import random as rnd." : null),
+    tests: (c) => tlist(tcase(RIG("b // 2") + c, (o) => o === "9.0\n31.42\n3", "con il dado truccato doveva uscire 9.0, 31.42 e 3", { rand: true })),
+    expect: (x) => { const last = (x.out || "").split("\n")[2]; return "9.0\n31.42\n" + (/^[1-6]$/.test(last) ? last : "un numero da 1 a 6"); }
+  },
+  en: {
+    title: "Three ways to import",
+    theory: [
+`<p><code>random</code> and <code>math</code> are <b>libraries</b>: code already written by others, ready to use (in Python they're also called modules). They come with Python, like many others: all together they make up the <b>standard library</b>. There are three ways to import them:</p>`,
+{ code: `import math               # the whole library: you write math.sqrt
+from math import pi       # just one piece: you write pi, without math.
+import random as rnd      # with a short name: you write rnd.choice
+
+print(math.sqrt(49))              # 7.0
+print(round(pi, 2))               # 3.14
+print(rnd.choice(["yes", "no"]))  # yes or no` },
+`<p>With <code>from ... import</code> you take only the pieces you need, even more than one separated by commas, and you use them without the library's name in front. With <code>as</code> you give the library a shorter name: you'll always see it with external libraries, for example <code>import numpy as np</code>.</p>
+<p>To find out what's in a library, type in the terminal <code>import math</code> and then <code>help(math)</code> or <code>dir(math)</code>.</p>`],
+    task: `Import from <code>math</code> only <code>sqrt</code> and <code>pi</code>, and import <code>random</code> with the short name <code>rnd</code>. Then print, one per line: the side of a square with area 81, the circumference of a circle with radius 5 rounded to 2 digits (2 times pi times the radius) and a die roll from 1 to 6. The output must be <code>9.0</code>, <code>31.42</code> and a number from 1 to 6. To check it I'll load the die.`,
+    starter: `# Three imports, then three prints\n\n`,
+    solution: `from math import sqrt, pi
+import random as rnd
+
+print(sqrt(81))
+print(round(2 * pi * 5, 2))
+print(rnd.randint(1, 6))`,
+    hints: ["Which form of import lets you write sqrt without math in front? And which one gives random the name rnd?",
+      "First line: from math import with the two names separated by a comma. Second: import random as rnd. Then the three prints: sqrt of 81, round of the circumference with 2 digits, rnd.randint from 1 to 6."],
+    check: (o, c) => { const l = o.split("\n"); return l.length === 3 && l[0] === "9.0" && l[1] === "31.42" && /^[1-6]$/.test(l[2]) && /^\s*from\s+math\s+import\s+[^\n]*\bsqrt\b/m.test(c) && /^\s*from\s+math\s+import\s+[^\n]*\bpi\b/m.test(c) && /^\s*import\s+random\s+as\s+rnd\b/m.test(c) && !/\bmath\s*\./.test(c); },
+    why: (o, c) => (/\bmath\s*\./.test(c) ? "Here sqrt and pi must be imported with from math import: that way you write them without math. in front." : /^\s*import\s+random\b(?!\s+as)/m.test(c) ? "Import random with the short name: import random as rnd." : null),
+    tests: (c) => tlist(tcase(RIG("b // 2") + c, (o) => o === "9.0\n31.42\n3", "with the loaded die the output had to be 9.0, 31.42 and 3", { rand: true })),
+    expect: (x) => { const last = (x.out || "").split("\n")[2]; return "9.0\n31.42\n" + (/^[1-6]$/.test(last) ? last : "a number from 1 to 6"); }
+  }
+},
+{
   id: "comp", teaches: ["comprehension"],
   it: {
     title: "Liste in una riga",
@@ -5357,7 +5416,10 @@ print(rubrica[nome])`, spot: true, correct: 1,
         explain: "Nella rubrica i nomi hanno la maiuscola, e \"ada\" non è \"Ada\": il nome sbagliato nasce alla riga 2, ed è lì che va corretto." },
       { q: "Cosa stampa?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) dà 0, 1, 2, 3; il filtro tiene i dispari, 1 e 3, che diventano 10 e 30." },
       { q: "Cosa stampa?", code: `import math
-print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) arrotonda pi greco a una cifra dopo la virgola: 3.1. Per 2 fa 6.2." }]
+print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) arrotonda pi greco a una cifra dopo la virgola: 3.1. Per 2 fa 6.2." },
+      { q: "Cosa stampa?", code: `from math import sqrt
+import random as rnd
+print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "si ferma: math non è stato importato"], correct: 0, explain: "sqrt arriva da math con from, quindi si scrive senza math. davanti: sqrt(9) fa 3.0. rnd è random con un altro nome, e randint(4, 4) può dare solo 4." }]
   },
   en: {
     title: "Review: the tools",
@@ -5378,7 +5440,10 @@ print(phonebook[name])`, spot: true, correct: 1,
         explain: "In the phone book the names have a capital, and \"ada\" isn't \"Ada\": the wrong name comes from line 2, and that's where it needs fixing." },
       { q: "What does it print?", code: `print([n * 10 for n in range(4) if n % 2 == 1])`, options: ["[10, 30]", "[0, 20]", "[10, 20, 30]", "[1, 3]"], correct: 0, explain: "range(4) gives 0, 1, 2, 3; the filter keeps the odd ones, 1 and 3, which become 10 and 30." },
       { q: "What does it print?", code: `import math
-print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) rounds pi to one digit after the point: 3.1. Times 2 is 6.2." }]
+print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) rounds pi to one digit after the point: 3.1. Times 2 is 6.2." },
+      { q: "What does it print?", code: `from math import sqrt
+import random as rnd
+print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "it stops: math wasn't imported"], correct: 0, explain: "sqrt comes from math with from, so you write it without math. in front: sqrt(9) is 3.0. rnd is random with another name, and randint(4, 4) can only give 4." }]
   }
 },
 {
@@ -6534,12 +6599,77 @@ print(c.value)`,
 ];
 
 
-/* ---------- bonus: numpy and charts (they need full Python) ---------- */
+/* ---------- 07_librerie: pip, numpy and charts (they need full Python; the folder keeps the id "bonus") ---------- */
 const CBONUS = [
 {
-  id: "numpy", needs: "full", teaches: ["np", "m:mean", "m:max", "as"],
+  id: "pip", needs: "full", teaches: ["ModuleNotFoundError"],
   it: {
-    title: "Bonus: numeri con numpy",
+    title: "pip: installare le librerie",
+    theory: [
+`<p>La libreria standard è grande, ma fuori ce ne sono molte di più, scritte da altri programmatori: per i numeri (<code>numpy</code>), le tabelle di dati (<code>pandas</code>), i grafici (<code>matplotlib</code>), i giochi, i siti e quasi tutto il resto. Sono raccolte in un grande archivio online, <b>PyPI</b> (pypi.org), e si installano con <b>pip</b>, il programma che le scarica e le prepara per Python.</p>
+<p>Sul tuo computer pip si usa nel terminale del sistema, non dentro un programma: scrivi <code>pip install numpy</code> e da lì in poi <code>import numpy</code> funziona in tutti i tuoi programmi. Con <code>pip list</code> vedi cosa hai installato. A volte il nome da installare e quello da importare sono diversi: per esempio <code>pip install pillow</code>, e poi <code>import PIL</code>.</p>
+<p>Se importi una libreria che non è installata, Python si ferma con un <code>ModuleNotFoundError</code>:</p>`,
+{ code: `import pinguino_volante`, error: true },
+`<p>Vuol dire che quella libreria qui non c'è: va installata, oppure il nome è scritto male. Come gli altri errori, si può intercettare con <code>try</code> ed <code>except ModuleNotFoundError</code>, per esempio per usare dei dati di riserva.</p>
+<p>In Arcode il terminale qui sotto fa anche da pip: <code>numpy</code>, <code>pandas</code> e <code>matplotlib</code> si scaricano da sole quando le importi, e per le altre puoi scrivere <code>pip install nome</code>. Prova: nel terminale scrivi <code>pip install emoji</code>, poi <code>import emoji</code> e <code>print(emoji.emojize(":snake:"))</code>.</p>`],
+    task: `Questo programma usa <code>meteo_facile</code>, una libreria che qui non è installata: eseguilo e leggi l'errore. Poi fallo funzionare lo stesso: se l'import fallisce, stampa <code>Manca meteo_facile: si installa con pip install meteo_facile</code> e usa i dati di riserva <code>[18, 21, 25, 22]</code>. Alla fine deve uscire anche <code>Media: 21.5</code>. Proverò anche con altri dati di riserva.`,
+    starter: `import meteo_facile
+
+temperature = meteo_facile.ultima_settimana()
+print("Media:", sum(temperature) / len(temperature))
+`,
+    solution: `try:
+    import meteo_facile
+    temperature = meteo_facile.ultima_settimana()
+except ModuleNotFoundError:
+    print("Manca meteo_facile: si installa con pip install meteo_facile")
+    temperature = [18, 21, 25, 22]
+
+print("Media:", sum(temperature) / len(temperature))`,
+    hints: ["Quale riga fa fermare il programma, e con quale errore? Cosa deve succedere quando quella riga fallisce, e cosa invece quando funziona?",
+      "Metti l'import e la riga che usa meteo_facile in un try. Nell'except ModuleNotFoundError stampa il messaggio e metti i dati di riserva in temperature. Il print della media resta dopo, senza rientro."],
+    check: (o, c) => o === "Manca meteo_facile: si installa con pip install meteo_facile\nMedia: 21.5" && /\btry\b/.test(c) && /except\s+(\(\s*)?(ModuleNotFoundError|ImportError)/.test(c),
+    why: (o, c) => (/except\s*:/.test(c) ? "Un except senza nome intercetta qualsiasi errore, anche quelli che non c'entrano: scrivi except ModuleNotFoundError."
+      : /\bexcept\b/.test(c) && !/except\s+(\(\s*)?(ModuleNotFoundError|ImportError)/.test(c) ? "Qui l'errore da intercettare è quello della libreria che manca: except ModuleNotFoundError." : null),
+    tests: (c) => tlist(tcase(swapRe(c, /\[\s*18\s*,\s*21\s*,\s*25\s*,\s*22\s*\]/, "[10, 20]"), (o) => o === "Manca meteo_facile: si installa con pip install meteo_facile\nMedia: 15.0", "con i dati di riserva [10, 20] doveva stampare Media: 15.0")),
+    expect: "Manca meteo_facile: si installa con pip install meteo_facile\nMedia: 21.5"
+  },
+  en: {
+    title: "pip: installing libraries",
+    theory: [
+`<p>The standard library is big, but outside it there are many more, written by other programmers: for numbers (<code>numpy</code>), data tables (<code>pandas</code>), charts (<code>matplotlib</code>), games, websites and almost everything else. They're collected in a big online archive, <b>PyPI</b> (pypi.org), and you install them with <b>pip</b>, the program that downloads them and gets them ready for Python.</p>
+<p>On your computer you use pip in the system's terminal, not inside a program: type <code>pip install numpy</code> and from then on <code>import numpy</code> works in all your programs. With <code>pip list</code> you see what you've installed. Sometimes the name to install and the one to import are different: for example <code>pip install pillow</code>, and then <code>import PIL</code>.</p>
+<p>If you import a library that isn't installed, Python stops with a <code>ModuleNotFoundError</code>:</p>`,
+{ code: `import flying_penguin`, error: true },
+`<p>It means that library isn't here: it needs installing, or the name is misspelled. Like other errors, you can catch it with <code>try</code> and <code>except ModuleNotFoundError</code>, for example to use some backup data.</p>
+<p>In Arcode the terminal below also works as pip: <code>numpy</code>, <code>pandas</code> and <code>matplotlib</code> download by themselves when you import them, and for others you can type <code>pip install name</code>. Try it: in the terminal type <code>pip install emoji</code>, then <code>import emoji</code> and <code>print(emoji.emojize(":snake:"))</code>.</p>`],
+    task: `This program uses <code>easy_weather</code>, a library that isn't installed here: run it and read the error. Then make it work anyway: if the import fails, print <code>easy_weather is missing: install it with pip install easy_weather</code> and use the backup data <code>[18, 21, 25, 22]</code>. At the end the output must also have <code>Average: 21.5</code>. I'll also try other backup data.`,
+    starter: `import easy_weather
+
+temperatures = easy_weather.last_week()
+print("Average:", sum(temperatures) / len(temperatures))
+`,
+    solution: `try:
+    import easy_weather
+    temperatures = easy_weather.last_week()
+except ModuleNotFoundError:
+    print("easy_weather is missing: install it with pip install easy_weather")
+    temperatures = [18, 21, 25, 22]
+
+print("Average:", sum(temperatures) / len(temperatures))`,
+    hints: ["Which line makes the program stop, and with which error? What should happen when that line fails, and what when it works?",
+      "Put the import and the line that uses easy_weather in a try. In the except ModuleNotFoundError print the message and put the backup data in temperatures. The print of the average stays after, without indentation."],
+    check: (o, c) => o === "easy_weather is missing: install it with pip install easy_weather\nAverage: 21.5" && /\btry\b/.test(c) && /except\s+(\(\s*)?(ModuleNotFoundError|ImportError)/.test(c),
+    why: (o, c) => (/except\s*:/.test(c) ? "An except without a name catches any error, even ones that have nothing to do with it: write except ModuleNotFoundError."
+      : /\bexcept\b/.test(c) && !/except\s+(\(\s*)?(ModuleNotFoundError|ImportError)/.test(c) ? "Here the error to catch is the one of the missing library: except ModuleNotFoundError." : null),
+    tests: (c) => tlist(tcase(swapRe(c, /\[\s*18\s*,\s*21\s*,\s*25\s*,\s*22\s*\]/, "[10, 20]"), (o) => o === "easy_weather is missing: install it with pip install easy_weather\nAverage: 15.0", "with the backup data [10, 20] it had to print Average: 15.0")),
+    expect: "easy_weather is missing: install it with pip install easy_weather\nAverage: 21.5"
+  }
+},
+{
+  id: "numpy", needs: "full", teaches: ["np", "m:mean", "m:max"],
+  it: {
+    title: "Numeri con numpy",
     theory: [
 `<p><code>numpy</code> è la libreria più usata per lavorare con tanti numeri insieme. Un <b>array</b> è come una lista, ma i calcoli valgono per tutti gli elementi in un colpo solo.</p>`,
 { code: `import numpy as np
@@ -6549,7 +6679,7 @@ print(voti * 10)        # moltiplica ogni elemento
 print(voti.mean())      # media
 print(voti.max())       # il più alto
 print(voti[voti >= 8])  # solo quelli da 8 in su` },
-`<p><code>import numpy as np</code> carica numpy e, con <code>as</code>, gli dà un nome corto: da lì in poi scrivi <code>np</code>. La prima volta che importi numpy l'app lo scarica: può volerci qualche secondo.</p>`],
+`<p><code>import numpy as np</code> carica numpy e, con <code>as</code>, gli dà il nome corto che usano tutti: da lì in poi scrivi <code>np</code>. Sul tuo computer la installeresti con <code>pip install numpy</code>; qui l'app la scarica da sola la prima volta che la importi, e può volerci qualche secondo.</p>`],
     task: `Importa numpy con il nome corto <code>np</code>, crea un array con le temperature <code>[18, 21, 25, 22]</code> e stampa la media e poi la temperatura più alta. Deve uscire <code>21.5</code> e <code>25</code>.`,
     starter: `# numpy: media e massimo\n\n`,
     solution: `import numpy as np
@@ -6563,7 +6693,7 @@ print(temperature.max())`,
     expect: "21.5\n25"
   },
   en: {
-    title: "Bonus: numbers with numpy",
+    title: "Numbers with numpy",
     theory: [
 `<p><code>numpy</code> is the most used library for working with lots of numbers at once. An <b>array</b> is like a list, but math applies to every item in one go.</p>`,
 { code: `import numpy as np
@@ -6573,7 +6703,7 @@ print(scores * 10)          # multiplies every item
 print(scores.mean())        # average
 print(scores.max())         # the highest
 print(scores[scores >= 8])  # only 8 and above` },
-`<p><code>import numpy as np</code> loads numpy and, with <code>as</code>, gives it a short name: from then on you write <code>np</code>. The first time you import numpy the app downloads it: it can take a few seconds.</p>`],
+`<p><code>import numpy as np</code> loads numpy and, with <code>as</code>, gives it the short name everybody uses: from then on you write <code>np</code>. On your computer you'd install it with <code>pip install numpy</code>; here the app downloads it by itself the first time you import it, and it can take a few seconds.</p>`],
     task: `Import numpy with the short name <code>np</code>, create an array with the temperatures <code>[18, 21, 25, 22]</code> and print the average and then the highest temperature. The output must be <code>21.5</code> and <code>25</code>.`,
     starter: `# numpy: average and maximum\n\n`,
     solution: `import numpy as np
@@ -6590,7 +6720,7 @@ print(temperatures.max())`,
 {
   id: "plot", needs: "full", teaches: ["plt"],
   it: {
-    title: "Bonus: il tuo primo grafico",
+    title: "Il tuo primo grafico",
     theory: [
 `<p><code>matplotlib</code> disegna grafici. <code>plt.plot</code> crea una linea e <code>plt.show()</code> la mostra nel terminale.</p>`,
 { code: `import matplotlib.pyplot as plt
@@ -6619,7 +6749,7 @@ plt.show()`,
     why: (o, c, x) => (x.images ? null : "Il grafico non è comparso: ricordati plt.show() alla fine.")
   },
   en: {
-    title: "Bonus: your first chart",
+    title: "Your first chart",
     theory: [
 `<p><code>matplotlib</code> draws charts. <code>plt.plot</code> makes a line and <code>plt.show()</code> displays it in the terminal.</p>`,
 { code: `import matplotlib.pyplot as plt
@@ -6664,12 +6794,12 @@ const WORLDS = [
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
   { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "builtins", "def0", "params", "def", "retq", "build4a", "fcall", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def e return" }, en: { name: "Text and functions", tag: "Strings, def and return" } },
-  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "build5a", "math", "comp", "ripasso5", "build5", "boss5"],
-    it: { name: "Strumenti", tag: "Dizionari, errori, moduli" }, en: { name: "Tools", tag: "Dictionaries, errors, modules" } },
+  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "build5a", "math", "imports", "comp", "ripasso5", "build5", "boss5"],
+    it: { name: "Strumenti", tag: "Dizionari, errori e librerie" }, en: { name: "Tools", tag: "Dictionaries, errors and libraries" } },
   { id: "w6", dir: { it: "06_oggetti", en: "06_objects" }, mascot: "pip", levels: ["class", "method", "classq", "state", "build6a", "objlist", "ripasso6", "final", "boss6"],
     it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
-  { id: "bonus", dir: { it: "bonus", en: "bonus" }, mascot: "bit", levels: ["numpy", "plot"],
-    it: { name: "Bonus", tag: "Numeri e grafici" }, en: { name: "Bonus", tag: "Numbers and charts" } }
+  { id: "bonus", dir: { it: "07_librerie", en: "07_libraries" }, mascot: "bit", levels: ["pip", "numpy", "plot"],
+    it: { name: "Librerie", tag: "pip, numpy e grafici" }, en: { name: "Libraries", tag: "pip, numpy and charts" } }
 ];
 /* Every level is a file inside its folder: [Italian, English]. The number in front comes from the level's
    position in the folder (bosses have none), so a new level renumbers the files after it by itself. */
@@ -6694,12 +6824,12 @@ const FILE_BASE = {
   retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], ripasso4: ["ripasso.py", "review.py"],
   build4a: ["costruisci_verdetto.py", "build_verdict.py"], build4: ["costruisci_partita.py", "build_play.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
   dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
-  try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], math: ["moduli_math.py", "math_module.py"],
+  try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], imports: ["importare.py", "importing.py"], math: ["moduli_math.py", "math_module.py"],
   comp: ["liste_veloci.py", "comprehensions.py"], ripasso5: ["ripasso.py", "review.py"], build5a: ["costruisci_dadi.py", "build_dice.py"], build5: ["costruisci_livelli.py", "build_levels.py"],
   boss5: ["boss_rubrica.py", "boss_phonebook.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
   classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
   ripasso6: ["grande_ripasso.py", "big_review.py"], build6a: ["costruisci_giocatore.py", "build_player.py"], final: ["sfida_finale.py", "final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
-  numpy: ["numpy.py", "numpy.py"], plot: ["grafici.py", "charts.py"]
+  pip: ["pip_install.py", "pip_install.py"], numpy: ["numpy.py", "numpy.py"], plot: ["grafici.py", "charts.py"]
 };
 const FILES = {};
 for (const w of WORLDS) w.levels.forEach((id, k) => {
@@ -10241,7 +10371,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "37c3209640", APP_BUILT = "2026-11-09T09:31Z";
+const APP_VERSION = "ad901dda9b", APP_BUILT = "2026-11-09T09:52Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
