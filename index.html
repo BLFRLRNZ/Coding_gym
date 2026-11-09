@@ -700,6 +700,44 @@ header.hud { background: var(--side-bg); color: var(--term-fg); border: 1px soli
   .pc-screen { height: 118px; }
   .pj-foot .btn.primary { width: 100%; }
 }
+/* The welcome to the world, before the first choice: what awaits you, the team that guides you, how far you'll grow */
+.projcard.welcome { width: min(880px, 100%); }
+.wl-lead { margin: 0; font-size: 1.08rem; line-height: 1.55; max-width: 66ch; }
+.wl-lead b { color: var(--term-prompt); }
+.wl-team { display: flex; align-items: flex-end; gap: 6px 16px; flex-wrap: wrap; }
+.wl-ms { display: flex; gap: 6px; padding: 0 4px 6px; border-bottom: 2px solid var(--term-line); }
+.wl-m .px { width: 57px; height: 51px; animation-delay: var(--d); }
+.wl-say { position: relative; margin: 0 0 16px 8px; background: #0b1222; border: 1px solid var(--term-line); border-radius: 12px; padding: 8px 12px; font-size: 0.92rem; }
+.wl-say::before { content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px; background: inherit; border-left: inherit; border-bottom: inherit; transform: translateY(-50%) rotate(45deg); }
+.wl-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.wl-step { display: flex; gap: 12px; background: #0b1222; border: 1px solid var(--term-line); border-radius: 14px; padding: 12px 14px; }
+.wl-num { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: var(--term-prompt); color: #15203a; font-family: var(--f-display); font-weight: 700; }
+.wl-txt { display: grid; gap: 3px; min-width: 0; align-content: start; }
+.wl-txt b { font-family: var(--f-display); font-size: 1.12rem; }
+.wl-txt span { color: var(--term-dim); font-size: 0.88rem; line-height: 1.45; }
+.wl-grow { background: #0b1222; border: 1px solid var(--term-line); border-radius: 14px; padding: 14px 16px 16px; }
+.wl-grow h3 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; }
+.wl-grow p { margin: 4px 0 14px; font-size: 0.84rem; color: var(--term-dim); }
+.wl-ladder { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); align-items: end; gap: 6px; }
+.wl-ladder li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wl-bar { display: grid; place-items: start center; height: calc(16px + var(--i) * 10px); border-radius: 6px 6px 2px 2px; background: color-mix(in srgb, var(--term-prompt) var(--p), #24314f); }
+.wl-ladder .top .wl-bar { box-shadow: 0 0 0 2px var(--term-prompt), 0 0 18px color-mix(in srgb, var(--term-prompt) 45%, transparent); }
+.wl-crown { color: #15203a; margin-top: 7px; }
+.wl-name { font-size: 0.74rem; line-height: 1.2; text-align: center; overflow-wrap: anywhere; min-height: 3.7em; }
+.wl-name em { display: block; font-style: normal; font-family: var(--f-mono); font-size: 0.62rem; color: var(--term-prompt); text-transform: uppercase; letter-spacing: 0.06em; }
+.wl-ladder .top .wl-name { font-weight: 700; color: var(--term-prompt); }
+@media (max-width: 760px) { .wl-steps { grid-template-columns: 1fr; } }
+@media (max-width: 560px) {
+  .wl-lead { font-size: 1rem; }
+  .wl-m .px { width: 44px; height: 39px; }
+  .wl-say { margin: 0; }
+  .wl-say::before { display: none; }
+  .wl-ladder { grid-template-columns: 1fr; gap: 5px; }
+  .wl-ladder li { display: grid; grid-template-columns: 8.4em minmax(0, 1fr); align-items: center; gap: 10px; }
+  .wl-ladder .wl-name { order: -1; text-align: left; min-height: 0; }
+  .wl-bar { height: 15px; width: calc(12% + var(--i) * 11%); place-items: center end; border-radius: 2px 6px 6px 2px; }
+  .wl-crown { margin: 0 3px 0 0; width: 15px; height: 11px; }
+}
 .ide-proj { border: 1px solid var(--term-line); background: transparent; color: var(--term-dim); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 0.8rem; }
 .ide-proj b { color: var(--term-fg); }
 .ide-proj:hover { border-color: var(--term-prompt); }
@@ -8479,6 +8517,17 @@ const UI = {
     padToggle: "Comandi", padToggleAria: "Mostra o nascondi i comandi sullo schermo", padArrows: "Frecce",
     padSpace: "Spazio", padEnter: "Invio", padDel: "Canc",
     projEyebrow: "Il tuo progetto", projTitle: "Cosa vuoi costruire?",
+    wlEyebrow: "Mondo 1 · Python", wlTitle: "Benvenuto nel mondo Python!",
+    wlLead: "Qui non impari soltanto a programmare: lungo il percorso <b>costruisci davvero qualcosa</b>. Un progetto tutto tuo, che cresce cartella dopo cartella con quello che hai appena imparato. Alla fine non avrai solo superato dei livelli: avrai scritto un programma vero, che funziona anche sul tuo computer.",
+    wlSay: "Ti accompagniamo noi, una cartella alla volta!",
+    wlSteps: [["Impari", "Lezioni brevi, esempi da provare e Python vero. Ogni idea nuova la usi subito, con gli aiuti quando servono."],
+      ["Costruisci", "In ogni cartella il tuo progetto cresce di un pezzo, dalla copertina fino al programma completo."],
+      ["Cresci", "Ogni livello superato vale byte, e con i byte sali di grado, fino all'ultimo."]],
+    wlLadder: (a, b) => `Da ${a} a ${b}`,
+    wlLadderSub: (n) => `${n} gradi: il primo arriva a metà della prima cartella, gli altri ogni volta che sconfiggi il boss di una cartella.`,
+    wlHere: "si parte da qui", wlTop: "il traguardo",
+    wlFoot: "Prima di cominciare, scegli cosa costruire: ti accompagnerà per tutto il percorso.",
+    wlGo: "Scegli il tuo progetto →", pjBack: "← Indietro",
     projSub: "Lungo tutto il percorso costruisci un progetto tuo: ogni cartella gli aggiunge un pezzo, con quello che hai appena imparato, finché non è completo. Puoi cambiarlo quando vuoi.",
     projLearn: "Cosa impari", projTerm: "Solo terminale", projWin: "Terminale, poi finestra", projReady: "▶ Disponibile", projYours: "★ Il tuo progetto",
     projStart: (n) => `Inizia con ${n}`, projKeep: (n) => `Continua con ${n}`, projSwitch: (n) => `Passa a ${n}`,
@@ -8604,6 +8653,17 @@ const UI = {
     padToggle: "Controls", padToggleAria: "Show or hide the on-screen controls", padArrows: "Arrows",
     padSpace: "Space", padEnter: "Enter", padDel: "Del",
     projEyebrow: "Your project", projTitle: "What do you want to build?",
+    wlEyebrow: "World 1 · Python", wlTitle: "Welcome to the Python world!",
+    wlLead: "Here you don't just learn to code: along the way you <b>actually build something</b>. A project of your own that grows folder after folder, with what you've just learned. In the end you won't just have passed levels: you'll have written a real program, one that runs on your own computer too.",
+    wlSay: "We'll be with you, one folder at a time!",
+    wlSteps: [["Learn", "Short lessons, examples to try and real Python. Every new idea goes straight into use, with help when you need it."],
+      ["Build", "In every folder your project grows by one piece, from the cover all the way to the finished program."],
+      ["Grow", "Every level you pass is worth bytes, and bytes raise your rank, all the way to the top."]],
+    wlLadder: (a, b) => `From ${a} to ${b}`,
+    wlLadderSub: (n) => `${n} ranks: the first comes halfway through the first folder, the others each time you beat a folder's boss.`,
+    wlHere: "you start here", wlTop: "the finish line",
+    wlFoot: "Before you start, choose what to build: it will stay with you along the whole path.",
+    wlGo: "Choose your project →", pjBack: "← Back",
     projSub: "All along the path you build a project of your own: every folder adds a piece to it, with what you have just learnt, until it's complete. You can change it whenever you like.",
     projLearn: "What you learn", projTerm: "Terminal only", projWin: "Terminal, then window", projReady: "▶ Available", projYours: "★ Your project",
     projStart: (n) => `Start with ${n}`, projKeep: (n) => `Carry on with ${n}`, projSwitch: (n) => `Switch to ${n}`,
@@ -11488,7 +11548,7 @@ function renderWorlds() {
   worldsEl.querySelectorAll(".cart").forEach((b) => {
     b.onclick = () => {
       const L = LANGS.find((x) => x.id === b.dataset.world);
-      if (L.ready) { S.world = L.id; sfxUnlock(); setView("map"); }
+      if (L.ready) { S.world = L.id; sfxUnlock(); if (!maybeAskProject(() => setView("map"))) setView("map"); }
       else $("ws-msg").textContent = t("soonMsg", L[S.lang].name);
     };
   });
@@ -12003,21 +12063,59 @@ document.addEventListener("keydown", (e) => {
 
 
 /* ---------- The project: what you build along the whole path ---------- */
-/* "Cosa vuoi costruire?" opens after the opening screen until a project is chosen; later it opens from the
-   explorer and from the settings. Projects whose parts aren't in the course yet show as coming soon. */
+/* The first time you enter the Python world, a welcome says what awaits you (you learn, you build, you grow) and
+   then "Cosa vuoi costruire?" asks for the project; later the chooser opens from the explorer and the settings.
+   Projects whose parts aren't in the course yet show as coming soon. */
 const projEl = $("projects");
-const PJ = { sel: null, look: null, msg: "", first: false, raf: 0, cvs: [], io: null, last: 0 };
-function maybeAskProject() { if (!S.project && projEl.hidden) openProjects(true); }
-function openProjects(first) {
+const PJ = { sel: null, look: null, msg: "", first: false, step: "pick", then: null, raf: 0, cvs: [], io: null, last: 0 };
+/* a learner without a project, entering the world (then: where to go once it's chosen), or already inside it */
+function maybeAskProject(then) {
+  if (S.project || !projEl.hidden) return false;
+  if (!then && S.view !== "map" && S.view !== "lessons") return false;
+  openProjects(true, then);
+  return true;
+}
+function openProjects(first, then) {
   PJ.first = !!first && !S.project;
+  PJ.step = PJ.first ? "welcome" : "pick";
+  PJ.then = then || null;
   PJ.sel = S.project || PROJECTS.find((p) => p.ready).id;
   PJ.look = null;
   PJ.msg = t("projHint");
   renderProjects();
   projEl.hidden = false;
+  projEl.scrollTop = 0;
+  if (PJ.step === "welcome") { $("wl-go").focus({ preventScroll: true }); return; }
   const b = projEl.querySelector(`.pcard[data-proj="${PJ.sel}"]`);
   if (b) b.focus({ preventScroll: true });
   startPreviews();
+}
+/* from the welcome to the chooser, and back */
+function projStep(step) {
+  PJ.step = step;
+  renderProjects();
+  projEl.scrollTop = 0;
+  if (step === "welcome") { stopPreviews(); $("wl-go").focus({ preventScroll: true }); return; }
+  const b = projEl.querySelector(`.pcard[data-proj="${PJ.sel}"]`);
+  if (b) b.focus({ preventScroll: true });
+  startPreviews();
+}
+/* The welcome to the world: what you'll do here, the team that guides you and how far you'll grow */
+function welcomeHtml() {
+  const steps = t("wlSteps").map(([h, p], i) => `<li class="wl-step"><span class="wl-num" aria-hidden="true">${i + 1}</span><span class="wl-txt"><b>${escHtml(h)}</b><span>${escHtml(p)}</span></span></li>`).join("");
+  const last = RANKS.length - 1;
+  const crown = `<svg class="wl-crown" viewBox="0 0 16 12" width="20" height="15" aria-hidden="true"><path d="M1 3.5l3.6 3L8 1l3.4 5.5L15 3.5 13.6 11H2.4z" fill="currentColor"/></svg>`;
+  const ladder = RANKS.map((r, i) => `<li class="${i === 0 ? "first" : i === last ? "top" : ""}" style="--i:${i};--p:${Math.round(22 + (i / last) * 78)}%">
+      <span class="wl-bar" aria-hidden="true">${i === last ? crown : ""}</span><span class="wl-name">${escHtml(r[S.lang])}${i === 0 ? `<em>${t("wlHere")}</em>` : i === last ? `<em>${t("wlTop")}</em>` : ""}</span></li>`).join("");
+  return `<div class="pj-head"><div><div class="eyebrow">${t("wlEyebrow")}</div><h2 id="proj-title">${t("wlTitle")}</h2></div></div>
+    <p class="wl-lead">${t("wlLead")}</p>
+    <div class="wl-team"><div class="wl-ms" aria-hidden="true">${["cursy", "bit", "graffa", "pip", "floppy", "papera"].map((m, i) => `<span class="wl-m" data-m="${m}" style="--d:${i * 0.35}s"></span>`).join("")}</div>
+      <p class="wl-say">${escHtml(t("wlSay"))}</p></div>
+    <ol class="wl-steps">${steps}</ol>
+    <section class="wl-grow" aria-label="${escHtml(t("wlLadder", RANKS[0][S.lang], RANKS[last][S.lang]))}">
+      <h3>${escHtml(t("wlLadder", RANKS[0][S.lang], RANKS[last][S.lang]))}</h3><p>${escHtml(t("wlLadderSub", RANKS.length))}</p>
+      <ol class="wl-ladder">${ladder}</ol></section>
+    <div class="pj-foot"><p class="pj-msg">${escHtml(t("wlFoot"))}</p><button class="btn primary" id="wl-go">${escHtml(t("wlGo"))}</button></div>`;
 }
 function closeProjects() {
   if (!S.project) return;   /* the first time, a project has to be chosen */
@@ -12025,6 +12123,14 @@ function closeProjects() {
   stopPreviews();
 }
 function renderProjects(focusId) {
+  const card = projEl.querySelector(".ocard");
+  card.classList.toggle("welcome", PJ.step === "welcome");
+  if (PJ.step === "welcome") {
+    card.innerHTML = welcomeHtml();
+    card.querySelectorAll(".wl-m").forEach((m) => m.appendChild(mascotCanvas(m.dataset.m, "h", "a-bob")));
+    $("wl-go").onclick = () => projStep("pick");
+    return;
+  }
   const cur = S.project, sel = PROJECT_BY_ID[PJ.sel];
   const cards = PROJECTS.map((p) => {
     const d = p[S.lang], word = PDIFF[S.lang][p.diff], where = t(p.where === "term" ? "projTerm" : "projWin");
@@ -12042,7 +12148,7 @@ function renderProjects(focusId) {
   const go = sel && sel.ready ? (PJ.sel === cur ? t("projKeep", name) : cur ? t("projSwitch", name) : t("projStart", name)) : "";
   projEl.querySelector(".ocard").innerHTML = `
     <div class="pj-head"><div><div class="eyebrow">${t("projEyebrow")}</div><h2 id="proj-title">${t("projTitle")}</h2><p>${t("projSub")}</p></div>
-      ${PJ.first ? "" : `<button class="btn tiny" id="proj-close">${t("close")}</button>`}</div>
+      ${PJ.first ? `<button class="btn tiny" id="proj-back">${t("pjBack")}</button>` : `<button class="btn tiny" id="proj-close">${t("close")}</button>`}</div>
     <div class="pcards">${cards}</div>
     <p class="pj-apps">${t("projApps")}</p>
     <div class="pj-foot"><p class="pj-msg" id="proj-msg" role="status">${escHtml(PJ.msg)}</p>${go ? `<button class="btn primary" id="proj-go">${escHtml(go)}</button>` : ""}</div>`;
@@ -12059,6 +12165,7 @@ function renderProjects(focusId) {
     };
   });
   const c = $("proj-close"); if (c) c.onclick = closeProjects;
+  const bk = $("proj-back"); if (bk) bk.onclick = () => projStep("welcome");
   const g = $("proj-go"); if (g) g.onclick = chooseProject;
   if (focusId) { const f = projEl.querySelector(`.pcard[data-proj="${focusId}"]`); if (f) f.focus({ preventScroll: true }); }
   /* the path opens under the card: if it starts low on the screen, bring its beginning into view */
@@ -12103,6 +12210,9 @@ function chooseProject() {
   }
   if (S.view === "map") renderMap();
   if (!setEl.hidden) renderSettings();
+  /* entering the world: once the project is chosen, in you go */
+  const then = PJ.then; PJ.then = null;
+  if (then) then();
 }
 projEl.addEventListener("click", (e) => { if (e.target === projEl) closeProjects(); });
 
@@ -13004,7 +13114,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "dfde3f9ec1", APP_BUILT = "2026-11-09T14:17Z";
+const APP_VERSION = "88bc3eabf6", APP_BUILT = "2026-11-09T18:17Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
