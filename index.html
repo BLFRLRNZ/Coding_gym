@@ -7914,7 +7914,7 @@ const PROJECTS = [
       learn: ["print e input", "if ed elif", "cicli", "funzioni", "numeri a caso", "classi"] },
     en: { name: "Guess the number", tag: "The computer thinks of a number and you try to guess it, with the hints “higher” and “lower”. All in the terminal.",
       learn: ["print and input", "if and elif", "loops", "functions", "random numbers", "classes"] } },
-  { id: "maze", kind: "game", ready: false, diff: 1, where: "window", color: "#5b4bb7",
+  { id: "maze", kind: "game", ready: true, diff: 1, where: "window", color: "#5b4bb7",
     it: { name: "Labirinto", tag: "Trova la strada verso l'uscita: prima con i comandi scritti nel terminale, poi con le frecce in una finestra.",
       learn: ["liste di liste", "coordinate", "if per i muri", "tasti e finestra"] },
     en: { name: "Maze", tag: "Find the way to the exit: first with commands typed in the terminal, then with the arrows in a window.",
@@ -8000,29 +8000,29 @@ const PROJECT_PARTS = {
       ["The player", "The Player class remembers name, games and record, and prints the summary at the end."],
       ["Play again?", "Games repeat as long as the player wants, with the summary at the end."],
       ["In colour", "With pip install rich the hints get colours: the first external library in your project."]] },
-  maze: {
+  maze: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["La mappa", "Il labirinto disegnato con print: muri #, l'entrata S, l'uscita E e i comandi."],
-      ["Dove sei", "La tua posizione sta in due variabili: chiedi quanti passi fare e stampa dove arrivi e quanto manca all'uscita."],
+      ["Dove sei", "La tua posizione sta in due variabili: chiedi quanti passi fare a destra e in su, poi stampa dove arrivi e, con abs, quanto manca all'uscita."],
       ["Muri e uscita", "Con if controlli le lettere w a s d, i bordi del labirinto e l'arrivo all'uscita."],
       ["Il labirinto vero", "La mappa diventa una griglia: un ciclo ti fa camminare passo dopo passo, i muri ti fermano, le mosse si contano."],
-      ["Funzioni per muoversi", "Stampare la mappa, controllare una casella e fare un passo diventano funzioni."],
+      ["Funzioni per muoversi", "La mappa diventa una lista di stringhe, e stamparla, controllare una casella e fare un passo diventano funzioni."],
       ["Nella finestra", "Il labirinto si disegna a quadretti in una finestra e ti muovi con le frecce."],
       ["Monete a caso", "Monete sparse a caso nelle caselle libere: raccoglile tutte prima di uscire."],
       ["Più labirinti e record", "Una lista di labirinti uno dopo l'altro, e un dizionario con il record di mosse di ognuno."],
       ["L'esploratore", "Il giocatore diventa un oggetto con posizione, mosse e monete."],
       ["I fantasmi", "Fantasmi che vanno avanti e indietro: una squadra di oggetti da evitare, con le vite."],
-      ["Sul tuo computer", "Con pip install pgzero il tuo labirinto gira anche sul computer, con lo stesso codice."]],
+      ["Sul tuo computer", "Il titolo della finestra, la pausa con P ed Esc per uscire; poi, con pip install pgzero, il tuo labirinto gira anche sul computer."]],
     en: [["The map", "The maze drawn with print: walls #, the start S, the exit E and the commands."],
-      ["Where you are", "Your position is in two variables: ask how many steps to take and print where you end up and how far the exit is."],
+      ["Where you are", "Your position is in two variables: ask how many steps to take right and up, then print where you end up and, with abs, how far the exit is."],
       ["Walls and exit", "With if you check the letters w a s d, the edges of the maze and reaching the exit."],
       ["The real maze", "The map becomes a grid: a loop walks you step by step, walls stop you, moves are counted."],
-      ["Functions to move", "Printing the map, checking a square and taking a step become functions."],
+      ["Functions to move", "The map becomes a list of strings, and printing it, checking a square and taking a step become functions."],
       ["In a window", "The maze is drawn in squares in a window and you move with the arrows."],
       ["Random coins", "Coins scattered at random on free squares: collect them all before you leave."],
       ["More mazes and records", "A list of mazes one after another, and a dictionary with the record of moves for each."],
       ["The explorer", "The player becomes an object with position, moves and coins."],
       ["The ghosts", "Ghosts going back and forth: a team of objects to dodge, with lives."],
-      ["On your computer", "With pip install pgzero your maze runs on your computer too, with the same code."]] },
+      ["On your computer", "The window's title, a pause with P and Esc to quit; then, with pip install pgzero, your maze runs on your computer too."]] },
   memory: {
     it: [["Il tavolo", "Le 12 carte coperte disegnate con print, con i numeri delle posizioni e le regole."],
       ["Dove sta la carta", "Chiedi due posizioni e calcola riga e colonna di ognuna con // e %."],
@@ -8196,6 +8196,2988 @@ const PROJECT_BUILDS = { guess: Object.fromEntries(SLOT_LEVELS.map((id) => [id, 
 /* adds a project's build lessons (a file per project, after this one): they start from the parts before them */
 function addProjectBuilds(project, lessons) { PROJECT_BUILDS[project] = readyLessons(lessons); }
 
+
+
+/* ---------- Labirinto: the build levels of the "Maze" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the cover with the map in 00; in the terminal, where you
+   are in two variables (01), the walls around and the exit with if (02), the real map as a grid walked in a loop
+   (03) and the functions, with the map as a list of strings (04); then the window, with the arrows (04); random
+   coins, then three mazes with a record each in a dictionary (05); the explorer and the ghosts as objects (06); ready
+   to run on your own computer (07). Each part starts from the learner's code of the part before. */
+
+/* The cover: frame, title, the map with walls inside, the start S and the exit E, the commands, a number worked out
+   by Python */
+function mazeCoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1), inside = (l) => l.trim().slice(1, -1);
+  if (!mid.some((l) => (it ? /l\s*a\s*b\s*i\s*r\s*i\s*n\s*t\s*o/i : /m\s*a\s*z\s*e/i).test(l))) return it ? "In mezzo ci vuole il titolo del gioco: LABIRINTO." : "The game's title has to be in the middle: MAZE.";
+  const map = mid.filter((l) => l.trim().length >= 3 && /^#.*#$/.test(l.trim()));
+  if (map.length < 3) return it ? "La mappa deve avere almeno 3 righe che cominciano e finiscono con #." : "The map needs at least 3 lines that start and end with #.";
+  if (!map.some((l) => inside(l).includes("S"))) return it ? "Dentro la mappa manca l'entrata: S." : "The start is missing inside the map: S.";
+  if (!map.some((l) => inside(l).includes("E"))) return it ? "Dentro la mappa manca l'uscita: E." : "The exit is missing inside the map: E.";
+  if (!map.slice(1, -1).some((l) => inside(l).includes("#"))) return it ? "Un labirinto ha dei muri anche dentro: metti qualche # nelle righe di mezzo della mappa." : "A maze has walls inside too: put some # in the middle lines of the map.";
+  if (!mid.some((l) => /\bw\b[\s,]*\ba\b[\s,]*\bs\b[\s,]*\bd\b/i.test(l) || /\bwasd\b/i.test(l))) return it ? "Scrivi i comandi del gioco: w a s d." : "Write the game's commands: w a s d.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(7 + 7)." : "A number worked out by Python is missing, like print(7 + 7).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (as for Snake, see snakeRun) */
+const MZ = {
+  it: {
+    start: "Sei all'entrata, in (1, 5). L'uscita è in (7, 5).", now: (x, y) => `Ora sei in (${x}, ${y}).`,
+    done: (n) => `Passi fatti: ${n}`, left: (d) => `Passi per l'uscita: ${d}`, unknown: "Direzione sconosciuta: resti fermo.",
+    wall: "Bum! Hai sbattuto contro il muro.", out: "Sei uscito dal labirinto!", moves: (n) => `Mosse: ${n}`, bye: "Ciao!",
+    use: "Usa w, a, s o d.", bump: "Bum! C'è un muro.", won: (n) => `Sei uscito in ${n} mosse!`
+  },
+  en: {
+    start: "You're at the entrance, at (1, 5). The exit is at (7, 5).", now: (x, y) => `Now you're at (${x}, ${y}).`,
+    done: (n) => `Steps taken: ${n}`, left: (d) => `Steps to the exit: ${d}`, unknown: "Unknown direction: you stay put.",
+    wall: "Bang! You hit the wall.", out: "You're out of the maze!", moves: (n) => `Moves: ${n}`, bye: "Bye!",
+    use: "Use w, a, s or d.", bump: "Bang! There's a wall.", won: (n) => `You got out in ${n} moves!`
+  }
+};
+/* the first maze, from part 3 on: S the start, E the exit */
+const MZ_MAP = ["#########", "#...#...#", "#.#.#.#.#", "#.#...#.#", "#.###.#.#", "#S..#..E#", "#########"];
+const MZ_DIRS = { w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+const mzDir = (m) => (Object.prototype.hasOwnProperty.call(MZ_DIRS, m) ? MZ_DIRS[m] : null);
+/* end: "done", "more" (it would ask for more), "extra" (the answers were more than the questions), "crash" (int() of
+   something that isn't a number) */
+function mazeRun(lang, part, ins) {
+  const T = MZ[lang], lines = [T.start], res = (end) => ({ lines, end });
+  const away = (x, y) => Math.abs(7 - x) + Math.abs(5 - y);
+  if (part === 1) {
+    if (ins.length < 2) return res("more");
+    if (!isIntText(ins[0]) || !isIntText(ins[1])) return res("crash");
+    const right = toInt(ins[0]), up = toInt(ins[1]), x = 1 + right, y = 5 - up;
+    lines.push(T.now(x, y), T.done(Math.abs(right) + Math.abs(up)), T.left(away(x, y)));
+    return res(ins.length === 2 ? "done" : "extra");
+  }
+  if (part === 2) {
+    if (ins.length < 2) return res("more");
+    if (!isIntText(ins[1])) return res("crash");
+    let x = 1, y = 5;
+    const d = mzDir(ins[0]), n = toInt(ins[1]);
+    if (d) { x += d[0] * n; y += d[1] * n; } else lines.push(T.unknown);
+    if (x < 1 || x > 7 || y < 1 || y > 5) lines.push(T.wall);
+    else if (x === 7 && y === 5) lines.push(T.out);
+    else lines.push(T.now(x, y), T.left(away(x, y)));
+    return res(ins.length === 2 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the maze in turns, one square at a time; from part 4 the moves can be in capitals, with spaces */
+  lines.length = 0;
+  let x = 1, y = 5, moves = 0, i = 0;
+  for (;;) {
+    for (let r = 0; r < MZ_MAP.length; r++) {
+      let row = "";
+      for (let c = 0; c < MZ_MAP[r].length; c++) row += (r === y && c === x ? "@" : MZ_MAP[r][c]) + " ";
+      lines.push(row.trimEnd());
+    }
+    lines.push(T.moves(moves));
+    if (i >= ins.length) return res("more");
+    const mv = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (mv === "q") { lines.push(T.bye); break; }
+    const d = mzDir(mv);
+    if (!d) { lines.push(T.use); continue; }
+    if (MZ_MAP[y + d[1]][x + d[0]] === "#") { lines.push(T.bump); continue; }
+    x += d[0]; y += d[1]; moves++;
+    if (MZ_MAP[y][x] === "E") { lines.push(T.won(moves)); break; }
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const mazeExpect = (lang, part, ins) => { const r = mazeRun(lang, part, ins || []); return r.end === "done" ? r.lines.join("\n") : null; };
+const mazeCheck = (lang, part, needs) => (o, c, x) => needs.every((re) => re.test(c)) && o === mazeExpect(lang, part, x.inputs);
+/* Hidden tests: whole games with other answers */
+const mazeTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = mazeExpect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* the ways through the three mazes, and coins put along them (column, row) */
+const MZ_WAY1 = "w w w w d d s s d d s s d d", MZ_WAY2 = "s s d d w w d d d d s s a a s s d d", MZ_WAY3 = "d d w w a a w w d d d d s s d d w w";
+const MZ_COINS1 = [1, 4, 1, 3, 1, 2], MZ_COINS2 = [1, 2, 1, 3, 2, 3], MZ_COINS3 = [2, 5, 3, 5, 3, 4];
+
+/* The window parts. Loaded dice for the hidden tests: random.randint gives these numbers in turn, then goes round free
+   squares, so a new maze always finds its coins */
+const MZ_RIG = (nums) => "import random\n_rig = iter(" + JSON.stringify(nums) + " + [1, 1, 3, 1, 5, 1, 7, 1, 1, 3, 3, 3, 5, 3, 7, 3, 2, 5, 3, 5, 5, 5, 6, 5] * 40)\nrandom.randint = lambda a, b: next(_rig)\n";
+/* the arrows of a way, played one tap at a time */
+const mzWalk = (way) => "for _k in " + JSON.stringify(way.split(" ").map((k) => ({ w: "up", s: "down", a: "left", d: "right" })[k])) + ":\n    _t.tap(_k)\n";
+const MZ_ME = "[_p[:2] for _p in _t.circles('cyan')]", MZ_RED = "[_p[:2] for _p in _t.circles('red')]", MZ_GOLD = "sorted([_p[:2] for _p in _t.circles('gold')])";
+const MZ_TEXT = "' '.join(_t.texts())";
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const mzNeed = (re, msg) => [re, msg, msg];
+const MZ_KEYS = [/^def\s+on_key_down\s*\(/m, "Le frecce vanno in def on_key_down(key):, che Pygame Zero chiama a ogni tasto premuto.", "The arrows go in def on_key_down(key):, which Pygame Zero calls at every key pressed."];
+const MZ_ARROWS = [/\bkeys\.(UP|DOWN|LEFT|RIGHT)\b/, "In on_key_down confronta key con keys.UP, keys.DOWN, keys.LEFT e keys.RIGHT.", "In on_key_down compare key with keys.UP, keys.DOWN, keys.LEFT and keys.RIGHT."];
+const MZ_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: le mosse arrivano dalle frecce, in on_key_down.", "In the window there's no more input: the moves come from the arrows, in on_key_down."];
+const MZ_RECT = [/\bRect\s*\(/, "I muri sono quadrati: si disegnano con screen.draw.filled_rect e un Rect.", "The walls are squares: they're drawn with screen.draw.filled_rect and a Rect."];
+const MZ_RANDOM = [/\brandom\.randint\s*\(/, "Le monete vanno in caselle a caso con random.randint, prima la colonna e poi la riga.", "The coins go on random squares with random.randint, first the column and then the row."];
+const MZ_DICT = [/\{\s*\}|\{\s*["']/, "I record stanno in un dizionario, con i nomi dei labirinti come chiavi: all'inizio è vuoto, {}.", "The records go in a dictionary, with the mazes' names as keys: at the start it's empty, {}."];
+const MZ_CLOCK = [/\bclock\.schedule_interval\s*\(\s*\w+\s*,/, "I fantasmi si muovono da soli: consegna la funzione che li muove a clock.schedule_interval, senza parentesi.", "The ghosts move by themselves: hand the function that moves them to clock.schedule_interval, without brackets."];
+const MZ_CLASS = {
+  it: [mzNeed(/\bclass\s+Esploratore\b/, "Tu diventi un oggetto: class Esploratore:, con __init__ e i suoi metodi."),
+    mzNeed(/\bdef\s+cella\s*\(\s*self/, "Manca il metodo cella(self), che restituisce la tua casella, [x, y]."),
+    mzNeed(/\bdef\s+muovi\s*\(\s*self\s*,\s*\w+\s*,/, "Manca il metodo muovi(self, mappa, mossa), che ti sposta se puoi e restituisce True o False."),
+    mzNeed(/\bdef\s+raccogli\s*\(\s*self/, "Manca il metodo raccogli(self, monete), che prende la moneta della tua casella.")],
+  en: [mzNeed(/\bclass\s+Explorer\b/, "You become an object: class Explorer:, with __init__ and its methods."),
+    mzNeed(/\bdef\s+cell\s*\(\s*self/, "The method cell(self) is missing: it gives back your square, [x, y]."),
+    mzNeed(/\bdef\s+walk\s*\(\s*self\s*,\s*\w+\s*,/, "The method walk(self, maze, move) is missing: it moves you if it can and gives back True or False."),
+    mzNeed(/\bdef\s+collect\s*\(\s*self/, "The method collect(self, coins) is missing: it takes the coin on your square.")]
+};
+const MZ_GHOSTS = {
+  it: [mzNeed(/\bclass\s+Fantasma\b/, "I fantasmi sono oggetti: class Fantasma:, con __init__ e muovi."),
+    mzNeed(/\bclass\s+Fantasma\b[\s\S]*?\bdef\s+muovi\s*\(\s*self\s*,\s*\w+\s*\)/, "Manca il metodo muovi(self, mappa) del fantasma: un passo in orizzontale, girandosi davanti a un muro.")],
+  en: [mzNeed(/\bclass\s+Ghost\b/, "The ghosts are objects: class Ghost:, with __init__ and walk."),
+    mzNeed(/\bclass\s+Ghost\b[\s\S]*?\bdef\s+walk\s*\(\s*self\s*,\s*\w+\s*\)/, "The ghost's method walk(self, maze) is missing: one step across, turning round in front of a wall.")]
+};
+const MZ_COMPUTER = {
+  it: [mzNeed(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    mzNeed(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."),
+    mzNeed(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    mzNeed(/\bkeys\.P\b/, "La pausa va con il tasto P: keys.P, in on_key_down.")],
+  en: [mzNeed(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    mzNeed(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."),
+    mzNeed(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    mzNeed(/\bkeys\.P\b/, "The pause goes with the P key: keys.P, in on_key_down.")]
+};
+
+/* Hidden tests of the window parts: the game played without a screen. Squares of 50 pixels: you're a cyan circle in
+   the middle of yours, (x * 50 + 25, y * 50 + 25); walls blue, the exit green (grey while it's closed), coins gold,
+   ghosts red. Only the centres of the circles count, not their size. */
+const mazeWinTests = (lang) => (c) => {
+  const it = lang === "it", M = it ? "Mosse" : "Moves", out = it ? "Sei uscito in 14 mosse!" : "You got out in 14 moves!";
+  return [
+    gtcase(c, "_t.step()\nprint(" + MZ_ME + ", len(_t.rects('blue')), _t.rects('green'))", (o) => o === "[(75, 275)] 39 [(350, 250, 50, 50)]",
+      it ? "all'inizio sei un cerchio cyan sull'entrata, in (1, 5); i muri sono 39 quadrati blu e l'uscita un quadrato verde in (7, 5)" : "at the start you're a cyan circle on the start, at (1, 5); the walls are 39 blue squares and the exit a green square at (7, 5)"),
+    gtcase(c, "_t.step()\n" + mzWalk("w w w w") + "print(" + MZ_ME + ", " + JSON.stringify(M + ": 4") + " in " + MZ_TEXT + ")", (o) => o === "[(75, 75)] True",
+      it ? "con la freccia su 4 volte arrivi in (1, 1), e c'è scritto Mosse: 4" : "with the up arrow 4 times you get to (1, 1), and it says Moves: 4"),
+    gtcase(c, "_t.step()\n_t.tap('left')\n_t.tap('space')\n_a = " + MZ_ME + "\n" + mzWalk("d d d") + "print(_a, " + MZ_ME + ", " + JSON.stringify(M + ": 2") + " in " + MZ_TEXT + ")", (o) => o === "[(75, 275)] [(175, 275)] True",
+      it ? "i muri ti fermano: a sinistra dell'entrata c'è un muro, e andando a destra un altro dopo 2 passi; contro un muro, o con un tasto che non è una freccia, la mossa non conta" : "walls stop you: left of the start there's a wall, and going right another after 2 steps; a move into a wall, or a key that isn't an arrow, doesn't count"),
+    gtcase(c, "_t.step()\n" + mzWalk(MZ_WAY1) + "_s = " + MZ_TEXT + "\n_t.tap('left')\nprint(" + JSON.stringify(out) + " in _s, " + MZ_ME + ")", (o) => o === "True [(375, 275)]",
+      it ? "per la strada più corta esci in 14 mosse: compare Sei uscito in 14 mosse! e poi le frecce non ti muovono più" : "the shortest way gets you out in 14 moves: You got out in 14 moves! appears and then the arrows don't move you any more")
+  ];
+};
+/* part 6: three coins on free squares, picked up on the way; the exit opens only when they're all taken */
+const mazeCoinTests = (lang) => (c) => {
+  const it = lang === "it", out = it ? "Sei uscito in 14 mosse!" : "You got out in 14 moves!", all = it ? "Monete: 3/3" : "Coins: 3/3";
+  return [
+    gtcase(MZ_RIG([1, 5, 2, 2, 1, 1, 3, 3, 1, 1, 2, 1]) + c, "_t.step()\nprint(" + MZ_GOLD + ", _t.rects('gray'), _t.rects('green'))", (o) => o === "[(75, 75), (125, 75), (175, 175)] [(350, 250, 50, 50)] []",
+      it ? "le monete vanno solo su caselle libere, una per casella: se randint dà 1 5 (l'entrata), 2 2 (un muro), 1 1, 3 3, di nuovo 1 1 e poi 2 1, finiscono in (1, 1), (3, 3) e (2, 1); e finché ci sono monete l'uscita è grigia" : "coins only go on free squares, one per square: if randint gives 1 5 (the start), 2 2 (a wall), 1 1, 3 3, 1 1 again and then 2 1, they end up at (1, 1), (3, 3) and (2, 1); and while there are coins the exit is grey"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n" + mzWalk("w w w") + "print(" + MZ_GOLD + ", " + JSON.stringify(all) + " in " + MZ_TEXT + ", _t.rects('green'))", (o) => o === "[] True [(350, 250, 50, 50)]",
+      it ? "con le monete in (1, 4), (1, 3) e (1, 2), salendo le prendi tutte: c'è scritto Monete: 3/3 e l'uscita diventa verde" : "with the coins at (1, 4), (1, 3) and (1, 2), going up you take them all: it says Coins: 3/3 and the exit turns green"),
+    gtcase(MZ_RIG([2, 5, 3, 5, 7, 1]) + c, "_t.step()\n" + mzWalk(MZ_WAY1) + "print(" + JSON.stringify(out) + " in " + MZ_TEXT + ", " + MZ_ME + ")", (o) => o === "False [(375, 275)]",
+      it ? "senza le monete l'uscita resta chiusa: arrivi sulla E ma non esci" : "without the coins the exit stays closed: you get to the E but you don't get out"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n" + mzWalk(MZ_WAY1) + "print(" + JSON.stringify(out) + " in " + MZ_TEXT + ")", (o) => o === "True",
+      it ? "prese le tre monete lungo la strada, sulla E esci in 14 mosse" : "with the three coins taken on the way, on the E you get out in 14 moves")
+  ];
+};
+/* part 7: three mazes one after another, and a record for each in a dictionary */
+const mazeLevelTests = (lang, recVar) => (c) => {
+  const it = lang === "it", N = it ? ["Cantina", "Giardino", "Torre"] : ["Cellar", "Garden", "Tower"];
+  const done = it ? "Hai finito tutti i labirinti!" : "You've finished all the mazes!";
+  const rec = (...v) => "{" + v.map((n, k) => `'${N[k]}': ${n}`).join(", ") + "}";
+  const ALL = MZ_COINS1.concat(MZ_COINS2, MZ_COINS3);
+  return [
+    gtcase(MZ_RIG(ALL) + c, "_t.step()\nprint(" + JSON.stringify(N[0]) + " in " + MZ_TEXT + ", " + MZ_ME + ")", (o) => o === "True [(75, 275)]",
+      it ? "si comincia dal primo labirinto, la Cantina: c'è scritto il suo nome e tu sei sulla sua S" : "you start from the first maze, the Cellar: its name is written and you're on its S"),
+    gtcase(MZ_RIG(ALL) + c, "_t.step()\n" + mzWalk(MZ_WAY1) + "print(" + JSON.stringify(N[1]) + " in " + MZ_TEXT + ", " + MZ_ME + ", _t.var(" + JSON.stringify(recVar) + "))", (o) => o === "True [(75, 75)] " + rec(14),
+      it ? "uscito dalla Cantina in 14 mosse arriva il Giardino, con te sulla sua S in (1, 1), e il record della Cantina è 14" : "out of the Cellar in 14 moves the Garden comes, with you on its S at (1, 1), and the Cellar's record is 14"),
+    gtcase(MZ_RIG(ALL.concat(ALL)) + c, "_t.step()\n" + mzWalk("d a d a " + MZ_WAY1) + mzWalk(MZ_WAY2) + mzWalk(MZ_WAY3) + "_s = " + MZ_TEXT + "\n_t.tap('space')\nprint(" + JSON.stringify(done) + " in _s, " + MZ_ME + ", " + JSON.stringify(N[0]) + " in " + MZ_TEXT + ")\n" + mzWalk(MZ_WAY1) + mzWalk("s w s w " + MZ_WAY2) + "print(_t.var(" + JSON.stringify(recVar) + "))",
+      (o) => o === "True [(75, 275)] True\n" + rec(14, 18, 18),
+      it ? "dopo i tre labirinti compare Hai finito tutti i labirinti! e Spazio ricomincia dalla Cantina; il record è il numero di mosse più basso: per la Cantina 18 la prima volta e 14 la seconda, mentre per il Giardino 22 mosse non battono 18" : "after the three mazes You've finished all the mazes! appears and Space starts again from the Cellar; the record is the lowest number of moves: for the Cellar 18 the first time and 14 the second, while for the Garden 22 moves don't beat 18")
+  ];
+};
+/* part 8: the Explorer class on its own */
+const mazeClassTests = (lang) => (c) => {
+  const it = lang === "it", K = it ? "Esploratore" : "Explorer", W = it ? "muovi" : "walk", C = it ? "cella" : "cell", M = it ? "mosse" : "moves",
+    R = it ? "raccogli" : "collect", T = it ? "monete_prese" : "coins_taken";
+  return [
+    gtcase(MZ_RIG(MZ_COINS1) + c, `_e = ${K}(1, 1)\n_m = ["#####", "#S..#", "#####"]\nprint(_e.${W}(_m, "d"), _e.${C}(), _e.${M}, _e.${W}(_m, "w"), _e.${W}(_m, "x"), _e.${C}(), _e.${M})`,
+      (o) => o === "True [2, 1] 1 False False [2, 1] 1",
+      it ? `un ${K}(1, 1) con muovi(mappa, "d") va in [2, 1], conta 1 mossa e restituisce True; contro un muro o con una lettera sbagliata restituisce False e resta dov'è` : `an ${K}(1, 1) with walk(maze, "d") goes to [2, 1], counts 1 move and gives back True; into a wall or with a wrong letter it gives back False and stays where it is`),
+    gtcase(MZ_RIG(MZ_COINS1) + c, `_e = ${K}(2, 1)\n_l = [[2, 1], [3, 1]]\n_e.${R}(_l)\n_e.${R}(_l)\nprint(_e.${T}, _l)`, (o) => o === "1 [[3, 1]]",
+      it ? "raccogli toglie dalla lista la moneta della tua casella e la conta, una volta sola" : "collect takes the coin on your square out of the list and counts it, just once")
+  ];
+};
+/* part 9: the ghosts, a team of objects going back and forth, and the lives */
+const mazeGhostTests = (lang) => (c) => {
+  const it = lang === "it", V = it ? "Vite" : "Lives", LV = it ? "vite" : "lives", G = it ? "fantasmi" : "ghosts", K = it ? "Fantasma" : "Ghost";
+  return [
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n_r = [" + MZ_RED + "]\nfor _w in [0.6, 0.5, 0.5, 0.5]:\n    _t.wait(_w)\n    _r.append(" + MZ_RED + ")\nprint(_r, len(" + G + "), type(" + G + "[0]).__name__)",
+      (o) => o === "[[(225, 175)], [(275, 175)], [(225, 175)], [(175, 175)], [(225, 175)]] 1 " + K,
+      it ? "nella Cantina c'è un fantasma, un Fantasma nella lista fantasmi: parte dalla F in (4, 3) e ogni mezzo secondo fa un passo, a destra fino al muro, poi indietro" : "in the Cellar there's one ghost, a Ghost in the list ghosts: it starts from the G at (4, 3) and every half second takes a step, right up to the wall, then back"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n" + mzWalk("w w w w d d s s d") + "print(" + MZ_ME + ", " + JSON.stringify(V + ": 2") + " in " + MZ_TEXT + ")", (o) => o === "[(75, 275)] True",
+      it ? "se cammini addosso al fantasma perdi una vita e torni sulla S" : "if you walk into the ghost you lose a life and go back to the S"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n" + mzWalk("w w w w d d s s") + "_t.wait(1.4)\nprint(" + MZ_ME + ", " + JSON.stringify(V + ": 2") + " in " + MZ_TEXT + ")", (o) => o === "[(75, 275)] True",
+      it ? "anche quando è il fantasma a venirti addosso perdi una vita e torni sulla S" : "also when it's the ghost that runs into you, you lose a life and go back to the S"),
+    gtcase(MZ_RIG(MZ_COINS1.concat(MZ_COINS1)) + c, "_t.step()\n" + LV + " = 1\n" + mzWalk("w w w w d d s s d") + "_s = " + MZ_TEXT + "\n_a = " + MZ_ME + "\n_t.tap('up')\n_b = " + MZ_ME + "\n_t.tap('space')\nprint('GAME OVER' in _s, _a == _b, " + MZ_ME + ", " + JSON.stringify(V + ": 3") + " in " + MZ_TEXT + ")",
+      (o) => o === "True True [(75, 275)] True",
+      it ? "persa l'ultima vita compare GAME OVER e le frecce non ti muovono più; con Spazio ricominci dalla S con 3 vite" : "with the last life lost GAME OVER appears and the arrows don't move you any more; with Space you start again from the S with 3 lives")
+  ];
+};
+/* part 10: the window's title, P for the pause, Esc to close */
+const mazeComputerTests = (lang) => (c) => {
+  const it = lang === "it", pause = it ? "PAUSA" : "PAUSED";
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n_t.tap('up')\n_a = " + MZ_RED + " + " + MZ_ME + "\n_t.tap('p')\n_t.tap('up')\n_t.wait(1.2)\n_b = " + MZ_RED + " + " + MZ_ME + "\n_s = " + MZ_TEXT + "\n_t.tap('p')\n_t.tap('up')\n_t.wait(0.6)\nprint(_a == _b, " + JSON.stringify(pause) + " in _s, " + MZ_ME + ", " + MZ_RED + ")",
+      (o) => o === "True True [(75, 175)] [(275, 175)]",
+      it ? "con P si ferma tutto: compare PAUSA, il fantasma sta fermo e le frecce non contano; con P di nuovo il fantasma riparte e tu ti muovi" : "with P everything stops: PAUSED appears, the ghost stands still and the arrows don't count; with P again the ghost goes on and you move"),
+    gtcase(MZ_RIG(MZ_COINS1) + c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True",
+      it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("maze", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_mappa.py", "build_map.py"],
+  it: {
+    title: "Costruisci: la mappa del Labirinto",
+    theory: [
+`<p>Da qui comincia il tuo progetto, il <b>Labirinto</b>: una mappa di muri con un'entrata e un'uscita, in cui cammini una casella alla volta per trovare la strada, raccogliendo monete e scappando dai fantasmi. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, con la <b>mappa</b>: una cornice sopra e sotto, il titolo, il labirinto disegnato con <code>print</code>, i comandi e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">=========================
+     L A B I R I N T O
+# # # # # # # # #
+# . . . # . . . #
+# . # . # . # . #
+# . # . . . # . #
+# . # # # . # . #
+# S . . # . . E #
+# # # # # # # # #
+Muoviti con w a s d:
+parti da S e trova l'uscita E!
+Passi della strada più corta:
+14
+=========================</pre>
+<p>Il labirinto disegnalo come vuoi: i muri sono <code>#</code>, tutto intorno e anche dentro, l'entrata è <code>S</code> e l'uscita <code>E</code>. Qui le caselle libere sono punti, ognuno seguito da uno spazio, ma vanno bene anche gli spazi vuoti.</p>`],
+    task: `Scrivi la copertina del Labirinto: la prima e l'ultima riga fatte solo di simboli, il titolo <code>LABIRINTO</code>, la mappa (almeno 3 righe che cominciano e finiscono con <code>#</code>, con l'entrata <code>S</code>, l'uscita <code>E</code> e qualche muro anche in mezzo), i comandi <code>w a s d</code> e un numero calcolato da Python, come <code>7 + 7</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Labirinto, di Ada
+print("=========================")
+print("     L A B I R I N T O")
+print("# # # # # # # # #")
+print("# . . . # . . . #")
+print("# . # . # . # . #")
+print("# . # . . . # . #")
+print("# . # # # . # . #")
+print("# S . . # . . E #")
+print("# # # # # # # # #")
+print("Muoviti con w a s d:")
+print("parti da S e trova l'uscita E!")
+print("Passi della strada più corta:")
+print(4 + 2 + 2 + 2 + 2 + 2)
+print("=========================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? Quali sono le righe della mappa, e cosa c'è dentro?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con LABIRINTO, tre o più print che cominciano e finiscono con #, con la S e la E dentro e qualche # anche nelle righe di mezzo, un print con w a s d, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !mazeCoverWhy(o, c, "it"),
+    why: (o, c) => mazeCoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the Maze's map",
+    theory: [
+`<p>Your project starts here, the <b>Maze</b>: a map of walls with a start and an exit, where you walk one square at a time to find the way, picking up coins and running away from ghosts. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, with the <b>map</b>: a frame above and below, the title, the maze drawn with <code>print</code>, the commands and a number worked out by Python. For example:</p>
+<pre class="term-sample">=========================
+         M A Z E
+# # # # # # # # #
+# . . . # . . . #
+# . # . # . # . #
+# . # . . . # . #
+# . # # # . # . #
+# S . . # . . E #
+# # # # # # # # #
+Move with w a s d:
+start at S and find the exit E!
+Steps on the shortest way:
+14
+=========================</pre>
+<p>Draw the maze as you like: the walls are <code>#</code>, all around and inside too, the start is <code>S</code> and the exit <code>E</code>. Here the free squares are dots, each followed by a space, but blank spaces are fine too.</p>`],
+    task: `Write the Maze's cover: the first and last lines made only of symbols, the title <code>MAZE</code>, the map (at least 3 lines that start and end with <code>#</code>, with the start <code>S</code>, the exit <code>E</code> and some walls in the middle too), the commands <code>w a s d</code> and a number worked out by Python, like <code>7 + 7</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Maze, by Ada
+print("=========================")
+print("         M A Z E")
+print("# # # # # # # # #")
+print("# . . . # . . . #")
+print("# . # . # . # . #")
+print("# . # . . . # . #")
+print("# . # # # . # . #")
+print("# S . . # . . E #")
+print("# # # # # # # # #")
+print("Move with w a s d:")
+print("start at S and find the exit E!")
+print("Steps on the shortest way:")
+print(4 + 2 + 2 + 2 + 2 + 2)
+print("=========================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? Which are the map's lines, and what's inside?",
+      "First line: a comment with #. Then a print of symbols, one with MAZE, three or more prints that start and end with #, with the S and the E inside and some # in the middle lines too, a print with w a s d, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !mazeCoverWhy(o, c, "en"),
+    why: (o, c) => mazeCoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: ["abs"], sample: ["3", "2"], file: ["costruisci_labirinto_1.py", "build_maze_1.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 1",
+    theory: [
+`<p>Parte 1: il labirinto è un <b>campo a caselle</b>, largo 9 e alto 7, muri compresi. Ogni casella ha due numeri: <code>x</code> conta le colonne da sinistra, da 0 a 8, e <code>y</code> le righe dall'alto, da 0 a 6. L'entrata S è in (1, 5), in basso a sinistra, e l'uscita E in (7, 5), in basso a destra. La tua posizione sta in due variabili, <code>x</code> e <code>y</code>.</p>
+<p>Il programma chiede quanti passi fare a destra e quanti in su. Attento alla y: cresce andando in giù, quindi salire vuol dire <b>togliere</b> dalla y. I passi possono anche essere negativi: −2 a destra vuol dire 2 a sinistra. Per ora i muri non contano.</p>
+<p>Poi stampa quanti passi hai fatto e quanti ne mancano all'uscita. Ma un passo all'indietro è comunque un passo, e una distanza non è mai negativa: <code>abs</code> toglie il segno, <code>abs(-3)</code> fa 3 e <code>abs(3)</code> resta 3. I passi che mancano sono la distanza in orizzontale più quella in verticale.</p>
+<pre class="term-sample">Sei all'entrata, in (1, 5). L'uscita è in (7, 5).
+Quanti passi a destra? 3
+Quanti passi in su? 2
+Ora sei in (4, 3).
+Passi fatti: 5
+Passi per l'uscita: 5</pre>`],
+    task: `Stampa dove sono l'entrata e l'uscita, chiedi quanti passi fare a destra e quanti in su (numeri interi), sposta la tua posizione, poi stampa la posizione nuova, i passi fatti e quelli che mancano all'uscita, con <code>abs</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altri passi, pure negativi.`,
+    starter: `# Labirinto, parte 1: dove sei\nx = 1\ny = 5\nuscita_x = 7\nuscita_y = 5\n\n`,
+    solution: `# Labirinto, parte 1: dove sei
+x = 1
+y = 5
+uscita_x = 7
+uscita_y = 5
+
+print(f"Sei all'entrata, in ({x}, {y}). L'uscita è in ({uscita_x}, {uscita_y}).")
+destra = int(input("Quanti passi a destra? "))
+su = int(input("Quanti passi in su? "))
+x = x + destra
+y = y - su
+print(f"Ora sei in ({x}, {y}).")
+print(f"Passi fatti: {abs(destra) + abs(su)}")
+print(f"Passi per l'uscita: {abs(uscita_x - x) + abs(uscita_y - y)}")`,
+    hints: ["Quali due numeri chiedi, e come diventano numeri? Andando in su, la y cresce o cala? Come conti i passi se uno è negativo?",
+      "Stampa la prima riga con una f-string. Poi due input dentro int(); la x nuova è la x più i passi a destra, la y nuova è la y meno i passi in su. I passi fatti sono abs dei primi più abs dei secondi; quelli per l'uscita sono abs della differenza delle x più abs della differenza delle y."],
+    check: mazeCheck("it", 1, [/\babs\s*\(/]), expect: (x) => mazeExpect("it", 1, x.inputs),
+    tests: mazeTests("it", 1, [["6", "0"], ["-2", "-3"], ["0", "4"], ["10", "1"], ["2", "-1"]])
+  },
+  en: {
+    title: "Build: the Maze, part 1",
+    theory: [
+`<p>Part 1: the maze is a <b>field of squares</b>, 9 wide and 7 high, walls included. Every square has two numbers: <code>x</code> counts the columns from the left, from 0 to 8, and <code>y</code> the rows from the top, from 0 to 6. The start S is at (1, 5), at the bottom left, and the exit E at (7, 5), at the bottom right. Your position is in two variables, <code>x</code> and <code>y</code>.</p>
+<p>The program asks how many steps to take right and how many up. Careful with y: it grows going down, so going up means <b>taking away</b> from y. Steps can be negative too: −2 right means 2 left. For now the walls don't count.</p>
+<p>Then it prints how many steps you've taken and how many are left to the exit. But a step backwards is still a step, and a distance is never negative: <code>abs</code> takes the sign away, <code>abs(-3)</code> gives 3 and <code>abs(3)</code> stays 3. The steps left are the distance across plus the distance up and down.</p>
+<pre class="term-sample">You're at the entrance, at (1, 5). The exit is at (7, 5).
+How many steps right? 3
+How many steps up? 2
+Now you're at (4, 3).
+Steps taken: 5
+Steps to the exit: 5</pre>`],
+    task: `Print where the start and the exit are, ask how many steps to take right and how many up (whole numbers), move your position, then print the new position, the steps taken and the ones left to the exit, with <code>abs</code>. The lines must be exactly as in the example. I'll also try other steps, negative ones too.`,
+    starter: `# Maze, part 1: where you are\nx = 1\ny = 5\nexit_x = 7\nexit_y = 5\n\n`,
+    solution: `# Maze, part 1: where you are
+x = 1
+y = 5
+exit_x = 7
+exit_y = 5
+
+print(f"You're at the entrance, at ({x}, {y}). The exit is at ({exit_x}, {exit_y}).")
+right = int(input("How many steps right? "))
+up = int(input("How many steps up? "))
+x = x + right
+y = y - up
+print(f"Now you're at ({x}, {y}).")
+print(f"Steps taken: {abs(right) + abs(up)}")
+print(f"Steps to the exit: {abs(exit_x - x) + abs(exit_y - y)}")`,
+    hints: ["Which two numbers do you ask for, and how do they become numbers? Going up, does y grow or shrink? How do you count the steps if one is negative?",
+      "Print the first line with an f-string. Then two inputs inside int(); the new x is x plus the steps right, the new y is y minus the steps up. The steps taken are abs of the first plus abs of the second; the ones to the exit are abs of the difference of the x's plus abs of the difference of the y's."],
+    check: mazeCheck("en", 1, [/\babs\s*\(/]), expect: (x) => mazeExpect("en", 1, x.inputs),
+    tests: mazeTests("en", 1, [["6", "0"], ["-2", "-3"], ["0", "4"], ["10", "1"], ["2", "-1"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["d", "6"], file: ["costruisci_labirinto_2.py", "build_maze_2.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 2",
+    theory: [
+`<p>Parte 2: arrivano le <b>regole</b>. Il labirinto è circondato da muri, quindi le caselle dentro vanno da 1 a 7 in orizzontale e da 1 a 5 in verticale: se finisci fuori da lì, hai sbattuto. I muri di dentro arriveranno con la mappa vera, nella prossima parte.</p>
+<p>Ora chiedi una direzione con le lettere dei giochi, <code>w</code> su, <code>s</code> giù, <code>a</code> sinistra, <code>d</code> destra, e quanti passi fare. Su e giù cambiano la y, sinistra e destra la x.</p>
+<p>Dopo la mossa, un'altra catena di <code>if</code> decide cosa è successo: fuori dai muri, sull'uscita, oppure niente di speciale, e allora stampi dove sei e quanti passi mancano.</p>
+<pre class="term-sample">Sei all'entrata, in (1, 5). L'uscita è in (7, 5).
+Direzione (w a s d)? d
+Quanti passi? 6
+Sei uscito dal labirinto!</pre>
+<p>Con una lettera diversa da w, a, s, d il programma scrive <code>Direzione sconosciuta: resti fermo.</code> e la posizione non cambia. Se finisci contro i muri: <code>Bum! Hai sbattuto contro il muro.</code>; se no, <code>Ora sei in (x, y).</code> e la riga dei passi per l'uscita, con i numeri giusti.</p>`],
+    task: `Fai crescere il programma: al posto delle due domande chiedi la direzione e i passi, muovi la posizione con una catena di <code>if</code> e togli la riga dei passi fatti. Poi controlla nell'ordine: fuori dai muri, sull'uscita, altrimenti la posizione nuova e i passi per l'uscita. Proverò tutte le direzioni, i muri e una lettera sbagliata.`,
+    solution: `# Labirinto, parte 2: muri e uscita
+x = 1
+y = 5
+uscita_x = 7
+uscita_y = 5
+
+print(f"Sei all'entrata, in ({x}, {y}). L'uscita è in ({uscita_x}, {uscita_y}).")
+direzione = input("Direzione (w a s d)? ")
+passi = int(input("Quanti passi? "))
+if direzione == "w":
+    y = y - passi
+elif direzione == "s":
+    y = y + passi
+elif direzione == "a":
+    x = x - passi
+elif direzione == "d":
+    x = x + passi
+else:
+    print("Direzione sconosciuta: resti fermo.")
+if x < 1 or x > 7 or y < 1 or y > 5:
+    print("Bum! Hai sbattuto contro il muro.")
+elif x == uscita_x and y == uscita_y:
+    print("Sei uscito dal labirinto!")
+else:
+    print(f"Ora sei in ({x}, {y}).")
+    print(f"Passi per l'uscita: {abs(uscita_x - x) + abs(uscita_y - y)}")`,
+    hints: ["Quale lettera cambia la x e quale la y, e in che verso? Quali valori di x e di y sono ancora dentro i muri?",
+      "Dopo i due input, una catena if, elif con le quattro lettere che aggiunge o toglie i passi, e un else per la lettera sbagliata. Poi un'altra catena: se x è minore di 1 o maggiore di 7, oppure y minore di 1 o maggiore di 5, hai sbattuto; se x e y sono quelle dell'uscita sei uscito; altrimenti stampi la posizione e i passi che mancano."],
+    check: mazeCheck("it", 2, [/\belif\b/]), expect: (x) => mazeExpect("it", 2, x.inputs),
+    tests: mazeTests("it", 2, [["w", "4"], ["w", "5"], ["s", "1"], ["a", "1"], ["d", "3"], ["x", "3"], ["D", "2"], ["a", "-6"]])
+  },
+  en: {
+    title: "Build: the Maze, part 2",
+    theory: [
+`<p>Part 2: the <b>rules</b> arrive. The maze is surrounded by walls, so the squares inside go from 1 to 7 across and from 1 to 5 up and down: if you end up outside that, you've crashed. The walls inside will come with the real map, in the next part.</p>
+<p>Now ask for a direction with the letters games use, <code>w</code> up, <code>s</code> down, <code>a</code> left, <code>d</code> right, and how many steps to take. Up and down change y, left and right change x.</p>
+<p>After the move, another chain of <code>if</code> decides what happened: outside the walls, on the exit, or nothing special, and then you print where you are and how many steps are left.</p>
+<pre class="term-sample">You're at the entrance, at (1, 5). The exit is at (7, 5).
+Direction (w a s d)? d
+How many steps? 6
+You're out of the maze!</pre>
+<p>With a letter other than w, a, s, d the program writes <code>Unknown direction: you stay put.</code> and the position doesn't change. If you end up against the walls: <code>Bang! You hit the wall.</code>; if not, <code>Now you're at (x, y).</code> and the line with the steps to the exit, with the right numbers.</p>`],
+    task: `Grow the program: instead of the two questions ask for the direction and the steps, move the position with a chain of <code>if</code> and take away the line with the steps taken. Then check in this order: outside the walls, on the exit, otherwise the new position and the steps to the exit. I'll try every direction, the walls and a wrong letter.`,
+    solution: `# Maze, part 2: walls and exit
+x = 1
+y = 5
+exit_x = 7
+exit_y = 5
+
+print(f"You're at the entrance, at ({x}, {y}). The exit is at ({exit_x}, {exit_y}).")
+direction = input("Direction (w a s d)? ")
+steps = int(input("How many steps? "))
+if direction == "w":
+    y = y - steps
+elif direction == "s":
+    y = y + steps
+elif direction == "a":
+    x = x - steps
+elif direction == "d":
+    x = x + steps
+else:
+    print("Unknown direction: you stay put.")
+if x < 1 or x > 7 or y < 1 or y > 5:
+    print("Bang! You hit the wall.")
+elif x == exit_x and y == exit_y:
+    print("You're out of the maze!")
+else:
+    print(f"Now you're at ({x}, {y}).")
+    print(f"Steps to the exit: {abs(exit_x - x) + abs(exit_y - y)}")`,
+    hints: ["Which letter changes x and which changes y, and which way? Which values of x and y are still inside the walls?",
+      "After the two inputs, an if, elif chain with the four letters that adds or takes away the steps, and an else for the wrong letter. Then another chain: if x is less than 1 or more than 7, or y less than 1 or more than 5, you've crashed; if x and y are the exit's you're out; otherwise you print the position and the steps left."],
+    check: mazeCheck("en", 2, [/\belif\b/]), expect: (x) => mazeExpect("en", 2, x.inputs),
+    tests: mazeTests("en", 2, [["w", "4"], ["w", "5"], ["s", "1"], ["a", "1"], ["d", "3"], ["x", "3"], ["D", "2"], ["a", "-6"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: MZ_WAY1.split(" "), file: ["costruisci_labirinto_3.py", "build_maze_3.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 3",
+    theory: [
+`<p>Parte 3: arriva il <b>labirinto vero</b>, con i muri anche dentro. La mappa diventa una <b>griglia</b>: una lista di righe, in cui ogni riga è una lista di caselle. <code>"#"</code> è un muro, <code>"."</code> una casella libera, <code>"S"</code> l'entrata e <code>"E"</code> l'uscita. La casella nella colonna x della riga y è <code>mappa[y][x]</code>: prima la riga, poi la colonna. Ecco la mappa da usare:</p>
+<pre class="term-sample">mappa = [
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+    ["#", ".", ".", ".", "#", ".", ".", ".", "#"],
+    ["#", ".", "#", ".", "#", ".", "#", ".", "#"],
+    ["#", ".", "#", ".", ".", ".", "#", ".", "#"],
+    ["#", ".", "#", "#", "#", ".", "#", ".", "#"],
+    ["#", "S", ".", ".", "#", ".", ".", "E", "#"],
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+]</pre>
+<p>Il gioco diventa un ciclo. A ogni giro il programma stampa la mappa, una riga alla volta con due <code>for</code> sugli indici: la casella dove sei tu è <code>@</code>, le altre si stampano come sono, ognuna seguita da uno spazio. Sotto scrive quante mosse hai fatto e chiede la mossa: w, a, s, d per spostarti di una casella, q per smettere.</p>
+<pre class="term-sample"># # # # # # # # #
+# . . . # . . . #
+# . # . # . # . #
+# . # . . . # . #
+# . # # # . # . #
+# @ . . # . . E #
+# # # # # # # # #
+Mosse: 0
+Mossa (w a s d, q per uscire)? w</pre>
+<p>Le regole, nell'ordine. Con q scrivi <code>Ciao!</code> ed esci dal ciclo; con una lettera che non sia w, a, s, d scrivi <code>Usa w, a, s o d.</code> e resti fermo. Se nella casella nuova c'è un muro: <code>Bum! C'è un muro.</code> e resti dove sei, senza contare la mossa. Se no ti sposti e la mossa conta; e se sei arrivato sull'uscita scrivi <code>Sei uscito in 14 mosse!</code>, con le tue mosse, e il gioco finisce.</p>`],
+    task: `Trasforma il programma nel labirinto vero: la mappa qui sopra come lista di liste, la tua posizione che parte dall'entrata, un ciclo <code>while</code> che a ogni giro stampa la mappa con te dentro, scrive <code>Mosse:</code> con le mosse fatte e chiede la mossa, e le regole qui sopra, nell'ordine. Proverò tante partite: per la strada più corta, per quella lunga, contro i muri, nei vicoli ciechi e con lettere sbagliate.`,
+    solution: `# Labirinto, parte 3: il labirinto vero
+mappa = [
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+    ["#", ".", ".", ".", "#", ".", ".", ".", "#"],
+    ["#", ".", "#", ".", "#", ".", "#", ".", "#"],
+    ["#", ".", "#", ".", ".", ".", "#", ".", "#"],
+    ["#", ".", "#", "#", "#", ".", "#", ".", "#"],
+    ["#", "S", ".", ".", "#", ".", ".", "E", "#"],
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+]
+x = 1
+y = 5
+mosse = 0
+
+while True:
+    for r in range(len(mappa)):
+        testo = ""
+        for c in range(len(mappa[r])):
+            if r == y and c == x:
+                testo = testo + "@ "
+            else:
+                testo = testo + mappa[r][c] + " "
+        print(testo)
+    print(f"Mosse: {mosse}")
+    mossa = input("Mossa (w a s d, q per uscire)? ")
+    if mossa == "q":
+        print("Ciao!")
+        break
+    nx = x
+    ny = y
+    if mossa == "w":
+        ny = y - 1
+    elif mossa == "s":
+        ny = y + 1
+    elif mossa == "a":
+        nx = x - 1
+    elif mossa == "d":
+        nx = x + 1
+    if nx == x and ny == y:
+        print("Usa w, a, s o d.")
+    elif mappa[ny][nx] == "#":
+        print("Bum! C'è un muro.")
+    else:
+        x = nx
+        y = ny
+        mosse += 1
+        if mappa[y][x] == "E":
+            print(f"Sei uscito in {mosse} mosse!")
+            break`,
+    hints: ["Cosa si ripete a ogni giro, e quali sono i modi per uscire dal ciclo? Come trovi la casella dove andresti, e come sai se lì c'è un muro?",
+      "Prima del ciclo la mappa, x, y e le mosse a 0. Nel while True: due for annidati, sulle righe e sulle colonne, che costruiscono il testo di ogni riga mettendo @ dove sei tu; poi la riga delle mosse e l'input, e con q break. La casella nuova parte da x e y e cambia con la lettera; se è uguale a quella di adesso la lettera era sbagliata, se nella mappa lì c'è # resti fermo, se no ti sposti, aggiungi 1 alle mosse e sulla E fai break."],
+    check: mazeCheck("it", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => mazeExpect("it", 3, x.inputs),
+    tests: mazeTests("it", 3, [MZ_WAY1.split(" "), ["a", "s", "q"], ["x", "W", "q"], ["d", "d", "d", "a", "a", "q"], "w w w w d d s s d d w w d d s s s s".split(" "), ["d", "a", "q"]])
+  },
+  en: {
+    title: "Build: the Maze, part 3",
+    theory: [
+`<p>Part 3: the <b>real maze</b> arrives, with walls inside too. The map becomes a <b>grid</b>: a list of rows, where every row is a list of squares. <code>"#"</code> is a wall, <code>"."</code> a free square, <code>"S"</code> the start and <code>"E"</code> the exit. The square in column x of row y is <code>maze[y][x]</code>: first the row, then the column. Here's the map to use:</p>
+<pre class="term-sample">maze = [
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+    ["#", ".", ".", ".", "#", ".", ".", ".", "#"],
+    ["#", ".", "#", ".", "#", ".", "#", ".", "#"],
+    ["#", ".", "#", ".", ".", ".", "#", ".", "#"],
+    ["#", ".", "#", "#", "#", ".", "#", ".", "#"],
+    ["#", "S", ".", ".", "#", ".", ".", "E", "#"],
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+]</pre>
+<p>The game becomes a loop. At every turn the program prints the map, one row at a time with two <code>for</code> loops over the indices: the square where you are is <code>@</code>, the others are printed as they are, each followed by a space. Below it writes how many moves you've made and asks for the move: w, a, s, d to move one square, q to stop.</p>
+<pre class="term-sample"># # # # # # # # #
+# . . . # . . . #
+# . # . # . # . #
+# . # . . . # . #
+# . # # # . # . #
+# @ . . # . . E #
+# # # # # # # # #
+Moves: 0
+Move (w a s d, q to quit)? w</pre>
+<p>The rules, in order. With q write <code>Bye!</code> and leave the loop; with a letter that isn't w, a, s, d write <code>Use w, a, s or d.</code> and stay put. If there's a wall on the new square: <code>Bang! There's a wall.</code> and you stay where you are, without counting the move. If not you move and the move counts; and if you've reached the exit write <code>You got out in 14 moves!</code>, with your moves, and the game ends.</p>`],
+    task: `Turn the program into the real maze: the map above as a list of lists, your position starting from the start, a <code>while</code> loop that at every turn prints the map with you in it, writes <code>Moves:</code> with the moves made and asks for the move, and the rules above, in order. I'll try lots of games: the shortest way, the long one, into the walls, into dead ends and with wrong letters.`,
+    solution: `# Maze, part 3: the real maze
+maze = [
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+    ["#", ".", ".", ".", "#", ".", ".", ".", "#"],
+    ["#", ".", "#", ".", "#", ".", "#", ".", "#"],
+    ["#", ".", "#", ".", ".", ".", "#", ".", "#"],
+    ["#", ".", "#", "#", "#", ".", "#", ".", "#"],
+    ["#", "S", ".", ".", "#", ".", ".", "E", "#"],
+    ["#", "#", "#", "#", "#", "#", "#", "#", "#"],
+]
+x = 1
+y = 5
+moves = 0
+
+while True:
+    for r in range(len(maze)):
+        text = ""
+        for c in range(len(maze[r])):
+            if r == y and c == x:
+                text = text + "@ "
+            else:
+                text = text + maze[r][c] + " "
+        print(text)
+    print(f"Moves: {moves}")
+    move = input("Move (w a s d, q to quit)? ")
+    if move == "q":
+        print("Bye!")
+        break
+    nx = x
+    ny = y
+    if move == "w":
+        ny = y - 1
+    elif move == "s":
+        ny = y + 1
+    elif move == "a":
+        nx = x - 1
+    elif move == "d":
+        nx = x + 1
+    if nx == x and ny == y:
+        print("Use w, a, s or d.")
+    elif maze[ny][nx] == "#":
+        print("Bang! There's a wall.")
+    else:
+        x = nx
+        y = ny
+        moves += 1
+        if maze[y][x] == "E":
+            print(f"You got out in {moves} moves!")
+            break`,
+    hints: ["What repeats at every turn, and what are the ways out of the loop? How do you find the square you'd go to, and how do you know if there's a wall there?",
+      "Before the loop the map, x, y and the moves at 0. In the while True: two nested for loops, over the rows and the columns, that build each row's text putting @ where you are; then the moves line and the input, and with q break. The new square starts from x and y and changes with the letter; if it's the same as the one now the letter was wrong, if there's # on the map there you stay put, if not you move, add 1 to the moves and on the E you break."],
+    check: mazeCheck("en", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => mazeExpect("en", 3, x.inputs),
+    tests: mazeTests("en", 3, [MZ_WAY1.split(" "), ["a", "s", "q"], ["x", "W", "q"], ["d", "d", "d", "a", "a", "q"], "w w w w d d s s d d w w d d s s s s".split(" "), ["d", "a", "q"]])
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: ["W", " w ", "w", "w", "D", "d", "s", "s", "d", "d", "s", "s", "d", "d"], file: ["costruisci_labirinto_4.py", "build_maze_4.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico. Prima di tutto la mappa si accorcia: ora sai che una stringa è una fila di lettere, quindi ogni riga può essere una stringa, come <code>"#...#...#"</code>, e <code>mappa[y][x]</code> legge la lettera come prima, con gli stessi indici. Le righe non le cambi mai, quindi le stringhe vanno benissimo:</p>
+<pre class="term-sample">mappa = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]</pre>
+<p>Poi lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>disegna(mappa, x, y)</code> stampa la mappa con te nella casella (x, y);</li>
+<li><code>muro(mappa, x, y)</code> restituisce <code>True</code> se nella casella (x, y) c'è un muro, <code>False</code> se no;</li>
+<li><code>passo(x, y, mossa)</code> restituisce la casella dove porta la mossa, come lista <code>[x, y]</code>, oppure la casella (x, y) com'è se la lettera è sbagliata.</li></ul>
+<p>Il ciclo resta, ma diventa corto: chiama le funzioni e decide cosa fare con quello che restituiscono. E rendi il gioco più gentile: con <code>strip</code> e <code>lower</code> la mossa vale anche scritta in maiuscolo o con degli spazi intorno, come <code>W</code> o <code> w </code>.</p>`],
+    task: `Scrivi la mappa come lista di stringhe, metti la stampa della mappa in <code>disegna(mappa, x, y)</code>, il controllo dei muri in <code>muro(mappa, x, y)</code> e la mossa in <code>passo(x, y, mossa)</code>, come qui sopra, e usale nel ciclo. Pulisci la mossa con <code>strip</code> e <code>lower</code>. Quello che il gioco scrive resta uguale. Proverò le funzioni una per una e partite con mosse in maiuscolo.`,
+    solution: `# Labirinto, parte 4: funzioni per muoversi
+mappa = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+
+
+def disegna(mappa, x, y):
+    for r in range(len(mappa)):
+        testo = ""
+        for c in range(len(mappa[r])):
+            if r == y and c == x:
+                testo = testo + "@ "
+            else:
+                testo = testo + mappa[r][c] + " "
+        print(testo)
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+x = 1
+y = 5
+mosse = 0
+
+while True:
+    disegna(mappa, x, y)
+    print(f"Mosse: {mosse}")
+    mossa = input("Mossa (w a s d, q per uscire)? ").strip().lower()
+    if mossa == "q":
+        print("Ciao!")
+        break
+    nuova = passo(x, y, mossa)
+    if nuova == [x, y]:
+        print("Usa w, a, s o d.")
+    elif muro(mappa, nuova[0], nuova[1]):
+        print("Bum! C'è un muro.")
+    else:
+        x = nuova[0]
+        y = nuova[1]
+        mosse += 1
+        if mappa[y][x] == "E":
+            print(f"Sei uscito in {mosse} mosse!")
+            break`,
+    hints: ["Quali pezzi del ciclo diventano funzioni, e cosa ricevono e restituiscono? Cosa deve restituire passo quando la lettera non è w, a, s o d?",
+      "Sposta i due for della stampa nella funzione disegna. muro restituisce il confronto tra la lettera della casella e il #. In passo una catena di if che restituisce la lista nuova [x, y] e, alla fine, la lista con x e y com'erano. Nel ciclo aggiungi strip e lower all'input, e confronta la casella nuova con la tua."],
+    check: mazeCheck("it", 4, [/def\s+disegna\s*\(/, /def\s+muro\s*\(/, /def\s+passo\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]), expect: (x) => mazeExpect("it", 4, x.inputs),
+    tests: (c) => mazeTests("it", 4, [MZ_WAY1.split(" "), ["A", " s ", "Q"], ["x", "W", " q"], ["D", "D", "d", "a", "a", "q"]])(c).concat([
+      tcase(c + `\nprint(passo(3, 2, "w"), passo(3, 2, "s"), passo(3, 2, "a"), passo(3, 2, "d"), passo(3, 2, "x"))`,
+        (o) => lastLines(o, 1) === "[3, 1] [3, 3] [2, 2] [4, 2] [3, 2]", "passo(3, 2, ...) doveva dare [3, 1], [3, 3], [2, 2], [4, 2], e con una lettera sbagliata [3, 2] com'era", { inputs: ["q"] }),
+      tcase(c + `\nprint(muro(mappa, 0, 0), muro(mappa, 1, 1), muro(mappa, 4, 5), muro(mappa, 7, 5))`,
+        (o) => lastLines(o, 1) === "True False True False", "muro doveva dare True per (0, 0) e (4, 5), che sono muri, e False per (1, 1) e per l'uscita (7, 5)", { inputs: ["q"] }),
+      tcase(c + `\ndisegna(["####", "#S.#", "####"], 2, 1)`,
+        (o) => lastLines(o, 3) === "# # # #\n# S @ #\n# # # #", "disegna([\"####\", \"#S.#\", \"####\"], 2, 1) doveva stampare la mappa piccola con @ nella casella (2, 1)", { inputs: ["q"] })])
+  },
+  en: {
+    title: "Build: the Maze, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block. First of all the map gets shorter: now you know a string is a row of letters, so every row can be a string, like <code>"#...#...#"</code>, and <code>maze[y][x]</code> reads the letter as before, with the same indices. You never change the rows, so strings are just fine:</p>
+<pre class="term-sample">maze = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]</pre>
+<p>Then you split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>draw_maze(maze, x, y)</code> prints the map with you on the square (x, y);</li>
+<li><code>is_wall(maze, x, y)</code> gives back <code>True</code> if there's a wall on the square (x, y), <code>False</code> if not;</li>
+<li><code>step(x, y, move)</code> gives back the square the move leads to, as a list <code>[x, y]</code>, or the square (x, y) as it is if the letter is wrong.</li></ul>
+<p>The loop stays, but it gets short: it calls the functions and decides what to do with what they give back. And make the game kinder: with <code>strip</code> and <code>lower</code> the move works in capitals too, or with spaces around it, like <code>W</code> or <code> w </code>.</p>`],
+    task: `Write the map as a list of strings, put the printing of the map in <code>draw_maze(maze, x, y)</code>, the wall check in <code>is_wall(maze, x, y)</code> and the move in <code>step(x, y, move)</code>, as above, and use them in the loop. Clean the move with <code>strip</code> and <code>lower</code>. What the game writes stays the same. I'll test the functions one by one and games with moves in capitals.`,
+    solution: `# Maze, part 4: functions to move
+maze = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+
+
+def draw_maze(maze, x, y):
+    for r in range(len(maze)):
+        text = ""
+        for c in range(len(maze[r])):
+            if r == y and c == x:
+                text = text + "@ "
+            else:
+                text = text + maze[r][c] + " "
+        print(text)
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+x = 1
+y = 5
+moves = 0
+
+while True:
+    draw_maze(maze, x, y)
+    print(f"Moves: {moves}")
+    move = input("Move (w a s d, q to quit)? ").strip().lower()
+    if move == "q":
+        print("Bye!")
+        break
+    new_cell = step(x, y, move)
+    if new_cell == [x, y]:
+        print("Use w, a, s or d.")
+    elif is_wall(maze, new_cell[0], new_cell[1]):
+        print("Bang! There's a wall.")
+    else:
+        x = new_cell[0]
+        y = new_cell[1]
+        moves += 1
+        if maze[y][x] == "E":
+            print(f"You got out in {moves} moves!")
+            break`,
+    hints: ["Which pieces of the loop become functions, and what do they get and give back? What should step give back when the letter isn't w, a, s or d?",
+      "Move the two for loops of the printing into the function draw_maze. is_wall gives back the comparison between the square's letter and the #. In step a chain of if that gives back the new list [x, y] and, at the end, the list with x and y as they were. In the loop add strip and lower to the input, and compare the new square with yours."],
+    check: mazeCheck("en", 4, [/def\s+draw_maze\s*\(/, /def\s+is_wall\s*\(/, /def\s+step\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]), expect: (x) => mazeExpect("en", 4, x.inputs),
+    tests: (c) => mazeTests("en", 4, [MZ_WAY1.split(" "), ["A", " s ", "Q"], ["x", "W", " q"], ["D", "D", "d", "a", "a", "q"]])(c).concat([
+      tcase(c + `\nprint(step(3, 2, "w"), step(3, 2, "s"), step(3, 2, "a"), step(3, 2, "d"), step(3, 2, "x"))`,
+        (o) => lastLines(o, 1) === "[3, 1] [3, 3] [2, 2] [4, 2] [3, 2]", "step(3, 2, ...) had to give [3, 1], [3, 3], [2, 2], [4, 2], and with a wrong letter [3, 2] as it was", { inputs: ["q"] }),
+      tcase(c + `\nprint(is_wall(maze, 0, 0), is_wall(maze, 1, 1), is_wall(maze, 4, 5), is_wall(maze, 7, 5))`,
+        (o) => lastLines(o, 1) === "True False True False", "is_wall had to give True for (0, 0) and (4, 5), which are walls, and False for (1, 1) and for the exit (7, 5)", { inputs: ["q"] }),
+      tcase(c + `\ndraw_maze(["####", "#S.#", "####"], 2, 1)`,
+        (o) => lastLines(o, 3) === "# # # #\n# S @ #\n# # # #", "draw_maze([\"####\", \"#S.#\", \"####\"], 2, 1) had to print the little map with @ on the square (2, 1)", { inputs: ["q"] })])
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_labirinto_5.py", "build_maze_5.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 5",
+    theory: [
+`<p>Parte 5: il labirinto esce dal terminale ed entra in una <b>finestra</b>. Ogni casella diventa un quadrato di 50 pixel: la mappa è larga 9 caselle e alta 7, quindi la finestra è larga 450 e alta 350. La casella nella colonna c e nella riga r ha l'angolo in <code>(c * 50, r * 50)</code>, e il suo centro è 25 pixel più a destra e 25 più in giù.</p>
+<p>Cosa tieni del tuo codice: la mappa, la tua posizione <code>x</code> e <code>y</code>, le mosse e le funzioni <code>muro</code> e <code>passo</code>. Cosa togli: il ciclo con <code>input</code> e la mappa stampata con <code>print</code>.</p>
+<p><code>draw()</code> colora lo sfondo di nero e, con due <code>for</code> come in <code>disegna</code>, disegna i muri come quadrati blu e l'uscita come un quadrato verde. Tu sei un cerchio <code>"cyan"</code> di raggio 18 al centro della tua casella, e in alto a sinistra c'è scritto <code>Mosse: 0</code>, con le tue mosse.</p>
+<p>Le frecce, in <code>on_key_down</code>, diventano le lettere di prima: su è <code>"w"</code>, giù <code>"s"</code>, sinistra <code>"a"</code> e destra <code>"d"</code>. Così <code>passo</code> ti dice dove andresti e <code>muro</code> se puoi, proprio come nel terminale. Quando arrivi sull'uscita la partita finisce: le frecce non ti muovono più e al centro compare <code>Sei uscito in 14 mosse!</code>, con le tue mosse, su un riquadro nero. Sul telefono le frecce compaiono accanto al gioco.</p>`],
+    task: `Porta il labirinto nella finestra come qui sopra: caselle da 50 pixel, finestra 450 × 350, i muri blu (<code>"blue"</code>), l'uscita verde (<code>"green"</code>), tu un cerchio <code>"cyan"</code> al centro della tua casella, la scritta <code>Mosse:</code> e alla fine <code>Sei uscito in N mosse!</code>. Le frecce passano da <code>passo</code> e <code>muro</code>. Quando chiudi la finestra, proverò a camminare, a sbattere contro i muri e a uscire.`,
+    solution: `# Labirinto, parte 5: nella finestra
+import pgzrun
+
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+mappa = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+x = 1
+y = 5
+mosse = 0
+uscito = False
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                casella(c, r, "green")
+    screen.draw.filled_circle((x * CELLA + 25, y * CELLA + 25), 18, "cyan")
+    screen.draw.text(f"Mosse: {mosse}", (10, 15))
+    if uscito:
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text(f"Sei uscito in {mosse} mosse!", (75, 165))
+
+
+def on_key_down(key):
+    global x, y, mosse, uscito
+    if uscito:
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    nuova = passo(x, y, mossa)
+    if nuova != [x, y] and not muro(mappa, nuova[0], nuova[1]):
+        x = nuova[0]
+        y = nuova[1]
+        mosse += 1
+        if mappa[y][x] == "E":
+            uscito = True
+
+
+pgzrun.go()`,
+    hints: ["Quali variabili cambiano quando premi una freccia, e quale funzione di prima ti dice dove andresti? Come fa draw() a sapere che sei uscito?",
+      "In cima import pgzrun, la misura delle caselle, WIDTH e HEIGHT, la mappa, x, y, le mosse e una variabile vera o falsa per l'uscita. In draw() due for con un quadrato per ogni # e per la E, poi il cerchio e le scritte. In on_key_down, con global, trasforma la freccia in una lettera, chiedi a passo la casella nuova e, se è diversa dalla tua e non è un muro, spostati e conta la mossa; sulla E la partita è finita."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT]),
+    why: (o, c) => pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT]),
+    tests: mazeWinTests("it")
+  },
+  en: {
+    title: "Build: the Maze, part 5",
+    theory: [
+`<p>Part 5: the maze leaves the terminal and goes into a <b>window</b>. Every square becomes a square of 50 pixels: the map is 9 squares wide and 7 high, so the window is 450 wide and 350 high. The square in column c and row r has its corner at <code>(c * 50, r * 50)</code>, and its centre is 25 pixels further right and 25 further down.</p>
+<p>What you keep of your code: the map, your position <code>x</code> and <code>y</code>, the moves and the functions <code>is_wall</code> and <code>step</code>. What you take away: the loop with <code>input</code> and the map printed with <code>print</code>.</p>
+<p><code>draw()</code> colours the background black and, with two <code>for</code> loops as in <code>draw_maze</code>, draws the walls as blue squares and the exit as a green square. You're a <code>"cyan"</code> circle with radius 18 in the middle of your square, and at the top left it says <code>Moves: 0</code>, with your moves.</p>
+<p>The arrows, in <code>on_key_down</code>, become the letters from before: up is <code>"w"</code>, down <code>"s"</code>, left <code>"a"</code> and right <code>"d"</code>. So <code>step</code> tells you where you'd go and <code>is_wall</code> whether you can, just like in the terminal. When you reach the exit the game ends: the arrows don't move you any more and in the middle <code>You got out in 14 moves!</code> appears, with your moves, on a black box. On a phone the arrows show up next to the game.</p>`],
+    task: `Take the maze into the window as above: squares of 50 pixels, a 450 × 350 window, blue walls (<code>"blue"</code>), a green exit (<code>"green"</code>), you a <code>"cyan"</code> circle in the middle of your square, the text <code>Moves:</code> and at the end <code>You got out in N moves!</code>. The arrows go through <code>step</code> and <code>is_wall</code>. When you close the window, I'll try walking, bumping into walls and getting out.`,
+    solution: `# Maze, part 5: in a window
+import pgzrun
+
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+maze = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+x = 1
+y = 5
+moves = 0
+escaped = False
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                square(c, r, "green")
+    screen.draw.filled_circle((x * CELL + 25, y * CELL + 25), 18, "cyan")
+    screen.draw.text(f"Moves: {moves}", (10, 15))
+    if escaped:
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text(f"You got out in {moves} moves!", (75, 165))
+
+
+def on_key_down(key):
+    global x, y, moves, escaped
+    if escaped:
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    new_cell = step(x, y, move)
+    if new_cell != [x, y] and not is_wall(maze, new_cell[0], new_cell[1]):
+        x = new_cell[0]
+        y = new_cell[1]
+        moves += 1
+        if maze[y][x] == "E":
+            escaped = True
+
+
+pgzrun.go()`,
+    hints: ["Which variables change when you press an arrow, and which function from before tells you where you'd go? How does draw() know you've got out?",
+      "At the top import pgzrun, the size of the squares, WIDTH and HEIGHT, the map, x, y, the moves and a true or false variable for the exit. In draw() two for loops with a square for every # and for the E, then the circle and the texts. In on_key_down, with global, turn the arrow into a letter, ask step for the new square and, if it's not yours and not a wall, move there and count the move; on the E the game is over."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT]),
+    why: (o, c) => pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT]),
+    tests: mazeWinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_labirinto_6.py", "build_maze_6.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 6",
+    theory: [
+`<p>Parte 6: nel labirinto compaiono tre <b>monete</b>, in posti diversi a ogni partita. Le scegli con <code>random.randint</code>: una colonna a caso da 1 a 7 e una riga a caso da 1 a 5, dentro i muri del bordo. Ma una moneta non può stare su un muro, sull'entrata o sull'uscita, e nemmeno sopra un'altra moneta: se nella casella non c'è un <code>"."</code>, o se c'è già una moneta, ne scegli un'altra. Si ripete finché le monete non sono tre: è un lavoro da <code>while</code>.</p>
+<p>Le monete stanno in una lista, ognuna una lista <code>[c, r]</code>, e si disegnano come cerchi dorati (<code>"gold"</code>) di raggio 10 al centro della loro casella. Quando arrivi su una moneta la togli dalla lista con <code>remove</code>: l'hai raccolta.</p>
+<p>E c'è una regola nuova: l'uscita si apre solo quando hai raccolto <b>tutte</b> le monete. Finché ne manca qualcuna è grigia (<code>"gray"</code>) e, anche se ci passi sopra, non esci; poi diventa verde. In basso a sinistra scrivi <code>Monete: 0/3</code>, con le monete prese.</p>`],
+    task: `Aggiungi tre monete in caselle libere a caso, una per casella, scegliendo con <code>random.randint</code> prima la colonna e poi la riga, e disegnale in <code>"gold"</code>; raccoglile camminandoci sopra; l'uscita è grigia e chiusa finché non le hai prese tutte, poi verde e aperta; scrivi <code>Monete:</code> con le monete prese su 3. Quando chiudi la finestra, proverò con dei dadi truccati dove vanno le monete, se si raccolgono e se l'uscita resta chiusa senza.`,
+    solution: `# Labirinto, parte 6: le monete
+import pgzrun
+import random
+
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+mappa = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+x = 1
+y = 5
+mosse = 0
+uscito = False
+monete = []
+while len(monete) < 3:
+    c = random.randint(1, 7)
+    r = random.randint(1, 5)
+    if mappa[r][c] == "." and [c, r] not in monete:
+        monete.append([c, r])
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                if len(monete) == 0:
+                    casella(c, r, "green")
+                else:
+                    casella(c, r, "gray")
+    for moneta in monete:
+        screen.draw.filled_circle((moneta[0] * CELLA + 25, moneta[1] * CELLA + 25), 10, "gold")
+    screen.draw.filled_circle((x * CELLA + 25, y * CELLA + 25), 18, "cyan")
+    screen.draw.text(f"Mosse: {mosse}", (10, 15))
+    screen.draw.text(f"Monete: {3 - len(monete)}/3", (10, 315))
+    if uscito:
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text(f"Sei uscito in {mosse} mosse!", (75, 165))
+
+
+def on_key_down(key):
+    global x, y, mosse, uscito
+    if uscito:
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    nuova = passo(x, y, mossa)
+    if nuova != [x, y] and not muro(mappa, nuova[0], nuova[1]):
+        x = nuova[0]
+        y = nuova[1]
+        mosse += 1
+        if [x, y] in monete:
+            monete.remove([x, y])
+        if mappa[y][x] == "E" and len(monete) == 0:
+            uscito = True
+
+
+pgzrun.go()`,
+    hints: ["Quando una casella scelta a caso va bene per una moneta, e quando no? Come capisce draw() se l'uscita è aperta?",
+      "Un while che va avanti finché la lista delle monete ha meno di 3 elementi: due randint, e se nella mappa lì c'è un punto e quella casella non è già nella lista, la aggiungi. In draw() un for sulle monete con un cerchio per ognuna, e per la E un if sulla lunghezza della lista. In on_key_down, dopo il passo, se la tua casella è nella lista la togli, ed esci solo sulla E con la lista vuota."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM]),
+    why: (o, c) => pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM]),
+    tests: (c) => mazeCoinTests("it")(c).concat(mazeWinTests("it")(c).slice(2, 3))
+  },
+  en: {
+    title: "Build: the Maze, part 6",
+    theory: [
+`<p>Part 6: three <b>coins</b> appear in the maze, in different places in every game. You pick them with <code>random.randint</code>: a random column from 1 to 7 and a random row from 1 to 5, inside the walls around the edge. But a coin can't be on a wall, on the start or on the exit, or on top of another coin: if there isn't a <code>"."</code> on the square, or there's already a coin, you pick another. You repeat until there are three coins: a job for <code>while</code>.</p>
+<p>The coins are in a list, each a list <code>[c, r]</code>, and they're drawn as gold circles (<code>"gold"</code>) with radius 10 in the middle of their square. When you step on a coin you take it out of the list with <code>remove</code>: you've picked it up.</p>
+<p>And there's a new rule: the exit opens only when you've picked up <b>all</b> the coins. While some are missing it's grey (<code>"gray"</code>) and, even if you walk on it, you don't get out; then it turns green. At the bottom left write <code>Coins: 0/3</code>, with the coins taken.</p>`],
+    task: `Add three coins on random free squares, one per square, picking with <code>random.randint</code> first the column and then the row, and draw them in <code>"gold"</code>; pick them up by walking on them; the exit is grey and closed until you've taken them all, then green and open; write <code>Coins:</code> with the coins taken out of 3. When you close the window, I'll check with loaded dice where the coins go, whether they get picked up and whether the exit stays closed without them.`,
+    solution: `# Maze, part 6: the coins
+import pgzrun
+import random
+
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+maze = [
+    "#########",
+    "#...#...#",
+    "#.#.#.#.#",
+    "#.#...#.#",
+    "#.###.#.#",
+    "#S..#..E#",
+    "#########",
+]
+x = 1
+y = 5
+moves = 0
+escaped = False
+coins = []
+while len(coins) < 3:
+    c = random.randint(1, 7)
+    r = random.randint(1, 5)
+    if maze[r][c] == "." and [c, r] not in coins:
+        coins.append([c, r])
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                if len(coins) == 0:
+                    square(c, r, "green")
+                else:
+                    square(c, r, "gray")
+    for coin in coins:
+        screen.draw.filled_circle((coin[0] * CELL + 25, coin[1] * CELL + 25), 10, "gold")
+    screen.draw.filled_circle((x * CELL + 25, y * CELL + 25), 18, "cyan")
+    screen.draw.text(f"Moves: {moves}", (10, 15))
+    screen.draw.text(f"Coins: {3 - len(coins)}/3", (10, 315))
+    if escaped:
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text(f"You got out in {moves} moves!", (75, 165))
+
+
+def on_key_down(key):
+    global x, y, moves, escaped
+    if escaped:
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    new_cell = step(x, y, move)
+    if new_cell != [x, y] and not is_wall(maze, new_cell[0], new_cell[1]):
+        x = new_cell[0]
+        y = new_cell[1]
+        moves += 1
+        if [x, y] in coins:
+            coins.remove([x, y])
+        if maze[y][x] == "E" and len(coins) == 0:
+            escaped = True
+
+
+pgzrun.go()`,
+    hints: ["When is a random square fine for a coin, and when isn't it? How does draw() know whether the exit is open?",
+      "A while that goes on while the list of coins has fewer than 3 items: two randint, and if there's a dot on the map there and that square isn't in the list yet, you add it. In draw() a for over the coins with a circle for each, and for the E an if on the length of the list. In on_key_down, after the step, if your square is in the list you take it out, and you get out only on the E with the list empty."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM]),
+    why: (o, c) => pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM]),
+    tests: (c) => mazeCoinTests("en")(c).concat(mazeWinTests("en")(c).slice(2, 3))
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_labirinto_7.py", "build_maze_7.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 7",
+    theory: [
+`<p>Parte 7: un labirinto solo è poco. Ora ce ne sono <b>tre</b>, uno dopo l'altro, in una lista: <code>labirinti</code> contiene tre mappe, ognuna una lista di stringhe come prima, e <code>nomi</code> i loro nomi. <code>livello</code> dice a che labirinto sei: 0, 1 o 2.</p>
+<pre class="term-sample">labirinti = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+nomi = ["Cantina", "Giardino", "Torre"]</pre>
+<p>Ogni labirinto ha la sua entrata, e non sempre è in (1, 5): la funzione <code>trova(mappa, lettera)</code> cerca la lettera nella mappa con due <code>for</code> e restituisce la sua casella, <code>[c, r]</code>. E <code>nuovo_labirinto()</code> prepara il labirinto di <code>livello</code>: la mappa, la tua posizione sulla S, le mosse a 0 e tre monete nuove. La chiami una prima volta prima di <code>pgzrun.go()</code>.</p>
+<p>Quando esci, il programma aggiorna il <b>record</b> di quel labirinto, cioè il numero di mosse più basso, in un dizionario <code>record</code> con i nomi come chiavi, che all'inizio è vuoto. Se il nome non c'è ancora, o se hai fatto meno mosse del record, il record diventa il tuo. Poi passa al labirinto dopo. Dopo l'ultimo la partita è finita: compaiono <code>Hai finito tutti i labirinti!</code> e <code>Spazio per ricominciare</code>, e con Spazio riparti dalla Cantina, con i record che restano.</p>
+<p>In alto scrivi il nome del labirinto e le mosse; in basso le monete e il record di quel labirinto, preso con <code>get</code>: se ancora non c'è, al suo posto un trattino, <code>-</code>.</p>`],
+    task: `Metti i tre labirinti in una lista e i nomi in un'altra, scrivi <code>trova</code> e <code>nuovo_labirinto</code>, e quando esci aggiorna il dizionario <code>record</code> e passa al labirinto dopo; dopo l'ultimo scrivi <code>Hai finito tutti i labirinti!</code>, e con Spazio ricomincia dal primo. Quando chiudi la finestra, proverò a giocare tutti e tre i labirinti, due volte, con le monete truccate lungo la strada.`,
+    solution: `# Labirinto, parte 7: più labirinti e record
+import pgzrun
+import random
+
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+labirinti = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+nomi = ["Cantina", "Giardino", "Torre"]
+record = {}
+livello = 0
+stato = "gioco"
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def trova(mappa, lettera):
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == lettera:
+                return [c, r]
+
+
+def nuovo_labirinto():
+    global mappa, x, y, mosse, monete
+    mappa = labirinti[livello]
+    inizio = trova(mappa, "S")
+    x = inizio[0]
+    y = inizio[1]
+    mosse = 0
+    monete = []
+    while len(monete) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if mappa[r][c] == "." and [c, r] not in monete:
+            monete.append([c, r])
+
+
+def esci():
+    global livello, stato
+    nome = nomi[livello]
+    if nome not in record or mosse < record[nome]:
+        record[nome] = mosse
+    if livello < len(labirinti) - 1:
+        livello += 1
+        nuovo_labirinto()
+    else:
+        stato = "fine"
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                if len(monete) == 0:
+                    casella(c, r, "green")
+                else:
+                    casella(c, r, "gray")
+    for moneta in monete:
+        screen.draw.filled_circle((moneta[0] * CELLA + 25, moneta[1] * CELLA + 25), 10, "gold")
+    screen.draw.filled_circle((x * CELLA + 25, y * CELLA + 25), 18, "cyan")
+    nome = nomi[livello]
+    screen.draw.text(f"{nome}   Mosse: {mosse}", (10, 15))
+    screen.draw.text(f"Monete: {3 - len(monete)}/3", (10, 315))
+    screen.draw.text(f"Record: {record.get(nome, '-')}", (300, 315))
+    if stato == "fine":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("Hai finito tutti i labirinti!", (60, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+
+
+def on_key_down(key):
+    global x, y, mosse, livello, stato
+    if stato == "fine":
+        if key == keys.SPACE:
+            livello = 0
+            stato = "gioco"
+            nuovo_labirinto()
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    nuova = passo(x, y, mossa)
+    if nuova != [x, y] and not muro(mappa, nuova[0], nuova[1]):
+        x = nuova[0]
+        y = nuova[1]
+        mosse += 1
+        if [x, y] in monete:
+            monete.remove([x, y])
+        if mappa[y][x] == "E" and len(monete) == 0:
+            esci()
+
+
+nuovo_labirinto()
+pgzrun.go()`,
+    hints: ["Cosa cambia da un labirinto all'altro, e cosa invece resta per tutta la partita? Quando un numero di mosse diventa il nuovo record?",
+      "trova scorre righe e colonne e restituisce [c, r] appena trova la lettera. nuovo_labirinto, con global, prende la mappa del livello, ti mette sulla S, azzera le mosse e rifà le monete con il while di prima. All'uscita: se il nome non è nel dizionario oppure le mosse sono meno del suo record, lo sostituisci; poi, se non sei all'ultimo, livello cresce di 1 e chiami nuovo_labirinto, se no la partita è finita. In on_key_down, a partita finita, Spazio rimette livello a 0."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT]),
+    why: (o, c) => pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT]),
+    tests: mazeLevelTests("it", "record")
+  },
+  en: {
+    title: "Build: the Maze, part 7",
+    theory: [
+`<p>Part 7: one maze isn't much. Now there are <b>three</b>, one after another, in a list: <code>mazes</code> holds three maps, each a list of strings as before, and <code>names</code> their names. <code>level</code> says which maze you're in: 0, 1 or 2.</p>
+<pre class="term-sample">mazes = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+names = ["Cellar", "Garden", "Tower"]</pre>
+<p>Every maze has its own start, and it isn't always at (1, 5): the function <code>find(maze, letter)</code> looks for the letter in the map with two <code>for</code> loops and gives back its square, <code>[c, r]</code>. And <code>new_maze()</code> gets the maze of <code>level</code> ready: the map, your position on the S, the moves at 0 and three new coins. You call it a first time before <code>pgzrun.go()</code>.</p>
+<p>When you get out, the program updates that maze's <b>record</b>, that is the lowest number of moves, in a dictionary <code>records</code> with the names as keys, which is empty at the start. If the name isn't there yet, or if you made fewer moves than the record, the record becomes yours. Then it goes on to the next maze. After the last one the game is over: <code>You've finished all the mazes!</code> and <code>Space to start again</code> appear, and with Space you start again from the Cellar, with the records staying.</p>
+<p>At the top write the maze's name and the moves; at the bottom the coins and that maze's record, taken with <code>get</code>: if there isn't one yet, a dash instead, <code>-</code>.</p>`],
+    task: `Put the three mazes in a list and the names in another, write <code>find</code> and <code>new_maze</code>, and when you get out update the dictionary <code>records</code> and go on to the next maze; after the last one write <code>You've finished all the mazes!</code>, and with Space start again from the first. When you close the window, I'll try playing all three mazes, twice, with the coins loaded along the way.`,
+    solution: `# Maze, part 7: more mazes and records
+import pgzrun
+import random
+
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+mazes = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+names = ["Cellar", "Garden", "Tower"]
+records = {}
+level = 0
+state = "playing"
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def find(maze, letter):
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == letter:
+                return [c, r]
+
+
+def new_maze():
+    global maze, x, y, moves, coins
+    maze = mazes[level]
+    start = find(maze, "S")
+    x = start[0]
+    y = start[1]
+    moves = 0
+    coins = []
+    while len(coins) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if maze[r][c] == "." and [c, r] not in coins:
+            coins.append([c, r])
+
+
+def get_out():
+    global level, state
+    name = names[level]
+    if name not in records or moves < records[name]:
+        records[name] = moves
+    if level < len(mazes) - 1:
+        level += 1
+        new_maze()
+    else:
+        state = "done"
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                if len(coins) == 0:
+                    square(c, r, "green")
+                else:
+                    square(c, r, "gray")
+    for coin in coins:
+        screen.draw.filled_circle((coin[0] * CELL + 25, coin[1] * CELL + 25), 10, "gold")
+    screen.draw.filled_circle((x * CELL + 25, y * CELL + 25), 18, "cyan")
+    name = names[level]
+    screen.draw.text(f"{name}   Moves: {moves}", (10, 15))
+    screen.draw.text(f"Coins: {3 - len(coins)}/3", (10, 315))
+    screen.draw.text(f"Record: {records.get(name, '-')}", (300, 315))
+    if state == "done":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("You've finished all the mazes!", (60, 140))
+        screen.draw.text("Space to start again", (85, 185))
+
+
+def on_key_down(key):
+    global x, y, moves, level, state
+    if state == "done":
+        if key == keys.SPACE:
+            level = 0
+            state = "playing"
+            new_maze()
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    new_cell = step(x, y, move)
+    if new_cell != [x, y] and not is_wall(maze, new_cell[0], new_cell[1]):
+        x = new_cell[0]
+        y = new_cell[1]
+        moves += 1
+        if [x, y] in coins:
+            coins.remove([x, y])
+        if maze[y][x] == "E" and len(coins) == 0:
+            get_out()
+
+
+new_maze()
+pgzrun.go()`,
+    hints: ["What changes from one maze to the next, and what stays for the whole game instead? When does a number of moves become the new record?",
+      "find goes through rows and columns and gives back [c, r] as soon as it finds the letter. new_maze, with global, takes the level's map, puts you on the S, sets the moves to zero and makes the coins again with the while from before. On the way out: if the name isn't in the dictionary or the moves are fewer than its record, you replace it; then, if you're not on the last one, level grows by 1 and you call new_maze, otherwise the game is over. In on_key_down, when the game is over, Space puts level back to 0."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT]),
+    why: (o, c) => pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT]),
+    tests: mazeLevelTests("en", "records")
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_labirinto_8.py", "build_maze_8.py"],
+  it: {
+    title: "Costruisci: il Labirinto, parte 8",
+    theory: [
+`<p>Parte 8: tu diventi un <b>oggetto</b>. La classe <code>Esploratore</code> tiene insieme quello che il gioco sa di te: la posizione <code>x</code> e <code>y</code>, le <code>mosse</code> e le monete prese, <code>monete_prese</code>. <code>__init__(self, x, y)</code> ti mette nella casella data, con mosse e monete a 0. E i suoi metodi fanno quello che prima faceva on_key_down:</p>
+<ul><li><code>cella(self)</code> restituisce la tua casella, <code>[x, y]</code>;</li>
+<li><code>muovi(self, mappa, mossa)</code> usa <code>passo</code> e <code>muro</code>: se puoi andare, ti sposta, conta la mossa e restituisce <code>True</code>; se no, contro un muro o con una lettera sbagliata, non ti muove e restituisce <code>False</code>;</li>
+<li><code>raccogli(self, monete)</code>: se nella tua casella c'è una moneta, la toglie dalla lista e la conta.</li></ul>
+<p><code>nuovo_labirinto()</code> crea un esploratore nuovo sulla S, e <code>on_key_down</code> si accorcia: trasforma la freccia in una lettera, chiede all'esploratore di muoversi e, se si è mosso, di raccogliere; poi controlla l'uscita. <code>draw()</code> legge posizione, mosse e monete dall'oggetto. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Esploratore</code> con <code>__init__</code>, <code>cella</code>, <code>muovi</code> e <code>raccogli</code>, come qui sopra, e usa un oggetto <code>esploratore</code> al posto di x, y e delle mosse. Quando chiudi la finestra, proverò la classe da sola, in un labirinto piccolo, e poi il gioco con i record.`,
+    solution: `# Labirinto, parte 8: l'esploratore
+import pgzrun
+import random
+
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+labirinti = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+nomi = ["Cantina", "Giardino", "Torre"]
+record = {}
+livello = 0
+stato = "gioco"
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def trova(mappa, lettera):
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == lettera:
+                return [c, r]
+
+
+class Esploratore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.mosse = 0
+        self.monete_prese = 0
+
+    def cella(self):
+        return [self.x, self.y]
+
+    def muovi(self, mappa, mossa):
+        nuova = passo(self.x, self.y, mossa)
+        if nuova == self.cella() or muro(mappa, nuova[0], nuova[1]):
+            return False
+        self.x = nuova[0]
+        self.y = nuova[1]
+        self.mosse += 1
+        return True
+
+    def raccogli(self, monete):
+        if self.cella() in monete:
+            monete.remove(self.cella())
+            self.monete_prese += 1
+
+
+def nuovo_labirinto():
+    global mappa, esploratore, monete
+    mappa = labirinti[livello]
+    inizio = trova(mappa, "S")
+    esploratore = Esploratore(inizio[0], inizio[1])
+    monete = []
+    while len(monete) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if mappa[r][c] == "." and [c, r] not in monete:
+            monete.append([c, r])
+
+
+def esci():
+    global livello, stato
+    nome = nomi[livello]
+    if nome not in record or esploratore.mosse < record[nome]:
+        record[nome] = esploratore.mosse
+    if livello < len(labirinti) - 1:
+        livello += 1
+        nuovo_labirinto()
+    else:
+        stato = "fine"
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                if len(monete) == 0:
+                    casella(c, r, "green")
+                else:
+                    casella(c, r, "gray")
+    for moneta in monete:
+        screen.draw.filled_circle((moneta[0] * CELLA + 25, moneta[1] * CELLA + 25), 10, "gold")
+    screen.draw.filled_circle((esploratore.x * CELLA + 25, esploratore.y * CELLA + 25), 18, "cyan")
+    nome = nomi[livello]
+    screen.draw.text(f"{nome}   Mosse: {esploratore.mosse}", (10, 15))
+    screen.draw.text(f"Monete: {esploratore.monete_prese}/3", (10, 315))
+    screen.draw.text(f"Record: {record.get(nome, '-')}", (300, 315))
+    if stato == "fine":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("Hai finito tutti i labirinti!", (60, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+
+
+def on_key_down(key):
+    global livello, stato
+    if stato == "fine":
+        if key == keys.SPACE:
+            livello = 0
+            stato = "gioco"
+            nuovo_labirinto()
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    if esploratore.muovi(mappa, mossa):
+        esploratore.raccogli(monete)
+        if mappa[esploratore.y][esploratore.x] == "E" and len(monete) == 0:
+            esci()
+
+
+nuovo_labirinto()
+pgzrun.go()`,
+    hints: ["Quali variabili diventano attributi dell'oggetto? Cosa deve restituire muovi, e a chi serve saperlo?",
+      "In __init__ quattro attributi con self. cella restituisce una lista con self.x e self.y. muovi chiede a passo la casella nuova: se è uguale alla tua oppure è un muro restituisce False, se no cambia x e y, aggiunge 1 alle mosse e restituisce True. raccogli controlla se la tua casella è nella lista, la toglie con remove e conta la moneta. In nuovo_labirinto, con global, crei l'esploratore sulla S."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT].concat(MZ_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT].concat(MZ_CLASS.it)),
+    tests: (c) => mazeClassTests("it")(c).concat(mazeLevelTests("it", "record")(c).slice(1))
+  },
+  en: {
+    title: "Build: the Maze, part 8",
+    theory: [
+`<p>Part 8: you become an <b>object</b>. The class <code>Explorer</code> keeps together what the game knows about you: the position <code>x</code> and <code>y</code>, the <code>moves</code> and the coins taken, <code>coins_taken</code>. <code>__init__(self, x, y)</code> puts you on the square given, with moves and coins at 0. And its methods do what on_key_down used to do:</p>
+<ul><li><code>cell(self)</code> gives back your square, <code>[x, y]</code>;</li>
+<li><code>walk(self, maze, move)</code> uses <code>step</code> and <code>is_wall</code>: if you can go, it moves you, counts the move and gives back <code>True</code>; if not, into a wall or with a wrong letter, it doesn't move you and gives back <code>False</code>;</li>
+<li><code>collect(self, coins)</code>: if there's a coin on your square, it takes it out of the list and counts it.</li></ul>
+<p><code>new_maze()</code> makes a new explorer on the S, and <code>on_key_down</code> gets shorter: it turns the arrow into a letter, asks the explorer to walk and, if it moved, to collect; then it checks the exit. <code>draw()</code> reads position, moves and coins from the object. The game stays the same.</p>`],
+    task: `Write the class <code>Explorer</code> with <code>__init__</code>, <code>cell</code>, <code>walk</code> and <code>collect</code>, as above, and use an object <code>explorer</code> instead of x, y and the moves. When you close the window, I'll test the class on its own, in a little maze, and then the game with the records.`,
+    solution: `# Maze, part 8: the explorer
+import pgzrun
+import random
+
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+mazes = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#...#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#.....#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#.....#E#",
+        "#.###.#.#",
+        "#...#...#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+names = ["Cellar", "Garden", "Tower"]
+records = {}
+level = 0
+state = "playing"
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def find(maze, letter):
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == letter:
+                return [c, r]
+
+
+class Explorer:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.moves = 0
+        self.coins_taken = 0
+
+    def cell(self):
+        return [self.x, self.y]
+
+    def walk(self, maze, move):
+        new_cell = step(self.x, self.y, move)
+        if new_cell == self.cell() or is_wall(maze, new_cell[0], new_cell[1]):
+            return False
+        self.x = new_cell[0]
+        self.y = new_cell[1]
+        self.moves += 1
+        return True
+
+    def collect(self, coins):
+        if self.cell() in coins:
+            coins.remove(self.cell())
+            self.coins_taken += 1
+
+
+def new_maze():
+    global maze, explorer, coins
+    maze = mazes[level]
+    start = find(maze, "S")
+    explorer = Explorer(start[0], start[1])
+    coins = []
+    while len(coins) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if maze[r][c] == "." and [c, r] not in coins:
+            coins.append([c, r])
+
+
+def get_out():
+    global level, state
+    name = names[level]
+    if name not in records or explorer.moves < records[name]:
+        records[name] = explorer.moves
+    if level < len(mazes) - 1:
+        level += 1
+        new_maze()
+    else:
+        state = "done"
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                if len(coins) == 0:
+                    square(c, r, "green")
+                else:
+                    square(c, r, "gray")
+    for coin in coins:
+        screen.draw.filled_circle((coin[0] * CELL + 25, coin[1] * CELL + 25), 10, "gold")
+    screen.draw.filled_circle((explorer.x * CELL + 25, explorer.y * CELL + 25), 18, "cyan")
+    name = names[level]
+    screen.draw.text(f"{name}   Moves: {explorer.moves}", (10, 15))
+    screen.draw.text(f"Coins: {explorer.coins_taken}/3", (10, 315))
+    screen.draw.text(f"Record: {records.get(name, '-')}", (300, 315))
+    if state == "done":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("You've finished all the mazes!", (60, 140))
+        screen.draw.text("Space to start again", (85, 185))
+
+
+def on_key_down(key):
+    global level, state
+    if state == "done":
+        if key == keys.SPACE:
+            level = 0
+            state = "playing"
+            new_maze()
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    if explorer.walk(maze, move):
+        explorer.collect(coins)
+        if maze[explorer.y][explorer.x] == "E" and len(coins) == 0:
+            get_out()
+
+
+new_maze()
+pgzrun.go()`,
+    hints: ["Which variables become attributes of the object? What should walk give back, and who needs to know it?",
+      "In __init__ four attributes with self. cell gives back a list with self.x and self.y. walk asks step for the new square: if it's the same as yours or it's a wall it gives back False, otherwise it changes x and y, adds 1 to the moves and gives back True. collect checks whether your square is in the list, takes it out with remove and counts the coin. In new_maze, with global, you make the explorer on the S."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT].concat(MZ_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, MZ_ARROWS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT].concat(MZ_CLASS.en)),
+    tests: (c) => mazeClassTests("en")(c).concat(mazeLevelTests("en", "records")(c).slice(1))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_labirinto.py", "final_challenge_maze.py"],
+  it: {
+    title: "Costruisci: il Labirinto completo",
+    theory: [
+`<p>Parte 9, la sfida finale: arrivano i <b>fantasmi</b>. Nelle mappe una <code>F</code> segna dove parte un fantasma: per il resto quella casella è libera, ma una moneta lì non ci va. Le F sono queste:</p>
+<ul><li>nella Cantina la riga 3 diventa <code>"#.#.F.#.#"</code>;</li>
+<li>nel Giardino la riga 1 diventa <code>"#S#..F..#"</code>;</li>
+<li>nella Torre la riga 1 diventa <code>"#..F..#E#"</code> e la riga 3 <code>"#...#.F.#"</code>: due fantasmi.</li></ul>
+<p>Ogni fantasma è un oggetto della classe <code>Fantasma</code>, con la sua casella <code>x</code> e <code>y</code> e la direzione <code>dx</code>, all'inizio 1, verso destra. Il suo metodo <code>muovi(self, mappa)</code> fa un passo in orizzontale; ma se davanti c'è un muro, prima si gira: <code>dx</code> cambia segno. Così va avanti e indietro nel suo corridoio. <code>nuovo_labirinto()</code> cerca le F con due <code>for</code> e mette un fantasma per ognuna nella lista <code>fantasmi</code>: una squadra di oggetti. Ogni mezzo secondo l'orologio chiama <code>muovi_fantasmi()</code>, che li fa muovere tutti.</p>
+<p>Hai 3 <b>vite</b>, in <code>vite</code>. Se tu e un fantasma finite nella stessa casella, perché ti viene addosso o perché ci cammini tu, perdi una vita e torni sulla S: controllalo dopo ogni passo dei fantasmi e dopo ogni passo tuo. Quando le vite finiscono la partita è persa: compaiono <code>GAME OVER</code> e <code>Spazio per ricominciare</code>, le frecce non contano e i fantasmi si fermano; con Spazio ricominci dalla Cantina con 3 vite. I fantasmi sono cerchi rossi (<code>"red"</code>), e in alto a destra scrivi <code>Vite: 3</code>.</p>`],
+    task: `Aggiungi le F alle mappe come qui sopra, la classe <code>Fantasma</code> con <code>__init__</code> e <code>muovi</code>, la lista <code>fantasmi</code> preparata in <code>nuovo_labirinto</code>, l'orologio che li muove ogni 0.5 secondi e le <code>vite</code>, con <code>GAME OVER</code> quando finiscono. Quando chiudi la finestra, proverò a guardare un fantasma che va avanti e indietro, a farmi prendere e a perdere tutte le vite.`,
+    solution: `# Labirinto, parte 9: i fantasmi
+import pgzrun
+import random
+
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+labirinti = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#.F.#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#..F..#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#..F..#E#",
+        "#.###.#.#",
+        "#...#.F.#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+nomi = ["Cantina", "Giardino", "Torre"]
+record = {}
+livello = 0
+vite = 3
+stato = "gioco"
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def trova(mappa, lettera):
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == lettera:
+                return [c, r]
+
+
+class Esploratore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.mosse = 0
+        self.monete_prese = 0
+
+    def cella(self):
+        return [self.x, self.y]
+
+    def muovi(self, mappa, mossa):
+        nuova = passo(self.x, self.y, mossa)
+        if nuova == self.cella() or muro(mappa, nuova[0], nuova[1]):
+            return False
+        self.x = nuova[0]
+        self.y = nuova[1]
+        self.mosse += 1
+        return True
+
+    def raccogli(self, monete):
+        if self.cella() in monete:
+            monete.remove(self.cella())
+            self.monete_prese += 1
+
+
+class Fantasma:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.dx = 1
+
+    def muovi(self, mappa):
+        if muro(mappa, self.x + self.dx, self.y):
+            self.dx = -self.dx
+        self.x += self.dx
+
+
+def nuovo_labirinto():
+    global mappa, esploratore, monete, fantasmi
+    mappa = labirinti[livello]
+    inizio = trova(mappa, "S")
+    esploratore = Esploratore(inizio[0], inizio[1])
+    fantasmi = []
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "F":
+                fantasmi.append(Fantasma(c, r))
+    monete = []
+    while len(monete) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if mappa[r][c] == "." and [c, r] not in monete:
+            monete.append([c, r])
+
+
+def esci():
+    global livello, stato
+    nome = nomi[livello]
+    if nome not in record or esploratore.mosse < record[nome]:
+        record[nome] = esploratore.mosse
+    if livello < len(labirinti) - 1:
+        livello += 1
+        nuovo_labirinto()
+    else:
+        stato = "fine"
+
+
+def nuova_partita():
+    global livello, vite, stato
+    livello = 0
+    vite = 3
+    stato = "gioco"
+    nuovo_labirinto()
+
+
+def controlla_fantasmi():
+    global vite, stato
+    for fantasma in fantasmi:
+        if [fantasma.x, fantasma.y] == esploratore.cella():
+            vite -= 1
+            if vite == 0:
+                stato = "perso"
+            else:
+                inizio = trova(mappa, "S")
+                esploratore.x = inizio[0]
+                esploratore.y = inizio[1]
+            break
+
+
+def muovi_fantasmi():
+    if stato != "gioco":
+        return
+    for fantasma in fantasmi:
+        fantasma.muovi(mappa)
+    controlla_fantasmi()
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                if len(monete) == 0:
+                    casella(c, r, "green")
+                else:
+                    casella(c, r, "gray")
+    for moneta in monete:
+        screen.draw.filled_circle((moneta[0] * CELLA + 25, moneta[1] * CELLA + 25), 10, "gold")
+    for fantasma in fantasmi:
+        screen.draw.filled_circle((fantasma.x * CELLA + 25, fantasma.y * CELLA + 25), 18, "red")
+    screen.draw.filled_circle((esploratore.x * CELLA + 25, esploratore.y * CELLA + 25), 18, "cyan")
+    nome = nomi[livello]
+    screen.draw.text(f"{nome}   Mosse: {esploratore.mosse}", (10, 15))
+    screen.draw.text(f"Vite: {vite}", (360, 15))
+    screen.draw.text(f"Monete: {esploratore.monete_prese}/3", (10, 315))
+    screen.draw.text(f"Record: {record.get(nome, '-')}", (300, 315))
+    if stato == "fine":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("Hai finito tutti i labirinti!", (60, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+    if stato == "perso":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("GAME OVER", (165, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+
+
+def on_key_down(key):
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    if esploratore.muovi(mappa, mossa):
+        controlla_fantasmi()
+        if stato == "gioco":
+            esploratore.raccogli(monete)
+            if mappa[esploratore.y][esploratore.x] == "E" and len(monete) == 0:
+                esci()
+
+
+nuova_partita()
+clock.schedule_interval(muovi_fantasmi, 0.5)
+pgzrun.go()`,
+    hints: ["Cosa deve ricordare un fantasma per sapere dove andare dopo? In quali momenti tu e un fantasma potete finire nella stessa casella?",
+      "Nel muovi del fantasma: se nella casella x più dx c'è un muro, dx diventa il suo opposto; poi x cresce di dx. In nuovo_labirinto due for sulle righe e sulle colonne, e per ogni F un Fantasma nuovo nella lista. Una funzione guarda se un fantasma è nella tua casella: toglie una vita e ti rimette sulla S, oppure, se le vite sono finite, la partita è persa. Chiamala dopo il passo dei fantasmi e dopo il tuo."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT, MZ_CLOCK].concat(MZ_CLASS.it, MZ_GHOSTS.it)),
+    why: (o, c) => pgzWhy(c, "it", [MZ_NOINPUT, MZ_KEYS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT, MZ_CLOCK].concat(MZ_CLASS.it, MZ_GHOSTS.it)),
+    tests: (c) => mazeGhostTests("it")(c).concat(mazeClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Maze",
+    theory: [
+`<p>Part 9, the final challenge: the <b>ghosts</b> arrive. On the maps a <code>G</code> marks where a ghost starts: apart from that the square is free, but a coin doesn't go there. These are the G's:</p>
+<ul><li>in the Cellar row 3 becomes <code>"#.#.G.#.#"</code>;</li>
+<li>in the Garden row 1 becomes <code>"#S#..G..#"</code>;</li>
+<li>in the Tower row 1 becomes <code>"#..G..#E#"</code> and row 3 <code>"#...#.G.#"</code>: two ghosts.</li></ul>
+<p>Every ghost is an object of the class <code>Ghost</code>, with its square <code>x</code> and <code>y</code> and the direction <code>dx</code>, 1 at the start, to the right. Its method <code>walk(self, maze)</code> takes one step across; but if there's a wall ahead, it turns round first: <code>dx</code> changes sign. So it goes back and forth in its corridor. <code>new_maze()</code> looks for the G's with two <code>for</code> loops and puts a ghost for each one in the list <code>ghosts</code>: a team of objects. Every half second the clock calls <code>move_ghosts()</code>, which makes them all move.</p>
+<p>You have 3 <b>lives</b>, in <code>lives</code>. If you and a ghost end up on the same square, because it runs into you or because you walk into it, you lose a life and go back to the S: check it after every step of the ghosts and after every step of yours. When the lives run out the game is lost: <code>GAME OVER</code> and <code>Space to start again</code> appear, the arrows don't count and the ghosts stop; with Space you start again from the Cellar with 3 lives. The ghosts are red circles (<code>"red"</code>), and at the top right write <code>Lives: 3</code>.</p>`],
+    task: `Add the G's to the maps as above, the class <code>Ghost</code> with <code>__init__</code> and <code>walk</code>, the list <code>ghosts</code> made in <code>new_maze</code>, the clock that moves them every 0.5 seconds and the <code>lives</code>, with <code>GAME OVER</code> when they run out. When you close the window, I'll try watching a ghost go back and forth, getting caught and losing all the lives.`,
+    solution: `# Maze, part 9: the ghosts
+import pgzrun
+import random
+
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+mazes = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#.G.#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#..G..#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#..G..#E#",
+        "#.###.#.#",
+        "#...#.G.#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+names = ["Cellar", "Garden", "Tower"]
+records = {}
+level = 0
+lives = 3
+state = "playing"
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def find(maze, letter):
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == letter:
+                return [c, r]
+
+
+class Explorer:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.moves = 0
+        self.coins_taken = 0
+
+    def cell(self):
+        return [self.x, self.y]
+
+    def walk(self, maze, move):
+        new_cell = step(self.x, self.y, move)
+        if new_cell == self.cell() or is_wall(maze, new_cell[0], new_cell[1]):
+            return False
+        self.x = new_cell[0]
+        self.y = new_cell[1]
+        self.moves += 1
+        return True
+
+    def collect(self, coins):
+        if self.cell() in coins:
+            coins.remove(self.cell())
+            self.coins_taken += 1
+
+
+class Ghost:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.dx = 1
+
+    def walk(self, maze):
+        if is_wall(maze, self.x + self.dx, self.y):
+            self.dx = -self.dx
+        self.x += self.dx
+
+
+def new_maze():
+    global maze, explorer, coins, ghosts
+    maze = mazes[level]
+    start = find(maze, "S")
+    explorer = Explorer(start[0], start[1])
+    ghosts = []
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "G":
+                ghosts.append(Ghost(c, r))
+    coins = []
+    while len(coins) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if maze[r][c] == "." and [c, r] not in coins:
+            coins.append([c, r])
+
+
+def get_out():
+    global level, state
+    name = names[level]
+    if name not in records or explorer.moves < records[name]:
+        records[name] = explorer.moves
+    if level < len(mazes) - 1:
+        level += 1
+        new_maze()
+    else:
+        state = "done"
+
+
+def new_game():
+    global level, lives, state
+    level = 0
+    lives = 3
+    state = "playing"
+    new_maze()
+
+
+def check_ghosts():
+    global lives, state
+    for ghost in ghosts:
+        if [ghost.x, ghost.y] == explorer.cell():
+            lives -= 1
+            if lives == 0:
+                state = "lost"
+            else:
+                start = find(maze, "S")
+                explorer.x = start[0]
+                explorer.y = start[1]
+            break
+
+
+def move_ghosts():
+    if state != "playing":
+        return
+    for ghost in ghosts:
+        ghost.walk(maze)
+    check_ghosts()
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                if len(coins) == 0:
+                    square(c, r, "green")
+                else:
+                    square(c, r, "gray")
+    for coin in coins:
+        screen.draw.filled_circle((coin[0] * CELL + 25, coin[1] * CELL + 25), 10, "gold")
+    for ghost in ghosts:
+        screen.draw.filled_circle((ghost.x * CELL + 25, ghost.y * CELL + 25), 18, "red")
+    screen.draw.filled_circle((explorer.x * CELL + 25, explorer.y * CELL + 25), 18, "cyan")
+    name = names[level]
+    screen.draw.text(f"{name}   Moves: {explorer.moves}", (10, 15))
+    screen.draw.text(f"Lives: {lives}", (360, 15))
+    screen.draw.text(f"Coins: {explorer.coins_taken}/3", (10, 315))
+    screen.draw.text(f"Record: {records.get(name, '-')}", (300, 315))
+    if state == "done":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("You've finished all the mazes!", (60, 140))
+        screen.draw.text("Space to start again", (85, 185))
+    if state == "lost":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("GAME OVER", (165, 140))
+        screen.draw.text("Space to start again", (85, 185))
+
+
+def on_key_down(key):
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    if explorer.walk(maze, move):
+        check_ghosts()
+        if state == "playing":
+            explorer.collect(coins)
+            if maze[explorer.y][explorer.x] == "E" and len(coins) == 0:
+                get_out()
+
+
+new_game()
+clock.schedule_interval(move_ghosts, 0.5)
+pgzrun.go()`,
+    hints: ["What does a ghost need to remember to know where to go next? At which moments can you and a ghost end up on the same square?",
+      "In the ghost's walk: if there's a wall on the square x plus dx, dx becomes its opposite; then x grows by dx. In new_maze two for loops over the rows and the columns, and for every G a new Ghost in the list. A function looks whether a ghost is on your square: it takes away a life and puts you back on the S, or, if the lives are over, the game is lost. Call it after the ghosts' step and after yours."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT, MZ_CLOCK].concat(MZ_CLASS.en, MZ_GHOSTS.en)),
+    why: (o, c) => pgzWhy(c, "en", [MZ_NOINPUT, MZ_KEYS, PGZ_GLOBAL, MZ_RECT, MZ_RANDOM, MZ_DICT, MZ_CLOCK].concat(MZ_CLASS.en, MZ_GHOSTS.en)),
+    tests: (c) => mazeGhostTests("en")(c).concat(mazeClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: il Labirinto sul tuo computer",
+    theory: [
+`<p>Parte 10: il Labirinto è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>labirinto.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python labirinto.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in pausa e fa ripartire, con un nuovo stato, <code>"pausa"</code>: i fantasmi si muovono solo quando si gioca, quindi in pausa stanno fermi da soli, e le frecce non contano. La scritta della pausa sta in mezzo alla mappa: disegnale sotto un rettangolo nero, perché quello che disegni dopo copre quello che c'era prima. E Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, così funziona in ogni stato.</p>`],
+    task: `Prepara il Labirinto per il computer: un titolo per la finestra con <code>TITLE</code>, il tasto P per la pausa (con la scritta <code>PAUSA: P per ripartire</code>, i fantasmi fermi e le frecce che non contano) ed Esc per uscire con <code>exit()</code>. Proverò il titolo, la pausa e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca al Labirinto sul tuo computer.`,
+    solution: `# Labirinto, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "Labirinto di Ada"
+CELLA = 50
+WIDTH = 9 * CELLA
+HEIGHT = 7 * CELLA
+labirinti = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#.F.#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#..F..#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#..F..#E#",
+        "#.###.#.#",
+        "#...#.F.#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+nomi = ["Cantina", "Giardino", "Torre"]
+record = {}
+livello = 0
+vite = 3
+stato = "gioco"
+
+
+def muro(mappa, x, y):
+    return mappa[y][x] == "#"
+
+
+def passo(x, y, mossa):
+    if mossa == "w":
+        return [x, y - 1]
+    elif mossa == "s":
+        return [x, y + 1]
+    elif mossa == "a":
+        return [x - 1, y]
+    elif mossa == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def trova(mappa, lettera):
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == lettera:
+                return [c, r]
+
+
+class Esploratore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.mosse = 0
+        self.monete_prese = 0
+
+    def cella(self):
+        return [self.x, self.y]
+
+    def muovi(self, mappa, mossa):
+        nuova = passo(self.x, self.y, mossa)
+        if nuova == self.cella() or muro(mappa, nuova[0], nuova[1]):
+            return False
+        self.x = nuova[0]
+        self.y = nuova[1]
+        self.mosse += 1
+        return True
+
+    def raccogli(self, monete):
+        if self.cella() in monete:
+            monete.remove(self.cella())
+            self.monete_prese += 1
+
+
+class Fantasma:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.dx = 1
+
+    def muovi(self, mappa):
+        if muro(mappa, self.x + self.dx, self.y):
+            self.dx = -self.dx
+        self.x += self.dx
+
+
+def nuovo_labirinto():
+    global mappa, esploratore, monete, fantasmi
+    mappa = labirinti[livello]
+    inizio = trova(mappa, "S")
+    esploratore = Esploratore(inizio[0], inizio[1])
+    fantasmi = []
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "F":
+                fantasmi.append(Fantasma(c, r))
+    monete = []
+    while len(monete) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if mappa[r][c] == "." and [c, r] not in monete:
+            monete.append([c, r])
+
+
+def esci():
+    global livello, stato
+    nome = nomi[livello]
+    if nome not in record or esploratore.mosse < record[nome]:
+        record[nome] = esploratore.mosse
+    if livello < len(labirinti) - 1:
+        livello += 1
+        nuovo_labirinto()
+    else:
+        stato = "fine"
+
+
+def nuova_partita():
+    global livello, vite, stato
+    livello = 0
+    vite = 3
+    stato = "gioco"
+    nuovo_labirinto()
+
+
+def controlla_fantasmi():
+    global vite, stato
+    for fantasma in fantasmi:
+        if [fantasma.x, fantasma.y] == esploratore.cella():
+            vite -= 1
+            if vite == 0:
+                stato = "perso"
+            else:
+                inizio = trova(mappa, "S")
+                esploratore.x = inizio[0]
+                esploratore.y = inizio[1]
+            break
+
+
+def muovi_fantasmi():
+    if stato != "gioco":
+        return
+    for fantasma in fantasmi:
+        fantasma.muovi(mappa)
+    controlla_fantasmi()
+
+
+def casella(c, r, colore):
+    screen.draw.filled_rect(Rect((c * CELLA, r * CELLA), (CELLA, CELLA)), colore)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(mappa)):
+        for c in range(len(mappa[r])):
+            if mappa[r][c] == "#":
+                casella(c, r, "blue")
+            elif mappa[r][c] == "E":
+                if len(monete) == 0:
+                    casella(c, r, "green")
+                else:
+                    casella(c, r, "gray")
+    for moneta in monete:
+        screen.draw.filled_circle((moneta[0] * CELLA + 25, moneta[1] * CELLA + 25), 10, "gold")
+    for fantasma in fantasmi:
+        screen.draw.filled_circle((fantasma.x * CELLA + 25, fantasma.y * CELLA + 25), 18, "red")
+    screen.draw.filled_circle((esploratore.x * CELLA + 25, esploratore.y * CELLA + 25), 18, "cyan")
+    nome = nomi[livello]
+    screen.draw.text(f"{nome}   Mosse: {esploratore.mosse}", (10, 15))
+    screen.draw.text(f"Vite: {vite}", (360, 15))
+    screen.draw.text(f"Monete: {esploratore.monete_prese}/3", (10, 315))
+    screen.draw.text(f"Record: {record.get(nome, '-')}", (300, 315))
+    if stato == "fine":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("Hai finito tutti i labirinti!", (60, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+    if stato == "perso":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("GAME OVER", (165, 140))
+        screen.draw.text("Spazio per ricominciare", (85, 185))
+    if stato == "pausa":
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text("PAUSA: P per ripartire", (95, 165))
+
+
+def on_key_down(key):
+    global stato
+    if key == keys.ESCAPE:
+        exit()
+    if stato == "pausa":
+        if key == keys.P:
+            stato = "gioco"
+        return
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if key == keys.P:
+        stato = "pausa"
+        return
+    mossa = ""
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    if esploratore.muovi(mappa, mossa):
+        controlla_fantasmi()
+        if stato == "gioco":
+            esploratore.raccogli(monete)
+            if mappa[esploratore.y][esploratore.x] == "E" and len(monete) == 0:
+                esci()
+
+
+nuova_partita()
+clock.schedule_interval(muovi_fantasmi, 0.5)
+pgzrun.go()`,
+    hints: ["In quali stati conta il tasto P, e cosa succede ai fantasmi durante la pausa? Perché Esc va controllato prima di tutto il resto?",
+      "In cima TITLE con il nome che vuoi. In on_key_down, per primo: se è Esc, exit(). Poi, se lo stato è pausa, solo P conta e lo riporta al gioco; se si gioca e il tasto è P, lo stato diventa pausa. muovi_fantasmi non fa niente quando non si gioca, quindi non serve altro. In draw(), nella pausa, il riquadro nero e la scritta."],
+    check: (o, c) => !pgzWhy(c, "it", [MZ_KEYS, PGZ_GLOBAL, MZ_CLOCK].concat(MZ_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [MZ_KEYS, PGZ_GLOBAL, MZ_CLOCK].concat(MZ_COMPUTER.it)),
+    tests: (c) => mazeComputerTests("it")(c).concat(mazeGhostTests("it")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: the Maze on your computer",
+    theory: [
+`<p>Part 10: the Maze is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>maze.py</code>, and in the terminal, from the same folder, type <code>python maze.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key pauses and goes on again, with a new state, <code>"paused"</code>: the ghosts only move while you're playing, so in the pause they stand still by themselves, and the arrows don't count. The pause text sits in the middle of the map: draw a black rectangle under it, because what you draw later covers what was there before. And Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, so it works in every state.</p>`],
+    task: `Get the Maze ready for your computer: a title for the window with <code>TITLE</code>, the P key for the pause (with the text <code>PAUSED: P to go on</code>, the ghosts standing still and the arrows not counting) and Esc to quit with <code>exit()</code>. I'll test the title, the pause and quitting. Then, if you like, follow the three steps above and play the Maze on your computer.`,
+    solution: `# Maze, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "Maze by Ada"
+CELL = 50
+WIDTH = 9 * CELL
+HEIGHT = 7 * CELL
+mazes = [
+    [
+        "#########",
+        "#...#...#",
+        "#.#.#.#.#",
+        "#.#.G.#.#",
+        "#.###.#.#",
+        "#S..#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#S#..G..#",
+        "#.#.###.#",
+        "#...#...#",
+        "###.#.###",
+        "#...#..E#",
+        "#########",
+    ],
+    [
+        "#########",
+        "#..G..#E#",
+        "#.###.#.#",
+        "#...#.G.#",
+        "###.###.#",
+        "#S..#...#",
+        "#########",
+    ],
+]
+names = ["Cellar", "Garden", "Tower"]
+records = {}
+level = 0
+lives = 3
+state = "playing"
+
+
+def is_wall(maze, x, y):
+    return maze[y][x] == "#"
+
+
+def step(x, y, move):
+    if move == "w":
+        return [x, y - 1]
+    elif move == "s":
+        return [x, y + 1]
+    elif move == "a":
+        return [x - 1, y]
+    elif move == "d":
+        return [x + 1, y]
+    return [x, y]
+
+
+def find(maze, letter):
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == letter:
+                return [c, r]
+
+
+class Explorer:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.moves = 0
+        self.coins_taken = 0
+
+    def cell(self):
+        return [self.x, self.y]
+
+    def walk(self, maze, move):
+        new_cell = step(self.x, self.y, move)
+        if new_cell == self.cell() or is_wall(maze, new_cell[0], new_cell[1]):
+            return False
+        self.x = new_cell[0]
+        self.y = new_cell[1]
+        self.moves += 1
+        return True
+
+    def collect(self, coins):
+        if self.cell() in coins:
+            coins.remove(self.cell())
+            self.coins_taken += 1
+
+
+class Ghost:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.dx = 1
+
+    def walk(self, maze):
+        if is_wall(maze, self.x + self.dx, self.y):
+            self.dx = -self.dx
+        self.x += self.dx
+
+
+def new_maze():
+    global maze, explorer, coins, ghosts
+    maze = mazes[level]
+    start = find(maze, "S")
+    explorer = Explorer(start[0], start[1])
+    ghosts = []
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "G":
+                ghosts.append(Ghost(c, r))
+    coins = []
+    while len(coins) < 3:
+        c = random.randint(1, 7)
+        r = random.randint(1, 5)
+        if maze[r][c] == "." and [c, r] not in coins:
+            coins.append([c, r])
+
+
+def get_out():
+    global level, state
+    name = names[level]
+    if name not in records or explorer.moves < records[name]:
+        records[name] = explorer.moves
+    if level < len(mazes) - 1:
+        level += 1
+        new_maze()
+    else:
+        state = "done"
+
+
+def new_game():
+    global level, lives, state
+    level = 0
+    lives = 3
+    state = "playing"
+    new_maze()
+
+
+def check_ghosts():
+    global lives, state
+    for ghost in ghosts:
+        if [ghost.x, ghost.y] == explorer.cell():
+            lives -= 1
+            if lives == 0:
+                state = "lost"
+            else:
+                start = find(maze, "S")
+                explorer.x = start[0]
+                explorer.y = start[1]
+            break
+
+
+def move_ghosts():
+    if state != "playing":
+        return
+    for ghost in ghosts:
+        ghost.walk(maze)
+    check_ghosts()
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((c * CELL, r * CELL), (CELL, CELL)), colour)
+
+
+def draw():
+    screen.fill("black")
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == "#":
+                square(c, r, "blue")
+            elif maze[r][c] == "E":
+                if len(coins) == 0:
+                    square(c, r, "green")
+                else:
+                    square(c, r, "gray")
+    for coin in coins:
+        screen.draw.filled_circle((coin[0] * CELL + 25, coin[1] * CELL + 25), 10, "gold")
+    for ghost in ghosts:
+        screen.draw.filled_circle((ghost.x * CELL + 25, ghost.y * CELL + 25), 18, "red")
+    screen.draw.filled_circle((explorer.x * CELL + 25, explorer.y * CELL + 25), 18, "cyan")
+    name = names[level]
+    screen.draw.text(f"{name}   Moves: {explorer.moves}", (10, 15))
+    screen.draw.text(f"Lives: {lives}", (360, 15))
+    screen.draw.text(f"Coins: {explorer.coins_taken}/3", (10, 315))
+    screen.draw.text(f"Record: {records.get(name, '-')}", (300, 315))
+    if state == "done":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("You've finished all the mazes!", (60, 140))
+        screen.draw.text("Space to start again", (85, 185))
+    if state == "lost":
+        screen.draw.filled_rect(Rect((50, 100), (350, 150)), "black")
+        screen.draw.text("GAME OVER", (165, 140))
+        screen.draw.text("Space to start again", (85, 185))
+    if state == "paused":
+        screen.draw.filled_rect(Rect((50, 150), (350, 50)), "black")
+        screen.draw.text("PAUSED: P to go on", (95, 165))
+
+
+def on_key_down(key):
+    global state
+    if key == keys.ESCAPE:
+        exit()
+    if state == "paused":
+        if key == keys.P:
+            state = "playing"
+        return
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if key == keys.P:
+        state = "paused"
+        return
+    move = ""
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.RIGHT:
+        move = "d"
+    if explorer.walk(maze, move):
+        check_ghosts()
+        if state == "playing":
+            explorer.collect(coins)
+            if maze[explorer.y][explorer.x] == "E" and len(coins) == 0:
+                get_out()
+
+
+new_game()
+clock.schedule_interval(move_ghosts, 0.5)
+pgzrun.go()`,
+    hints: ["In which states does the P key count, and what happens to the ghosts during the pause? Why should Esc be checked before everything else?",
+      "At the top TITLE with the name you like. In on_key_down, first of all: if it's Esc, exit(). Then, if the state is paused, only P counts and takes it back to playing; if you're playing and the key is P, the state becomes paused. move_ghosts does nothing when you're not playing, so nothing else is needed. In draw(), in the pause, the black box and the text."],
+    check: (o, c) => !pgzWhy(c, "en", [MZ_KEYS, PGZ_GLOBAL, MZ_CLOCK].concat(MZ_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [MZ_KEYS, PGZ_GLOBAL, MZ_CLOCK].concat(MZ_COMPUTER.en)),
+    tests: (c) => mazeComputerTests("en")(c).concat(mazeGhostTests("en")(c).slice(1, 2))
+  }
+}
+]);
 
 
 /* ---------- Snake: the build levels of the "Snake" project ----------
@@ -12961,7 +15943,18 @@ function gameCmd(ctx, c, W, H) {
   } else if (k === "rect") {
     const [, x, y, w, h, col, filled, wd] = c;
     if (w <= 0 || h <= 0) return;
-    if (filled || wd <= 0 || wd * 2 >= Math.min(w, h)) { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); }
+    if (filled || wd <= 0 || wd * 2 >= Math.min(w, h)) {
+      /* on whole screen pixels: squares side by side (walls, tiles, bricks) meet without a thin seam when the game
+         is scaled */
+      const t = ctx.getTransform();
+      ctx.fillStyle = col;
+      if (t.b || t.c) { ctx.fillRect(x, y, w, h); return; }
+      const x0 = Math.round(t.a * x + t.e), y0 = Math.round(t.d * y + t.f);
+      const x1 = Math.max(x0 + 1, Math.round(t.a * (x + w) + t.e)), y1 = Math.max(y0 + 1, Math.round(t.d * (y + h) + t.f));
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      ctx.setTransform(t);
+    }
     else { ctx.strokeStyle = col; ctx.lineWidth = wd; ctx.strokeRect(x + wd / 2, y + wd / 2, w - wd, h - wd); }
   } else if (k === "poly") {
     const [, pts, col, filled, wd] = c;
@@ -15696,7 +18689,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "b0f6c5d517", APP_BUILT = "2026-11-09T19:43Z";
+const APP_VERSION = "8bf9575600", APP_BUILT = "2026-11-10T00:25Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
