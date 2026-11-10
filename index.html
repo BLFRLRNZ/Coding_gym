@@ -7939,7 +7939,7 @@ const PROJECTS = [
       learn: ["liste di liste", "funzioni", "unire le righe", "tasti e scorrimenti"] },
     en: { name: "2048", tag: "Slide the tiles: two equal numbers merge, all the way up to 2048.",
       learn: ["lists of lists", "functions", "merging rows", "keys and swipes"] } },
-  { id: "breakout", kind: "game", ready: false, diff: 2, where: "window", color: "#a33b2f",
+  { id: "breakout", kind: "game", ready: true, diff: 2, where: "window", color: "#a33b2f",
     it: { name: "Breakout", tag: "Con una racchetta fai rimbalzare la pallina contro un muro di mattoncini, finché non lo abbatti tutto.",
       learn: ["Rect e collisioni", "velocità e rimbalzi", "liste di mattoncini", "vite e punteggio"] },
     en: { name: "Breakout", tag: "Bounce the ball off a paddle into a wall of bricks, until you knock it all down.",
@@ -8115,26 +8115,26 @@ const PROJECT_PARTS = {
       ["The board is an object", "A Board class with the grid, the points and the methods to slide and add tiles."],
       ["The full game", "The game sees when there are no moves left, and with U you can undo the last move."],
       ["On your computer", "The window's title, Esc to quit and the keys written in the game; then, with pip install pgzero, your 2048 runs on your computer too."]] },
-  breakout: {
+  breakout: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["Il muro", "Il muro di mattoncini, la racchetta e la pallina disegnati con print, più le regole."],
-      ["La pallina vola", "Posizione e velocità della pallina in variabili: calcola dove sarà dopo un certo numero di passi."],
+      ["La pallina vola", "Posizione e velocità della pallina in variabili: calcola dove sarà dopo un certo numero di passi, e con abs quanto deve spostarsi la racchetta."],
       ["I rimbalzi", "Con if la pallina rimbalza sui bordi e sulla racchetta, oppure va persa."],
       ["Il muro si sgretola", "I mattoncini in una lista: un ciclo muove la pallina passo dopo passo e toglie quelli colpiti."],
-      ["Funzioni per la pallina", "Muovere la pallina, rimbalzare e colpire un mattoncino diventano funzioni."],
+      ["Funzioni per la pallina", "Stampare il campo, spostare la racchetta, colpire un mattoncino e rimbalzare sui bordi diventano funzioni."],
       ["Nella finestra", "In tempo reale: update() muove la pallina, le frecce la racchetta, i Rect trovano gli scontri."],
       ["Partenza a caso", "La pallina parte con un angolo a caso, e qualche mattoncino nasconde un bonus."],
-      ["Colori e punti", "Dizionari per il colore e i punti di ogni fila, e il record per livello."],
+      ["Colori e punti", "Dizionari per il colore e i punti di ogni fila, e il record del punteggio."],
       ["La pallina è un oggetto", "Una classe Palla con posizione, velocità e i metodi per muoversi e rimbalzare."],
       ["Livelli e vite", "Mattoncini oggetto che resistono a più colpi, livelli diversi e tre vite."],
       ["Sul tuo computer", "Con pip install pgzero il tuo Breakout gira anche sul computer, con lo stesso codice."]],
     en: [["The wall", "The wall of bricks, the paddle and the ball drawn with print, plus the rules."],
-      ["The ball flies", "The ball's position and speed in variables: work out where it will be after a number of steps."],
+      ["The ball flies", "The ball's position and speed in variables: work out where it will be after a number of steps, and with abs how far the paddle has to go."],
       ["Bounces", "With if the ball bounces off the edges and the paddle, or it's lost."],
       ["The wall crumbles", "The bricks in a list: a loop moves the ball step by step and removes the bricks it hits."],
-      ["Functions for the ball", "Moving the ball, bouncing and hitting a brick become functions."],
+      ["Functions for the ball", "Printing the field, moving the paddle, hitting a brick and bouncing off the edges become functions."],
       ["In a window", "In real time: update() moves the ball, the arrows move the paddle, Rects find the collisions."],
       ["A random start", "The ball starts at a random angle, and some bricks hide a bonus."],
-      ["Colours and points", "Dictionaries for the colour and points of each row, and the record for each level."],
+      ["Colours and points", "Dictionaries for the colour and points of each row, and the record score."],
       ["The ball is an object", "A Ball class with position, speed and the methods to move and bounce."],
       ["Levels and lives", "Brick objects that take several hits, different levels and three lives."],
       ["On your computer", "With pip install pgzero your Breakout runs on your computer too, with the same code."]] },
@@ -11509,6 +11509,2727 @@ pgzrun.go()`,
     check: (o, c) => !pgzWhy(c, "en", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.en, T48_END.en, T48_COMPUTER.en)),
     why: (o, c) => pgzWhy(c, "en", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.en, T48_END.en, T48_COMPUTER.en)),
     tests: (c) => t48KeyTests("en")(c).concat(t48EndTests("en")(c).slice(1, 2))
+  }
+}
+]);
+
+
+/* ---------- Breakout: the build levels of the "Breakout" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the wall, the ball and the paddle drawn with print in 00; in
+   the terminal, where the ball will be after some steps and how far the paddle has to go, with abs (01), the bounces
+   with if (02), the wall as a list and the game a step at a time, with the paddle moved by a and d (03), the functions
+   (04); then the window, with the preview's wall, paddle and ball, update() and Rects that find the collisions (04);
+   a random start and bricks hiding a bonus (05), the colours and the points in dictionaries, with the record (05);
+   the ball as an object, then brick objects that take more hits, three levels and three lives (06); the window's
+   title, a pause and Esc, ready to run on your own computer (07). Each part starts from the learner's code of the
+   part before. */
+
+/* The cover: frame, title, a wall of at least 2 rows of 4 [] bricks, the ball, the paddle, a number worked out by
+   Python */
+function brkCoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1);
+  if (!mid.some((l) => /b\s*r\s*e\s*a\s*k\s*o\s*u\s*t/i.test(l))) return it ? "In mezzo ci vuole il titolo del gioco: BREAKOUT." : "The game's title has to be in the middle: BREAKOUT.";
+  if (mid.filter((l) => (l.match(/\[\]/g) || []).length >= 4).length < 2) return it ? "Il muro deve avere almeno 2 file di 4 mattoncini, ognuno fatto con [], come [][][][]." : "The wall needs at least 2 rows of 4 bricks, each made with [], like [][][][].";
+  if (!mid.some((l) => /(^|[^A-Za-zÀ-ÿ])o($|[^A-Za-zÀ-ÿ])/.test(l))) return it ? "Manca la pallina: una o minuscola da sola, sotto il muro." : "The ball is missing: a small o on its own, under the wall.";
+  if (!mid.some((l) => /^={3,7}$/.test(l.replace(/[\s|]/g, "")))) return it ? "Manca la racchetta: tre = di fila, come ===, in una riga tutta per lei." : "The paddle is missing: three = in a row, like ===, on a line of its own.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(6 + 6)." : "A number worked out by Python is missing, like print(6 + 6).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const BRK = {
+  it: {
+    where: (n, x, y) => `Dopo ${n} passi la pallina è nella colonna ${x}, riga ${y}.`, reach: (d) => `Per starle sotto, la racchetta si deve spostare di ${d} colonne.`,
+    off: "La pallina è fuori dal campo.", lost2: "Persa! La racchetta è troppo lontana.", left: "Presa a sinistra: torna su verso sinistra.",
+    right: "Presa a destra: torna su verso destra.", middle: "Presa al centro: torna su dritta.", side: "Rimbalza sul bordo: torna verso il centro.",
+    top: "Rimbalza in alto: torna giù.", fly: "Vola ancora.", bricks: (n) => `Mattoncini: ${n}`, bye: "Ciao!",
+    lost: "La pallina è caduta: hai perso.", won: "Hai abbattuto tutto il muro: hai vinto!"
+  },
+  en: {
+    where: (n, x, y) => `After ${n} steps the ball is in column ${x}, row ${y}.`, reach: (d) => `To get under it, the paddle has to move ${d} columns.`,
+    off: "The ball is off the field.", lost2: "Lost! The paddle is too far away.", left: "Caught on the left: back up to the left.",
+    right: "Caught on the right: back up to the right.", middle: "Caught in the middle: straight back up.", side: "It bounces off the side: back towards the middle.",
+    top: "It bounces off the top: back down.", fly: "Still flying.", bricks: (n) => `Bricks: ${n}`, bye: "Bye!",
+    lost: "The ball fell: you lost.", won: "You knocked down the whole wall: you won!"
+  }
+};
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number), "skip" (numbers too big to follow, left to the hidden tests) */
+function brkRun(lang, part, ins) {
+  const T = BRK[lang], lines = [], res = (end) => ({ lines, end });
+  const num = (k) => (k >= ins.length ? "more" : !isIntText(ins[k]) ? "crash" : Math.abs(toInt(ins[k])) > 1e6 ? "skip" : null);
+  if (part === 1 || part === 2) {
+    for (const k of [0, 1, 2]) { const b = num(k); if (b) return res(b); }
+    const [a, b, n] = ins.slice(0, 3).map(toInt);
+    if (part === 1) lines.push(T.where(n, 6 + a * n, 5 + b * n), T.reach(Math.abs(a * n)));
+    else if (a < 0 || a > 11 || b < 0 || b > 5) lines.push(T.off);
+    else if (b === 5) lines.push(Math.abs(a - n) > 1 ? T.lost2 : a < n ? T.left : a > n ? T.right : T.middle);
+    else if (a === 0 || a === 11) lines.push(T.side);
+    else if (b === 0) lines.push(T.top);
+    else lines.push(T.fly);
+    return res(ins.length === 3 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game on the 12 × 7 field, one step for every answer; in part 4 the answers can have spaces
+     around them, and capitals */
+  const wall = [];
+  for (let r = 1; r < 3; r++) for (let c = 0; c < 6; c++) wall.push([c, r]);
+  const brick = (c, r) => wall.findIndex(([a, b]) => a === c && b === r);
+  let x = 6, y = 5, vx = 1, vy = -1, pad = 6, end = "", i = 0;
+  for (;;) {
+    for (let r = 0; r < 7; r++) {
+      let row = "|";
+      for (let c = 0; c < 12; c++) row += brick(Math.floor(c / 2), r) >= 0 ? (c % 2 ? "]" : "[") : c === x && r === y ? "o" : r === 6 && Math.abs(c - pad) <= 1 ? "=" : " ";
+      lines.push(row + "|");
+    }
+    lines.push(T.bricks(wall.length));
+    if (end) { lines.push(end); break; }
+    if (i >= ins.length) return res("more");
+    const m = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (m === "q") { lines.push(T.bye); break; }
+    if (m === "a" && pad > 1) pad--;
+    else if (m === "d" && pad < 10) pad++;
+    x += vx; y += vy;
+    const k = brick(Math.floor(x / 2), y);
+    if (k >= 0) { wall.splice(k, 1); vy = -vy; }
+    if (y === 5 && vy === 1) {
+      if (Math.abs(x - pad) <= 1) { vy = -1; vx = x - pad; } else end = T.lost;
+    }
+    if (x === 0) vx = 1;
+    if (x === 11) vx = -1;
+    if (y === 0) vy = 1;
+    if (!wall.length) end = T.won;
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const brkExpect = (lang, part, ins) => { const r = brkRun(lang, part, ins || []); return r.end === "done" ? norm(r.lines.join("\n")) : r.end === "skip" ? "" : null; };
+const brkCheck = (lang, part, needs) => (o, c, x) => {
+  const want = brkExpect(lang, part, x.inputs);
+  return needs.every((re) => re.test(c)) && (want === "" || o === want);
+};
+/* Hidden tests: whole games with other answers */
+const brkTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = brkExpect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.map((s) => s === "" ? "invio" : s).join(", ")} doveva finire con ${end}` : `with the answers ${ins.map((s) => s === "" ? "Enter" : s).join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* part 3: a few steps (a brick goes), a game lost, a game won and moves that aren't a or d */
+const BRK_SAMPLE3 = ["", "", "d", "q"];
+const BRK_WIN = ["d", "d", "d", "d", "", "", "a", "", "", "", "", "", "a", "a", "a", "a", "a", "a", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+const BRK_GAMES3 = [BRK_SAMPLE3, ["a", "a", "a", "a", "a", "a"], BRK_WIN, ["w", "", "x", "d", "s", "q"], ["d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "d", "q"], ["q"]];
+/* part 4: games with spaces and capitals, then the functions one by one */
+const brkFnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["stampa", "sposta", "colpisci", "rimbalza"] : ["print_field", "move_paddle", "hit", "bounce"], quit = { inputs: ["q"] };
+  return brkTests(lang, 4, [[" D ", "D", " ", "A ", " q "], BRK_WIN, ["A", "A", " a", "a", "A", "a"], [" Q"]])(c).concat([
+    tcase(c + `\nprint(${F[1]}(6, "a"), ${F[1]}(6, "d"), ${F[1]}(1, "a"), ${F[1]}(10, "d"), ${F[1]}(4, "x"), ${F[1]}(4, ""))`,
+      (o) => lastLines(o, 1) === "5 7 1 10 4 4",
+      it ? "sposta doveva restituire la colonna nuova della racchetta: una in meno con a, una in più con d, la stessa con gli altri tasti o se è già sul bordo (1 o 10)"
+        : "move_paddle had to give back the paddle's new column: one less with a, one more with d, the same with other keys or if it's already at the edge (1 or 10)", quit),
+    tcase(c + `\n_w = [[0, 1], [3, 2], [5, 1]]\nprint(${F[2]}(_w, 1, 1), ${F[2]}(_w, 5, 1), ${F[2]}(_w, 7, 2), _w)`,
+      (o) => lastLines(o, 1) === "True False True [[5, 1]]",
+      it ? "colpisci doveva dire True e togliere il mattoncino quando la pallina è su una delle sue due caselle (il mattoncino [3, 2] copre le colonne 6 e 7), e False se non c'è niente"
+        : "hit had to say True and take the brick away when the ball is on one of its two squares (the brick [3, 2] covers the columns 6 and 7), and False if there's nothing", quit),
+    tcase(c + `\nprint(${F[3]}(0, -1), ${F[3]}(11, 1), ${F[3]}(5, 1), ${F[3]}(5, -1), ${F[3]}(5, 0))`,
+      (o) => lastLines(o, 1) === "1 -1 1 -1 0",
+      it ? "rimbalza doveva restituire 1 sul bordo sinistro (colonna 0), -1 su quello destro (colonna 11) e vx com'è in mezzo" : "bounce had to give back 1 at the left edge (column 0), -1 at the right one (column 11) and vx as it is in between", quit),
+    tcase(c + `\n${F[0]}([[0, 1], [5, 2]], 4, 3, 2)`,
+      (o) => lastLines(o, 8) === ["|            |", "|[]          |", "|          []|", "|    o       |", "|            |", "|            |", "| ===        |", BRK[lang].bricks(2)].join("\n"),
+      it ? "stampa doveva stampare le 7 righe del campo tra due |, con i mattoncini [], la pallina o e la racchetta ===, e sotto quanti mattoncini restano"
+        : "print_field had to print the field's 7 rows between two |, with the bricks [], the ball o and the paddle ===, and how many bricks are left below", quit)
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview, three times bigger: background "#1c0f0d", 8 × 4 bricks
+   of 64 × 21 every 70 × 27 from (23, 30), the rows "#ef5350", "#ffa726", "#ffee58" and "#66bb6a", the paddle 108 × 15
+   "#dbe3f1" at y = 324, the white ball with radius 9 starting at (300, 252) with vx 3 and vy -4. */
+const BRK_TEXT = "' '.join(_t.texts())";
+/* the names in the learner's program, as the tasks give them */
+const BRK_N = {
+  it: { bricks: "mattoni", pad: "racchetta_x", bx: "palla_x", by: "palla_y", state: "stato", S: ["gioco", "persa", "vinta"], wait: "ferma", bonus: "bonus",
+    caps: "capsule", colours: "COLORI", pts: "PUNTI", points: "punti", rec: "record", ball: "palla", cls: "Palla", bcls: "Mattone", level: "livello", lives: "vite",
+    P: ["rect", "lancia", "muovi", "rimbalza", "ferma"], B: ["rect", "fila", "colpi", "bonus", "colpisci"], T: ["Punti", "Record", "Livello", "Vite"],
+    M: ["Pallina persa!", "Muro abbattuto!", "Pallina persa! Spazio per rigiocare", "Muro abbattuto! Spazio per rigiocare", "Spazio per lanciare la pallina",
+      "Niente più vite! Spazio per rigiocare", "Tutti i livelli! Spazio per rigiocare", "Pausa: P per continuare"] },
+  en: { bricks: "bricks", pad: "paddle_x", bx: "ball_x", by: "ball_y", state: "state", S: ["playing", "lost", "won"], wait: "waiting", bonus: "bonus",
+    caps: "capsules", colours: "COLOURS", pts: "POINTS", points: "points", rec: "best", ball: "ball", cls: "Ball", bcls: "Brick", level: "level", lives: "lives",
+    P: ["rect", "launch", "move", "bounce", "waiting"], B: ["rect", "row", "hits", "bonus", "hit"], T: ["Points", "Record", "Level", "Lives"],
+    M: ["Ball lost!", "Wall down!", "Ball lost! Space to play again", "Wall down! Space to play again", "Space to launch the ball",
+      "No lives left! Space to play again", "All the levels! Space to play again", "Paused: P to go on"] }
+};
+const brkHas = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + BRK_TEXT;
+/* loaded dice: random.randint always gives v, and random.choice takes in turn the bricks 0, 0 (again), 9 and 31 of
+   what it's given, round and round */
+const BRK_RIG = (v) => "import random\n_bk = [0]\ndef _choice(_s):\n    _bk[0] += 1\n    return _s[[0, 0, 9, 31][(_bk[0] - 1) % 4] % len(_s)]\nrandom.choice = _choice\nrandom.randint = lambda a, b: " + v + "\n";
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const brkNeed = (re, msg) => [re, msg, msg];
+const BRK_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: la racchetta si muove con le frecce, in update().", "In the window there's no more input: the paddle moves with the arrows, in update()."];
+const BRK_UPDATE = [/^def\s+update\s*\(\s*\)/m, "Il gioco si muove da solo: la pallina e la racchetta vanno in def update():, che Pygame Zero chiama 60 volte al secondo.", "The game moves by itself: the ball and the paddle go in def update():, which Pygame Zero calls 60 times a second."];
+const BRK_ARROWS = [/^(?=[\s\S]*\bkeyboard\.left\b)(?=[\s\S]*\bkeyboard\.right\b)/, "La racchetta si sposta finché tieni premute le frecce: keyboard.left e keyboard.right.", "The paddle moves while you hold the arrows down: keyboard.left and keyboard.right."];
+const BRK_RECT = [/\bRect\s*\(/, "Mattoncini, racchetta e pallina hanno ognuno il suo Rect.", "Bricks, paddle and ball each have their Rect."];
+const BRK_COLLIDE = [/\.colliderect\s*\(/, "Gli scontri li trova colliderect: rect_palla().colliderect(m) è vero quando i due rettangoli si toccano.", "colliderect finds the collisions: ball_rect().colliderect(b) is true when the two rectangles touch."];
+const BRK_ABS = [/\babs\s*\(/, "Sui bordi la pallina deve tornare indietro qualunque sia il segno di vx: vx = abs(vx) sul bordo sinistro, vx = -abs(vx) su quello destro.", "At the edges the ball has to come back whatever the sign of vx: vx = abs(vx) at the left edge, vx = -abs(vx) at the right one."];
+const BRK_RANDOM = [/^(?=[\s\S]*\brandom\.randint\s*\()(?=[\s\S]*\brandom\.choice\s*\()/, "La partenza a caso usa random.randint per vx, e i mattoncini con il bonus si pescano con random.choice.", "The random start uses random.randint for vx, and the bricks with the bonus are picked with random.choice."];
+const BRK_SPACE = [/\bkeys\.SPACE\b/, "La pallina parte con lo Spazio: keys.SPACE, in on_key_down.", "The ball starts with Space: keys.SPACE, in on_key_down."];
+const BRK_DICTS = [/^(?=[\s\S]*\{\s*0\s*:\s*")(?=[\s\S]*\{\s*0\s*:\s*\d)/, "Colori e punti stanno in due dizionari, con il numero della fila come chiave: {0: \"#ef5350\", ...} e {0: 7, ...}.", "Colours and points go in two dictionaries, with the row's number as the key: {0: \"#ef5350\", ...} and {0: 7, ...}."];
+const BRK_CLASS = {
+  it: [brkNeed(/\bclass\s+Palla\b/, "La pallina diventa un oggetto: class Palla:, con __init__ e i suoi metodi."),
+    brkNeed(/\bdef\s+rect\s*\(\s*self/, "Manca il metodo rect(self), che restituisce il Rect della pallina."),
+    brkNeed(/\bdef\s+lancia\s*\(\s*self/, "Manca il metodo lancia(self)."), brkNeed(/\bdef\s+muovi\s*\(\s*self/, "Manca il metodo muovi(self), che sposta la pallina e la fa rimbalzare sui bordi."),
+    brkNeed(/\bdef\s+rimbalza\s*\(\s*self/, "Manca il metodo rimbalza(self, racchetta_x), per il rimbalzo sulla racchetta."), brkNeed(/\bdef\s+disegna\s*\(\s*self/, "Manca il metodo disegna(self).")],
+  en: [brkNeed(/\bclass\s+Ball\b/, "The ball becomes an object: class Ball:, with __init__ and its methods."),
+    brkNeed(/\bdef\s+rect\s*\(\s*self/, "The method rect(self) is missing: it gives back the ball's Rect."),
+    brkNeed(/\bdef\s+launch\s*\(\s*self/, "The method launch(self) is missing."), brkNeed(/\bdef\s+move\s*\(\s*self/, "The method move(self) is missing: it moves the ball and makes it bounce off the edges."),
+    brkNeed(/\bdef\s+bounce\s*\(\s*self/, "The method bounce(self, paddle_x) is missing, for the bounce off the paddle."), brkNeed(/\bdef\s+show\s*\(\s*self/, "The method show(self) is missing.")]
+};
+const BRK_BRICK = {
+  it: [brkNeed(/\bclass\s+Mattone\b/, "Anche il mattoncino diventa un oggetto: class Mattone:."), brkNeed(/\bdef\s+colpisci\s*\(\s*self/, "Manca il metodo colpisci(self) del Mattone, che toglie un colpo e dice se il mattoncino è rotto."),
+    brkNeed(/^LIVELLI\s*=/m, "I livelli stanno nella lista LIVELLI, con i colpi di ogni fila."), brkNeed(/\bvite\b/, "Le vite si contano nella variabile vite.")],
+  en: [brkNeed(/\bclass\s+Brick\b/, "The brick becomes an object too: class Brick:."), brkNeed(/\bdef\s+hit\s*\(\s*self/, "The Brick's method hit(self) is missing: it takes away a hit and says whether the brick is broken."),
+    brkNeed(/^LEVELS\s*=/m, "The levels go in the list LEVELS, with the hits of every row."), brkNeed(/\blives\b/, "The lives are counted in the variable lives.")]
+};
+const BRK_COMPUTER = {
+  it: [brkNeed(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    brkNeed(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), brkNeed(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    brkNeed(/\bkeys\.P\b/, "La pausa va e viene con il tasto P: keys.P.")],
+  en: [brkNeed(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    brkNeed(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), brkNeed(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    brkNeed(/\bkeys\.P\b/, "The pause comes and goes with the P key: keys.P.")]
+};
+const BRK_WIN5 = [BRK_NOINPUT, BRK_UPDATE, PGZ_GLOBAL, BRK_ARROWS, BRK_RECT, BRK_COLLIDE, BRK_ABS];
+const BRK_WIN6 = BRK_WIN5.concat([BRK_RANDOM, BRK_SPACE]);
+const BRK_WIN7 = BRK_WIN6.concat([BRK_DICTS]);
+
+/* Hidden tests of the window parts: the game played without a screen */
+/* part 5: the preview's wall, paddle and ball, the ball that flies and breaks a brick, the arrows, the edges, the
+   paddle, a lost ball and the last brick */
+const brkWinTests = (lang) => (c) => {
+  const it = lang === "it", N = BRK_N[lang];
+  return [
+    gtcase(c, "_t.step()\nprint(_t.background(), len(_t.rects('#ef5350')), len(_t.rects('#ffa726')), len(_t.rects('#ffee58')), len(_t.rects('#66bb6a')), (23, 30, 64, 21) in _t.rects('#ef5350'), (513, 111, 64, 21) in _t.rects('#66bb6a'), _t.rects('#dbe3f1'), _t.circles('#ffffff'), _t.size)",
+      (o) => o === "#1c0f0d 8 8 8 8 True True [(246, 324, 108, 15)] [(303, 248, 9)] (600, 360)",
+      it ? "all'inizio lo sfondo è #1c0f0d, ci sono 4 file di 8 mattoncini da 64 × 21, ogni 70 pixel in orizzontale e 27 in verticale da (23, 30), rossi, arancioni, gialli e verdi, la racchetta #dbe3f1 di 108 × 15 in (246, 324) e la pallina bianca di raggio 9, che dopo il primo passo è in (303, 248); la finestra è 600 × 360"
+        : "at the start the background is #1c0f0d, there are 4 rows of 8 bricks of 64 × 21, every 70 pixels across and 27 down from (23, 30), red, orange, yellow and green, the #dbe3f1 paddle of 108 × 15 at (246, 324) and the white ball with radius 9, which after the first step is at (303, 248); the window is 600 × 360"),
+    gtcase(c, "_t.step(28)\nprint(len(" + N.bricks + "), (373, 111, 64, 21) in _t.rects('#66bb6a'), vy, _t.circles('#ffffff'))",
+      (o) => o === "31 False 4 [(384, 140, 9)]",
+      it ? "la pallina vola di 3 pixel in orizzontale e 4 in verticale a ogni passo: dopo 28 passi tocca il mattoncino verde in (373, 111), che sparisce, e vy diventa 4" : "the ball flies 3 pixels across and 4 down at every step: after 28 steps it touches the green brick at (373, 111), which disappears, and vy becomes 4"),
+    gtcase(c, "vx = 0\nvy = 0\n_t.hold('right', 10)\n_a = _t.rects('#dbe3f1')\n_t.hold('left', 100)\n_b = _t.rects('#dbe3f1')\n_t.hold('right', 200)\nprint(_a, _b, _t.rects('#dbe3f1'))",
+      (o) => o === "[(306, 324, 108, 15)] [(0, 324, 108, 15)] [(492, 324, 108, 15)]",
+      it ? "le frecce spostano la racchetta di 6 pixel a ogni passo, ma non fuori dalla finestra: il suo centro, racchetta_x, resta tra 54 e 546" : "the arrows move the paddle 6 pixels at every step, but not out of the window: its centre, paddle_x, stays between 54 and 546"),
+    gtcase(c, `${N.bricks}[:] = ${N.bricks}[:1]\n${N.bx} = 30\n${N.by} = 200\nvx = -6\nvy = 1\n_t.step(5)\n_a = vx\n${N.bx} = 570\nvx = 6\n_t.step(5)\n_b = vx\n${N.bx} = 300\n${N.by} = 30\nvx = 0\nvy = -4\n_t.step(8)\nprint(_a, _b, vy)`,
+      (o) => o === "6 -6 4",
+      it ? "sul bordo sinistro (palla_x meno di 9) vx diventa positivo, sul destro (più di 591) negativo, e in alto (palla_y meno di 9) vy diventa positivo" : "at the left edge (ball_x less than 9) vx becomes positive, at the right one (more than 591) negative, and at the top (ball_y less than 9) vy becomes positive"),
+    gtcase(c, ["330", "300", "260"].map((x) => `${N.bx} = ${x}\n${N.by} = 300\nvx = 0\nvy = 4\n_t.step(4)\n_r${x} = [vx, vy]\n`).join("") + "print(_r330, _r300, _r260)",
+      (o) => o === "[2, -4] [0, -4] [-4, -4]",
+      it ? "quando la pallina che scende tocca la racchetta torna su, e vx diventa (palla_x - racchetta_x) // 12: 2 colpita a destra del centro, 0 al centro, -4 a sinistra" : "when the falling ball touches the paddle it goes back up, and vx becomes (ball_x - paddle_x) // 12: 2 hit right of the centre, 0 in the centre, -4 on the left"),
+    gtcase(c, `${N.bx} = 50\n${N.by} = 300\nvx = 0\nvy = 4\n${N.pad} = 500\n_t.step(25)\n_a = [${N.state}, ${brkHas(N.M[0])}]\n_y = ${N.by}\n_t.step(10)\nprint(_a, ${N.by} == _y)`,
+      (o) => o === `['${N.S[1]}', True] True`,
+      it ? `se la racchetta non c'è, la pallina scende sotto la finestra: lo stato diventa persa, c'è scritto ${N.M[0]} e tutto si ferma` : `if the paddle isn't there, the ball goes down below the window: the state becomes lost, it says ${N.M[0]} and everything stops`),
+    gtcase(c, `${N.bricks}[:] = [Rect((23, 30), (64, 21))]\n${N.bx} = 55\n${N.by} = 80\nvx = 0\nvy = -4\n_t.step(10)\nprint(${N.state}, ${brkHas(N.M[1])}, len(${N.bricks}))`,
+      (o) => o === `${N.S[2]} True 0`,
+      it ? `quando cade l'ultimo mattoncino lo stato diventa vinta e c'è scritto ${N.M[1]}` : `when the last brick falls the state becomes won and it says ${N.M[1]}`)
+  ];
+};
+/* part 6: the ball waits on the paddle, Space launches it at a random angle, the bonus bricks drop a capsule that
+   widens the paddle, and Space starts a new game when it's over */
+const brkStartTests = (lang) => (c) => {
+  const it = lang === "it", N = BRK_N[lang];
+  return [
+    gtcase(BRK_RIG("2") + c, "_t.step()\n_a = [_t.circles('#ffffff'), " + brkHas(N.M[4]) + "]\n_t.hold('right', 10)\n_b = _t.circles('#ffffff')\n_t.tap('space')\n_c2 = [vx, vy]\n_t.step(10)\nprint(_a, _b, _c2, _t.circles('#ffffff'))",
+      (o) => o === "[[(300, 315, 9)], True] [(360, 315, 9)] [2, -4] [(384, 267, 9)]",
+      it ? `all'inizio la pallina aspetta sulla racchetta, in (300, 315), e la segue; c'è scritto ${N.M[4]}; con lo Spazio parte, con vx dato da random.randint (i dadi truccati danno 2) e vy -4`
+        : `at the start the ball waits on the paddle, at (300, 315), and follows it; it says ${N.M[4]}; with Space it goes, with vx given by random.randint (the loaded dice give 2) and vy -4`),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_a = sorted((_m.x, _m.y) for _m in ${N.bonus})\n_t.tap('space')\n${N.bx} = 545\n${N.by} = 150\nvx = 0\nvy = -4\n_t.step(3)\nvx = 0\nvy = 0\n_b = _t.rects('#4fc3f7')\n${N.pad} = 545\n_t.step(70)\nprint(_a, _b, _t.rects('#dbe3f1'), _t.rects('#4fc3f7'))`,
+      (o) => o === "[(23, 30), (93, 57), (513, 111)] [(530, 115, 30, 12)] [(464, 324, 162, 15)] []",
+      it ? "random.choice pesca 3 mattoncini diversi per il bonus (i dadi truccati danno il primo due volte, poi il decimo e l'ultimo); rotto un mattoncino con il bonus cade una capsula #4fc3f7 di 30 × 12, 3 pixel a ogni passo, e se la prendi la racchetta diventa larga 162"
+        : "random.choice picks 3 different bricks for the bonus (the loaded dice give the first one twice, then the tenth and the last); when a bonus brick breaks a #4fc3f7 capsule of 30 × 12 falls, 3 pixels at every step, and if you catch it the paddle becomes 162 wide"),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_t.tap('space')\n${N.pad} = 100\n_t.step(120)\n_a = [${N.state}, ${brkHas(N.M[2])}]\n_t.tap('space')\nprint(_a, ${N.state}, len(${N.bricks}), ${N.wait}, _t.circles('#ffffff'))`,
+      (o) => o === `['${N.S[1]}', True] ${N.S[0]} 32 True [(300, 315, 9)]`,
+      it ? `persa la pallina c'è scritto ${N.M[2]}, e lo Spazio comincia una partita nuova, con il muro intero e la pallina che aspetta sulla racchetta` : `once the ball is lost it says ${N.M[2]}, and Space starts a new game, with the whole wall and the ball waiting on the paddle`)
+  ];
+};
+/* part 7: the colours and the points of the rows in dictionaries, the points and the record */
+const brkPointsTests = (lang, obj) => (c) => {
+  const it = lang === "it", N = BRK_N[lang];
+  const at = (x, y, vx, vy) => obj ? `${N.ball}.x = ${x}\n${N.ball}.y = ${y}\n${N.ball}.vx = ${vx}\n${N.ball}.vy = ${vy}\n` : `${N.bx} = ${x}\n${N.by} = ${y}\nvx = ${vx}\nvy = ${vy}\n`;
+  const two = `_t.step()\n_t.tap('space')\n${N.bricks}[:] = [_m for _m in ${N.bricks} if _m.y == 30 or _m.y == 111]\n` + at(55, 160, 0, -4) + "_t.step(8)\n_a = " + N.points + "\n" + at(55, 80, 0, -4) + "_t.step(8)\n";
+  return [
+    gtcase(c, "print([" + N.colours + "[_k] for _k in range(4)], [" + N.pts + "[_k] for _k in range(4)])",
+      (o) => o === "['#ef5350', '#ffa726', '#ffee58', '#66bb6a'] [7, 5, 3, 1]",
+      it ? "il dizionario COLORI dà a ogni fila, dalla 0 in alto alla 3, il suo colore, e PUNTI i suoi punti: 7, 5, 3 e 1" : "the COLOURS dictionary gives each row, from 0 at the top to 3, its colour, and POINTS its points: 7, 5, 3 and 1"),
+    gtcase(BRK_RIG("2") + c, two + "print(_a, " + N.points + ", " + N.rec + ", " + brkHas(N.T[0] + ": 8") + ", " + brkHas(N.T[1] + ": 8") + ")",
+      (o) => o === "1 8 8 True True",
+      it ? "un mattoncino verde vale 1 punto e uno rosso 7: in alto c'è scritto Punti: 8, e il record sale con i punti" : "a green brick is worth 1 point and a red one 7: at the top it says Points: 8, and the record goes up with the points"),
+    gtcase(BRK_RIG("2") + c, two + `${N.pad} = 500\n_t.step(100)\n_a = ${N.state}\n_t.tap('space')\n_b = [${N.points}, ${N.rec}, ${brkHas(N.T[1] + ": 8")}]\n_t.tap('space')\n${N.bricks}[:] = [_m for _m in ${N.bricks} if _m.y == 111]\n` + at(55, 160, 0, -4) + `_t.step(8)\nprint(_a, _b, ${N.points}, ${N.rec})`,
+      (o) => o === `${N.S[1]} [0, 8, True] 1 8`,
+      it ? "una partita nuova riparte da 0 punti, ma il record resta 8, anche dopo una partita da 1 punto" : "a new game starts again from 0 points, but the record stays 8, even after a game of 1 point")
+  ];
+};
+/* part 8: the Palla class on its own, then the game with a Palla object */
+const brkClassTests = (lang) => (c) => {
+  const it = lang === "it", N = BRK_N[lang], P = N.P, K = N.cls;
+  return [
+    gtcase(BRK_RIG("2") + c, `_p = ${K}(100)\n_a = [_p.x, _p.y, _p.vx, _p.vy, _p.${P[4]}, tuple(_p.${P[0]}())]\n_p.${P[1]}()\n_b = [_p.vx, _p.vy, _p.${P[4]}]\n_p.x = 12\n_p.vx = -6\n_p.${P[2]}()\n_c2 = [_p.x, _p.vx, _p.y]\n_p.${P[3]}(_p.x + 30)\nprint(_a, _b, _c2, [_p.vx, _p.vy])`,
+      (o) => o === "[100, 315, 0, 0, True, (91, 306, 18, 18)] [2, -4, False] [6, 6, 311] [-3, -4]",
+      it ? "Palla(100) aspetta ferma in (100, 315), con il Rect di 18 × 18 intorno al centro; lancia le dà vx dai dadi e vy -4; muovi la sposta e la fa rimbalzare sul bordo sinistro; rimbalza la manda su, con vx dalla distanza dal centro della racchetta, divisa con // per 12"
+        : "Ball(100) waits at (100, 315), with the 18 × 18 Rect around the centre; launch gives it vx from the dice and vy -4; move moves it and makes it bounce off the left edge; bounce sends it up, with vx from the distance from the paddle's centre, divided with // by 12"),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_a = [type(${N.ball}).__name__, ${N.ball}.${P[4]}]\n_t.tap('space')\n_t.step(10)\nprint(_a, ${N.ball}.${P[4]}, ${N.ball}.x, ${N.ball}.y, _t.circles('#ffffff'))`,
+      (o) => o === `['${K}', True] False 324 267 [(324, 267, 9)]`,
+      it ? "la pallina del gioco è un oggetto Palla, che aspetta e poi parte con lo Spazio" : "the game's ball is a Ball object, which waits and then goes with Space")
+  ];
+};
+/* part 9: the Mattone class, the levels, the bricks that take two hits, the lives */
+const brkLevelTests = (lang) => (c) => {
+  const it = lang === "it", N = BRK_N[lang], B = N.B, K = N.bcls, b = N.ball;
+  const fall = `${b}.x = 50\n${b}.y = 330\n${b}.vx = 0\n${b}.vy = 4\n${N.pad} = 500\n_t.step(12)\n`;
+  return [
+    gtcase(c, `_m = ${K}(2, 3, 2)\n_a = [tuple(_m.${B[0]}), _m.${B[1]}, _m.${B[2]}, _m.${B[3]}]\nprint(_a, _m.${B[4]}(), _m.${B[4]}())`,
+      (o) => o === "[(233, 84, 64, 21), 2, 2, False] False True",
+      it ? "Mattone(2, 3, 2) ha il Rect in (233, 84), è nella fila 2, resiste a 2 colpi e non ha il bonus; colpisci dice False al primo colpo e True al secondo, quando si rompe"
+        : "Brick(2, 3, 2) has its Rect at (233, 84), is in row 2, takes 2 hits and has no bonus; hit says False at the first hit and True at the second, when it breaks"),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_a = [len(${N.bricks}), type(${N.bricks}[0]).__name__, [_m.${B[2]} for _m in ${N.bricks}[::8]], ${N.level}, ${N.lives}]\n${N.bricks}[:] = ${N.bricks}[:1]\n_t.tap('space')\n${b}.x = 55\n${b}.y = 80\n${b}.vx = 0\n${b}.vy = -4\n_t.step(8)\n_b = [${N.level}, len(${N.bricks}), [_m.${B[2]} for _m in ${N.bricks}[::8]], ${b}.${N.P[4]}]\nprint(_a, _b, (23, 30, 64, 21) in _t.rects('#dbe3f1'), (27, 34, 56, 13) in _t.rects('#ef5350'))`,
+      (o) => o === `[32, '${K}', [1, 1, 1, 1], 1, 3] [2, 32, [2, 1, 1, 1], True] True True`,
+      it ? "si comincia dal livello 1 con 32 oggetti Mattone da un colpo e 3 vite; rotto l'ultimo mattoncino arriva il livello 2, con la fila rossa da due colpi, disegnata con il bordo #dbe3f1 e dentro il rosso 4 pixel più piccolo, e la pallina che aspetta"
+        : "you start from level 1 with 32 one-hit Brick objects and 3 lives; when the last brick breaks level 2 comes, with the red row taking two hits, drawn with a #dbe3f1 border and the red 4 pixels smaller inside, and the ball waiting"),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_t.tap('space')\n` + fall + `_a = [${N.lives}, ${b}.${N.P[4]}, ${N.state}]\n_t.tap('space')\n` + fall + `_t.tap('space')\n` + fall + `print(_a, ${N.lives}, ${N.state}, ${brkHas(N.M[5])})`,
+      (o) => o === `[2, True, '${N.S[0]}'] 0 ${N.S[1]} True`,
+      it ? `persa la pallina si perde una vita e la pallina torna ad aspettare sulla racchetta; persa la terza, la partita è finita e c'è scritto ${N.M[5]}` : `when the ball is lost you lose a life and the ball waits on the paddle again; when the third is lost, the game is over and it says ${N.M[5]}`)
+  ];
+};
+/* part 10: the window's title, the pause, Esc */
+const brkKeyTests = (lang) => (c) => {
+  const it = lang === "it", N = BRK_N[lang], b = N.ball;
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(BRK_RIG("2") + c, `_t.step()\n_t.tap('p')\n_t.tap('space')\n_t.hold('left', 5)\n_a = [${b}.${N.P[4]}, ${N.pad}, ${brkHas(N.M[7])}]\n_t.tap('p')\n_t.tap('space')\n_t.step(5)\n_b = (${b}.x, ${b}.y)\n_t.tap('p')\n_t.step(30)\n_c2 = (${b}.x, ${b}.y) == _b\n_t.tap('p')\n_t.step(2)\nprint(_a, _c2, (${b}.x, ${b}.y) != _b)`,
+      (o) => o === "[True, 300, True] True True",
+      it ? `con P il gioco va in pausa: la pallina si ferma, la racchetta e lo Spazio non fanno niente (la pallina che aspetta non parte) e c'è scritto ${N.M[7]}; con P di nuovo si riprende` : `with P the game pauses: the ball stops, the paddle and Space do nothing (the waiting ball doesn't go) and it says ${N.M[7]}; with P again it goes on`),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True", it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("breakout", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_muro.py", "build_wall.py"],
+  it: {
+    title: "Costruisci: il muro di Breakout",
+    theory: [
+`<p>Da qui comincia il tuo progetto, <b>Breakout</b>: in alto c'è un muro di mattoncini colorati, in basso una racchetta che sposti a destra e a sinistra, e in mezzo una pallina che rimbalza. Ogni mattoncino che la pallina tocca si rompe; tu devi tenerla in gioco con la racchetta, perché se cade sotto la perdi. Si vince abbattendo tutto il muro. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>: una cornice sopra e sotto, il titolo, il campo di gioco disegnato con <code>print</code>, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">==============================
+          BREAKOUT
+==============================
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|            |
+|      o     |
+|     ===    |
+Fai rimbalzare la pallina sulla
+racchetta e abbatti tutto il muro.
+Mattoncini da abbattere:
+12
+==============================</pre>
+<p>Il campo è largo 12 caselle e alto 7, chiuso ai lati da <code>|</code>. Ogni mattoncino occupa due caselle, <code>[]</code>, e il muro ha 2 file da 6; la pallina è una <code>o</code> e la racchetta, nell'ultima riga, è <code>===</code>, larga tre caselle.</p>`],
+    task: `Scrivi la copertina di Breakout: la prima e l'ultima riga fatte solo di simboli, il titolo <code>BREAKOUT</code>, il campo con il muro (almeno 2 file di 4 mattoncini <code>[]</code>), la pallina <code>o</code> e la racchetta <code>===</code>, le regole e un numero calcolato da Python, come <code>6 + 6</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Breakout, di Ada
+print("==============================")
+print("          BREAKOUT")
+print("==============================")
+print("|            |")
+print("|[][][][][][]|")
+print("|[][][][][][]|")
+print("|            |")
+print("|            |")
+print("|      o     |")
+print("|     ===    |")
+print("Fai rimbalzare la pallina sulla")
+print("racchetta e abbatti tutto il muro.")
+print("Mattoncini da abbattere:")
+print(6 + 6)
+print("==============================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? In quale riga del campo va la racchetta, e dove la pallina?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con il titolo, di nuovo i simboli, sette print per il campo (una riga vuota, due file di mattoncini, due righe vuote, la riga con la pallina e quella con la racchetta), due o tre con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !brkCoverWhy(o, c, "it"),
+    why: (o, c) => brkCoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the Breakout wall",
+    theory: [
+`<p>Your project starts here, <b>Breakout</b>: at the top there's a wall of coloured bricks, at the bottom a paddle you move left and right, and in between a bouncing ball. Every brick the ball touches breaks; you have to keep it in play with the paddle, because if it falls below you lose it. You win by knocking the whole wall down. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>: a frame above and below, the title, the playing field drawn with <code>print</code>, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">==============================
+          BREAKOUT
+==============================
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|            |
+|      o     |
+|     ===    |
+Bounce the ball off the paddle
+and knock down the whole wall.
+Bricks to knock down:
+12
+==============================</pre>
+<p>The field is 12 squares wide and 7 high, closed at the sides by <code>|</code>. Every brick takes up two squares, <code>[]</code>, and the wall has 2 rows of 6; the ball is an <code>o</code> and the paddle, on the last line, is <code>===</code>, three squares wide.</p>`],
+    task: `Write the Breakout cover: the first and last lines made only of symbols, the title <code>BREAKOUT</code>, the field with the wall (at least 2 rows of 4 <code>[]</code> bricks), the ball <code>o</code> and the paddle <code>===</code>, the rules and a number worked out by Python, like <code>6 + 6</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Breakout, by Ada
+print("==============================")
+print("          BREAKOUT")
+print("==============================")
+print("|            |")
+print("|[][][][][][]|")
+print("|[][][][][][]|")
+print("|            |")
+print("|            |")
+print("|      o     |")
+print("|     ===    |")
+print("Bounce the ball off the paddle")
+print("and knock down the whole wall.")
+print("Bricks to knock down:")
+print(6 + 6)
+print("==============================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? On which line of the field does the paddle go, and where the ball?",
+      "First line: a comment with #. Then a print of symbols, one with the title, the symbols again, seven prints for the field (an empty line, two rows of bricks, two empty lines, the line with the ball and the one with the paddle), two or three with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !brkCoverWhy(o, c, "en"),
+    why: (o, c) => brkCoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: ["abs"], sample: ["1", "-1", "4"], file: ["costruisci_breakout_1.py", "build_breakout_1.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 1",
+    theory: [
+`<p>Parte 1: <b>la pallina vola</b>. Nel campo ogni casella ha una colonna, da 0 a 11 da sinistra a destra, e una riga, da 0 a 6 dall'alto in basso: in cima c'è la riga 0, e più si scende più il numero cresce. La pallina parte dalla colonna 6, riga 5, appena sopra la racchetta, e a ogni passo si sposta di <code>vx</code> colonne e <code>vy</code> righe: è la sua <b>velocità</b>. Con <code>vx = 1</code> va di una colonna a destra, con <code>vx = -1</code> a sinistra; con <code>vy = -1</code> sale di una riga, perché le righe crescono verso il basso.</p>
+<p>Dopo un certo numero di passi, quindi, la pallina è nella colonna <code>x + vx * passi</code> e nella riga <code>y + vy * passi</code>: per ora senza pensare ai bordi e al muro, i rimbalzi arrivano nella parte 2. E la racchetta, che è nella colonna 6, di quante colonne si deve spostare per stare sotto la pallina? Basta una sottrazione, ma la pallina può essere a destra o a sinistra, e il conto può venire negativo: con la pallina nella colonna 2, <code>2 - 6</code> fa -4. Qui serve <code>abs</code>, il <b>valore assoluto</b>: restituisce il numero senza il segno meno, se c'è. <code>abs(-4)</code> fa 4, <code>abs(3)</code> fa 3 e <code>abs(0)</code> fa 0. Così <code>abs(nuova_x - racchetta)</code> è sempre una distanza, da una parte o dall'altra.</p>
+<pre class="term-sample">Velocità in orizzontale? 1
+Velocità in verticale? -1
+Quanti passi? 4
+Dopo 4 passi la pallina è nella colonna 10, riga 1.
+Per starle sotto, la racchetta si deve spostare di 4 colonne.</pre>`],
+    task: `La pallina parte da <code>x = 6</code> e <code>y = 5</code>, e la racchetta è in <code>racchetta = 6</code>. Chiedi la velocità in orizzontale, quella in verticale e quanti passi, poi scrivi dove sarà la pallina e di quante colonne si deve spostare la racchetta, con <code>abs</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altre velocità, che vanno a destra, a sinistra, su e giù.`,
+    starter: `# Breakout, parte 1: la pallina vola\nx = 6\ny = 5\nracchetta = 6\n\n`,
+    solution: `# Breakout, parte 1: la pallina vola
+x = 6
+y = 5
+racchetta = 6
+
+vx = int(input("Velocità in orizzontale? "))
+vy = int(input("Velocità in verticale? "))
+passi = int(input("Quanti passi? "))
+nuova_x = x + vx * passi
+nuova_y = y + vy * passi
+print(f"Dopo {passi} passi la pallina è nella colonna {nuova_x}, riga {nuova_y}.")
+print(f"Per starle sotto, la racchetta si deve spostare di {abs(nuova_x - racchetta)} colonne.")`,
+    hints: ["Di quanto cambia la colonna a ogni passo, e quindi dopo tutti i passi? Perché la distanza della racchetta ha bisogno di abs?",
+      "Tre input dentro int(). La colonna nuova è x più vx per i passi, la riga nuova y più vy per i passi: mettile in due variabili. Poi due print: il primo con la colonna e la riga, il secondo con abs della colonna nuova meno la racchetta."],
+    check: brkCheck("it", 1, [/\babs\s*\(/]), expect: (x) => brkExpect("it", 1, x.inputs),
+    tests: brkTests("it", 1, [["2", "-1", "3"], ["-1", "-1", "5"], ["0", "1", "2"], ["3", "2", "0"], ["-2", "-3", "4"], ["1", "1", "6"]])
+  },
+  en: {
+    title: "Build: Breakout, part 1",
+    theory: [
+`<p>Part 1: <b>the ball flies</b>. On the field every square has a column, from 0 to 11 from left to right, and a row, from 0 to 6 from top to bottom: row 0 is at the top, and the further down you go the bigger the number. The ball starts from column 6, row 5, just above the paddle, and at every step it moves <code>vx</code> columns and <code>vy</code> rows: that's its <b>speed</b>. With <code>vx = 1</code> it goes one column right, with <code>vx = -1</code> left; with <code>vy = -1</code> it goes up a row, because the rows grow downwards.</p>
+<p>So after a number of steps the ball is in column <code>x + vx * steps</code> and in row <code>y + vy * steps</code>: for now without thinking about the edges and the wall, the bounces come in part 2. And how many columns does the paddle, which is in column 6, have to move to be under the ball? A subtraction is enough, but the ball can be to the right or to the left, and the sum can come out negative: with the ball in column 2, <code>2 - 6</code> gives -4. This is where you need <code>abs</code>, the <b>absolute value</b>: it gives back the number without the minus sign, if there is one. <code>abs(-4)</code> gives 4, <code>abs(3)</code> gives 3 and <code>abs(0)</code> gives 0. So <code>abs(new_x - paddle)</code> is always a distance, on one side or the other.</p>
+<pre class="term-sample">Speed across? 1
+Speed up and down? -1
+How many steps? 4
+After 4 steps the ball is in column 10, row 1.
+To get under it, the paddle has to move 4 columns.</pre>`],
+    task: `The ball starts from <code>x = 6</code> and <code>y = 5</code>, and the paddle is at <code>paddle = 6</code>. Ask for the speed across, the speed up and down and how many steps, then write where the ball will be and how many columns the paddle has to move, with <code>abs</code>. The lines must be exactly as in the example. I'll also try other speeds, going right, left, up and down.`,
+    starter: `# Breakout, part 1: the ball flies\nx = 6\ny = 5\npaddle = 6\n\n`,
+    solution: `# Breakout, part 1: the ball flies
+x = 6
+y = 5
+paddle = 6
+
+vx = int(input("Speed across? "))
+vy = int(input("Speed up and down? "))
+steps = int(input("How many steps? "))
+new_x = x + vx * steps
+new_y = y + vy * steps
+print(f"After {steps} steps the ball is in column {new_x}, row {new_y}.")
+print(f"To get under it, the paddle has to move {abs(new_x - paddle)} columns.")`,
+    hints: ["How much does the column change at every step, and so after all the steps? Why does the paddle's distance need abs?",
+      "Three inputs inside int(). The new column is x plus vx times the steps, the new row y plus vy times the steps: put them in two variables. Then two prints: the first with the column and the row, the second with abs of the new column minus the paddle."],
+    check: brkCheck("en", 1, [/\babs\s*\(/]), expect: (x) => brkExpect("en", 1, x.inputs),
+    tests: brkTests("en", 1, [["2", "-1", "3"], ["-1", "-1", "5"], ["0", "1", "2"], ["3", "2", "0"], ["-2", "-3", "4"], ["1", "1", "6"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["5", "5", "6"], file: ["costruisci_breakout_2.py", "build_breakout_2.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 2",
+    theory: [
+`<p>Parte 2: <b>i rimbalzi</b>. Ora il programma guarda dov'è arrivata la pallina e decide cosa succede, con una catena di <code>if</code>, in quest'ordine:</p>
+<ul><li>se la colonna non è tra 0 e 11, o la riga non è tra 0 e 5, la pallina è fuori: <code>La pallina è fuori dal campo.</code>;</li>
+<li>se è nella riga 5, appena sopra la racchetta, conta dove la racchetta la prende. La racchetta è larga tre caselle: la sua colonna e quelle a destra e a sinistra. Se la pallina è più lontana di una colonna, <code>Persa! La racchetta è troppo lontana.</code>; se è sulla casella a sinistra, <code>Presa a sinistra: torna su verso sinistra.</code>; su quella a destra, <code>Presa a destra: torna su verso destra.</code>; e al centro, <code>Presa al centro: torna su dritta.</code>;</li>
+<li>se è sul bordo, cioè nella colonna 0 o 11: <code>Rimbalza sul bordo: torna verso il centro.</code>;</li>
+<li>se è nella riga 0, in cima: <code>Rimbalza in alto: torna giù.</code>;</li>
+<li>se no: <code>Vola ancora.</code>.</li></ul>
+<p>La parte che dipende dalla racchetta è un <code>if</code> dentro l'<code>elif</code> della riga 5. Ed è il segreto del gioco: colpendo la pallina con un lato della racchetta la mandi dove vuoi.</p>
+<pre class="term-sample">Colonna della pallina (0-11)? 5
+Riga della pallina (0-5)? 5
+Colonna della racchetta (1-10)? 6
+Presa a sinistra: torna su verso sinistra.</pre>`],
+    task: `Fai crescere il programma: togli i conti di prima e chiedi la colonna e la riga della pallina e la colonna della racchetta. Poi rispondi con la catena di <code>if</code> qui sopra, nell'ordine. Proverò tutti i casi: fuori dal campo, la racchetta lontana, la pallina presa a sinistra, a destra e al centro, i bordi, la cima e il volo.`,
+    solution: `# Breakout, parte 2: i rimbalzi
+colonna = int(input("Colonna della pallina (0-11)? "))
+riga = int(input("Riga della pallina (0-5)? "))
+racchetta = int(input("Colonna della racchetta (1-10)? "))
+if colonna < 0 or colonna > 11 or riga < 0 or riga > 5:
+    print("La pallina è fuori dal campo.")
+elif riga == 5:
+    if abs(colonna - racchetta) > 1:
+        print("Persa! La racchetta è troppo lontana.")
+    elif colonna < racchetta:
+        print("Presa a sinistra: torna su verso sinistra.")
+    elif colonna > racchetta:
+        print("Presa a destra: torna su verso destra.")
+    else:
+        print("Presa al centro: torna su dritta.")
+elif colonna == 0 or colonna == 11:
+    print("Rimbalza sul bordo: torna verso il centro.")
+elif riga == 0:
+    print("Rimbalza in alto: torna giù.")
+else:
+    print("Vola ancora.")`,
+    hints: ["Quale controllo va fatto per primo? Come capisci con abs se la racchetta è abbastanza vicina, e poi da che parte la prende?",
+      "Tre input dentro int(). Un if con quattro confronti uniti da or per il fuori campo; un elif per la riga 5 con dentro un altro if: prima abs della differenza più grande di 1, poi la colonna minore della racchetta, poi maggiore, e un else; poi un elif per i bordi con or, uno per la riga 0 e un else."],
+    check: brkCheck("it", 2, [/\bif\b/, /\belif\b/, /\babs\s*\(/]), expect: (x) => brkExpect("it", 2, x.inputs),
+    tests: brkTests("it", 2, [["-1", "2", "5"], ["12", "3", "5"], ["4", "-1", "5"], ["4", "6", "5"], ["2", "5", "6"], ["5", "5", "6"], ["7", "5", "6"], ["6", "5", "6"], ["0", "3", "5"], ["11", "2", "5"], ["4", "0", "5"], ["4", "3", "5"], ["0", "0", "5"], ["0", "5", "1"]])
+  },
+  en: {
+    title: "Build: Breakout, part 2",
+    theory: [
+`<p>Part 2: <b>bounces</b>. Now the program looks at where the ball has got to and decides what happens, with a chain of <code>if</code>, in this order:</p>
+<ul><li>if the column isn't between 0 and 11, or the row isn't between 0 and 5, the ball is out: <code>The ball is off the field.</code>;</li>
+<li>if it's in row 5, just above the paddle, what matters is where the paddle catches it. The paddle is three squares wide: its column and the ones to its right and left. If the ball is further than one column away, <code>Lost! The paddle is too far away.</code>; if it's on the square to the left, <code>Caught on the left: back up to the left.</code>; on the one to the right, <code>Caught on the right: back up to the right.</code>; and in the middle, <code>Caught in the middle: straight back up.</code>;</li>
+<li>if it's at the edge, that is in column 0 or 11: <code>It bounces off the side: back towards the middle.</code>;</li>
+<li>if it's in row 0, at the top: <code>It bounces off the top: back down.</code>;</li>
+<li>otherwise: <code>Still flying.</code>.</li></ul>
+<p>The part that depends on the paddle is an <code>if</code> inside the <code>elif</code> for row 5. And it's the game's secret: hitting the ball with one side of the paddle you send it where you want.</p>
+<pre class="term-sample">Ball's column (0-11)? 5
+Ball's row (0-5)? 5
+Paddle's column (1-10)? 6
+Caught on the left: back up to the left.</pre>`],
+    task: `Grow the program: take away the sums from before and ask for the ball's column and row and the paddle's column. Then answer with the chain of <code>if</code> above, in order. I'll try every case: off the field, the paddle far away, the ball caught on the left, on the right and in the middle, the edges, the top and flying.`,
+    solution: `# Breakout, part 2: bounces
+column = int(input("Ball's column (0-11)? "))
+row = int(input("Ball's row (0-5)? "))
+paddle = int(input("Paddle's column (1-10)? "))
+if column < 0 or column > 11 or row < 0 or row > 5:
+    print("The ball is off the field.")
+elif row == 5:
+    if abs(column - paddle) > 1:
+        print("Lost! The paddle is too far away.")
+    elif column < paddle:
+        print("Caught on the left: back up to the left.")
+    elif column > paddle:
+        print("Caught on the right: back up to the right.")
+    else:
+        print("Caught in the middle: straight back up.")
+elif column == 0 or column == 11:
+    print("It bounces off the side: back towards the middle.")
+elif row == 0:
+    print("It bounces off the top: back down.")
+else:
+    print("Still flying.")`,
+    hints: ["Which check has to come first? How do you work out with abs whether the paddle is close enough, and then which side catches it?",
+      "Three inputs inside int(). An if with four comparisons joined by or for off the field; an elif for row 5 with another if inside: first abs of the difference bigger than 1, then the column less than the paddle, then greater, and an else; then an elif for the edges with or, one for row 0 and an else."],
+    check: brkCheck("en", 2, [/\bif\b/, /\belif\b/, /\babs\s*\(/]), expect: (x) => brkExpect("en", 2, x.inputs),
+    tests: brkTests("en", 2, [["-1", "2", "5"], ["12", "3", "5"], ["4", "-1", "5"], ["4", "6", "5"], ["2", "5", "6"], ["5", "5", "6"], ["7", "5", "6"], ["6", "5", "6"], ["0", "3", "5"], ["11", "2", "5"], ["4", "0", "5"], ["4", "3", "5"], ["0", "0", "5"], ["0", "5", "1"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: BRK_SAMPLE3, file: ["costruisci_breakout_3.py", "build_breakout_3.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 3",
+    theory: [
+`<p>Parte 3: si gioca davvero. Il <b>muro</b> è una lista di mattoncini, e ogni mattoncino è una lista di due numeri: la sua colonna, da 0 a 5, e la sua fila, 1 o 2. Lo costruisci con due <code>for</code> e <code>append</code>: 2 file da 6, cioè 12 mattoncini. Ogni mattoncino copre due caselle del campo, ed è per questo che si disegna <code>[]</code>: il mattoncino nella colonna 3 copre le caselle 6 e 7. Per sapere se nella casella <code>(x, y)</code> c'è un mattoncino, allora, basta chiedere <code>[x // 2, y] in muro</code>: con la divisione intera, 6 // 2 e 7 // 2 fanno tutti e due 3.</p>
+<p>Il gioco è un ciclo, e ogni giro è un <b>passo</b>. Prima stampa il campo, 7 righe tra due <code>|</code>: in ogni casella <code>[</code> o <code>]</code> se c'è un mattoncino (<code>[</code> nelle colonne pari, <code>]</code> nelle dispari, con <code>c % 2</code>), <code>o</code> dov'è la pallina, <code>=</code> nell'ultima riga dov'è la racchetta, e uno spazio altrimenti; sotto, quanti mattoncini restano. Poi chiede la mossa: <code>a</code> sposta la racchetta di una colonna a sinistra, <code>d</code> a destra, ma il suo centro resta tra 1 e 10; un altro tasto, o invio, la lascia ferma, e <code>q</code> chiude il gioco con <code>Ciao!</code>.</p>
+<pre class="term-sample">|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|            |
+|      o     |
+|     ===    |
+Mattoncini: 12
+Mossa (a d, invio per stare fermo, q per uscire)?
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|       o    |
+|            |
+|     ===    |
+Mattoncini: 12
+Mossa (a d, invio per stare fermo, q per uscire)?
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|        o   |
+|            |
+|            |
+|     ===    |
+Mattoncini: 12
+Mossa (a d, invio per stare fermo, q per uscire)?</pre>
+<p>Poi la pallina fa un passo, <code>x += vx</code> e <code>y += vy</code>, e si controlla, in quest'ordine: se è su un mattoncino, lo togli con <code>remove</code> e la pallina torna indietro, <code>vy = -vy</code>; se è nella riga 5 e scende, cioè <code>vy == 1</code>, e la racchetta è a una colonna o meno, torna su, <code>vy = -1</code>, con <code>vx = x - racchetta</code>, che fa -1 a sinistra, 0 al centro e 1 a destra, come nella parte 2; se invece la racchetta è lontana, <code>La pallina è caduta: hai perso.</code>; nella colonna 0 <code>vx = 1</code>, nella colonna 11 <code>vx = -1</code> e nella riga 0 <code>vy = 1</code>; e quando il muro è vuoto, <code>Hai abbattuto tutto il muro: hai vinto!</code>. Il messaggio della fine lo tieni in <code>fine</code>, vuota finché si gioca: a ogni giro, dopo il campo, se <code>fine</code> non è vuota la stampi ed esci dal ciclo.</p>`],
+    task: `Trasforma il programma nel gioco: il muro di 12 mattoncini in una lista, la pallina in <code>x</code>, <code>y</code>, <code>vx</code> e <code>vy</code> (6, 5, 1 e -1), la racchetta nella colonna 6, e un ciclo <code>while</code> che a ogni passo stampa il campo, chiede la mossa e muove la racchetta e la pallina con le regole qui sopra, nell'ordine. Proverò tante partite: mosse a vuoto, una partita persa, una vinta e tasti che non sono a o d.`,
+    solution: `# Breakout, parte 3: il muro si sgretola
+larghezza = 12
+altezza = 7
+muro = []
+for fila in range(1, 3):
+    for c in range(6):
+        muro.append([c, fila])
+x = 6
+y = 5
+vx = 1
+vy = -1
+racchetta = 6
+fine = ""
+
+while True:
+    for r in range(altezza):
+        testo = "|"
+        for c in range(larghezza):
+            if [c // 2, r] in muro:
+                if c % 2 == 0:
+                    testo = testo + "["
+                else:
+                    testo = testo + "]"
+            elif c == x and r == y:
+                testo = testo + "o"
+            elif r == altezza - 1 and abs(c - racchetta) <= 1:
+                testo = testo + "="
+            else:
+                testo = testo + " "
+        print(testo + "|")
+    print(f"Mattoncini: {len(muro)}")
+    if fine != "":
+        print(fine)
+        break
+    mossa = input("Mossa (a d, invio per stare fermo, q per uscire)? ")
+    if mossa == "q":
+        print("Ciao!")
+        break
+    if mossa == "a" and racchetta > 1:
+        racchetta -= 1
+    elif mossa == "d" and racchetta < larghezza - 2:
+        racchetta += 1
+    x += vx
+    y += vy
+    if [x // 2, y] in muro:
+        muro.remove([x // 2, y])
+        vy = -vy
+    if y == altezza - 2 and vy == 1:
+        if abs(x - racchetta) <= 1:
+            vy = -1
+            vx = x - racchetta
+        else:
+            fine = "La pallina è caduta: hai perso."
+    if x == 0:
+        vx = 1
+    if x == larghezza - 1:
+        vx = -1
+    if y == 0:
+        vy = 1
+    if len(muro) == 0:
+        fine = "Hai abbattuto tutto il muro: hai vinto!"`,
+    hints: ["Cosa si ripete a ogni passo, e in che ordine? Come capisci se la pallina è su un mattoncino, visto che ogni mattoncino copre due caselle?",
+      "Prima del ciclo il muro con due for, la pallina, la racchetta e fine vuota. Nel while True: due for che costruiscono le righe del campo, il conto dei mattoncini e il controllo di fine; l'input e q; a e d con i limiti; il passo della pallina; poi gli if: il mattoncino con // e in, la riga 5 con abs, i bordi, la riga 0 e il muro vuoto."],
+    check: brkCheck("it", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/, /\/\//, /\bin\s+\w+/]), expect: (x) => brkExpect("it", 3, x.inputs),
+    tests: brkTests("it", 3, BRK_GAMES3)
+  },
+  en: {
+    title: "Build: Breakout, part 3",
+    theory: [
+`<p>Part 3: now you really play. The <b>wall</b> is a list of bricks, and every brick is a list of two numbers: its column, from 0 to 5, and its row, 1 or 2. You build it with two <code>for</code> loops and <code>append</code>: 2 rows of 6, that is 12 bricks. Every brick covers two squares of the field, and that's why it's drawn <code>[]</code>: the brick in column 3 covers the squares 6 and 7. So to know whether there's a brick in the square <code>(x, y)</code> just ask <code>[x // 2, y] in wall</code>: with whole-number division, 6 // 2 and 7 // 2 both give 3.</p>
+<p>The game is a loop, and every turn is a <b>step</b>. First it prints the field, 7 lines between two <code>|</code>: in every square <code>[</code> or <code>]</code> if there's a brick (<code>[</code> in the even columns, <code>]</code> in the odd ones, with <code>c % 2</code>), <code>o</code> where the ball is, <code>=</code> on the last line where the paddle is, and a space otherwise; below, how many bricks are left. Then it asks for the move: <code>a</code> moves the paddle one column left, <code>d</code> right, but its centre stays between 1 and 10; another key, or Enter, leaves it where it is, and <code>q</code> closes the game with <code>Bye!</code>.</p>
+<pre class="term-sample">|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|            |
+|      o     |
+|     ===    |
+Bricks: 12
+Move (a d, Enter to stay, q to quit)?
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|            |
+|       o    |
+|            |
+|     ===    |
+Bricks: 12
+Move (a d, Enter to stay, q to quit)?
+|            |
+|[][][][][][]|
+|[][][][][][]|
+|        o   |
+|            |
+|            |
+|     ===    |
+Bricks: 12
+Move (a d, Enter to stay, q to quit)?</pre>
+<p>Then the ball takes a step, <code>x += vx</code> and <code>y += vy</code>, and you check, in this order: if it's on a brick, take it away with <code>remove</code> and the ball turns back, <code>vy = -vy</code>; if it's in row 5 going down, that is <code>vy == 1</code>, and the paddle is one column away or less, it goes back up, <code>vy = -1</code>, with <code>vx = x - paddle</code>, which gives -1 on the left, 0 in the middle and 1 on the right, as in part 2; if instead the paddle is far away, <code>The ball fell: you lost.</code>; in column 0 <code>vx = 1</code>, in column 11 <code>vx = -1</code> and in row 0 <code>vy = 1</code>; and when the wall is empty, <code>You knocked down the whole wall: you won!</code>. You keep the end message in <code>outcome</code>, empty while you play: at every turn, after the field, if <code>outcome</code> isn't empty print it and leave the loop.</p>`],
+    task: `Turn the program into the game: the wall of 12 bricks in a list, the ball in <code>x</code>, <code>y</code>, <code>vx</code> and <code>vy</code> (6, 5, 1 and -1), the paddle in column 6, and a <code>while</code> loop that at every step prints the field, asks for the move and moves the paddle and the ball with the rules above, in order. I'll try lots of games: empty moves, a game lost, one won and keys that aren't a or d.`,
+    solution: `# Breakout, part 3: the wall crumbles
+width = 12
+height = 7
+wall = []
+for row in range(1, 3):
+    for c in range(6):
+        wall.append([c, row])
+x = 6
+y = 5
+vx = 1
+vy = -1
+paddle = 6
+outcome = ""
+
+while True:
+    for r in range(height):
+        text = "|"
+        for c in range(width):
+            if [c // 2, r] in wall:
+                if c % 2 == 0:
+                    text = text + "["
+                else:
+                    text = text + "]"
+            elif c == x and r == y:
+                text = text + "o"
+            elif r == height - 1 and abs(c - paddle) <= 1:
+                text = text + "="
+            else:
+                text = text + " "
+        print(text + "|")
+    print(f"Bricks: {len(wall)}")
+    if outcome != "":
+        print(outcome)
+        break
+    move = input("Move (a d, Enter to stay, q to quit)? ")
+    if move == "q":
+        print("Bye!")
+        break
+    if move == "a" and paddle > 1:
+        paddle -= 1
+    elif move == "d" and paddle < width - 2:
+        paddle += 1
+    x += vx
+    y += vy
+    if [x // 2, y] in wall:
+        wall.remove([x // 2, y])
+        vy = -vy
+    if y == height - 2 and vy == 1:
+        if abs(x - paddle) <= 1:
+            vy = -1
+            vx = x - paddle
+        else:
+            outcome = "The ball fell: you lost."
+    if x == 0:
+        vx = 1
+    if x == width - 1:
+        vx = -1
+    if y == 0:
+        vy = 1
+    if len(wall) == 0:
+        outcome = "You knocked down the whole wall: you won!"`,
+    hints: ["What repeats at every step, and in what order? How do you work out whether the ball is on a brick, since every brick covers two squares?",
+      "Before the loop the wall with two for loops, the ball, the paddle and outcome empty. In the while True: two for loops that build the field's lines, the count of bricks and the check of outcome; the input and q; a and d with the limits; the ball's step; then the ifs: the brick with // and in, row 5 with abs, the edges, row 0 and the empty wall."],
+    check: brkCheck("en", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/, /\/\//, /\bin\s+\w+/]), expect: (x) => brkExpect("en", 3, x.inputs),
+    tests: brkTests("en", 3, BRK_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: [" D ", "D", " ", "A ", " q "], file: ["costruisci_breakout_4.py", "build_breakout_4.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>stampa(muro, x, y, racchetta)</code> stampa il campo e quanti mattoncini restano;</li>
+<li><code>sposta(racchetta, mossa)</code> restituisce la colonna nuova della racchetta: una in meno con <code>a</code>, una in più con <code>d</code>, ma sempre tra 1 e 10;</li>
+<li><code>colpisci(muro, x, y)</code> controlla se nella casella c'è un mattoncino: se c'è lo toglie dal muro e restituisce <code>True</code>, se no restituisce <code>False</code>;</li>
+<li><code>rimbalza(x, vx)</code> restituisce la velocità in orizzontale dopo i bordi: 1 nella colonna 0, -1 nella colonna 11, e <code>vx</code> com'è nelle altre.</li></ul>
+<p>Il ciclo resta, ma diventa corto: la racchetta prende il valore che restituisce <code>sposta</code>, il rimbalzo sul mattoncino si fa solo se <code>colpisci</code> restituisce <code>True</code>, e <code>vx</code> prende quello che restituisce <code>rimbalza</code>. E rendi il gioco più gentile: con <code>strip</code> la mossa può avere degli spazi intorno, e con <code>lower</code> funzionano anche <code>A</code>, <code>D</code> e <code>Q</code>.</p>`],
+    task: `Metti la stampa del campo in <code>stampa(muro, x, y, racchetta)</code>, la mossa della racchetta in <code>sposta(racchetta, mossa)</code>, il mattoncino colpito in <code>colpisci(muro, x, y)</code> e i bordi in <code>rimbalza(x, vx)</code>, come qui sopra, e usale nel ciclo. Pulisci la mossa con <code>strip</code> e <code>lower</code>. Quello che il gioco scrive resta uguale. Proverò le funzioni una per una e partite con spazi e maiuscole.`,
+    solution: `# Breakout, parte 4: funzioni per la pallina
+def stampa(muro, x, y, racchetta):
+    for r in range(7):
+        testo = "|"
+        for c in range(12):
+            if [c // 2, r] in muro:
+                if c % 2 == 0:
+                    testo = testo + "["
+                else:
+                    testo = testo + "]"
+            elif c == x and r == y:
+                testo = testo + "o"
+            elif r == 6 and abs(c - racchetta) <= 1:
+                testo = testo + "="
+            else:
+                testo = testo + " "
+        print(testo + "|")
+    print(f"Mattoncini: {len(muro)}")
+
+
+def sposta(racchetta, mossa):
+    if mossa == "a" and racchetta > 1:
+        return racchetta - 1
+    if mossa == "d" and racchetta < 10:
+        return racchetta + 1
+    return racchetta
+
+
+def colpisci(muro, x, y):
+    if [x // 2, y] in muro:
+        muro.remove([x // 2, y])
+        return True
+    return False
+
+
+def rimbalza(x, vx):
+    if x == 0:
+        return 1
+    if x == 11:
+        return -1
+    return vx
+
+
+muro = []
+for fila in range(1, 3):
+    for c in range(6):
+        muro.append([c, fila])
+x = 6
+y = 5
+vx = 1
+vy = -1
+racchetta = 6
+fine = ""
+
+while True:
+    stampa(muro, x, y, racchetta)
+    if fine != "":
+        print(fine)
+        break
+    mossa = input("Mossa (a d, invio per stare fermo, q per uscire)? ").strip().lower()
+    if mossa == "q":
+        print("Ciao!")
+        break
+    racchetta = sposta(racchetta, mossa)
+    x += vx
+    y += vy
+    if colpisci(muro, x, y):
+        vy = -vy
+    if y == 5 and vy == 1:
+        if abs(x - racchetta) <= 1:
+            vy = -1
+            vx = x - racchetta
+        else:
+            fine = "La pallina è caduta: hai perso."
+    vx = rimbalza(x, vx)
+    if y == 0:
+        vy = 1
+    if len(muro) == 0:
+        fine = "Hai abbattuto tutto il muro: hai vinto!"`,
+    hints: ["Cosa restituisce colpisci, e come lo usi in un if? Perché sposta e rimbalza restituiscono un numero invece di cambiare la variabile?",
+      "Sposta i due for della stampa in stampa. sposta ha due if con return e alla fine il return della racchetta com'è; colpisci un if con remove che restituisce True, e alla fine restituisce False; rimbalza due if e il return di vx. Nel ciclo, al posto dei pezzi spostati, le chiamate."],
+    check: brkCheck("it", 4, [/def\s+stampa\s*\(/, /def\s+sposta\s*\(/, /def\s+colpisci\s*\(/, /def\s+rimbalza\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => brkExpect("it", 4, x.inputs),
+    tests: brkFnTests("it")
+  },
+  en: {
+    title: "Build: Breakout, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>print_field(wall, x, y, paddle)</code> prints the field and how many bricks are left;</li>
+<li><code>move_paddle(paddle, move)</code> gives back the paddle's new column: one less with <code>a</code>, one more with <code>d</code>, but always between 1 and 10;</li>
+<li><code>hit(wall, x, y)</code> checks whether there's a brick in the square: if there is, it takes it off the wall and gives back <code>True</code>, otherwise it gives back <code>False</code>;</li>
+<li><code>bounce(x, vx)</code> gives back the speed across after the edges: 1 in column 0, -1 in column 11, and <code>vx</code> as it is in the others.</li></ul>
+<p>The loop stays, but it gets short: the paddle takes the value <code>move_paddle</code> gives back, the bounce off a brick happens only if <code>hit</code> gives back <code>True</code>, and <code>vx</code> takes what <code>bounce</code> gives back. And make the game kinder: with <code>strip</code> the move can have spaces around it, and with <code>lower</code> <code>A</code>, <code>D</code> and <code>Q</code> work too.</p>`],
+    task: `Put the printing of the field in <code>print_field(wall, x, y, paddle)</code>, the paddle's move in <code>move_paddle(paddle, move)</code>, the brick hit in <code>hit(wall, x, y)</code> and the edges in <code>bounce(x, vx)</code>, as above, and use them in the loop. Clean the move with <code>strip</code> and <code>lower</code>. What the game writes stays the same. I'll test the functions one by one and games with spaces and capitals.`,
+    solution: `# Breakout, part 4: functions for the ball
+def print_field(wall, x, y, paddle):
+    for r in range(7):
+        text = "|"
+        for c in range(12):
+            if [c // 2, r] in wall:
+                if c % 2 == 0:
+                    text = text + "["
+                else:
+                    text = text + "]"
+            elif c == x and r == y:
+                text = text + "o"
+            elif r == 6 and abs(c - paddle) <= 1:
+                text = text + "="
+            else:
+                text = text + " "
+        print(text + "|")
+    print(f"Bricks: {len(wall)}")
+
+
+def move_paddle(paddle, move):
+    if move == "a" and paddle > 1:
+        return paddle - 1
+    if move == "d" and paddle < 10:
+        return paddle + 1
+    return paddle
+
+
+def hit(wall, x, y):
+    if [x // 2, y] in wall:
+        wall.remove([x // 2, y])
+        return True
+    return False
+
+
+def bounce(x, vx):
+    if x == 0:
+        return 1
+    if x == 11:
+        return -1
+    return vx
+
+
+wall = []
+for row in range(1, 3):
+    for c in range(6):
+        wall.append([c, row])
+x = 6
+y = 5
+vx = 1
+vy = -1
+paddle = 6
+outcome = ""
+
+while True:
+    print_field(wall, x, y, paddle)
+    if outcome != "":
+        print(outcome)
+        break
+    move = input("Move (a d, Enter to stay, q to quit)? ").strip().lower()
+    if move == "q":
+        print("Bye!")
+        break
+    paddle = move_paddle(paddle, move)
+    x += vx
+    y += vy
+    if hit(wall, x, y):
+        vy = -vy
+    if y == 5 and vy == 1:
+        if abs(x - paddle) <= 1:
+            vy = -1
+            vx = x - paddle
+        else:
+            outcome = "The ball fell: you lost."
+    vx = bounce(x, vx)
+    if y == 0:
+        vy = 1
+    if len(wall) == 0:
+        outcome = "You knocked down the whole wall: you won!"`,
+    hints: ["What does hit give back, and how do you use it in an if? Why do move_paddle and bounce give back a number instead of changing the variable?",
+      "Move the printing's two for loops into print_field. move_paddle has two ifs with return and at the end the return of the paddle as it is; hit an if with remove that gives back True, and at the end it gives back False; bounce two ifs and the return of vx. In the loop, the calls instead of the pieces you moved."],
+    check: brkCheck("en", 4, [/def\s+print_field\s*\(/, /def\s+move_paddle\s*\(/, /def\s+hit\s*\(/, /def\s+bounce\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => brkExpect("en", 4, x.inputs),
+    tests: brkFnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_breakout_5.py", "build_breakout_5.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 5",
+    theory: [
+`<p>Parte 5: Breakout esce dal terminale ed entra in una <b>finestra</b>, larga 600 e alta 360, e si gioca <b>in tempo reale</b>: la pallina non aspetta le tue mosse, vola da sola, e tu tieni premute le frecce per spostare la racchetta. È tutto come nell'anteprima, tre volte più grande.</p>
+<p>Il muro ha 4 file di 8 mattoncini, e ognuno è un <b>Rect</b> largo 64 e alto 21: il mattoncino nella fila f e nella colonna c ha l'angolo in <code>(23 + c * 70, 30 + f * 27)</code>, così tra due mattoncini restano 6 pixel. Stanno tutti nella lista <code>mattoni</code>, e il colore dipende dalla fila: <code>COLORI = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]</code>, dalla fila 0 in alto alla 3. Un Rect sa dov'è: <code>m.x</code> e <code>m.y</code> sono il suo angolo, e la fila è <code>(m.y - 30) // 27</code>. Lo sfondo è <code>"#1c0f0d"</code>.</p>
+<p>La racchetta è un rettangolo <code>"#dbe3f1"</code> di 108 × 15, all'altezza 324: il suo centro è in <code>racchetta_x</code>, che parte da 300, e il suo Rect lo restituisce <code>rect_racchetta()</code>, con l'angolo in <code>(racchetta_x - 54, 324)</code>. La pallina è un cerchio bianco, <code>"#ffffff"</code>, di raggio 9, con il centro in <code>palla_x</code> e <code>palla_y</code>, che partono da 300 e 252; il suo Rect, un quadrato di 18 intorno al centro, lo restituisce <code>rect_palla()</code>.</p>
+<p>Il movimento va in <code>update()</code>, che Pygame Zero chiama 60 volte al secondo. A ogni chiamata: con <code>keyboard.left</code> e <code>keyboard.right</code> la racchetta si sposta di 6 pixel, ma il suo centro resta tra 54 e 546; la pallina si sposta di <code>vx</code> e <code>vy</code>, che partono da 3 e -4; e poi i rimbalzi. Sui bordi la pallina deve tornare indietro qualunque sia il segno della sua velocità, e qui torna utile <code>abs</code>: se <code>palla_x</code> è meno di 9, <code>vx = abs(vx)</code>, positivo; se è più di 591, <code>vx = -abs(vx)</code>; se <code>palla_y</code> è meno di 9, <code>vy = abs(vy)</code>.</p>
+<p>Gli <b>scontri</b> li trovano i Rect: <code>a.colliderect(b)</code> è vero quando i rettangoli <code>a</code> e <code>b</code> si toccano. Per ogni mattoncino, se <code>rect_palla().colliderect(m)</code>, lo togli dalla lista, la pallina torna indietro, <code>vy = -vy</code>, e smetti di cercare, con <code>break</code>. Se la pallina scende, cioè <code>vy > 0</code>, e tocca la racchetta, torna su, <code>vy = -vy</code>, e <code>vx = (palla_x - racchetta_x) // 12</code>: più lontano dal centro la colpisci, più va di lato, come con le tre caselle della racchetta nel terminale. Se <code>palla_y</code> supera <code>HEIGHT + 9</code> la pallina è caduta, e <code>stato</code> diventa <code>"persa"</code>; quando i mattoncini finiscono diventa <code>"vinta"</code>; e a partita finita il gioco si ferma. Al centro della finestra, con <code>center=(300, 200)</code> e grande 48, c'è scritto <code>Pallina persa!</code> in <code>"#ef5350"</code> o <code>Muro abbattuto!</code> in <code>"#ffee58"</code>.</p>`],
+    task: `Porta Breakout nella finestra come qui sopra: il muro di 32 mattoncini <code>Rect</code> nei colori dell'anteprima, la racchetta che si sposta con le frecce, la pallina che vola in <code>update()</code>, i rimbalzi sui bordi con <code>abs</code>, i mattoncini che si rompono e la racchetta che rimanda su la pallina, trovati con <code>colliderect</code>, e le scritte della fine. Quando chiudi la finestra, proverò il volo della pallina, le frecce, i bordi, la racchetta, una pallina persa e l'ultimo mattoncino.`,
+    solution: `# Breakout, parte 5: nella finestra
+import pgzrun
+
+WIDTH = 600
+HEIGHT = 360
+COLORI = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]
+mattoni = []
+for fila in range(4):
+    for colonna in range(8):
+        mattoni.append(Rect((23 + colonna * 70, 30 + fila * 27), (64, 21)))
+racchetta_x = 300
+palla_x = 300
+palla_y = 252
+vx = 3
+vy = -4
+stato = "gioco"
+
+
+def rect_palla():
+    return Rect((palla_x - 9, palla_y - 9), (18, 18))
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - 54, 324), (108, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        screen.draw.filled_rect(m, COLORI[(m.y - 30) // 27])
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    screen.draw.filled_circle((palla_x, palla_y), 9, "#ffffff")
+    if stato == "persa":
+        screen.draw.text("Pallina persa!", center=(300, 200), fontsize=48, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Muro abbattuto!", center=(300, 200), fontsize=48, color="#ffee58")
+
+
+def update():
+    global racchetta_x, palla_x, palla_y, vx, vy, stato
+    if stato != "gioco":
+        return
+    if keyboard.left and racchetta_x > 54:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < 546:
+        racchetta_x += 6
+    palla_x += vx
+    palla_y += vy
+    if palla_x < 9:
+        vx = abs(vx)
+    if palla_x > 591:
+        vx = -abs(vx)
+    if palla_y < 9:
+        vy = abs(vy)
+    for m in mattoni:
+        if rect_palla().colliderect(m):
+            mattoni.remove(m)
+            vy = -vy
+            break
+    if vy > 0 and rect_palla().colliderect(rect_racchetta()):
+        vy = -vy
+        vx = (palla_x - racchetta_x) // 12
+    if palla_y > HEIGHT + 9:
+        stato = "persa"
+    if len(mattoni) == 0:
+        stato = "vinta"
+
+
+pgzrun.go()`,
+    hints: ["Cosa cambia a ogni chiamata di update(), e in che ordine? Quando la pallina deve rimbalzare sulla racchetta, e quando no?",
+      "In cima import pgzrun, WIDTH e HEIGHT, COLORI, il muro con due for, la racchetta, la pallina, vx, vy e lo stato. Due funzioni per i Rect. In draw() lo sfondo, un for sui mattoncini, la racchetta, la pallina e le scritte. In update(), con global, esci se il gioco è finito; le frecce; il passo della pallina; tre if con abs per i bordi; un for con colliderect e break per i mattoncini; un if con vy positivo e colliderect per la racchetta; poi la pallina caduta e il muro vuoto."],
+    check: (o, c) => !pgzWhy(c, "it", BRK_WIN5),
+    why: (o, c) => pgzWhy(c, "it", BRK_WIN5),
+    tests: brkWinTests("it")
+  },
+  en: {
+    title: "Build: Breakout, part 5",
+    theory: [
+`<p>Part 5: Breakout leaves the terminal and goes into a <b>window</b>, 600 wide and 360 high, and it's played <b>in real time</b>: the ball doesn't wait for your moves, it flies by itself, and you hold the arrows down to move the paddle. It's all as in the preview, three times bigger.</p>
+<p>The wall has 4 rows of 8 bricks, and each one is a <b>Rect</b> 64 wide and 21 high: the brick in row r and column c has its corner at <code>(23 + c * 70, 30 + r * 27)</code>, so 6 pixels stay between two bricks. They're all in the list <code>bricks</code>, and the colour depends on the row: <code>COLOURS = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]</code>, from row 0 at the top to 3. A Rect knows where it is: <code>b.x</code> and <code>b.y</code> are its corner, and the row is <code>(b.y - 30) // 27</code>. The background is <code>"#1c0f0d"</code>.</p>
+<p>The paddle is a <code>"#dbe3f1"</code> rectangle of 108 × 15, at height 324: its centre is in <code>paddle_x</code>, which starts from 300, and its Rect is given back by <code>paddle_rect()</code>, with the corner at <code>(paddle_x - 54, 324)</code>. The ball is a white circle, <code>"#ffffff"</code>, with radius 9, with its centre in <code>ball_x</code> and <code>ball_y</code>, which start from 300 and 252; its Rect, a square of 18 around the centre, is given back by <code>ball_rect()</code>.</p>
+<p>The movement goes in <code>update()</code>, which Pygame Zero calls 60 times a second. At every call: with <code>keyboard.left</code> and <code>keyboard.right</code> the paddle moves 6 pixels, but its centre stays between 54 and 546; the ball moves by <code>vx</code> and <code>vy</code>, which start from 3 and -4; and then the bounces. At the edges the ball has to come back whatever the sign of its speed, and this is where <code>abs</code> comes in handy: if <code>ball_x</code> is less than 9, <code>vx = abs(vx)</code>, positive; if it's more than 591, <code>vx = -abs(vx)</code>; if <code>ball_y</code> is less than 9, <code>vy = abs(vy)</code>.</p>
+<p>The <b>collisions</b> are found by the Rects: <code>a.colliderect(b)</code> is true when the rectangles <code>a</code> and <code>b</code> touch. For every brick, if <code>ball_rect().colliderect(b)</code>, take it off the list, the ball turns back, <code>vy = -vy</code>, and stop looking, with <code>break</code>. If the ball is going down, that is <code>vy > 0</code>, and touches the paddle, it goes back up, <code>vy = -vy</code>, and <code>vx = (ball_x - paddle_x) // 12</code>: the further from the centre you hit it, the more it goes sideways, as with the paddle's three squares in the terminal. If <code>ball_y</code> goes past <code>HEIGHT + 9</code> the ball has fallen, and <code>state</code> becomes <code>"lost"</code>; when the bricks run out it becomes <code>"won"</code>; and once the game is over it stops. In the middle of the window, with <code>center=(300, 200)</code> and size 48, it says <code>Ball lost!</code> in <code>"#ef5350"</code> or <code>Wall down!</code> in <code>"#ffee58"</code>.</p>`],
+    task: `Take Breakout into the window as above: the wall of 32 <code>Rect</code> bricks in the preview's colours, the paddle that moves with the arrows, the ball flying in <code>update()</code>, the bounces off the edges with <code>abs</code>, the bricks that break and the paddle that sends the ball back up, found with <code>colliderect</code>, and the end texts. When you close the window, I'll test the ball's flight, the arrows, the edges, the paddle, a lost ball and the last brick.`,
+    solution: `# Breakout, part 5: in a window
+import pgzrun
+
+WIDTH = 600
+HEIGHT = 360
+COLOURS = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]
+bricks = []
+for row in range(4):
+    for column in range(8):
+        bricks.append(Rect((23 + column * 70, 30 + row * 27), (64, 21)))
+paddle_x = 300
+ball_x = 300
+ball_y = 252
+vx = 3
+vy = -4
+state = "playing"
+
+
+def ball_rect():
+    return Rect((ball_x - 9, ball_y - 9), (18, 18))
+
+
+def paddle_rect():
+    return Rect((paddle_x - 54, 324), (108, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        screen.draw.filled_rect(b, COLOURS[(b.y - 30) // 27])
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    screen.draw.filled_circle((ball_x, ball_y), 9, "#ffffff")
+    if state == "lost":
+        screen.draw.text("Ball lost!", center=(300, 200), fontsize=48, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("Wall down!", center=(300, 200), fontsize=48, color="#ffee58")
+
+
+def update():
+    global paddle_x, ball_x, ball_y, vx, vy, state
+    if state != "playing":
+        return
+    if keyboard.left and paddle_x > 54:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < 546:
+        paddle_x += 6
+    ball_x += vx
+    ball_y += vy
+    if ball_x < 9:
+        vx = abs(vx)
+    if ball_x > 591:
+        vx = -abs(vx)
+    if ball_y < 9:
+        vy = abs(vy)
+    for b in bricks:
+        if ball_rect().colliderect(b):
+            bricks.remove(b)
+            vy = -vy
+            break
+    if vy > 0 and ball_rect().colliderect(paddle_rect()):
+        vy = -vy
+        vx = (ball_x - paddle_x) // 12
+    if ball_y > HEIGHT + 9:
+        state = "lost"
+    if len(bricks) == 0:
+        state = "won"
+
+
+pgzrun.go()`,
+    hints: ["What changes at every call of update(), and in what order? When should the ball bounce off the paddle, and when not?",
+      "At the top import pgzrun, WIDTH and HEIGHT, COLOURS, the wall with two for loops, the paddle, the ball, vx, vy and the state. Two functions for the Rects. In draw() the background, a for over the bricks, the paddle, the ball and the texts. In update(), with global, leave if the game is over; the arrows; the ball's step; three ifs with abs for the edges; a for with colliderect and break for the bricks; an if with vy positive and colliderect for the paddle; then the fallen ball and the empty wall."],
+    check: (o, c) => !pgzWhy(c, "en", BRK_WIN5),
+    why: (o, c) => pgzWhy(c, "en", BRK_WIN5),
+    tests: brkWinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_breakout_6.py", "build_breakout_6.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 6",
+    theory: [
+`<p>Parte 6: la <b>partenza</b>. Ora la pallina aspetta sulla racchetta e la segue, finché non premi lo Spazio: la variabile <code>ferma</code> è vera, e in <code>update()</code>, finché è vera, <code>palla_x</code> diventa <code>racchetta_x</code> e <code>palla_y</code> resta 315, appena sopra la racchetta. Al centro c'è scritto <code>Spazio per lanciare la pallina</code>, in <code>"#dbe3f1"</code>. Con lo Spazio, in <code>on_key_down</code>, la pallina parte con un angolo <b>a caso</b>: <code>vx = random.randint(-4, 4)</code> e <code>vy = -4</code>. Così ogni partita è diversa.</p>
+<p>E qualche mattoncino nasconde un <b>bonus</b>. All'inizio pesca 3 mattoncini diversi con <code>random.choice(mattoni)</code> e mettili nella lista <code>bonus</code>; se ne pesca uno già scelto, pesca ancora. Quando la pallina rompe un mattoncino del bonus, da lì cade una <b>capsula</b>, un Rect <code>"#4fc3f7"</code> di 30 × 12 con l'angolo in <code>(m.x + 17, m.y + 4)</code>: va nella lista <code>capsule</code>, e a ogni chiamata di <code>update()</code> scende di 3 pixel. Se tocca la racchetta, sparisce e la racchetta diventa larga 162: la sua larghezza ora sta nella variabile <code>misura</code>, che parte da 108, e il suo Rect ha l'angolo in <code>(racchetta_x - misura // 2, 324)</code>, con il centro che resta tra <code>misura // 2</code> e <code>WIDTH - misura // 2</code>. Se invece la capsula esce dal fondo, sparisce e basta.</p>
+<p>Tutto questo lo prepara <code>nuova_partita()</code>: il muro, il bonus, le capsule vuote, la racchetta, la pallina ferma e lo stato <code>"gioco"</code>. La chiami prima di <code>pgzrun.go()</code>, e poi con lo Spazio quando la partita è finita; le scritte della fine diventano <code>Pallina persa! Spazio per rigiocare</code> e <code>Muro abbattuto! Spazio per rigiocare</code>, grandi 36.</p>`],
+    task: `Fai aspettare la pallina sulla racchetta finché non premi lo Spazio, e poi falla partire con <code>vx</code> a caso, con <code>random.randint(-4, 4)</code>; nascondi il bonus in 3 mattoncini pescati con <code>random.choice</code>, con la capsula che cade e allarga la racchetta; scrivi <code>nuova_partita()</code> e ricomincia con lo Spazio. Quando chiudi la finestra, proverò con dei dadi truccati la partenza, il bonus e una partita nuova.`,
+    solution: `# Breakout, parte 6: partenza a caso
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLORI = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]
+
+
+def nuova_partita():
+    global mattoni, bonus, capsule, racchetta_x, misura, palla_x, palla_y, vx, vy, ferma, stato
+    mattoni = []
+    for fila in range(4):
+        for colonna in range(8):
+            mattoni.append(Rect((23 + colonna * 70, 30 + fila * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        m = random.choice(mattoni)
+        if m not in bonus:
+            bonus.append(m)
+    capsule = []
+    racchetta_x = 300
+    misura = 108
+    palla_x = 300
+    palla_y = 315
+    vx = 0
+    vy = 0
+    ferma = True
+    stato = "gioco"
+
+
+def rect_palla():
+    return Rect((palla_x - 9, palla_y - 9), (18, 18))
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - misura // 2, 324), (misura, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        screen.draw.filled_rect(m, COLORI[(m.y - 30) // 27])
+    for c in capsule:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    screen.draw.filled_circle((palla_x, palla_y), 9, "#ffffff")
+    if stato == "persa":
+        screen.draw.text("Pallina persa! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Muro abbattuto! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ffee58")
+    elif ferma:
+        screen.draw.text("Spazio per lanciare la pallina", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global vx, vy, ferma
+    if key != keys.SPACE:
+        return
+    if stato != "gioco":
+        nuova_partita()
+    elif ferma:
+        vx = random.randint(-4, 4)
+        vy = -4
+        ferma = False
+
+
+def update():
+    global racchetta_x, misura, palla_x, palla_y, vx, vy, stato
+    if stato != "gioco":
+        return
+    if keyboard.left and racchetta_x > misura // 2:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < WIDTH - misura // 2:
+        racchetta_x += 6
+    for c in capsule:
+        c.y += 3
+        if c.colliderect(rect_racchetta()):
+            capsule.remove(c)
+            misura = 162
+            break
+        if c.y > HEIGHT:
+            capsule.remove(c)
+            break
+    if ferma:
+        palla_x = racchetta_x
+        return
+    palla_x += vx
+    palla_y += vy
+    if palla_x < 9:
+        vx = abs(vx)
+    if palla_x > 591:
+        vx = -abs(vx)
+    if palla_y < 9:
+        vy = abs(vy)
+    for m in mattoni:
+        if rect_palla().colliderect(m):
+            mattoni.remove(m)
+            vy = -vy
+            if m in bonus:
+                capsule.append(Rect((m.x + 17, m.y + 4), (30, 12)))
+            break
+    if vy > 0 and rect_palla().colliderect(rect_racchetta()):
+        vy = -vy
+        vx = (palla_x - racchetta_x) // 12
+    if palla_y > HEIGHT + 9:
+        stato = "persa"
+    if len(mattoni) == 0:
+        stato = "vinta"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa fa la pallina prima del lancio? Cosa deve succedere a una capsula a ogni chiamata di update()?",
+      "nuova_partita, con global, prepara il muro, il bonus con un while finché sono 3 e un if con not in, le capsule vuote, la racchetta, misura, la pallina, ferma e lo stato. on_key_down con lo Spazio: a partita finita nuova_partita, se no, se la pallina è ferma, il lancio. In update() un for sulle capsule che scendono, con la presa e break; se la pallina è ferma segue la racchetta e return; e quando rompi un mattoncino, se è in bonus, una capsula nuova."],
+    check: (o, c) => !pgzWhy(c, "it", BRK_WIN6),
+    why: (o, c) => pgzWhy(c, "it", BRK_WIN6),
+    tests: brkStartTests("it")
+  },
+  en: {
+    title: "Build: Breakout, part 6",
+    theory: [
+`<p>Part 6: the <b>start</b>. Now the ball waits on the paddle and follows it, until you press Space: the variable <code>waiting</code> is true, and in <code>update()</code>, as long as it's true, <code>ball_x</code> becomes <code>paddle_x</code> and <code>ball_y</code> stays 315, just above the paddle. In the middle it says <code>Space to launch the ball</code>, in <code>"#dbe3f1"</code>. With Space, in <code>on_key_down</code>, the ball goes at a <b>random</b> angle: <code>vx = random.randint(-4, 4)</code> and <code>vy = -4</code>. So every game is different.</p>
+<p>And some bricks hide a <b>bonus</b>. At the start pick 3 different bricks with <code>random.choice(bricks)</code> and put them in the list <code>bonus</code>; if you pick one already chosen, pick again. When the ball breaks a bonus brick, a <b>capsule</b> falls from there, a <code>"#4fc3f7"</code> Rect of 30 × 12 with its corner at <code>(b.x + 17, b.y + 4)</code>: it goes into the list <code>capsules</code>, and at every call of <code>update()</code> it goes down 3 pixels. If it touches the paddle, it disappears and the paddle becomes 162 wide: its width is now in the variable <code>size</code>, which starts from 108, and its Rect has its corner at <code>(paddle_x - size // 2, 324)</code>, with the centre staying between <code>size // 2</code> and <code>WIDTH - size // 2</code>. If instead the capsule goes out at the bottom, it just disappears.</p>
+<p>All this is set up by <code>new_game()</code>: the wall, the bonus, no capsules, the paddle, the waiting ball and the state <code>"playing"</code>. You call it before <code>pgzrun.go()</code>, and then with Space when the game is over; the end texts become <code>Ball lost! Space to play again</code> and <code>Wall down! Space to play again</code>, size 36.</p>`],
+    task: `Make the ball wait on the paddle until you press Space, and then launch it with a random <code>vx</code>, with <code>random.randint(-4, 4)</code>; hide the bonus in 3 bricks picked with <code>random.choice</code>, with the capsule that falls and widens the paddle; write <code>new_game()</code> and start again with Space. When you close the window, I'll test with loaded dice the start, the bonus and a new game.`,
+    solution: `# Breakout, part 6: a random start
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLOURS = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]
+
+
+def new_game():
+    global bricks, bonus, capsules, paddle_x, size, ball_x, ball_y, vx, vy, waiting, state
+    bricks = []
+    for row in range(4):
+        for column in range(8):
+            bricks.append(Rect((23 + column * 70, 30 + row * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        b = random.choice(bricks)
+        if b not in bonus:
+            bonus.append(b)
+    capsules = []
+    paddle_x = 300
+    size = 108
+    ball_x = 300
+    ball_y = 315
+    vx = 0
+    vy = 0
+    waiting = True
+    state = "playing"
+
+
+def ball_rect():
+    return Rect((ball_x - 9, ball_y - 9), (18, 18))
+
+
+def paddle_rect():
+    return Rect((paddle_x - size // 2, 324), (size, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        screen.draw.filled_rect(b, COLOURS[(b.y - 30) // 27])
+    for c in capsules:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    screen.draw.filled_circle((ball_x, ball_y), 9, "#ffffff")
+    if state == "lost":
+        screen.draw.text("Ball lost! Space to play again", center=(300, 200), fontsize=36, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("Wall down! Space to play again", center=(300, 200), fontsize=36, color="#ffee58")
+    elif waiting:
+        screen.draw.text("Space to launch the ball", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global vx, vy, waiting
+    if key != keys.SPACE:
+        return
+    if state != "playing":
+        new_game()
+    elif waiting:
+        vx = random.randint(-4, 4)
+        vy = -4
+        waiting = False
+
+
+def update():
+    global paddle_x, size, ball_x, ball_y, vx, vy, state
+    if state != "playing":
+        return
+    if keyboard.left and paddle_x > size // 2:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < WIDTH - size // 2:
+        paddle_x += 6
+    for c in capsules:
+        c.y += 3
+        if c.colliderect(paddle_rect()):
+            capsules.remove(c)
+            size = 162
+            break
+        if c.y > HEIGHT:
+            capsules.remove(c)
+            break
+    if waiting:
+        ball_x = paddle_x
+        return
+    ball_x += vx
+    ball_y += vy
+    if ball_x < 9:
+        vx = abs(vx)
+    if ball_x > 591:
+        vx = -abs(vx)
+    if ball_y < 9:
+        vy = abs(vy)
+    for b in bricks:
+        if ball_rect().colliderect(b):
+            bricks.remove(b)
+            vy = -vy
+            if b in bonus:
+                capsules.append(Rect((b.x + 17, b.y + 4), (30, 12)))
+            break
+    if vy > 0 and ball_rect().colliderect(paddle_rect()):
+        vy = -vy
+        vx = (ball_x - paddle_x) // 12
+    if ball_y > HEIGHT + 9:
+        state = "lost"
+    if len(bricks) == 0:
+        state = "won"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What does the ball do before the launch? What has to happen to a capsule at every call of update()?",
+      "new_game, with global, sets up the wall, the bonus with a while until there are 3 and an if with not in, no capsules, the paddle, size, the ball, waiting and the state. on_key_down with Space: when the game is over new_game, otherwise, if the ball is waiting, the launch. In update() a for over the capsules going down, with the catch and break; if the ball is waiting it follows the paddle and return; and when you break a brick, if it's in bonus, a new capsule."],
+    check: (o, c) => !pgzWhy(c, "en", BRK_WIN6),
+    why: (o, c) => pgzWhy(c, "en", BRK_WIN6),
+    tests: brkStartTests("en")
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_breakout_7.py", "build_breakout_7.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 7",
+    theory: [
+`<p>Parte 7: <b>colori e punti</b>. La lista dei colori diventa un dizionario, <code>COLORI = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}</code>, con il numero della fila come chiave, e accanto ce n'è un altro con i punti di ogni fila: <code>PUNTI = {0: 7, 1: 5, 2: 3, 3: 1}</code>. Le file in alto sono più difficili da raggiungere, e valgono di più. Il colore di un mattoncino è <code>COLORI[(m.y - 30) // 27]</code>, come prima, e quando lo rompi i <code>punti</code> crescono di <code>PUNTI[(m.y - 30) // 27]</code>. <code>nuova_partita()</code> rimette i punti a 0.</p>
+<p>Il <b>record</b> è il punteggio più alto, e vale per tutte le partite: <code>record</code> parte da 0, prima di <code>nuova_partita()</code>, e in <code>update()</code>, appena i punti lo superano, diventa uguale ai punti. In alto, sopra il muro, grandi 24 e in <code>"#dbe3f1"</code>: <code>Punti: 0</code> in <code>(23, 6)</code>, e <code>Record: 0</code> a destra, con <code>topright=(577, 6)</code>.</p>`],
+    task: `Metti i colori delle file nel dizionario <code>COLORI</code> e i punti nel dizionario <code>PUNTI</code>, conta i <code>punti</code> dei mattoncini rotti e tieni il <code>record</code>, il punteggio più alto, anche tra una partita e l'altra; scrivi punti e record in alto. Quando chiudi la finestra, proverò i dizionari, i punti di un mattoncino verde e di uno rosso, e il record dopo una partita nuova.`,
+    solution: `# Breakout, parte 7: colori e punti
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLORI = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+PUNTI = {0: 7, 1: 5, 2: 3, 3: 1}
+record = 0
+
+
+def nuova_partita():
+    global mattoni, bonus, capsule, racchetta_x, misura, palla_x, palla_y, vx, vy, ferma, stato, punti
+    mattoni = []
+    for fila in range(4):
+        for colonna in range(8):
+            mattoni.append(Rect((23 + colonna * 70, 30 + fila * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        m = random.choice(mattoni)
+        if m not in bonus:
+            bonus.append(m)
+    capsule = []
+    racchetta_x = 300
+    misura = 108
+    palla_x = 300
+    palla_y = 315
+    vx = 0
+    vy = 0
+    ferma = True
+    stato = "gioco"
+    punti = 0
+
+
+def rect_palla():
+    return Rect((palla_x - 9, palla_y - 9), (18, 18))
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - misura // 2, 324), (misura, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        screen.draw.filled_rect(m, COLORI[(m.y - 30) // 27])
+    for c in capsule:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    screen.draw.filled_circle((palla_x, palla_y), 9, "#ffffff")
+    screen.draw.text(f"Punti: {punti}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if stato == "persa":
+        screen.draw.text("Pallina persa! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Muro abbattuto! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ffee58")
+    elif ferma:
+        screen.draw.text("Spazio per lanciare la pallina", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global vx, vy, ferma
+    if key != keys.SPACE:
+        return
+    if stato != "gioco":
+        nuova_partita()
+    elif ferma:
+        vx = random.randint(-4, 4)
+        vy = -4
+        ferma = False
+
+
+def update():
+    global racchetta_x, misura, palla_x, palla_y, vx, vy, stato, punti, record
+    if stato != "gioco":
+        return
+    if keyboard.left and racchetta_x > misura // 2:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < WIDTH - misura // 2:
+        racchetta_x += 6
+    for c in capsule:
+        c.y += 3
+        if c.colliderect(rect_racchetta()):
+            capsule.remove(c)
+            misura = 162
+            break
+        if c.y > HEIGHT:
+            capsule.remove(c)
+            break
+    if ferma:
+        palla_x = racchetta_x
+        return
+    palla_x += vx
+    palla_y += vy
+    if palla_x < 9:
+        vx = abs(vx)
+    if palla_x > 591:
+        vx = -abs(vx)
+    if palla_y < 9:
+        vy = abs(vy)
+    for m in mattoni:
+        if rect_palla().colliderect(m):
+            mattoni.remove(m)
+            vy = -vy
+            punti += PUNTI[(m.y - 30) // 27]
+            if m in bonus:
+                capsule.append(Rect((m.x + 17, m.y + 4), (30, 12)))
+            break
+    if vy > 0 and rect_palla().colliderect(rect_racchetta()):
+        vy = -vy
+        vx = (palla_x - racchetta_x) // 12
+    if palla_y > HEIGHT + 9:
+        stato = "persa"
+    if len(mattoni) == 0:
+        stato = "vinta"
+    if punti > record:
+        record = punti
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Perché il record va fuori da nuova_partita()? Quando lo aggiorni?",
+      "COLORI e PUNTI con quattro coppie numero: valore. Quando rompi un mattoncino, i punti crescono di PUNTI con la fila del mattoncino come chiave. In update(), se i punti sono più del record, il record diventa uguale ai punti: con global. In draw() due scritte, una con topright."],
+    check: (o, c) => !pgzWhy(c, "it", BRK_WIN7),
+    why: (o, c) => pgzWhy(c, "it", BRK_WIN7),
+    tests: (c) => brkPointsTests("it")(c).concat(brkStartTests("it")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: Breakout, part 7",
+    theory: [
+`<p>Part 7: <b>colours and points</b>. The list of colours becomes a dictionary, <code>COLOURS = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}</code>, with the row's number as the key, and next to it there's another one with the points of every row: <code>POINTS = {0: 7, 1: 5, 2: 3, 3: 1}</code>. The rows at the top are harder to reach, and they're worth more. A brick's colour is <code>COLOURS[(b.y - 30) // 27]</code>, as before, and when you break it the <code>points</code> grow by <code>POINTS[(b.y - 30) // 27]</code>. <code>new_game()</code> puts the points back to 0.</p>
+<p>The <b>record</b> is the highest score, and it counts for all the games: <code>best</code> starts from 0, before <code>new_game()</code>, and in <code>update()</code>, as soon as the points go past it, it becomes equal to the points. At the top, above the wall, size 24 and in <code>"#dbe3f1"</code>: <code>Points: 0</code> at <code>(23, 6)</code>, and <code>Record: 0</code> on the right, with <code>topright=(577, 6)</code>.</p>`],
+    task: `Put the rows' colours in the dictionary <code>COLOURS</code> and the points in the dictionary <code>POINTS</code>, count the <code>points</code> of the broken bricks and keep the record in <code>best</code>, the highest score, even from one game to the next; write the points and the record at the top. When you close the window, I'll test the dictionaries, the points of a green brick and of a red one, and the record after a new game.`,
+    solution: `# Breakout, part 7: colours and points
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLOURS = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+POINTS = {0: 7, 1: 5, 2: 3, 3: 1}
+best = 0
+
+
+def new_game():
+    global bricks, bonus, capsules, paddle_x, size, ball_x, ball_y, vx, vy, waiting, state, points
+    bricks = []
+    for row in range(4):
+        for column in range(8):
+            bricks.append(Rect((23 + column * 70, 30 + row * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        b = random.choice(bricks)
+        if b not in bonus:
+            bonus.append(b)
+    capsules = []
+    paddle_x = 300
+    size = 108
+    ball_x = 300
+    ball_y = 315
+    vx = 0
+    vy = 0
+    waiting = True
+    state = "playing"
+    points = 0
+
+
+def ball_rect():
+    return Rect((ball_x - 9, ball_y - 9), (18, 18))
+
+
+def paddle_rect():
+    return Rect((paddle_x - size // 2, 324), (size, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        screen.draw.filled_rect(b, COLOURS[(b.y - 30) // 27])
+    for c in capsules:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    screen.draw.filled_circle((ball_x, ball_y), 9, "#ffffff")
+    screen.draw.text(f"Points: {points}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if state == "lost":
+        screen.draw.text("Ball lost! Space to play again", center=(300, 200), fontsize=36, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("Wall down! Space to play again", center=(300, 200), fontsize=36, color="#ffee58")
+    elif waiting:
+        screen.draw.text("Space to launch the ball", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global vx, vy, waiting
+    if key != keys.SPACE:
+        return
+    if state != "playing":
+        new_game()
+    elif waiting:
+        vx = random.randint(-4, 4)
+        vy = -4
+        waiting = False
+
+
+def update():
+    global paddle_x, size, ball_x, ball_y, vx, vy, state, points, best
+    if state != "playing":
+        return
+    if keyboard.left and paddle_x > size // 2:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < WIDTH - size // 2:
+        paddle_x += 6
+    for c in capsules:
+        c.y += 3
+        if c.colliderect(paddle_rect()):
+            capsules.remove(c)
+            size = 162
+            break
+        if c.y > HEIGHT:
+            capsules.remove(c)
+            break
+    if waiting:
+        ball_x = paddle_x
+        return
+    ball_x += vx
+    ball_y += vy
+    if ball_x < 9:
+        vx = abs(vx)
+    if ball_x > 591:
+        vx = -abs(vx)
+    if ball_y < 9:
+        vy = abs(vy)
+    for b in bricks:
+        if ball_rect().colliderect(b):
+            bricks.remove(b)
+            vy = -vy
+            points += POINTS[(b.y - 30) // 27]
+            if b in bonus:
+                capsules.append(Rect((b.x + 17, b.y + 4), (30, 12)))
+            break
+    if vy > 0 and ball_rect().colliderect(paddle_rect()):
+        vy = -vy
+        vx = (ball_x - paddle_x) // 12
+    if ball_y > HEIGHT + 9:
+        state = "lost"
+    if len(bricks) == 0:
+        state = "won"
+    if points > best:
+        best = points
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["Why does the record go outside new_game()? When do you update it?",
+      "COLOURS and POINTS with four number: value pairs. When you break a brick, the points grow by POINTS with the brick's row as the key. In update(), if the points are more than best, best becomes equal to the points: with global. In draw() two texts, one with topright."],
+    check: (o, c) => !pgzWhy(c, "en", BRK_WIN7),
+    why: (o, c) => pgzWhy(c, "en", BRK_WIN7),
+    tests: (c) => brkPointsTests("en")(c).concat(brkStartTests("en")(c).slice(1, 2))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_breakout_8.py", "build_breakout_8.py"],
+  it: {
+    title: "Costruisci: Breakout, parte 8",
+    theory: [
+`<p>Parte 8: la pallina diventa un <b>oggetto</b>. La classe <code>Palla</code> tiene insieme quello che il gioco sa della pallina: il centro <code>x</code> e <code>y</code>, la velocità <code>vx</code> e <code>vy</code> e <code>ferma</code>, vera finché aspetta sulla racchetta. <code>__init__(self, x)</code> riceve dov'è la racchetta e crea una pallina ferma in <code>(x, 315)</code>, con velocità 0. I suoi metodi:</p>
+<ul><li><code>rect(self)</code> restituisce il suo Rect, il quadrato di 18 intorno al centro;</li>
+<li><code>lancia(self)</code> la fa partire: <code>vx</code> a caso tra -4 e 4, <code>vy</code> -4, e non è più ferma;</li>
+<li><code>muovi(self)</code> la sposta di <code>vx</code> e <code>vy</code> e la fa rimbalzare sui bordi e in alto, con <code>abs</code>;</li>
+<li><code>rimbalza(self, racchetta_x)</code> la rimanda su dalla racchetta: <code>vy</code> diventa <code>-abs(vy)</code> e <code>vx</code> la distanza dal centro della racchetta divisa con <code>//</code> per 12;</li>
+<li><code>disegna(self)</code> la disegna.</li></ul>
+<p>Le variabili <code>palla_x</code>, <code>palla_y</code>, <code>vx</code>, <code>vy</code> e <code>ferma</code> spariscono: c'è un oggetto solo, <code>palla</code>, che <code>nuova_partita()</code> crea con <code>Palla(racchetta_x)</code>. Il resto del gioco parla con lui: <code>palla.muovi()</code>, <code>palla.rect().colliderect(m)</code>, <code>palla.vy = -palla.vy</code> sul mattoncino, <code>palla.rimbalza(racchetta_x)</code> sulla racchetta e <code>palla.lancia()</code> con lo Spazio. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Palla</code> con <code>__init__</code>, <code>rect</code>, <code>lancia</code>, <code>muovi</code>, <code>rimbalza</code> e <code>disegna</code>, come qui sopra, e usa nel gioco un oggetto <code>palla</code> al posto delle variabili della pallina. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con i punti e il record.`,
+    solution: `# Breakout, parte 8: la pallina è un oggetto
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLORI = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+PUNTI = {0: 7, 1: 5, 2: 3, 3: 1}
+record = 0
+
+
+class Palla:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.ferma = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def lancia(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.ferma = False
+
+    def muovi(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def rimbalza(self, racchetta_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - racchetta_x) // 12
+
+    def disegna(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+def nuova_partita():
+    global mattoni, bonus, capsule, racchetta_x, misura, palla, stato, punti
+    mattoni = []
+    for fila in range(4):
+        for colonna in range(8):
+            mattoni.append(Rect((23 + colonna * 70, 30 + fila * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        m = random.choice(mattoni)
+        if m not in bonus:
+            bonus.append(m)
+    capsule = []
+    racchetta_x = 300
+    misura = 108
+    palla = Palla(racchetta_x)
+    stato = "gioco"
+    punti = 0
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - misura // 2, 324), (misura, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        screen.draw.filled_rect(m, COLORI[(m.y - 30) // 27])
+    for c in capsule:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    palla.disegna()
+    screen.draw.text(f"Punti: {punti}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if stato == "persa":
+        screen.draw.text("Pallina persa! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Muro abbattuto! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ffee58")
+    elif palla.ferma:
+        screen.draw.text("Spazio per lanciare la pallina", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    if key != keys.SPACE:
+        return
+    if stato != "gioco":
+        nuova_partita()
+    elif palla.ferma:
+        palla.lancia()
+
+
+def update():
+    global racchetta_x, misura, stato, punti, record
+    if stato != "gioco":
+        return
+    if keyboard.left and racchetta_x > misura // 2:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < WIDTH - misura // 2:
+        racchetta_x += 6
+    for c in capsule:
+        c.y += 3
+        if c.colliderect(rect_racchetta()):
+            capsule.remove(c)
+            misura = 162
+            break
+        if c.y > HEIGHT:
+            capsule.remove(c)
+            break
+    if palla.ferma:
+        palla.x = racchetta_x
+        return
+    palla.muovi()
+    for m in mattoni:
+        if palla.rect().colliderect(m):
+            mattoni.remove(m)
+            palla.vy = -palla.vy
+            punti += PUNTI[(m.y - 30) // 27]
+            if m in bonus:
+                capsule.append(Rect((m.x + 17, m.y + 4), (30, 12)))
+            break
+    if palla.vy > 0 and palla.rect().colliderect(rect_racchetta()):
+        palla.rimbalza(racchetta_x)
+    if palla.y > HEIGHT + 9:
+        stato = "persa"
+    if len(mattoni) == 0:
+        stato = "vinta"
+    if punti > record:
+        record = punti
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Quali informazioni deve tenere la pallina? Quali pezzi di update() riguardano solo la pallina, e possono diventare metodi?",
+      "In __init__ cinque attributi con self. rect restituisce un Rect intorno a self.x e self.y. muovi sposta la pallina e poi ha tre if con abs. rimbalza cambia self.vy e self.vx. In nuova_partita la pallina nuova nasce da Palla, e in update() e draw() scrivi palla. davanti agli attributi e ai metodi."],
+    check: (o, c) => !pgzWhy(c, "it", BRK_WIN7.concat(BRK_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", BRK_WIN7.concat(BRK_CLASS.it)),
+    tests: (c) => brkClassTests("it")(c).concat(brkPointsTests("it", true)(c).slice(1))
+  },
+  en: {
+    title: "Build: Breakout, part 8",
+    theory: [
+`<p>Part 8: the ball becomes an <b>object</b>. The class <code>Ball</code> keeps together what the game knows about the ball: the centre <code>x</code> and <code>y</code>, the speed <code>vx</code> and <code>vy</code> and <code>waiting</code>, true while it waits on the paddle. <code>__init__(self, x)</code> gets where the paddle is and makes a waiting ball at <code>(x, 315)</code>, with speed 0. Its methods:</p>
+<ul><li><code>rect(self)</code> gives back its Rect, the square of 18 around the centre;</li>
+<li><code>launch(self)</code> sends it off: <code>vx</code> at random between -4 and 4, <code>vy</code> -4, and it's not waiting any more;</li>
+<li><code>move(self)</code> moves it by <code>vx</code> and <code>vy</code> and makes it bounce off the edges and the top, with <code>abs</code>;</li>
+<li><code>bounce(self, paddle_x)</code> sends it back up from the paddle: <code>vy</code> becomes <code>-abs(vy)</code> and <code>vx</code> the distance from the paddle's centre divided with <code>//</code> by 12;</li>
+<li><code>show(self)</code> draws it.</li></ul>
+<p>The variables <code>ball_x</code>, <code>ball_y</code>, <code>vx</code>, <code>vy</code> and <code>waiting</code> go away: there's just one object, <code>ball</code>, which <code>new_game()</code> makes with <code>Ball(paddle_x)</code>. The rest of the game talks to it: <code>ball.move()</code>, <code>ball.rect().colliderect(b)</code>, <code>ball.vy = -ball.vy</code> on a brick, <code>ball.bounce(paddle_x)</code> on the paddle and <code>ball.launch()</code> with Space. The game stays the same.</p>`],
+    task: `Write the class <code>Ball</code> with <code>__init__</code>, <code>rect</code>, <code>launch</code>, <code>move</code>, <code>bounce</code> and <code>show</code>, as above, and use a <code>ball</code> object in the game instead of the ball's variables. When you close the window, I'll test the class on its own and then the game, with the points and the record.`,
+    solution: `# Breakout, part 8: the ball is an object
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLOURS = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+POINTS = {0: 7, 1: 5, 2: 3, 3: 1}
+best = 0
+
+
+class Ball:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.waiting = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def launch(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.waiting = False
+
+    def move(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def bounce(self, paddle_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - paddle_x) // 12
+
+    def show(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+def new_game():
+    global bricks, bonus, capsules, paddle_x, size, ball, state, points
+    bricks = []
+    for row in range(4):
+        for column in range(8):
+            bricks.append(Rect((23 + column * 70, 30 + row * 27), (64, 21)))
+    bonus = []
+    while len(bonus) < 3:
+        b = random.choice(bricks)
+        if b not in bonus:
+            bonus.append(b)
+    capsules = []
+    paddle_x = 300
+    size = 108
+    ball = Ball(paddle_x)
+    state = "playing"
+    points = 0
+
+
+def paddle_rect():
+    return Rect((paddle_x - size // 2, 324), (size, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        screen.draw.filled_rect(b, COLOURS[(b.y - 30) // 27])
+    for c in capsules:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    ball.show()
+    screen.draw.text(f"Points: {points}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if state == "lost":
+        screen.draw.text("Ball lost! Space to play again", center=(300, 200), fontsize=36, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("Wall down! Space to play again", center=(300, 200), fontsize=36, color="#ffee58")
+    elif ball.waiting:
+        screen.draw.text("Space to launch the ball", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    if key != keys.SPACE:
+        return
+    if state != "playing":
+        new_game()
+    elif ball.waiting:
+        ball.launch()
+
+
+def update():
+    global paddle_x, size, state, points, best
+    if state != "playing":
+        return
+    if keyboard.left and paddle_x > size // 2:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < WIDTH - size // 2:
+        paddle_x += 6
+    for c in capsules:
+        c.y += 3
+        if c.colliderect(paddle_rect()):
+            capsules.remove(c)
+            size = 162
+            break
+        if c.y > HEIGHT:
+            capsules.remove(c)
+            break
+    if ball.waiting:
+        ball.x = paddle_x
+        return
+    ball.move()
+    for b in bricks:
+        if ball.rect().colliderect(b):
+            bricks.remove(b)
+            ball.vy = -ball.vy
+            points += POINTS[(b.y - 30) // 27]
+            if b in bonus:
+                capsules.append(Rect((b.x + 17, b.y + 4), (30, 12)))
+            break
+    if ball.vy > 0 and ball.rect().colliderect(paddle_rect()):
+        ball.bounce(paddle_x)
+    if ball.y > HEIGHT + 9:
+        state = "lost"
+    if len(bricks) == 0:
+        state = "won"
+    if points > best:
+        best = points
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What information does the ball need to keep? Which pieces of update() are only about the ball, and can become methods?",
+      "In __init__ five attributes with self. rect gives back a Rect around self.x and self.y. move moves the ball and then has three ifs with abs. bounce changes self.vy and self.vx. In new_game the new ball is made from Ball, and in update() and draw() write ball. in front of the attributes and the methods."],
+    check: (o, c) => !pgzWhy(c, "en", BRK_WIN7.concat(BRK_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", BRK_WIN7.concat(BRK_CLASS.en)),
+    tests: (c) => brkClassTests("en")(c).concat(brkPointsTests("en", true)(c).slice(1))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_breakout.py", "final_challenge_breakout.py"],
+  it: {
+    title: "Costruisci: Breakout completo",
+    theory: [
+`<p>Parte 9, la sfida finale: <b>livelli e vite</b>. Anche il mattoncino diventa un oggetto, con la classe <code>Mattone</code>: <code>__init__(self, fila, colonna, colpi)</code> gli dà il suo Rect, nell'attributo <code>rect</code> (un attributo e non un metodo, perché il mattoncino non si muove), la <code>fila</code>, i <code>colpi</code> che servono per romperlo e <code>bonus</code>, falso. <code>colpisci(self)</code> toglie un colpo e restituisce <code>True</code> se il mattoncino è rotto, cioè se i colpi sono finiti; <code>disegna(self)</code> lo disegna nel colore della sua fila e, se gli servono ancora 2 colpi o più, con un bordo <code>"#dbe3f1"</code>: prima il rettangolo intero <code>"#dbe3f1"</code>, poi sopra quello colorato, 4 pixel più in dentro, di 56 × 13.</p>
+<p>I <b>livelli</b> stanno nella lista <code>LIVELLI = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]</code>: ogni livello dice quanti colpi servono per i mattoncini di ogni fila. <code>prepara_livello()</code> costruisce il muro del livello <code>livello</code> con 32 oggetti <code>Mattone</code>, mette il bonus in 3 di loro, a caso, svuota le capsule e rimette la racchetta e la pallina ferma; <code>nuova_partita()</code> rimette <code>livello</code> a 1, le <code>vite</code> a 3, i punti a 0 e lo stato, e chiama <code>prepara_livello()</code>. Quando la pallina tocca un mattoncino rimbalza sempre, ma il mattoncino sparisce, e dà i suoi punti, solo se <code>colpisci()</code> dice che è rotto. Quando il muro è vuoto passi al livello dopo, e dopo l'ultimo hai vinto.</p>
+<p>Le <b>vite</b>: quando la pallina cade, <code>vite</code> scende di 1; se ne restano, la racchetta torna larga 108 e arriva una pallina nuova, ferma sulla racchetta; se no la partita è persa. In alto, al centro con <code>midtop=(300, 6)</code>, il record, e a destra <code>Livello 1   Vite: 3</code>; le scritte della fine diventano <code>Niente più vite! Spazio per rigiocare</code> e <code>Tutti i livelli! Spazio per rigiocare</code>.</p>`],
+    task: `Scrivi la classe <code>Mattone</code> con <code>__init__</code>, <code>colpisci</code> e <code>disegna</code>, la lista <code>LIVELLI</code>, <code>prepara_livello()</code> e le <code>vite</code>, come qui sopra: i mattoncini che resistono a più colpi, il livello dopo quando il muro è vuoto, tre vite e le scritte nuove. Quando chiudi la finestra, proverò un mattoncino da solo, il passaggio al livello 2 e le tre vite.`,
+    solution: `# Breakout, parte 9: livelli e vite
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLORI = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+PUNTI = {0: 7, 1: 5, 2: 3, 3: 1}
+LIVELLI = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]
+record = 0
+
+
+class Palla:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.ferma = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def lancia(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.ferma = False
+
+    def muovi(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def rimbalza(self, racchetta_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - racchetta_x) // 12
+
+    def disegna(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+class Mattone:
+    def __init__(self, fila, colonna, colpi):
+        self.rect = Rect((23 + colonna * 70, 30 + fila * 27), (64, 21))
+        self.fila = fila
+        self.colpi = colpi
+        self.bonus = False
+
+    def colpisci(self):
+        self.colpi -= 1
+        return self.colpi == 0
+
+    def disegna(self):
+        if self.colpi > 1:
+            screen.draw.filled_rect(self.rect, "#dbe3f1")
+            screen.draw.filled_rect(Rect((self.rect.x + 4, self.rect.y + 4), (56, 13)), COLORI[self.fila])
+        else:
+            screen.draw.filled_rect(self.rect, COLORI[self.fila])
+
+
+def prepara_livello():
+    global mattoni, capsule, racchetta_x, misura, palla
+    mattoni = []
+    for fila in range(4):
+        for colonna in range(8):
+            mattoni.append(Mattone(fila, colonna, LIVELLI[livello - 1][fila]))
+    messi = 0
+    while messi < 3:
+        m = random.choice(mattoni)
+        if not m.bonus:
+            m.bonus = True
+            messi += 1
+    capsule = []
+    racchetta_x = 300
+    misura = 108
+    palla = Palla(racchetta_x)
+
+
+def nuova_partita():
+    global livello, vite, punti, stato
+    livello = 1
+    vite = 3
+    punti = 0
+    stato = "gioco"
+    prepara_livello()
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - misura // 2, 324), (misura, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        m.disegna()
+    for c in capsule:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    palla.disegna()
+    screen.draw.text(f"Punti: {punti}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", midtop=(300, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Livello {livello}   Vite: {vite}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if stato == "persa":
+        screen.draw.text("Niente più vite! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Tutti i livelli! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ffee58")
+    elif palla.ferma:
+        screen.draw.text("Spazio per lanciare la pallina", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    if key != keys.SPACE:
+        return
+    if stato != "gioco":
+        nuova_partita()
+    elif palla.ferma:
+        palla.lancia()
+
+
+def update():
+    global racchetta_x, misura, palla, livello, vite, stato, punti, record
+    if stato != "gioco":
+        return
+    if keyboard.left and racchetta_x > misura // 2:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < WIDTH - misura // 2:
+        racchetta_x += 6
+    for c in capsule:
+        c.y += 3
+        if c.colliderect(rect_racchetta()):
+            capsule.remove(c)
+            misura = 162
+            break
+        if c.y > HEIGHT:
+            capsule.remove(c)
+            break
+    if palla.ferma:
+        palla.x = racchetta_x
+        return
+    palla.muovi()
+    for m in mattoni:
+        if palla.rect().colliderect(m.rect):
+            palla.vy = -palla.vy
+            if m.colpisci():
+                mattoni.remove(m)
+                punti += PUNTI[m.fila]
+                if m.bonus:
+                    capsule.append(Rect((m.rect.x + 17, m.rect.y + 4), (30, 12)))
+            break
+    if palla.vy > 0 and palla.rect().colliderect(rect_racchetta()):
+        palla.rimbalza(racchetta_x)
+    if punti > record:
+        record = punti
+    if palla.y > HEIGHT + 9:
+        vite -= 1
+        if vite == 0:
+            stato = "persa"
+        else:
+            misura = 108
+            palla = Palla(racchetta_x)
+    if len(mattoni) == 0:
+        if livello < len(LIVELLI):
+            livello += 1
+            prepara_livello()
+        else:
+            stato = "vinta"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa cambia tra un livello e l'altro, e cosa invece resta? Cosa succede quando la pallina cade ma hai ancora delle vite?",
+      "Mattone ha quattro attributi; colpisci toglie 1 ai colpi e restituisce il confronto con 0; disegna ha un if sui colpi. prepara_livello, con global, ha due for che creano i Mattone con i colpi presi da LIVELLI e il while del bonus con l'attributo bonus. In update(), sul mattoncino colpito: il rimbalzo, e se colpisci() è vero remove e i punti. Pallina caduta: vite meno 1 e un if. Muro vuoto: un if sul livello."],
+    check: (o, c) => !pgzWhy(c, "it", BRK_WIN7.concat(BRK_CLASS.it, BRK_BRICK.it)),
+    why: (o, c) => pgzWhy(c, "it", BRK_WIN7.concat(BRK_CLASS.it, BRK_BRICK.it)),
+    tests: (c) => brkLevelTests("it")(c).concat(brkClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Breakout",
+    theory: [
+`<p>Part 9, the final challenge: <b>levels and lives</b>. The brick becomes an object too, with the class <code>Brick</code>: <code>__init__(self, row, column, hits)</code> gives it its Rect, in the attribute <code>rect</code> (an attribute and not a method, because the brick doesn't move), the <code>row</code>, the <code>hits</code> it takes to break it and <code>bonus</code>, false. <code>hit(self)</code> takes away a hit and gives back <code>True</code> if the brick is broken, that is if the hits have run out; <code>show(self)</code> draws it in its row's colour and, if it still takes 2 hits or more, with a <code>"#dbe3f1"</code> border: first the whole <code>"#dbe3f1"</code> rectangle, then on top the coloured one, 4 pixels further in, of 56 × 13.</p>
+<p>The <b>levels</b> are in the list <code>LEVELS = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]</code>: every level says how many hits the bricks of each row take. <code>set_up_level()</code> builds the wall of level <code>level</code> with 32 <code>Brick</code> objects, puts the bonus in 3 of them, at random, empties the capsules and puts back the paddle and the waiting ball; <code>new_game()</code> puts <code>level</code> back to 1, the <code>lives</code> to 3, the points to 0 and the state, and calls <code>set_up_level()</code>. When the ball touches a brick it always bounces, but the brick disappears, and gives its points, only if <code>hit()</code> says it's broken. When the wall is empty you go on to the next level, and after the last one you've won.</p>
+<p>The <b>lives</b>: when the ball falls, <code>lives</code> goes down by 1; if there are some left, the paddle goes back to 108 wide and a new ball comes, waiting on the paddle; otherwise the game is lost. At the top, in the middle with <code>midtop=(300, 6)</code>, the record, and on the right <code>Level 1   Lives: 3</code>; the end texts become <code>No lives left! Space to play again</code> and <code>All the levels! Space to play again</code>.</p>`],
+    task: `Write the class <code>Brick</code> with <code>__init__</code>, <code>hit</code> and <code>show</code>, the list <code>LEVELS</code>, <code>set_up_level()</code> and the <code>lives</code>, as above: bricks that take several hits, the next level when the wall is empty, three lives and the new texts. When you close the window, I'll test a brick on its own, going to level 2 and the three lives.`,
+    solution: `# Breakout, part 9: levels and lives
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+COLOURS = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+POINTS = {0: 7, 1: 5, 2: 3, 3: 1}
+LEVELS = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]
+best = 0
+
+
+class Ball:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.waiting = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def launch(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.waiting = False
+
+    def move(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def bounce(self, paddle_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - paddle_x) // 12
+
+    def show(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+class Brick:
+    def __init__(self, row, column, hits):
+        self.rect = Rect((23 + column * 70, 30 + row * 27), (64, 21))
+        self.row = row
+        self.hits = hits
+        self.bonus = False
+
+    def hit(self):
+        self.hits -= 1
+        return self.hits == 0
+
+    def show(self):
+        if self.hits > 1:
+            screen.draw.filled_rect(self.rect, "#dbe3f1")
+            screen.draw.filled_rect(Rect((self.rect.x + 4, self.rect.y + 4), (56, 13)), COLOURS[self.row])
+        else:
+            screen.draw.filled_rect(self.rect, COLOURS[self.row])
+
+
+def set_up_level():
+    global bricks, capsules, paddle_x, size, ball
+    bricks = []
+    for row in range(4):
+        for column in range(8):
+            bricks.append(Brick(row, column, LEVELS[level - 1][row]))
+    placed = 0
+    while placed < 3:
+        b = random.choice(bricks)
+        if not b.bonus:
+            b.bonus = True
+            placed += 1
+    capsules = []
+    paddle_x = 300
+    size = 108
+    ball = Ball(paddle_x)
+
+
+def new_game():
+    global level, lives, points, state
+    level = 1
+    lives = 3
+    points = 0
+    state = "playing"
+    set_up_level()
+
+
+def paddle_rect():
+    return Rect((paddle_x - size // 2, 324), (size, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        b.show()
+    for c in capsules:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    ball.show()
+    screen.draw.text(f"Points: {points}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", midtop=(300, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Level {level}   Lives: {lives}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if state == "lost":
+        screen.draw.text("No lives left! Space to play again", center=(300, 200), fontsize=36, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("All the levels! Space to play again", center=(300, 200), fontsize=36, color="#ffee58")
+    elif ball.waiting:
+        screen.draw.text("Space to launch the ball", center=(300, 200), fontsize=36, color="#dbe3f1")
+
+
+def on_key_down(key):
+    if key != keys.SPACE:
+        return
+    if state != "playing":
+        new_game()
+    elif ball.waiting:
+        ball.launch()
+
+
+def update():
+    global paddle_x, size, ball, level, lives, state, points, best
+    if state != "playing":
+        return
+    if keyboard.left and paddle_x > size // 2:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < WIDTH - size // 2:
+        paddle_x += 6
+    for c in capsules:
+        c.y += 3
+        if c.colliderect(paddle_rect()):
+            capsules.remove(c)
+            size = 162
+            break
+        if c.y > HEIGHT:
+            capsules.remove(c)
+            break
+    if ball.waiting:
+        ball.x = paddle_x
+        return
+    ball.move()
+    for b in bricks:
+        if ball.rect().colliderect(b.rect):
+            ball.vy = -ball.vy
+            if b.hit():
+                bricks.remove(b)
+                points += POINTS[b.row]
+                if b.bonus:
+                    capsules.append(Rect((b.rect.x + 17, b.rect.y + 4), (30, 12)))
+            break
+    if ball.vy > 0 and ball.rect().colliderect(paddle_rect()):
+        ball.bounce(paddle_x)
+    if points > best:
+        best = points
+    if ball.y > HEIGHT + 9:
+        lives -= 1
+        if lives == 0:
+            state = "lost"
+        else:
+            size = 108
+            ball = Ball(paddle_x)
+    if len(bricks) == 0:
+        if level < len(LEVELS):
+            level += 1
+            set_up_level()
+        else:
+            state = "won"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What changes from one level to the next, and what stays the same? What happens when the ball falls but you still have lives?",
+      "Brick has four attributes; hit takes 1 away from the hits and gives back the comparison with 0; show has an if on the hits. set_up_level, with global, has two for loops that make the Bricks with their hits taken from LEVELS and the bonus while with the bonus attribute. In update(), on the brick touched: the bounce, and if hit() is true remove and the points. Fallen ball: lives minus 1 and an if. Empty wall: an if on the level."],
+    check: (o, c) => !pgzWhy(c, "en", BRK_WIN7.concat(BRK_CLASS.en, BRK_BRICK.en)),
+    why: (o, c) => pgzWhy(c, "en", BRK_WIN7.concat(BRK_CLASS.en, BRK_BRICK.en)),
+    tests: (c) => brkLevelTests("en")(c).concat(brkClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: Breakout sul tuo computer",
+    theory: [
+`<p>Parte 10: Breakout è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>breakout.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python breakout.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in <b>pausa</b> e fa ripartire, con una variabile vera o falsa, <code>pausa</code>: in pausa <code>update()</code> esce subito, così la pallina e la racchetta si fermano, lo Spazio non fa niente e al centro c'è scritto <code>Pausa: P per continuare</code>. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, in <code>on_key_down</code>. E sotto <code>Spazio per lanciare la pallina</code>, grande 24 e centrato in <code>(300, 240)</code>, scrivi i tasti: <code>Frecce: racchetta    P: pausa    Esc: esci</code>.</p>`],
+    task: `Prepara Breakout per il computer: un titolo per la finestra con <code>TITLE</code>, la pausa con P (la pallina e la racchetta ferme e lo Spazio che non conta, con la scritta <code>Pausa: P per continuare</code>), Esc per uscire con <code>exit()</code> e i tasti scritti sotto l'invito a lanciare. Proverò il titolo, la pausa e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca a Breakout sul tuo computer.`,
+    solution: `# Breakout, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "Breakout di Ada"
+WIDTH = 600
+HEIGHT = 360
+COLORI = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+PUNTI = {0: 7, 1: 5, 2: 3, 3: 1}
+LIVELLI = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]
+record = 0
+pausa = False
+
+
+class Palla:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.ferma = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def lancia(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.ferma = False
+
+    def muovi(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def rimbalza(self, racchetta_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - racchetta_x) // 12
+
+    def disegna(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+class Mattone:
+    def __init__(self, fila, colonna, colpi):
+        self.rect = Rect((23 + colonna * 70, 30 + fila * 27), (64, 21))
+        self.fila = fila
+        self.colpi = colpi
+        self.bonus = False
+
+    def colpisci(self):
+        self.colpi -= 1
+        return self.colpi == 0
+
+    def disegna(self):
+        if self.colpi > 1:
+            screen.draw.filled_rect(self.rect, "#dbe3f1")
+            screen.draw.filled_rect(Rect((self.rect.x + 4, self.rect.y + 4), (56, 13)), COLORI[self.fila])
+        else:
+            screen.draw.filled_rect(self.rect, COLORI[self.fila])
+
+
+def prepara_livello():
+    global mattoni, capsule, racchetta_x, misura, palla
+    mattoni = []
+    for fila in range(4):
+        for colonna in range(8):
+            mattoni.append(Mattone(fila, colonna, LIVELLI[livello - 1][fila]))
+    messi = 0
+    while messi < 3:
+        m = random.choice(mattoni)
+        if not m.bonus:
+            m.bonus = True
+            messi += 1
+    capsule = []
+    racchetta_x = 300
+    misura = 108
+    palla = Palla(racchetta_x)
+
+
+def nuova_partita():
+    global livello, vite, punti, stato
+    livello = 1
+    vite = 3
+    punti = 0
+    stato = "gioco"
+    prepara_livello()
+
+
+def rect_racchetta():
+    return Rect((racchetta_x - misura // 2, 324), (misura, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for m in mattoni:
+        m.disegna()
+    for c in capsule:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(rect_racchetta(), "#dbe3f1")
+    palla.disegna()
+    screen.draw.text(f"Punti: {punti}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", midtop=(300, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Livello {livello}   Vite: {vite}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if pausa:
+        screen.draw.text("Pausa: P per continuare", center=(300, 200), fontsize=36, color="#dbe3f1")
+    elif stato == "persa":
+        screen.draw.text("Niente più vite! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Tutti i livelli! Spazio per rigiocare", center=(300, 200), fontsize=36, color="#ffee58")
+    elif palla.ferma:
+        screen.draw.text("Spazio per lanciare la pallina", center=(300, 200), fontsize=36, color="#dbe3f1")
+        screen.draw.text("Frecce: racchetta    P: pausa    Esc: esci", center=(300, 240), fontsize=24, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global pausa
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        pausa = not pausa
+        return
+    if pausa or key != keys.SPACE:
+        return
+    if stato != "gioco":
+        nuova_partita()
+    elif palla.ferma:
+        palla.lancia()
+
+
+def update():
+    global racchetta_x, misura, palla, livello, vite, stato, punti, record
+    if stato != "gioco" or pausa:
+        return
+    if keyboard.left and racchetta_x > misura // 2:
+        racchetta_x -= 6
+    if keyboard.right and racchetta_x < WIDTH - misura // 2:
+        racchetta_x += 6
+    for c in capsule:
+        c.y += 3
+        if c.colliderect(rect_racchetta()):
+            capsule.remove(c)
+            misura = 162
+            break
+        if c.y > HEIGHT:
+            capsule.remove(c)
+            break
+    if palla.ferma:
+        palla.x = racchetta_x
+        return
+    palla.muovi()
+    for m in mattoni:
+        if palla.rect().colliderect(m.rect):
+            palla.vy = -palla.vy
+            if m.colpisci():
+                mattoni.remove(m)
+                punti += PUNTI[m.fila]
+                if m.bonus:
+                    capsule.append(Rect((m.rect.x + 17, m.rect.y + 4), (30, 12)))
+            break
+    if palla.vy > 0 and palla.rect().colliderect(rect_racchetta()):
+        palla.rimbalza(racchetta_x)
+    if punti > record:
+        record = punti
+    if palla.y > HEIGHT + 9:
+        vite -= 1
+        if vite == 0:
+            stato = "persa"
+        else:
+            misura = 108
+            palla = Palla(racchetta_x)
+    if len(mattoni) == 0:
+        if livello < len(LIVELLI):
+            livello += 1
+            prepara_livello()
+        else:
+            stato = "vinta"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa deve smettere di funzionare durante la pausa? Perché Esc va controllato prima di tutto il resto?",
+      "In cima TITLE, e pausa falsa. In on_key_down, per primo Esc con exit(); poi P rovescia pausa con not ed esce; durante la pausa anche lo Spazio esce subito. update() esce subito se il gioco è finito o in pausa, e draw() in pausa scrive la scritta della pausa al posto delle altre."],
+    check: (o, c) => !pgzWhy(c, "it", [BRK_UPDATE, PGZ_GLOBAL, BRK_ARROWS, BRK_COLLIDE, BRK_SPACE].concat(BRK_CLASS.it, BRK_BRICK.it, BRK_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [BRK_UPDATE, PGZ_GLOBAL, BRK_ARROWS, BRK_COLLIDE, BRK_SPACE].concat(BRK_CLASS.it, BRK_BRICK.it, BRK_COMPUTER.it)),
+    tests: (c) => brkKeyTests("it")(c).concat(brkLevelTests("it")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: Breakout on your computer",
+    theory: [
+`<p>Part 10: Breakout is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>breakout.py</code>, and in the terminal, from the same folder, type <code>python breakout.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key <b>pauses</b> and goes on again, with a true or false variable, <code>paused</code>: in the pause <code>update()</code> leaves straight away, so the ball and the paddle stop, Space does nothing and in the middle it says <code>Paused: P to go on</code>. Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, in <code>on_key_down</code>. And under <code>Space to launch the ball</code>, size 24 and centred at <code>(300, 240)</code>, write the keys: <code>Arrows: paddle    P: pause    Esc: quit</code>.</p>`],
+    task: `Get Breakout ready for your computer: a title for the window with <code>TITLE</code>, the pause with P (the ball and the paddle stopped and Space not counting, with the text <code>Paused: P to go on</code>), Esc to quit with <code>exit()</code> and the keys written under the invitation to launch. I'll test the title, the pause and quitting. Then, if you like, follow the three steps above and play Breakout on your computer.`,
+    solution: `# Breakout, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "Breakout by Ada"
+WIDTH = 600
+HEIGHT = 360
+COLOURS = {0: "#ef5350", 1: "#ffa726", 2: "#ffee58", 3: "#66bb6a"}
+POINTS = {0: 7, 1: 5, 2: 3, 3: 1}
+LEVELS = [[1, 1, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]]
+best = 0
+paused = False
+
+
+class Ball:
+    def __init__(self, x):
+        self.x = x
+        self.y = 315
+        self.vx = 0
+        self.vy = 0
+        self.waiting = True
+
+    def rect(self):
+        return Rect((self.x - 9, self.y - 9), (18, 18))
+
+    def launch(self):
+        self.vx = random.randint(-4, 4)
+        self.vy = -4
+        self.waiting = False
+
+    def move(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.x < 9:
+            self.vx = abs(self.vx)
+        if self.x > 591:
+            self.vx = -abs(self.vx)
+        if self.y < 9:
+            self.vy = abs(self.vy)
+
+    def bounce(self, paddle_x):
+        self.vy = -abs(self.vy)
+        self.vx = (self.x - paddle_x) // 12
+
+    def show(self):
+        screen.draw.filled_circle((self.x, self.y), 9, "#ffffff")
+
+
+class Brick:
+    def __init__(self, row, column, hits):
+        self.rect = Rect((23 + column * 70, 30 + row * 27), (64, 21))
+        self.row = row
+        self.hits = hits
+        self.bonus = False
+
+    def hit(self):
+        self.hits -= 1
+        return self.hits == 0
+
+    def show(self):
+        if self.hits > 1:
+            screen.draw.filled_rect(self.rect, "#dbe3f1")
+            screen.draw.filled_rect(Rect((self.rect.x + 4, self.rect.y + 4), (56, 13)), COLOURS[self.row])
+        else:
+            screen.draw.filled_rect(self.rect, COLOURS[self.row])
+
+
+def set_up_level():
+    global bricks, capsules, paddle_x, size, ball
+    bricks = []
+    for row in range(4):
+        for column in range(8):
+            bricks.append(Brick(row, column, LEVELS[level - 1][row]))
+    placed = 0
+    while placed < 3:
+        b = random.choice(bricks)
+        if not b.bonus:
+            b.bonus = True
+            placed += 1
+    capsules = []
+    paddle_x = 300
+    size = 108
+    ball = Ball(paddle_x)
+
+
+def new_game():
+    global level, lives, points, state
+    level = 1
+    lives = 3
+    points = 0
+    state = "playing"
+    set_up_level()
+
+
+def paddle_rect():
+    return Rect((paddle_x - size // 2, 324), (size, 15))
+
+
+def draw():
+    screen.fill("#1c0f0d")
+    for b in bricks:
+        b.show()
+    for c in capsules:
+        screen.draw.filled_rect(c, "#4fc3f7")
+    screen.draw.filled_rect(paddle_rect(), "#dbe3f1")
+    ball.show()
+    screen.draw.text(f"Points: {points}", (23, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", midtop=(300, 6), fontsize=24, color="#dbe3f1")
+    screen.draw.text(f"Level {level}   Lives: {lives}", topright=(577, 6), fontsize=24, color="#dbe3f1")
+    if paused:
+        screen.draw.text("Paused: P to go on", center=(300, 200), fontsize=36, color="#dbe3f1")
+    elif state == "lost":
+        screen.draw.text("No lives left! Space to play again", center=(300, 200), fontsize=36, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("All the levels! Space to play again", center=(300, 200), fontsize=36, color="#ffee58")
+    elif ball.waiting:
+        screen.draw.text("Space to launch the ball", center=(300, 200), fontsize=36, color="#dbe3f1")
+        screen.draw.text("Arrows: paddle    P: pause    Esc: quit", center=(300, 240), fontsize=24, color="#dbe3f1")
+
+
+def on_key_down(key):
+    global paused
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        paused = not paused
+        return
+    if paused or key != keys.SPACE:
+        return
+    if state != "playing":
+        new_game()
+    elif ball.waiting:
+        ball.launch()
+
+
+def update():
+    global paddle_x, size, ball, level, lives, state, points, best
+    if state != "playing" or paused:
+        return
+    if keyboard.left and paddle_x > size // 2:
+        paddle_x -= 6
+    if keyboard.right and paddle_x < WIDTH - size // 2:
+        paddle_x += 6
+    for c in capsules:
+        c.y += 3
+        if c.colliderect(paddle_rect()):
+            capsules.remove(c)
+            size = 162
+            break
+        if c.y > HEIGHT:
+            capsules.remove(c)
+            break
+    if ball.waiting:
+        ball.x = paddle_x
+        return
+    ball.move()
+    for b in bricks:
+        if ball.rect().colliderect(b.rect):
+            ball.vy = -ball.vy
+            if b.hit():
+                bricks.remove(b)
+                points += POINTS[b.row]
+                if b.bonus:
+                    capsules.append(Rect((b.rect.x + 17, b.rect.y + 4), (30, 12)))
+            break
+    if ball.vy > 0 and ball.rect().colliderect(paddle_rect()):
+        ball.bounce(paddle_x)
+    if points > best:
+        best = points
+    if ball.y > HEIGHT + 9:
+        lives -= 1
+        if lives == 0:
+            state = "lost"
+        else:
+            size = 108
+            ball = Ball(paddle_x)
+    if len(bricks) == 0:
+        if level < len(LEVELS):
+            level += 1
+            set_up_level()
+        else:
+            state = "won"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What should stop working during the pause? Why should Esc be checked before everything else?",
+      "At the top TITLE, and paused false. In on_key_down, first Esc with exit(); then P flips paused with not and leaves; during the pause Space leaves straight away too. update() leaves straight away if the game is over or paused, and draw() in the pause writes the pause text instead of the others."],
+    check: (o, c) => !pgzWhy(c, "en", [BRK_UPDATE, PGZ_GLOBAL, BRK_ARROWS, BRK_COLLIDE, BRK_SPACE].concat(BRK_CLASS.en, BRK_BRICK.en, BRK_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [BRK_UPDATE, PGZ_GLOBAL, BRK_ARROWS, BRK_COLLIDE, BRK_SPACE].concat(BRK_CLASS.en, BRK_BRICK.en, BRK_COMPUTER.en)),
+    tests: (c) => brkKeyTests("en")(c).concat(brkLevelTests("en")(c).slice(1, 2))
   }
 }
 ]);
@@ -30217,25 +32938,30 @@ const PREVIEWS = {
     }
     if (f < 0.35 && PV_ARROWS[k]) { c.globalAlpha = 1 - f / 0.35; c.fillStyle = "#fff"; c.font = "bold 30px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(PV_ARROWS[k], 180, 60); c.globalAlpha = 1; }
   },
+  /* the game at a third of its size: bricks 64 × 21 every 70 × 27 from (23, 30), the paddle 108 × 15 at y = 324, the ball
+     with radius 9 starting at (300, 252) with 3 and -4 pixels a frame; on the paddle vx becomes (ball - paddle) // 12 */
   breakout(c, t, st) {
     if (!st.b || t < st.t || !st.bricks.length || st.lost) {
       st.bricks = [];
-      for (let y = 0; y < 4; y++) for (let x = 0; x < 8; x++) st.bricks.push([8 + x * 23.5, 10 + y * 9, y]);
-      Object.assign(st, { b: [100, 84], v: [62, -78], px: 100, t, lost: false });
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 8; x++) st.bricks.push([(23 + x * 70) / 3, 10 + y * 9, y]);
+      Object.assign(st, { b: [100, 84], v: [60, -80], px: 100, t, lost: false });
     }
     const dt = Math.min(0.05, Math.max(0, t - st.t));
     st.t = t;
     const b = st.b, v = st.v;
     b[0] += v[0] * dt; b[1] += v[1] * dt;
-    if (b[0] < 3 || b[0] > 197) { v[0] = -v[0]; b[0] = Math.max(3, Math.min(197, b[0])); }
-    if (b[1] < 3) { v[1] = Math.abs(v[1]); }
-    const hit = st.bricks.findIndex(([x, y]) => b[0] > x - 2 && b[0] < x + 22 && b[1] > y - 2 && b[1] < y + 9);
+    if (b[0] < 3) v[0] = Math.abs(v[0]);
+    if (b[0] > 197) v[0] = -Math.abs(v[0]);
+    if (b[1] < 3) v[1] = Math.abs(v[1]);
+    const hit = st.bricks.findIndex(([x, y]) => b[0] > x - 3 && b[0] < x + 64 / 3 + 3 && b[1] > y - 3 && b[1] < y + 10);
     if (hit >= 0) { st.bricks.splice(hit, 1); v[1] = -v[1]; }
-    st.px += Math.max(-90 * dt, Math.min(90 * dt, b[0] - st.px));
-    if (b[1] > 106 && b[1] < 112 && Math.abs(b[0] - st.px) < 20 && v[1] > 0) { v[1] = -Math.abs(v[1]); v[0] += (b[0] - st.px) * 1.5; v[0] = Math.max(-95, Math.min(95, v[0])); }
-    if (b[1] > 124) st.lost = true;
+    /* the paddle plays by itself: it goes to meet the ball a little to one side, so the ball keeps its slant */
+    st.px += Math.max(-120 * dt, Math.min(120 * dt, b[0] - (v[0] >= 0 ? 12 : -12) - st.px));
+    st.px = Math.max(18, Math.min(182, st.px));
+    if (v[1] > 0 && b[1] > 105 && b[1] < 116 && Math.abs(b[0] - st.px) < 21) { v[1] = -Math.abs(v[1]); v[0] = 20 * Math.floor((b[0] - st.px) / 4); }
+    if (b[1] > 123) st.lost = true;
     const COL = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"];
-    st.bricks.forEach(([x, y, r]) => pvRect(c, x, y, 21.5, 7, COL[r]));
+    st.bricks.forEach(([x, y, r]) => pvRect(c, x, y, 64 / 3, 7, COL[r]));
     pvRect(c, st.px - 18, 108, 36, 5, "#dbe3f1");
     pvDot(c, b[0], b[1], 3, "#ffffff");
   },
@@ -30913,7 +33639,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "511921859d", APP_BUILT = "2026-11-10T14:12Z";
+const APP_VERSION = "1990955d56", APP_BUILT = "2026-11-10T15:20Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
