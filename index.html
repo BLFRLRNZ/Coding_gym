@@ -7929,7 +7929,7 @@ const PROJECTS = [
       learn: ["liste e coordinate", "tasti e update()", "collisioni", "punteggio e record"] },
     en: { name: "Snake", tag: "Steer a snake that eats and grows longer: it mustn't touch the edges or its own tail.",
       learn: ["lists and coordinates", "keys and update()", "collisions", "score and records"] } },
-  { id: "connect4", kind: "game", ready: false, diff: 2, where: "window", color: "#1d4fa8",
+  { id: "connect4", kind: "game", ready: true, diff: 2, where: "window", color: "#1d4fa8",
     it: { name: "Forza 4", tag: "Due giocatori lasciano cadere dischi in sette colonne: vince chi ne mette quattro in fila.",
       learn: ["liste di liste", "turni", "controllare le file", "clic del mouse"] },
     en: { name: "Connect Four", tag: "Two players drop discs into seven columns: whoever lines up four wins.",
@@ -8069,29 +8069,29 @@ const PROJECT_PARTS = {
       ["The snake is an object", "A Snake class with its body, its direction and the methods to move and grow."],
       ["The full game", "Red and gold apples, always three on the field (a team of objects), and the step getting quicker with every apple."],
       ["On your computer", "The window's title, a pause with P and Esc to quit; then, with pip install pgzero, your Snake runs on your computer too."]] },
-  connect4: {
+  connect4: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["La griglia", "La griglia vuota di 7 colonne e 6 righe, con i numeri delle colonne e le regole, disegnata con print."],
-      ["A chi tocca", "I nomi dei due giocatori, la colonna scelta con input e il turno calcolato con %."],
+      ["A chi tocca", "I nomi dei due giocatori e la mossa chiesti con input: con % calcoli a chi tocca e con // quanti dischi gli restano."],
       ["Mosse valide", "Con if controlli che la colonna esista e non sia piena, e dici chi gioca."],
       ["I dischi cadono", "La griglia diventa una lista di liste: il disco cade fino in fondo, i turni si alternano, quattro in fila vince."],
-      ["Funzioni per la griglia", "Stampare la griglia, far cadere un disco e controllare chi vince diventano funzioni."],
-      ["Nella finestra", "La griglia blu in una finestra: clicchi su una colonna e il disco cade."],
-      ["Contro il computer", "Il computer sceglie a caso una colonna valida."],
-      ["Vittorie e diagonali", "Contano anche le diagonali, e un dizionario tiene le vittorie di ogni giocatore."],
+      ["Funzioni per la griglia", "Stampare la griglia, trovare dove cade un disco e controllare chi vince diventano funzioni, e le risposte valgono anche con spazi e maiuscole."],
+      ["Nella finestra", "La griglia blu in una finestra: clicchi su una colonna e il disco cade, sempre più veloce."],
+      ["Contro il computer", "Il computer gioca i dischi gialli: mezzo secondo dopo di te sceglie a caso una colonna non piena."],
+      ["Vittorie e diagonali", "Contano anche le diagonali, la fila vincente lampeggia, un dizionario tiene le vittorie e un clic fa la rivincita."],
       ["La griglia è un oggetto", "Una classe Griglia con i metodi per far cadere i dischi e trovare il vincitore."],
-      ["Un avversario più furbo", "Il computer blocca le tue file da tre, con il tabellone delle vittorie e la rivincita."],
-      ["Sul tuo computer", "Con pip install pgzero il tuo Forza 4 gira anche sul computer, con lo stesso codice."]],
+      ["Un avversario più furbo", "Il computer vince quando può e blocca le tue file da tre; contano anche i pareggi, e la rivincita la comincia chi ha perso."],
+      ["Sul tuo computer", "Il titolo della finestra, frecce e Spazio per giocare senza mouse, Esc per uscire; con pip install pgzero il tuo Forza 4 gira anche sul computer."]],
     en: [["The grid", "The empty grid of 7 columns and 6 rows, with column numbers and the rules, drawn with print."],
-      ["Whose turn", "The two players' names, the column chosen with input and the turn worked out with %."],
+      ["Whose turn", "The two players' names and the move asked with input: with % you work out whose turn it is and with // how many discs they have left."],
       ["Valid moves", "With if check that the column exists and isn't full, and say who plays."],
       ["Discs fall", "The grid becomes a list of lists: the disc falls to the bottom, turns alternate, four in a row wins."],
-      ["Functions for the grid", "Printing the grid, dropping a disc and checking who wins become functions."],
-      ["In a window", "The blue grid in a window: click on a column and the disc falls."],
-      ["Against the computer", "The computer picks a random valid column."],
-      ["Wins and diagonals", "Diagonals count too, and a dictionary keeps each player's wins."],
+      ["Functions for the grid", "Printing the grid, finding where a disc lands and checking who wins become functions, and answers work with spaces and capitals too."],
+      ["In a window", "The blue grid in a window: click on a column and the disc falls, faster and faster."],
+      ["Against the computer", "The computer plays the yellow discs: half a second after you it picks a random column that isn't full."],
+      ["Wins and diagonals", "Diagonals count too, the winning line flashes, a dictionary keeps the wins and a click starts the rematch."],
       ["The grid is an object", "A Grid class with the methods to drop discs and find the winner."],
-      ["A smarter opponent", "The computer blocks your lines of three, with the scoreboard and a rematch."],
-      ["On your computer", "With pip install pgzero your Connect Four runs on your computer too, with the same code."]] },
+      ["A smarter opponent", "The computer wins when it can and blocks your lines of three; draws count too, and whoever lost starts the rematch."],
+      ["On your computer", "The window's title, arrows and Space to play without a mouse, Esc to quit; with pip install pgzero your Connect Four runs on your computer too."]] },
   "2048": {
     it: [["Il tabellone", "Un tabellone 4×4 con qualche tessera, disegnato con print, e le regole."],
       ["Potenze di 2", "Chiedi un esponente e calcola la tessera con **: quante unioni servono per arrivare a 2048?"],
@@ -8196,6 +8196,2866 @@ const PROJECT_BUILDS = { guess: Object.fromEntries(SLOT_LEVELS.map((id) => [id, 
 /* adds a project's build lessons (a file per project, after this one): they start from the parts before them */
 function addProjectBuilds(project, lessons) { PROJECT_BUILDS[project] = readyLessons(lessons); }
 
+
+
+/* ---------- Forza 4: the build levels of the "Connect Four" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the cover with the empty grid in 00; in the terminal, whose
+   turn it is with % and // (01), the valid moves with if (02), the grid as a list of lists where discs fall and four
+   in a row wins (03) and the functions (04); then the window, with the chooser preview's blue grid and discs that fall
+   (04); the computer as an opponent (05), the diagonals and the wins in a dictionary (05); the grid as an object and a
+   smarter opponent (06); the keyboard and Esc, ready to run on your own computer (07). Each part starts from the
+   learner's code of the part before. */
+
+/* The cover: frame, title, the empty grid of 6 rows of 7 squares, the column numbers, a number worked out by Python */
+function c4CoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1);
+  if (!mid.some((l) => (it ? /f\s*o\s*r\s*z\s*a\s*4/i : /c\s*o\s*n\s*n\s*e\s*c\s*t\s*(4|f\s*o\s*u\s*r)/i).test(l))) return it ? "In mezzo ci vuole il titolo del gioco: FORZA 4." : "The game's title has to be in the middle: CONNECT 4.";
+  if (mid.filter((l) => /^[^\d\s]{7}$/.test(l.replace(/[\s|]/g, ""))).length < 6) return it ? "La griglia deve avere almeno 6 righe di 7 caselle, come . . . . . . ." : "The grid needs at least 6 rows of 7 squares, like . . . . . . .";
+  if (!mid.some((l) => /1\D*2\D*3\D*4\D*5\D*6\D*7/.test(l))) return it ? "Sotto la griglia scrivi i numeri delle colonne, da 1 a 7." : "Below the grid write the column numbers, from 1 to 7.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(7 + 7)." : "A number worked out by Python is missing, like print(7 + 7).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const C4 = {
+  it: {
+    welcome: (a, b) => `Benvenuti, ${a} e ${b}!`, turnNo: (m, g) => `È la mossa ${m}: tocca al giocatore ${g}.`,
+    drops: (c) => `Il disco cade nella colonna ${c}.`, left: (g, n) => `Al giocatore ${g} restano ${n} dischi.`,
+    turn: (n, d) => `Tocca a ${n}, con i dischi ${d}.`, noCol: (c) => `La colonna ${c} non c'è: scegline una da 1 a 7.`,
+    fullCol: (c) => `La colonna ${c} è piena: scegline un'altra.`, lands: (d, n, p) => `Il disco ${d} di ${n} cade al piano ${p}.`,
+    bye: "Ciao!", noSuch: "Quella colonna non c'è: scegline una da 1 a 7.", full: "Quella colonna è piena: scegline un'altra.",
+    wins: (n) => `${n} fa quattro in fila e vince!`, draw: "La griglia è piena: pareggio!"
+  },
+  en: {
+    welcome: (a, b) => `Welcome, ${a} and ${b}!`, turnNo: (m, g) => `It's move ${m}: player ${g}'s turn.`,
+    drops: (c) => `The disc drops into column ${c}.`, left: (g, n) => `Player ${g} has ${n} discs left.`,
+    turn: (n, d) => `It's ${n}'s turn, with the ${d} discs.`, noCol: (c) => `There's no column ${c}: pick one from 1 to 7.`,
+    fullCol: (c) => `Column ${c} is full: pick another.`, lands: (d, n, p) => `${n}'s ${d} disc lands on level ${p}.`,
+    bye: "Bye!", noSuch: "There's no such column: pick one from 1 to 7.", full: "That column is full: pick another.",
+    wins: (n) => `${n} gets four in a row and wins!`, draw: "The grid is full: it's a draw!"
+  }
+};
+/* four in a row across or up and down (the diagonals count from part 7) */
+const c4Four = (g, d) => {
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 4; c++) if ([0, 1, 2, 3].every((k) => g[r][c + k] === d)) return true;
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 7; c++) if ([0, 1, 2, 3].every((k) => g[r + k][c] === d)) return true;
+  return false;
+};
+const c4Mod = (a, b) => ((a % b) + b) % b;
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number) */
+function c4Run(lang, part, ins) {
+  const T = C4[lang], lines = [], res = (end) => ({ lines, end });
+  if (ins.length < 2) return res("more");
+  const n1 = part >= 4 ? ins[0].trim() : ins[0], n2 = part >= 4 ? ins[1].trim() : ins[1];
+  if (part <= 2) {
+    lines.push(T.welcome(n1, n2));
+    if (ins.length < 3) return res("more");
+    if (!isIntText(ins[2])) return res("crash");
+    const m = toInt(ins[2]);
+    if (part === 1) {
+      const g = c4Mod(m - 1, 2) + 1;
+      lines.push(T.turnNo(m, g));
+      if (ins.length < 4) return res("more");
+      if (!isIntText(ins[3])) return res("crash");
+      lines.push(T.drops(toInt(ins[3])), T.left(g, 21 - Math.floor((m + 1) / 2)));
+      return res(ins.length === 4 ? "done" : "extra");
+    }
+    const odd = c4Mod(m, 2) === 1, name = odd ? n1 : n2, d = odd ? "X" : "O";
+    lines.push(T.turn(name, d));
+    if (ins.length < 4) return res("more");
+    if (!isIntText(ins[3])) return res("crash");
+    const col = toInt(ins[3]);
+    if (col < 1 || col > 7) { lines.push(T.noCol(col)); return res(ins.length === 4 ? "done" : "extra"); }
+    if (ins.length < 5) return res("more");
+    if (!isIntText(ins[4])) return res("crash");
+    const p = toInt(ins[4]);
+    lines.push(p >= 6 ? T.fullCol(col) : T.lands(d, name, p + 1));
+    return res(ins.length === 5 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game in turns; from part 4 the answers can have spaces around and Q counts as q */
+  const g = [];
+  for (let r = 0; r < 6; r++) g.push([".", ".", ".", ".", ".", ".", "."]);
+  let move = 1, end = "", i = 2;
+  for (;;) {
+    for (const row of g) lines.push(row.join(" "));
+    lines.push("1 2 3 4 5 6 7");
+    if (end) { lines.push(end); break; }
+    const odd = move % 2 === 1, name = odd ? n1 : n2, d = odd ? "X" : "O";
+    if (i >= ins.length) return res("more");
+    const ch = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (ch === "q") { lines.push(T.bye); break; }
+    if (!isIntText(ch)) return res("crash");
+    const col = toInt(ch) - 1;
+    if (col < 0 || col > 6) { lines.push(T.noSuch); continue; }
+    if (g[0][col] !== ".") { lines.push(T.full); continue; }
+    let r = 5;
+    while (g[r][col] !== ".") r--;
+    g[r][col] = d;
+    if (c4Four(g, d)) end = T.wins(name);
+    else if (move === 42) end = T.draw;
+    move++;
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const c4Expect = (lang, part, ins) => { const r = c4Run(lang, part, ins || []); return r.end === "done" ? r.lines.join("\n") : null; };
+const c4Check = (lang, part, needs) => (o, c, x) => needs.every((re) => re.test(c)) && o === c4Expect(lang, part, x.inputs);
+/* Hidden tests: whole games with other answers */
+const c4Tests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = c4Expect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* a whole game that fills the grid with no four across or up and down */
+const C4_DRAW = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7];
+/* part 3: a game that Ada wins across, and the hidden games */
+const C4_SAMPLE3 = ["Ada", "Bruno", "4", "4", "3", "5", "2", "6", "1"];
+const C4_GAMES3 = [C4_SAMPLE3, ["Ada", "Bruno", "1", "2", "1", "2", "1", "2", "3", "2"], ["Ada", "Bruno", "0", "8", "4", "4", "3", "5", "2", "6", "1"],
+  ["Lia", "Max", "1", "1", "1", "1", "1", "1", "1", "2", "q"], ["Ada", "Bruno"].concat(C4_DRAW.map(String)), ["Lia", "Max", "q"]];
+/* part 4: games with spaces and capitals, then the three functions one by one */
+const c4FnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["stampa", "dove_cade", "vince"] : ["print_grid", "landing_row", "has_four"], quit = { inputs: ["Ada", "Bruno", "q"] };
+  const empty = "_g = []\nfor _r in range(6):\n    _g.append(['.', '.', '.', '.', '.', '.', '.'])\n";
+  return c4Tests(lang, 4, [[" Ada ", "Bruno", " 4", "4 ", "3", "5", "2", "6", " 1 "], ["Lia", " Max", "1", " 2", "1", "2", "1", "2", "3", "2"],
+    ["Ada", "Bruno", "0", "8", "4", " Q "], ["Ada", "Bruno", "1", "1", "1", "1", "1", "1", "1", "2", "Q"], ["Ada", "Bruno"].concat(C4_DRAW.map(String))])(c).concat([
+    tcase(c + "\n" + empty + `_a = ${F[1]}(_g, 2)\n_g[5][2] = 'X'\n_b = ${F[1]}(_g, 2)\nfor _r in range(6):\n    _g[_r][2] = 'O'\nprint(_a, _b, ${F[1]}(_g, 2))`,
+      (o) => lastLines(o, 1) === "5 4 -1", it ? "dove_cade(griglia, 2) doveva dare 5 con la colonna vuota, 4 con un disco in fondo e -1 con la colonna piena"
+        : "landing_row(grid, 2) had to give 5 with the column empty, 4 with one disc at the bottom and -1 with the column full", quit),
+    tcase(c + "\n" + empty + `for _c in range(4):\n    _g[5][_c + 1] = 'X'\n_a = ${F[2]}(_g, 'X')\n_b = ${F[2]}(_g, 'O')\nfor _r in range(2, 6):\n    _g[_r][6] = 'O'\nprint(_a, _b, ${F[2]}(_g, 'O'))`,
+      (o) => lastLines(o, 1) === "True False True", it ? "vince doveva dare True con quattro X in fila in orizzontale, False per O, e poi True con quattro O uno sopra l'altro"
+        : "has_four had to give True with four X's in a row across, False for O, and then True with four O's one on top of the other", quit),
+    tcase(c + "\n" + empty + `_g[5][0] = 'X'\n_g[4][0] = 'O'\n_g[5][6] = 'O'\n${F[0]}(_g)`,
+      (o) => lastLines(o, 7) === ". . . . . . .\n. . . . . . .\n. . . . . . .\n. . . . . . .\nO . . . . . .\nX . . . . . O\n1 2 3 4 5 6 7",
+      it ? "stampa(griglia) doveva stampare le 6 righe, con i dischi al loro posto, e sotto i numeri delle colonne" : "print_grid(grid) had to print the 6 rows, with the discs in their places, and the column numbers below", quit)
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview: background "#0d1a33", the grid "#1d4fa8" with holes the
+   colour of the background, discs "#e53935" (red, X) and "#fdd835" (yellow, O), lit up "#ffab91" and "#fff59d" when
+   they win. Squares of 60 pixels from (40, 100): the centre of column k (1 to 7) is at x = 10 + 60 * k, the centre of
+   row r (0 at the top) at y = 130 + 60 * r. */
+const c4Click = (cols, wait) => "for _c in " + JSON.stringify(cols) + ":\n    _t.click((10 + 60 * _c, 300))\n    _t.wait(" + (wait || 1.5) + ")\n";
+const c4Discs = (col) => "sorted([_p[:2] for _p in _t.circles('" + col + "') if _p[1] > 100])";
+const C4_RED = c4Discs("#e53935"), C4_YEL = c4Discs("#fdd835"), C4_TEXT = "' '.join(_t.texts())";
+/* the computer's random choices, loaded: the first or the last of the columns it's given, or these columns in turn */
+const C4_PICK = (how) => "import random\n" + (how === "first" ? "random.choice = lambda seq: seq[0]\n" : how === "last" ? "random.choice = lambda seq: seq[-1]\n"
+  : "_pick = " + JSON.stringify(how) + "\nrandom.choice = lambda seq: _pick.pop(0)\n");
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const c4Need = (re, msg) => [re, msg, msg];
+const C4_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: le mosse arrivano dai clic, in on_mouse_down.", "In the window there's no more input: the moves come from clicks, in on_mouse_down."];
+const C4_CLICK = [/^def\s+on_mouse_down\s*\(\s*pos\s*\)/m, "I clic vanno in def on_mouse_down(pos):, che Pygame Zero chiama a ogni clic, o tocco sul telefono.", "The clicks go in def on_mouse_down(pos):, which Pygame Zero calls at every click, or tap on a phone."];
+const C4_UPDATE = [/^def\s+update\s*\(\s*\)/m, "Il disco cade un po' alla volta in def update():, che Pygame Zero chiama 60 volte al secondo.", "The disc falls a bit at a time in def update():, which Pygame Zero calls 60 times a second."];
+const C4_RECT = [/\bRect\s*\(/, "La griglia è un rettangolo: si disegna con screen.draw.filled_rect e un Rect.", "The grid is a rectangle: it's drawn with screen.draw.filled_rect and a Rect."];
+const C4_KEYS = [/^def\s+on_key_down\s*\(/m, "I tasti vanno in def on_key_down(key):, che Pygame Zero chiama a ogni tasto premuto.", "The keys go in def on_key_down(key):, which Pygame Zero calls at every key pressed."];
+const C4_CHOICE = [/\brandom\.choice\s*\(/, "Il computer sceglie con random.choice da una lista delle colonne non piene.", "The computer picks with random.choice from a list of the columns that aren't full."];
+const C4_LATER = [/\bclock\.schedule\s*\(\s*\w+\s*,/, "La mossa del computer arriva mezzo secondo dopo: consegna la funzione a clock.schedule, senza parentesi.", "The computer's move comes half a second later: hand the function to clock.schedule, without brackets."];
+const C4_DICT = [/\{\s*["']/, "Le vittorie stanno in un dizionario, con una chiave per ogni giocatore.", "The wins go in a dictionary, with a key for each player."];
+const C4_QUATTRO = { it: c4Need(/\bdef\s+quattro\s*\(/, "Manca la funzione quattro, che restituisce le quattro caselle in fila o una lista vuota."),
+  en: c4Need(/\bdef\s+four_in_row\s*\(/, "The function four_in_row is missing: it gives back the four squares in a row or an empty list.") };
+const C4_CLASS = {
+  it: [c4Need(/\bclass\s+Griglia\b/, "La griglia diventa un oggetto: class Griglia:, con __init__ e i suoi metodi."),
+    c4Need(/\bdef\s+dove_cade\s*\(\s*self/, "Manca il metodo dove_cade(self, colonna)."), c4Need(/\bdef\s+libere\s*\(\s*self/, "Manca il metodo libere(self), con la lista delle colonne non piene."),
+    c4Need(/\bdef\s+metti\s*\(\s*self/, "Manca il metodo metti(self, colonna, disco)."), c4Need(/\bdef\s+quattro\s*\(\s*self/, "Manca il metodo quattro(self, disco)."),
+    c4Need(/\bdef\s+piena\s*\(\s*self/, "Manca il metodo piena(self).")],
+  en: [c4Need(/\bclass\s+Grid\b/, "The grid becomes an object: class Grid:, with __init__ and its methods."),
+    c4Need(/\bdef\s+landing_row\s*\(\s*self/, "The method landing_row(self, column) is missing."), c4Need(/\bdef\s+free_columns\s*\(\s*self/, "The method free_columns(self) is missing, with the list of columns that aren't full."),
+    c4Need(/\bdef\s+put\s*\(\s*self/, "The method put(self, column, disc) is missing."), c4Need(/\bdef\s+four_in_row\s*\(\s*self/, "The method four_in_row(self, disc) is missing."),
+    c4Need(/\bdef\s+full\s*\(\s*self/, "The method full(self) is missing.")]
+};
+const C4_SMART = {
+  it: [c4Need(/\bdef\s+togli\s*\(\s*self/, "Manca il metodo togli(self, colonna), che toglie il disco di prova."), c4Need(/\bdef\s+scelta_computer\s*\(/, "Manca la funzione scelta_computer(), che sceglie la colonna del computer.")],
+  en: [c4Need(/\bdef\s+take_out\s*\(\s*self/, "The method take_out(self, column) is missing: it takes the test disc out."), c4Need(/\bdef\s+computer_choice\s*\(/, "The function computer_choice() is missing: it picks the computer's column.")]
+};
+const C4_COMPUTER = {
+  it: [c4Need(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    c4Need(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), c4Need(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    c4Need(/\bkeys\.(LEFT|RIGHT)\b/, "Il puntatore si sposta con keys.LEFT e keys.RIGHT."), c4Need(/\bkeys\.SPACE\b/, "Il disco cade con keys.SPACE."),
+    c4Need(/\bdef\s+gioca\s*\(/, "Il clic e Spazio chiamano la stessa funzione, gioca(colonna).")],
+  en: [c4Need(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    c4Need(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), c4Need(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    c4Need(/\bkeys\.(LEFT|RIGHT)\b/, "The pointer moves with keys.LEFT and keys.RIGHT."), c4Need(/\bkeys\.SPACE\b/, "The disc drops with keys.SPACE."),
+    c4Need(/\bdef\s+play\s*\(/, "The click and Space call the same function, play(column).")]
+};
+
+/* Hidden tests of the window parts: the game played without a screen */
+const c4WinTests = (lang) => (c) => {
+  const it = lang === "it", T = it ? ["Tocca al Rosso", "Tocca al Giallo", "Vince il Rosso!", "Vince il Giallo!", "Pareggio!"] : ["Red's turn", "Yellow's turn", "Red wins!", "Yellow wins!", "It's a draw!"];
+  const q = (s) => JSON.stringify(s) + " in " + C4_TEXT;
+  return [
+    gtcase(c, "_t.step()\nprint(_t.rects('#1d4fa8'), len(_t.circles('#0d1a33')), " + q(T[0]) + ", _t.background())", (o) => o === "[(24, 84, 452, 392)] 42 True #0d1a33",
+      it ? "all'inizio c'è la griglia #1d4fa8 che sporge di 16 pixel, con 42 buchi #0d1a33 sullo sfondo #0d1a33, e c'è scritto Tocca al Rosso" : "at the start there's the #1d4fa8 grid sticking out by 16 pixels, with 42 #0d1a33 holes on the #0d1a33 background, and it says Red's turn"),
+    gtcase(c, "_t.step()\n_t.click((250, 300))\n_t.step(3)\n_a = [_p[:2] for _p in _t.circles('#e53935')]\n_t.click((310, 300))\n_t.wait(1)\nprint(len(_a), _a[0][1] < 430, " + C4_RED + ", " + C4_YEL + ", " + q(T[1]) + ")",
+      (o) => o === "1 True [(250, 430)] [] True",
+      it ? "cliccando la colonna 4 il disco rosso cade: subito dopo è ancora sopra, e un altro clic mentre cade non conta; poi si ferma in fondo, in (250, 430), e tocca al Giallo"
+        : "clicking column 4 the red disc falls: just after it's still higher up, and another click while it falls doesn't count; then it stops at the bottom, at (250, 430), and it's Yellow's turn"),
+    gtcase(c, "_t.step()\n" + c4Click([4, 4, 3], 1) + "print(" + C4_RED + ", " + C4_YEL + ")", (o) => o === "[(190, 430), (250, 430)] [(250, 370)]",
+      it ? "i turni si alternano e i dischi si impilano: colonne 4, 4 e 3 danno un rosso e sopra un giallo nella 4, e un rosso nella 3" : "turns alternate and discs stack up: columns 4, 4 and 3 give a red and a yellow above it in column 4, and a red in column 3"),
+    gtcase(c, "_t.step()\n" + c4Click([1, 1, 2, 2, 3, 3, 4, 5], 1) + "print(" + q(T[2]) + ", " + C4_RED + ")", (o) => o === "True [(70, 430), (130, 430), (190, 430), (250, 430)]",
+      it ? "quattro rossi in fila in orizzontale: Vince il Rosso!, e dopo i clic non mettono più dischi" : "four reds in a row across: Red wins!, and afterwards clicks don't add discs"),
+    gtcase(c, "_t.step()\n" + c4Click([1, 2, 1, 2, 1, 2, 3, 2], 1) + "print(" + q(T[3]) + ")", (o) => o === "True",
+      it ? "quattro gialli uno sopra l'altro: Vince il Giallo!" : "four yellows one on top of the other: Yellow wins!"),
+    gtcase(c, "_t.step()\n" + c4Click([1, 1, 1, 1, 1, 1], 1) + "_t.click((10, 300))\n_t.wait(1)\n_t.click((490, 300))\n_t.wait(1)\n_t.click((70, 300))\n_t.wait(1)\nprint(len(" + C4_RED + ") + len(" + C4_YEL + "), " + q(T[0]) + ")",
+      (o) => o === "6 True",
+      it ? "un clic fuori dalle colonne o su una colonna piena non conta, e tocca ancora allo stesso" : "a click outside the columns or on a full column doesn't count, and it's still the same player's turn"),
+    gtcase(c, "_t.step()\n" + c4Click(C4_DRAW, 0.6) + "print(" + q(T[4]) + ")", (o) => o === "True",
+      it ? "con 42 dischi e nessun quattro in fila la partita finisce: Pareggio!" : "with 42 discs and no four in a row the game ends: It's a draw!")
+  ];
+};
+/* part 6: the computer plays the yellow discs, half a second after you */
+const c4ComputerTests = (lang, gridVar) => (c) => {
+  const it = lang === "it", T = it ? ["Tocca a te", "Tocca al computer", "Hai vinto!", "Ha vinto il computer!"] : ["Your turn", "The computer's turn", "You win!", "The computer wins!"];
+  const q = (s) => JSON.stringify(s) + " in " + C4_TEXT;
+  return [
+    gtcase(C4_PICK("first") + c, "_t.step()\n_t.click((250, 300))\n_t.wait(0.45)\n_s = " + C4_TEXT + "\n_t.click((310, 300))\n_t.wait(1.5)\nprint(" + JSON.stringify(T[1]) + " in _s, " + C4_RED + ", " + C4_YEL + ", " + q(T[0]) + ")",
+      (o) => o === "True [(250, 430)] [(70, 430)] True",
+      it ? "dopo il tuo disco c'è scritto Tocca al computer..., e i clic non contano; mezzo secondo dopo il computer gioca (qui la prima colonna libera) e poi tocca a te" : "after your disc it says The computer's turn..., and clicks don't count; half a second later the computer plays (here the first free column) and then it's your turn"),
+    gtcase(C4_PICK("first") + c, "_t.step()\nfor _r in range(6):\n    " + gridVar + "[_r][0] = 'X' if _r % 2 else 'O'\n_t.click((250, 300))\n_t.wait(1.5)\nprint([_p for _p in " + C4_YEL + " if _p[1] == 430])", (o) => o === "[(130, 430)]",
+      it ? "il computer sceglie solo tra le colonne non piene: con la prima piena, prende la seconda" : "the computer picks only among the columns that aren't full: with the first full, it takes the second"),
+    gtcase(C4_PICK("first") + c, "_t.step()\n" + c4Click([4, 5, 6, 7]) + "print(" + q(T[2]) + ")", (o) => o === "True",
+      it ? "con quattro rossi in fila vinci tu: Hai vinto!" : "with four reds in a row you win: You win!"),
+    gtcase(C4_PICK("first") + c, "_t.step()\n" + c4Click([7, 6, 7, 6]) + "print(" + q(T[3]) + ")", (o) => o === "True",
+      it ? "con quattro gialli in fila vince il computer: Ha vinto il computer!" : "with four yellows in a row the computer wins: The computer wins!")
+  ];
+};
+/* part 7: four directions, the winning four light up, the wins in a dictionary, another game */
+const c4LineTests = (lang, fn) => (c) => {
+  const it = lang === "it";
+  return [
+    gtcase(c, "_g = []\nfor _r in range(6):\n    _g.append(['.', '.', '.', '.', '.', '.', '.'])\nfor _r, _c in [[5, 0], [4, 1], [3, 2], [2, 3]]:\n    _g[_r][_c] = 'X'\n_g[5][6] = 'O'\nprint(sorted(" + fn + "(_g, 'X')), " + fn + "(_g, 'O'))",
+      (o) => o === "[[2, 3], [3, 2], [4, 1], [5, 0]] []",
+      it ? "quattro(griglia, \"X\") con quattro X in diagonale restituisce le loro caselle [riga, colonna]; senza quattro in fila, una lista vuota" : "four_in_row(grid, \"X\") with four X's on a diagonal gives back their squares [row, column]; with no four in a row, an empty list")
+  ];
+};
+const c4WinsTests = (lang, winsVar) => (c) => {
+  const it = lang === "it", Y = it ? "Tu" : "You", T = it ? ["Hai vinto!", "Tocca a te"] : ["You win!", "Your turn"];
+  return [
+    gtcase(C4_PICK([1, 2, 2, 3, 3]) + c, "_t.step()\n" + c4Click([1, 2, 4, 3, 5, 4]) + "_s = " + C4_TEXT + "\n_l = set()\n_z = 0\nfor _i in range(8):\n    _t.wait(0.1)\n    _q = [_p[:2] for _p in _t.circles('#ffab91')]\n    _l.update(_q)\n    if len(_q) == 0:\n        _z += 1\nprint(" + JSON.stringify(T[0]) + " in _s, sorted(_l), _z > 0, _t.var(" + JSON.stringify(winsVar) + "))",
+      (o) => o === `True [(70, 430), (130, 370), (190, 310), (250, 250)] True {'${Y}': 1, 'Computer': 0}`,
+      it ? "quattro rossi in diagonale vincono: i quattro dischi lampeggiano #ffab91 e nel dizionario vittorie Tu sale a 1" : "four reds on a diagonal win: the four discs flash #ffab91 and in the dictionary wins You goes up to 1"),
+    gtcase(C4_PICK("first") + c, "_t.step()\n" + c4Click([7, 6, 7, 6]) + "_t.click((250, 300))\n_t.wait(0.2)\nprint(_t.var(" + JSON.stringify(winsVar) + "), len(_t.circles('#0d1a33')), " + JSON.stringify(T[1]) + " in " + C4_TEXT + ")",
+      (o) => o === `{'${Y}': 0, 'Computer': 1} 42 True`,
+      it ? "quando vince il computer, Computer sale a 1; poi un clic fa ricominciare con la griglia vuota e il dizionario resta" : "when the computer wins, Computer goes up to 1; then a click starts again with the grid empty and the dictionary stays")
+  ];
+};
+/* part 8: the Grid class on its own */
+const c4ClassTests = (lang) => (c) => {
+  const it = lang === "it", K = it ? "Griglia" : "Grid", M = it ? ["metti", "dove_cade", "libere", "piena", "mosse", "quattro"] : ["put", "landing_row", "free_columns", "full", "moves", "four_in_row"];
+  return [
+    gtcase(C4_PICK("first") + c, `_g = ${K}()\nprint(_g.${M[0]}(2, 'X'), _g.${M[0]}(2, 'O'), _g.${M[1]}(2), _g.${M[2]}(), _g.${M[3]}(), _g.${M[4]})`, (o) => o === "5 4 3 [0, 1, 2, 3, 4, 5, 6] False 2",
+      it ? "in una Griglia() nuova, metti nella colonna 2 restituisce 5 e poi 4, dove_cade dice 3, tutte le colonne sono libere, non è piena e le mosse sono 2" : "in a new Grid(), put in column 2 gives back 5 and then 4, landing_row says 3, every column is free, it isn't full and the moves are 2"),
+    gtcase(C4_PICK("first") + c, `_g = ${K}()\nfor _k in range(6):\n    _g.${M[0]}(0, 'X' if _k % 2 else 'O')\nfor _c in [1, 2, 3, 4]:\n    _g.${M[0]}(_c, 'X')\nprint(_g.${M[1]}(0), _g.${M[2]}(), sorted(_g.${M[5]}('X')), _g.${M[5]}('O'))`,
+      (o) => o === "-1 [1, 2, 3, 4, 5, 6] [[5, 1], [5, 2], [5, 3], [5, 4]] []",
+      it ? "con la colonna 0 piena dove_cade dà -1 e libere non la contiene più; quattro trova le quattro X in fila" : "with column 0 full landing_row gives -1 and free_columns doesn't hold it any more; four_in_row finds the four X's in a row")
+  ];
+};
+/* part 9: the computer wins if it can, otherwise it blocks you; the loser starts the rematch */
+const c4SmartTests = (lang, winsVar) => (c) => {
+  const it = lang === "it", G = it ? "griglia.celle" : "grid.cells", T = it ? ["Ha vinto il computer!", "Tocca a te", "Hai vinto!"] : ["The computer wins!", "Your turn", "You win!"];
+  const K = it ? ["Computer", "Pareggi", "Tu"] : ["Computer", "Draws", "You"];
+  return [
+    gtcase(C4_PICK("last") + c, "_t.step()\nfor _c in [0, 1, 2]:\n    " + G + "[5][_c] = 'O'\n_t.click((370, 300))\n_t.wait(1.5)\nprint(" + G + "[5][3], " + G + "[5][6], " + JSON.stringify(T[0]) + " in " + C4_TEXT + ")",
+      (o) => o === "O . True",
+      it ? "con tre gialli in fila e la quarta casella libera, il computer gioca lì e vince, invece di scegliere a caso" : "with three yellows in a row and the fourth square free, the computer plays there and wins, instead of picking at random"),
+    gtcase(C4_PICK("last") + c, "_t.step()\nfor _c in [0, 1, 2]:\n    " + G + "[5][_c] = 'X'\n_t.click((430, 300))\n_t.wait(1.5)\nprint(" + G + "[5][3], " + C4_YEL + ", " + JSON.stringify(T[1]) + " in " + C4_TEXT + ")",
+      (o) => o === "O [(250, 430)] True",
+      it ? "con tre rossi in fila e la quarta casella libera, il computer ti blocca mettendoci il suo disco" : "with three reds in a row and the fourth square free, the computer blocks you by putting its disc there"),
+    gtcase(C4_PICK("first") + c, "_t.step()\n" + c4Click([4, 5, 6, 7]) + "_s = " + C4_TEXT + "\n_t.click((10, 300))\n_t.wait(1.5)\nprint(" + JSON.stringify(T[2]) + " in _s, len(" + C4_YEL + "), len(" + C4_RED + "), sorted(_t.var(" + JSON.stringify(winsVar) + ")))",
+      (o) => o === `True 1 0 ${JSON.stringify(K).replace(/"/g, "'").replace(/,/g, ", ")}`,
+      it ? "se il computer perde, nella rivincita comincia lui: dopo il clic gioca da solo il primo disco; e il dizionario conta anche i pareggi" : "if the computer loses, it starts the rematch: after the click it plays the first disc by itself; and the dictionary counts the draws too")
+  ];
+};
+/* part 10: the window's title, the keyboard, Esc */
+const c4KeyTests = (lang) => (c) => {
+  const it = lang === "it", P = "sorted([_p[:2] for _p in _t.circles('#e53935') if _p[1] < 100])";
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(C4_PICK("first") + c, "_t.step()\n_a = " + P + "\n_t.tap('left')\n_t.tap('left')\n_t.tap('space')\n_t.wait(1.5)\nprint(_a, " + C4_RED + ", " + P + ")",
+      (o) => o === "[(250, 60)] [(130, 430)] [(130, 60)]",
+      it ? "sopra la griglia il tuo disco parte dalla colonna in mezzo; due volte sinistra e Spazio lo fanno cadere nella colonna 2" : "above the grid your disc starts from the middle column; left twice and Space drop it into column 2"),
+    gtcase(c, "_t.step()\nfor _k in ['right'] * 9:\n    _t.tap(_k)\n_a = " + P + "\nfor _k in ['left'] * 9:\n    _t.tap(_k)\nprint(_a, " + P + ")", (o) => o === "[(430, 60)] [(70, 60)]",
+      it ? "il puntatore non esce dalla griglia: si ferma nella colonna 7 e nella 1" : "the pointer doesn't leave the grid: it stops at column 7 and at column 1"),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True",
+      it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("connect4", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_griglia.py", "build_grid.py"],
+  it: {
+    title: "Costruisci: la griglia di Forza 4",
+    theory: [
+`<p>Da qui comincia il tuo progetto, <b>Forza 4</b>: una griglia in piedi di 7 colonne e 6 righe, in cui due giocatori lasciano cadere a turno i loro dischi; vince chi ne mette quattro in fila. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, con la <b>griglia</b> vuota: una cornice sopra e sotto, il titolo, la griglia disegnata con <code>print</code>, i numeri delle colonne, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">=====================
+     F O R Z A  4
+=====================
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+1 2 3 4 5 6 7
+Scegli una colonna: il disco cade giù.
+Chi fa quattro in fila vince!
+Caselle della griglia:
+42
+=====================</pre>
+<p>Ogni casella vuota qui è un punto seguito da uno spazio: 6 righe di 7 caselle. Sotto, i numeri da 1 a 7 dicono quale colonna è quale, perché per giocare si sceglie una colonna e il disco cade giù fino in fondo.</p>`],
+    task: `Scrivi la copertina di Forza 4: la prima e l'ultima riga fatte solo di simboli, il titolo <code>FORZA 4</code>, la griglia vuota (6 righe di 7 caselle), sotto i numeri delle colonne da 1 a 7 e un numero calcolato da Python, come <code>7 + 7</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Forza 4, di Ada
+print("=====================")
+print("     F O R Z A  4")
+print("=====================")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print("1 2 3 4 5 6 7")
+print("Scegli una colonna: il disco cade giù.")
+print("Chi fa quattro in fila vince!")
+print("Caselle della griglia:")
+print(7 + 7 + 7 + 7 + 7 + 7)
+print("=====================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? Quante righe ha la griglia, e quante caselle in ogni riga?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con FORZA 4, sei print uguali con sette punti, uno con i numeri da 1 a 7, uno o due con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !c4CoverWhy(o, c, "it"),
+    why: (o, c) => c4CoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the Connect Four grid",
+    theory: [
+`<p>Your project starts here, <b>Connect Four</b>: an upright grid of 7 columns and 6 rows, where two players take turns dropping their discs; whoever gets four in a row wins. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, with the empty <b>grid</b>: a frame above and below, the title, the grid drawn with <code>print</code>, the column numbers, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">=====================
+  C O N N E C T  4
+=====================
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+1 2 3 4 5 6 7
+Pick a column: the disc drops down.
+Four in a row wins!
+Squares in the grid:
+42
+=====================</pre>
+<p>Every empty square here is a dot followed by a space: 6 rows of 7 squares. Below, the numbers from 1 to 7 say which column is which, because to play you pick a column and the disc drops all the way down.</p>`],
+    task: `Write the Connect Four cover: the first and last lines made only of symbols, the title <code>CONNECT 4</code>, the empty grid (6 rows of 7 squares), below it the column numbers from 1 to 7 and a number worked out by Python, like <code>7 + 7</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Connect Four, by Ada
+print("=====================")
+print("  C O N N E C T  4")
+print("=====================")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print(". . . . . . .")
+print("1 2 3 4 5 6 7")
+print("Pick a column: the disc drops down.")
+print("Four in a row wins!")
+print("Squares in the grid:")
+print(7 + 7 + 7 + 7 + 7 + 7)
+print("=====================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? How many rows does the grid have, and how many squares in each row?",
+      "First line: a comment with #. Then a print of symbols, one with CONNECT 4, six identical prints with seven dots, one with the numbers from 1 to 7, one or two with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !c4CoverWhy(o, c, "en"),
+    why: (o, c) => c4CoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: [], sample: ["Ada", "Bruno", "5", "4"], file: ["costruisci_forza4_1.py", "build_connect4_1.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 1",
+    theory: [
+`<p>Parte 1: i <b>turni</b>. In Forza 4 ci sono 42 caselle, quindi ogni giocatore ha 21 dischi. Le mosse si contano da 1: le mosse dispari, 1, 3, 5..., sono del giocatore 1, quelle pari del giocatore 2.</p>
+<p>Per sapere a chi tocca serve il <b>resto</b> di una divisione, <code>%</code>: <code>(mossa - 1) % 2</code> fa 0 per le mosse 1, 3, 5... e 1 per le mosse 2, 4, 6..., quindi <code>(mossa - 1) % 2 + 1</code> fa proprio 1 o 2, il numero del giocatore.</p>
+<p>E quanti dischi gli restano? Alla mossa 5 il giocatore 1 ha giocato le mosse 1, 3 e 5: tre dischi. La divisione intera, <code>//</code>, divide e butta via i decimali: <code>(mossa + 1) // 2</code> fa 3 con la mossa 5 e anche con la mossa 6, che è la terza del giocatore 2. I dischi che restano sono quelli di partenza meno questi.</p>
+<pre class="term-sample">Giocatore 1, come ti chiami? Ada
+Giocatore 2, come ti chiami? Bruno
+Benvenuti, Ada e Bruno!
+Che mossa è? 5
+È la mossa 5: tocca al giocatore 1.
+In che colonna (1-7)? 4
+Il disco cade nella colonna 4.
+Al giocatore 1 restano 18 dischi.</pre>`],
+    task: `Chiedi i nomi dei due giocatori e dai il benvenuto, poi chiedi che mossa è e in che colonna cade il disco (numeri interi). Stampa a chi tocca, con <code>%</code>, la colonna del disco e quanti dischi restano a quel giocatore dopo la mossa, con <code>//</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altri nomi e altre mosse, pari e dispari.`,
+    starter: `# Forza 4, parte 1: a chi tocca\ndischi = 21\n\n`,
+    solution: `# Forza 4, parte 1: a chi tocca
+dischi = 21
+
+nome1 = input("Giocatore 1, come ti chiami? ")
+nome2 = input("Giocatore 2, come ti chiami? ")
+print(f"Benvenuti, {nome1} e {nome2}!")
+mossa = int(input("Che mossa è? "))
+giocatore = (mossa - 1) % 2 + 1
+print(f"È la mossa {mossa}: tocca al giocatore {giocatore}.")
+colonna = int(input("In che colonna (1-7)? "))
+print(f"Il disco cade nella colonna {colonna}.")
+print(f"Al giocatore {giocatore} restano {dischi - (mossa + 1) // 2} dischi.")`,
+    hints: ["Quali risposte diventano numeri, e quali restano testo? Per quali mosse (mossa - 1) % 2 fa 0, e per quali 1?",
+      "Due input per i nomi e un print con una f-string. Poi la mossa con int(input()), il giocatore con il resto e più 1, il print del turno, la colonna con int(input()), il print della colonna e quello dei dischi che restano: quelli di partenza meno mossa più 1 diviso con // per 2."],
+    check: c4Check("it", 1, [/%/, /\/\//]), expect: (x) => c4Expect("it", 1, x.inputs),
+    tests: c4Tests("it", 1, [["Lia", "Max", "1", "7"], ["Ada", "Bruno", "2", "1"], ["Ugo", "Eva", "13", "5"], ["Ada", "Bruno", "42", "3"], ["A", "B", "8", "2"]])
+  },
+  en: {
+    title: "Build: Connect Four, part 1",
+    theory: [
+`<p>Part 1: the <b>turns</b>. Connect Four has 42 squares, so each player has 21 discs. Moves are counted from 1: the odd moves, 1, 3, 5..., are player 1's, the even ones player 2's.</p>
+<p>To know whose turn it is you need the <b>remainder</b> of a division, <code>%</code>: <code>(move - 1) % 2</code> gives 0 for moves 1, 3, 5... and 1 for moves 2, 4, 6..., so <code>(move - 1) % 2 + 1</code> gives exactly 1 or 2, the player's number.</p>
+<p>And how many discs do they have left? At move 5 player 1 has played moves 1, 3 and 5: three discs. Whole-number division, <code>//</code>, divides and throws the decimals away: <code>(move + 1) // 2</code> gives 3 with move 5 and with move 6 too, which is player 2's third. The discs left are the starting ones minus these.</p>
+<pre class="term-sample">Player 1, what's your name? Ada
+Player 2, what's your name? Bruno
+Welcome, Ada and Bruno!
+Which move is it? 5
+It's move 5: player 1's turn.
+Which column (1-7)? 4
+The disc drops into column 4.
+Player 1 has 18 discs left.</pre>`],
+    task: `Ask for the two players' names and welcome them, then ask which move it is and which column the disc drops into (whole numbers). Print whose turn it is, with <code>%</code>, the disc's column and how many discs that player has left after the move, with <code>//</code>. The lines must be exactly as in the example. I'll also try other names and other moves, even and odd.`,
+    starter: `# Connect Four, part 1: whose turn\ndiscs = 21\n\n`,
+    solution: `# Connect Four, part 1: whose turn
+discs = 21
+
+name1 = input("Player 1, what's your name? ")
+name2 = input("Player 2, what's your name? ")
+print(f"Welcome, {name1} and {name2}!")
+move = int(input("Which move is it? "))
+player = (move - 1) % 2 + 1
+print(f"It's move {move}: player {player}'s turn.")
+column = int(input("Which column (1-7)? "))
+print(f"The disc drops into column {column}.")
+print(f"Player {player} has {discs - (move + 1) // 2} discs left.")`,
+    hints: ["Which answers become numbers, and which stay text? For which moves does (move - 1) % 2 give 0, and for which 1?",
+      "Two inputs for the names and a print with an f-string. Then the move with int(input()), the player with the remainder plus 1, the print of the turn, the column with int(input()), the print of the column and the one with the discs left: the starting ones minus move plus 1 divided with // by 2."],
+    check: c4Check("en", 1, [/%/, /\/\//]), expect: (x) => c4Expect("en", 1, x.inputs),
+    tests: c4Tests("en", 1, [["Lia", "Max", "1", "7"], ["Ada", "Bruno", "2", "1"], ["Ugo", "Eva", "13", "5"], ["Ada", "Bruno", "42", "3"], ["A", "B", "8", "2"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["Ada", "Bruno", "4", "3", "2"], file: ["costruisci_forza4_2.py", "build_connect4_2.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 2",
+    theory: [
+`<p>Parte 2: arrivano le <b>regole</b>. Con un <code>if</code> il programma decide di chi è il turno: se la mossa è dispari, cioè <code>mossa % 2 == 1</code>, tocca al giocatore 1, con i dischi <code>X</code>; se no al giocatore 2, con i dischi <code>O</code>. Così il nome e il disco di chi gioca stanno in due variabili, <code>nome</code> e <code>disco</code>, e le righe dopo non devono più chiedersi chi è.</p>
+<p>Poi controlla la colonna. Le colonne vanno da 1 a 7: un altro numero non è una colonna. E in una colonna stanno al massimo 6 dischi: il programma chiede quanti ce ne sono già; se sono 6 o più la colonna è piena, se no il disco si ferma sopra di loro, un piano più su.</p>
+<pre class="term-sample">Giocatore 1, come ti chiami? Ada
+Giocatore 2, come ti chiami? Bruno
+Benvenuti, Ada e Bruno!
+Che mossa è? 4
+Tocca a Bruno, con i dischi O.
+In che colonna (1-7)? 3
+Quanti dischi ci sono già nella colonna 3? 2
+Il disco O di Bruno cade al piano 3.</pre>
+<p>Con una colonna che non c'è il programma scrive <code>La colonna 9 non c'è: scegline una da 1 a 7.</code> e non chiede altro; con una colonna piena, <code>La colonna 3 è piena: scegline un'altra.</code>, con i numeri giusti.</p>`],
+    task: `Fai crescere il programma: togli il numero del giocatore, la riga della colonna e quella dei dischi che restano, e con un <code>if</code> scegli il nome e il disco di chi tocca. Poi controlla la colonna: se non è tra 1 e 7 lo dici; se no chiedi quanti dischi ci sono già, e se sono 6 o più la colonna è piena, altrimenti dici a che piano cade il disco. Proverò mosse pari e dispari, colonne che non ci sono e colonne piene.`,
+    solution: `# Forza 4, parte 2: mosse valide
+nome1 = input("Giocatore 1, come ti chiami? ")
+nome2 = input("Giocatore 2, come ti chiami? ")
+print(f"Benvenuti, {nome1} e {nome2}!")
+mossa = int(input("Che mossa è? "))
+if mossa % 2 == 1:
+    nome = nome1
+    disco = "X"
+else:
+    nome = nome2
+    disco = "O"
+print(f"Tocca a {nome}, con i dischi {disco}.")
+colonna = int(input("In che colonna (1-7)? "))
+if colonna < 1 or colonna > 7:
+    print(f"La colonna {colonna} non c'è: scegline una da 1 a 7.")
+else:
+    pieni = int(input(f"Quanti dischi ci sono già nella colonna {colonna}? "))
+    if pieni >= 6:
+        print(f"La colonna {colonna} è piena: scegline un'altra.")
+    else:
+        print(f"Il disco {disco} di {nome} cade al piano {pieni + 1}.")`,
+    hints: ["Cosa cambia tra una mossa pari e una dispari? Quando non serve chiedere quanti dischi ci sono già?",
+      "Dopo la mossa, un if con il resto della divisione per 2 che dà valore al nome e al disco, e un else per l'altro giocatore. Dopo la colonna, un if che controlla se è minore di 1 o maggiore di 7; nel suo else chiedi i dischi già nella colonna e, con un altro if, scrivi che è piena oppure il piano, cioè quei dischi più 1."],
+    check: c4Check("it", 2, [/\bif\b/, /\belse\b/]), expect: (x) => c4Expect("it", 2, x.inputs),
+    tests: c4Tests("it", 2, [["Ada", "Bruno", "1", "4", "0"], ["Ada", "Bruno", "2", "7", "5"], ["Ada", "Bruno", "3", "0"], ["Lia", "Max", "6", "8"], ["Ada", "Bruno", "9", "2", "6"], ["Lia", "Max", "10", "1", "7"], ["Ada", "Bruno", "-1", "5", "1"]])
+  },
+  en: {
+    title: "Build: Connect Four, part 2",
+    theory: [
+`<p>Part 2: the <b>rules</b> arrive. With an <code>if</code> the program decides whose turn it is: if the move is odd, that is <code>move % 2 == 1</code>, it's player 1's turn, with the <code>X</code> discs; if not it's player 2's, with the <code>O</code> discs. So the name and the disc of whoever plays are in two variables, <code>name</code> and <code>disc</code>, and the lines after don't need to ask who it is any more.</p>
+<p>Then it checks the column. The columns go from 1 to 7: any other number isn't a column. And a column holds at most 6 discs: the program asks how many are already in it; if there are 6 or more the column is full, if not the disc stops on top of them, one level up.</p>
+<pre class="term-sample">Player 1, what's your name? Ada
+Player 2, what's your name? Bruno
+Welcome, Ada and Bruno!
+Which move is it? 4
+It's Bruno's turn, with the O discs.
+Which column (1-7)? 3
+How many discs are already in column 3? 2
+Bruno's O disc lands on level 3.</pre>
+<p>With a column that doesn't exist the program writes <code>There's no column 9: pick one from 1 to 7.</code> and asks nothing else; with a full column, <code>Column 3 is full: pick another.</code>, with the right numbers.</p>`],
+    task: `Grow the program: take away the player's number, the column line and the line with the discs left, and with an <code>if</code> pick the name and the disc of whoever's turn it is. Then check the column: if it isn't between 1 and 7 say so; if not ask how many discs are already in it, and if there are 6 or more the column is full, otherwise say which level the disc lands on. I'll try even and odd moves, columns that don't exist and full columns.`,
+    solution: `# Connect Four, part 2: valid moves
+name1 = input("Player 1, what's your name? ")
+name2 = input("Player 2, what's your name? ")
+print(f"Welcome, {name1} and {name2}!")
+move = int(input("Which move is it? "))
+if move % 2 == 1:
+    name = name1
+    disc = "X"
+else:
+    name = name2
+    disc = "O"
+print(f"It's {name}'s turn, with the {disc} discs.")
+column = int(input("Which column (1-7)? "))
+if column < 1 or column > 7:
+    print(f"There's no column {column}: pick one from 1 to 7.")
+else:
+    filled = int(input(f"How many discs are already in column {column}? "))
+    if filled >= 6:
+        print(f"Column {column} is full: pick another.")
+    else:
+        print(f"{name}'s {disc} disc lands on level {filled + 1}.")`,
+    hints: ["What changes between an even move and an odd one? When is there no need to ask how many discs are already there?",
+      "After the move, an if with the remainder of the division by 2 that gives a value to the name and the disc, and an else for the other player. After the column, an if that checks whether it's less than 1 or more than 7; in its else ask for the discs already in the column and, with another if, write that it's full or the level, that is those discs plus 1."],
+    check: c4Check("en", 2, [/\bif\b/, /\belse\b/]), expect: (x) => c4Expect("en", 2, x.inputs),
+    tests: c4Tests("en", 2, [["Ada", "Bruno", "1", "4", "0"], ["Ada", "Bruno", "2", "7", "5"], ["Ada", "Bruno", "3", "0"], ["Lia", "Max", "6", "8"], ["Ada", "Bruno", "9", "2", "6"], ["Lia", "Max", "10", "1", "7"], ["Ada", "Bruno", "-1", "5", "1"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: C4_SAMPLE3, file: ["costruisci_forza4_3.py", "build_connect4_3.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 3",
+    theory: [
+`<p>Parte 3: si gioca davvero. La griglia diventa una <b>lista di liste</b>: 6 righe, ognuna una lista di 7 caselle, in cui <code>"."</code> è una casella vuota e <code>"X"</code> e <code>"O"</code> sono i dischi. La riga 0 è quella in alto e la 5 quella in fondo; <code>griglia[r][c]</code> è la casella nella riga r e nella colonna c, tutte e due contate da 0, quindi la colonna 1 dei giocatori è la c = 0 della lista. La griglia la costruisci con un <code>for</code> e <code>append</code>: 6 volte una lista di 7 punti.</p>
+<p>Il gioco diventa un ciclo. A ogni giro il programma stampa la griglia, una riga alla volta, con ogni casella seguita da uno spazio, e sotto la riga <code>1 2 3 4 5 6 7</code>; poi chiede la colonna a chi tocca, con il suo nome e il suo disco:</p>
+<pre class="term-sample">Giocatore 1, come ti chiami? Ada
+Giocatore 2, come ti chiami? Bruno
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+1 2 3 4 5 6 7
+Ada (X), in che colonna? 4
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . X . . .
+1 2 3 4 5 6 7
+Bruno (O), in che colonna?</pre>
+<p>Il disco <b>cade</b>: parte dalla riga in fondo, la 5, e sale finché la casella è occupata; si ferma nella prima casella libera. Poi il programma controlla se ci sono <b>quattro in fila</b>: in orizzontale, per ogni riga e per ogni colonna c da 0 a 3, le caselle c, c + 1, c + 2 e c + 3; e in verticale, per ogni colonna e per ogni riga r da 0 a 2, le righe r, r + 1, r + 2 e r + 3. Le diagonali arriveranno più avanti.</p>
+<p>Le regole, nell'ordine. Con q scrivi <code>Ciao!</code> ed esci dal ciclo. Con una colonna che non c'è scrivi <code>Quella colonna non c'è: scegline una da 1 a 7.</code>, e con una colonna piena, che ha già un disco nella casella in alto, <code>Quella colonna è piena: scegline un'altra.</code>: in tutti e due i casi lo stesso giocatore riprova. Quando qualcuno fa quattro in fila, o quando il 42° disco riempie la griglia, il programma stampa la griglia un'ultima volta e sotto <code>Ada fa quattro in fila e vince!</code>, con il suo nome, oppure <code>La griglia è piena: pareggio!</code>.</p>`],
+    task: `Trasforma il programma nel gioco vero: la griglia come lista di 6 liste di 7 caselle, un ciclo <code>while</code> che a ogni giro stampa la griglia e i numeri delle colonne e chiede la colonna a chi tocca, il disco che cade nella prima casella libera dal basso, i quattro in fila in orizzontale e in verticale, e le regole qui sopra, nell'ordine. Proverò tante partite: vittorie in orizzontale e in verticale, colonne piene e che non ci sono, il pareggio e q.`,
+    solution: `# Forza 4, parte 3: i dischi cadono
+nome1 = input("Giocatore 1, come ti chiami? ")
+nome2 = input("Giocatore 2, come ti chiami? ")
+griglia = []
+for r in range(6):
+    griglia.append([".", ".", ".", ".", ".", ".", "."])
+mossa = 1
+fine = ""
+
+while True:
+    for riga in griglia:
+        testo = ""
+        for cella in riga:
+            testo = testo + cella + " "
+        print(testo)
+    print("1 2 3 4 5 6 7")
+    if fine != "":
+        print(fine)
+        break
+    if mossa % 2 == 1:
+        nome = nome1
+        disco = "X"
+    else:
+        nome = nome2
+        disco = "O"
+    scelta = input(f"{nome} ({disco}), in che colonna? ")
+    if scelta == "q":
+        print("Ciao!")
+        break
+    colonna = int(scelta) - 1
+    if colonna < 0 or colonna > 6:
+        print("Quella colonna non c'è: scegline una da 1 a 7.")
+    elif griglia[0][colonna] != ".":
+        print("Quella colonna è piena: scegline un'altra.")
+    else:
+        r = 5
+        while griglia[r][colonna] != ".":
+            r -= 1
+        griglia[r][colonna] = disco
+        vinto = False
+        for r in range(6):
+            for c in range(4):
+                if griglia[r][c] == disco and griglia[r][c + 1] == disco and griglia[r][c + 2] == disco and griglia[r][c + 3] == disco:
+                    vinto = True
+        for r in range(3):
+            for c in range(7):
+                if griglia[r][c] == disco and griglia[r + 1][c] == disco and griglia[r + 2][c] == disco and griglia[r + 3][c] == disco:
+                    vinto = True
+        if vinto:
+            fine = f"{nome} fa quattro in fila e vince!"
+        elif mossa == 42:
+            fine = "La griglia è piena: pareggio!"
+        mossa += 1`,
+    hints: ["Cosa si ripete a ogni giro, e quali sono i modi per uscire dal ciclo? In quale riga si ferma un disco, e come la trovi partendo dal basso?",
+      "Prima del ciclo la griglia, la mossa a 1 e una scritta della fine vuota. Nel while True: due for per stampare, poi, se la fine non è vuota, la stampi e break. Nome e disco con l'if di prima, l'input, e con q break. La colonna è il numero meno 1; dopo i due controlli una riga r che parte da 5 e cala finché la casella è occupata, il disco in griglia[r][colonna], due gruppi di for con and per i quattro in fila, la scritta della fine se serve e la mossa che cresce."],
+    check: c4Check("it", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => c4Expect("it", 3, x.inputs),
+    tests: c4Tests("it", 3, C4_GAMES3)
+  },
+  en: {
+    title: "Build: Connect Four, part 3",
+    theory: [
+`<p>Part 3: now you really play. The grid becomes a <b>list of lists</b>: 6 rows, each a list of 7 squares, where <code>"."</code> is an empty square and <code>"X"</code> and <code>"O"</code> are the discs. Row 0 is the one at the top and row 5 the one at the bottom; <code>grid[r][c]</code> is the square in row r and column c, both counted from 0, so the players' column 1 is c = 0 in the list. You build the grid with a <code>for</code> loop and <code>append</code>: 6 times a list of 7 dots.</p>
+<p>The game becomes a loop. At every turn the program prints the grid, one row at a time, with each square followed by a space, and below it the line <code>1 2 3 4 5 6 7</code>; then it asks whoever's turn it is for a column, with their name and their disc:</p>
+<pre class="term-sample">Player 1, what's your name? Ada
+Player 2, what's your name? Bruno
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+1 2 3 4 5 6 7
+Ada (X), which column? 4
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . . . . .
+. . . X . . .
+1 2 3 4 5 6 7
+Bruno (O), which column?</pre>
+<p>The disc <b>falls</b>: it starts from the bottom row, row 5, and goes up while the square is taken; it stops on the first free square. Then the program checks whether there are <b>four in a row</b>: across, for every row and every column c from 0 to 3, the squares c, c + 1, c + 2 and c + 3; and up and down, for every column and every row r from 0 to 2, the rows r, r + 1, r + 2 and r + 3. The diagonals will come later.</p>
+<p>The rules, in order. With q write <code>Bye!</code> and leave the loop. With a column that doesn't exist write <code>There's no such column: pick one from 1 to 7.</code>, and with a full column, which already has a disc on its top square, <code>That column is full: pick another.</code>: in both cases the same player tries again. When someone gets four in a row, or when the 42nd disc fills the grid, the program prints the grid one last time and below it <code>Ada gets four in a row and wins!</code>, with their name, or <code>The grid is full: it's a draw!</code>.</p>`],
+    task: `Turn the program into the real game: the grid as a list of 6 lists of 7 squares, a <code>while</code> loop that at every turn prints the grid and the column numbers and asks whoever's turn it is for a column, the disc falling to the first free square from the bottom, four in a row across and up and down, and the rules above, in order. I'll try lots of games: wins across and up and down, full columns and ones that don't exist, the draw and q.`,
+    solution: `# Connect Four, part 3: discs fall
+name1 = input("Player 1, what's your name? ")
+name2 = input("Player 2, what's your name? ")
+grid = []
+for r in range(6):
+    grid.append([".", ".", ".", ".", ".", ".", "."])
+move = 1
+ending = ""
+
+while True:
+    for row in grid:
+        text = ""
+        for cell in row:
+            text = text + cell + " "
+        print(text)
+    print("1 2 3 4 5 6 7")
+    if ending != "":
+        print(ending)
+        break
+    if move % 2 == 1:
+        name = name1
+        disc = "X"
+    else:
+        name = name2
+        disc = "O"
+    choice = input(f"{name} ({disc}), which column? ")
+    if choice == "q":
+        print("Bye!")
+        break
+    column = int(choice) - 1
+    if column < 0 or column > 6:
+        print("There's no such column: pick one from 1 to 7.")
+    elif grid[0][column] != ".":
+        print("That column is full: pick another.")
+    else:
+        r = 5
+        while grid[r][column] != ".":
+            r -= 1
+        grid[r][column] = disc
+        won = False
+        for r in range(6):
+            for c in range(4):
+                if grid[r][c] == disc and grid[r][c + 1] == disc and grid[r][c + 2] == disc and grid[r][c + 3] == disc:
+                    won = True
+        for r in range(3):
+            for c in range(7):
+                if grid[r][c] == disc and grid[r + 1][c] == disc and grid[r + 2][c] == disc and grid[r + 3][c] == disc:
+                    won = True
+        if won:
+            ending = f"{name} gets four in a row and wins!"
+        elif move == 42:
+            ending = "The grid is full: it's a draw!"
+        move += 1`,
+    hints: ["What repeats at every turn, and what are the ways out of the loop? On which row does a disc stop, and how do you find it starting from the bottom?",
+      "Before the loop the grid, the move at 1 and an empty ending text. In the while True: two for loops to print, then, if the ending isn't empty, print it and break. Name and disc with the if from before, the input, and with q break. The column is the number minus 1; after the two checks a row r that starts from 5 and goes down while the square is taken, the disc in grid[r][column], two groups of for loops with and for four in a row, the ending text if needed and the move growing."],
+    check: c4Check("en", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => c4Expect("en", 3, x.inputs),
+    tests: c4Tests("en", 3, C4_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: [" Ada ", "Bruno", " 4", "4 ", "Q"], file: ["costruisci_forza4_4.py", "build_connect4_4.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>stampa(griglia)</code> stampa la griglia e sotto la riga con i numeri delle colonne;</li>
+<li><code>dove_cade(griglia, colonna)</code> restituisce la riga dove si fermerebbe un disco lasciato cadere nella colonna: guarda dal basso in su, con <code>range(5, -1, -1)</code>, e restituisce la prima riga libera; se la colonna è piena restituisce <code>-1</code>, che non è una riga;</li>
+<li><code>vince(griglia, disco)</code> restituisce <code>True</code> se ci sono quattro dischi <code>disco</code> in fila, in orizzontale o in verticale, <code>False</code> se no: appena ne trova quattro può restituire <code>True</code> subito, e arriva in fondo solo se non ce ne sono.</li></ul>
+<p>Il ciclo resta, ma diventa corto: chiama le funzioni e decide cosa fare con quello che restituiscono. La colonna è piena quando <code>dove_cade</code> dà <code>-1</code>.</p>
+<p>E rendi il gioco più gentile: con <code>strip</code> i nomi perdono gli spazi intorno, e la risposta, con <code>strip</code> e <code>lower</code>, vale anche con degli spazi intorno o in maiuscolo, come <code> 4</code> o <code>Q</code>.</p>`],
+    task: `Metti la stampa della griglia in <code>stampa(griglia)</code>, la ricerca della riga in <code>dove_cade(griglia, colonna)</code> e il controllo dei quattro in fila in <code>vince(griglia, disco)</code>, come qui sopra, e usale nel ciclo. Pulisci i nomi con <code>strip</code> e le risposte con <code>strip</code> e <code>lower</code>. Quello che il gioco scrive resta uguale. Proverò le funzioni una per una e partite con spazi e maiuscole.`,
+    solution: `# Forza 4, parte 4: funzioni per la griglia
+def stampa(griglia):
+    for riga in griglia:
+        testo = ""
+        for cella in riga:
+            testo = testo + cella + " "
+        print(testo)
+    print("1 2 3 4 5 6 7")
+
+
+def dove_cade(griglia, colonna):
+    for r in range(5, -1, -1):
+        if griglia[r][colonna] == ".":
+            return r
+    return -1
+
+
+def vince(griglia, disco):
+    for r in range(6):
+        for c in range(4):
+            if griglia[r][c] == disco and griglia[r][c + 1] == disco and griglia[r][c + 2] == disco and griglia[r][c + 3] == disco:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if griglia[r][c] == disco and griglia[r + 1][c] == disco and griglia[r + 2][c] == disco and griglia[r + 3][c] == disco:
+                return True
+    return False
+
+
+nome1 = input("Giocatore 1, come ti chiami? ").strip()
+nome2 = input("Giocatore 2, come ti chiami? ").strip()
+griglia = []
+for r in range(6):
+    griglia.append([".", ".", ".", ".", ".", ".", "."])
+mossa = 1
+fine = ""
+
+while True:
+    stampa(griglia)
+    if fine != "":
+        print(fine)
+        break
+    if mossa % 2 == 1:
+        nome = nome1
+        disco = "X"
+    else:
+        nome = nome2
+        disco = "O"
+    scelta = input(f"{nome} ({disco}), in che colonna? ").strip().lower()
+    if scelta == "q":
+        print("Ciao!")
+        break
+    colonna = int(scelta) - 1
+    if colonna < 0 or colonna > 6:
+        print("Quella colonna non c'è: scegline una da 1 a 7.")
+    elif dove_cade(griglia, colonna) == -1:
+        print("Quella colonna è piena: scegline un'altra.")
+    else:
+        griglia[dove_cade(griglia, colonna)][colonna] = disco
+        if vince(griglia, disco):
+            fine = f"{nome} fa quattro in fila e vince!"
+        elif mossa == 42:
+            fine = "La griglia è piena: pareggio!"
+        mossa += 1`,
+    hints: ["Quali pezzi del ciclo diventano funzioni, e cosa ricevono e restituiscono? Cosa deve restituire dove_cade se la colonna è piena?",
+      "Sposta i due for della stampa e la riga dei numeri nella funzione stampa. In dove_cade un for sulle righe dal basso che restituisce la prima con la casella vuota, e dopo il for -1. In vince i due gruppi di for di prima, che restituiscono True appena trovano quattro dischi uguali, e alla fine False. Nel ciclo, strip dopo gli input dei nomi e strip e lower dopo quello della colonna."],
+    check: c4Check("it", 4, [/def\s+stampa\s*\(/, /def\s+dove_cade\s*\(/, /def\s+vince\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]), expect: (x) => c4Expect("it", 4, x.inputs),
+    tests: c4FnTests("it")
+  },
+  en: {
+    title: "Build: Connect Four, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>print_grid(grid)</code> prints the grid and below it the line with the column numbers;</li>
+<li><code>landing_row(grid, column)</code> gives back the row where a disc dropped into the column would stop: it looks from the bottom up, with <code>range(5, -1, -1)</code>, and gives back the first free row; if the column is full it gives back <code>-1</code>, which isn't a row;</li>
+<li><code>has_four(grid, disc)</code> gives back <code>True</code> if there are four <code>disc</code> discs in a row, across or up and down, <code>False</code> if not: as soon as it finds four it can give back <code>True</code> straight away, and it only reaches the end if there aren't any.</li></ul>
+<p>The loop stays, but it gets short: it calls the functions and decides what to do with what they give back. The column is full when <code>landing_row</code> gives <code>-1</code>.</p>
+<p>And make the game kinder: with <code>strip</code> the names lose the spaces around them, and the answer, with <code>strip</code> and <code>lower</code>, works with spaces around it or in capitals too, like <code> 4</code> or <code>Q</code>.</p>`],
+    task: `Put the printing of the grid in <code>print_grid(grid)</code>, the search for the row in <code>landing_row(grid, column)</code> and the check for four in a row in <code>has_four(grid, disc)</code>, as above, and use them in the loop. Clean the names with <code>strip</code> and the answers with <code>strip</code> and <code>lower</code>. What the game writes stays the same. I'll test the functions one by one and games with spaces and capitals.`,
+    solution: `# Connect Four, part 4: functions for the grid
+def print_grid(grid):
+    for row in grid:
+        text = ""
+        for cell in row:
+            text = text + cell + " "
+        print(text)
+    print("1 2 3 4 5 6 7")
+
+
+def landing_row(grid, column):
+    for r in range(5, -1, -1):
+        if grid[r][column] == ".":
+            return r
+    return -1
+
+
+def has_four(grid, disc):
+    for r in range(6):
+        for c in range(4):
+            if grid[r][c] == disc and grid[r][c + 1] == disc and grid[r][c + 2] == disc and grid[r][c + 3] == disc:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if grid[r][c] == disc and grid[r + 1][c] == disc and grid[r + 2][c] == disc and grid[r + 3][c] == disc:
+                return True
+    return False
+
+
+name1 = input("Player 1, what's your name? ").strip()
+name2 = input("Player 2, what's your name? ").strip()
+grid = []
+for r in range(6):
+    grid.append([".", ".", ".", ".", ".", ".", "."])
+move = 1
+ending = ""
+
+while True:
+    print_grid(grid)
+    if ending != "":
+        print(ending)
+        break
+    if move % 2 == 1:
+        name = name1
+        disc = "X"
+    else:
+        name = name2
+        disc = "O"
+    choice = input(f"{name} ({disc}), which column? ").strip().lower()
+    if choice == "q":
+        print("Bye!")
+        break
+    column = int(choice) - 1
+    if column < 0 or column > 6:
+        print("There's no such column: pick one from 1 to 7.")
+    elif landing_row(grid, column) == -1:
+        print("That column is full: pick another.")
+    else:
+        grid[landing_row(grid, column)][column] = disc
+        if has_four(grid, disc):
+            ending = f"{name} gets four in a row and wins!"
+        elif move == 42:
+            ending = "The grid is full: it's a draw!"
+        move += 1`,
+    hints: ["Which pieces of the loop become functions, and what do they get and give back? What should landing_row give back if the column is full?",
+      "Move the two for loops of the printing and the line with the numbers into the function print_grid. In landing_row a for over the rows from the bottom that gives back the first one with the square empty, and after the for -1. In has_four the two groups of for loops from before, which give back True as soon as they find four identical discs, and at the end False. In the loop, strip after the inputs for the names and strip and lower after the one for the column."],
+    check: c4Check("en", 4, [/def\s+print_grid\s*\(/, /def\s+landing_row\s*\(/, /def\s+has_four\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]), expect: (x) => c4Expect("en", 4, x.inputs),
+    tests: c4FnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_forza4_5.py", "build_connect4_5.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 5",
+    theory: [
+`<p>Parte 5: Forza 4 esce dal terminale ed entra in una <b>finestra</b>, con la griglia blu e i dischi colorati dell'anteprima. Ogni casella è un quadrato di 60 pixel, <code>CELLA</code>, e la griglia comincia in <code>(X0, Y0)</code>, cioè (40, 100): sopra resta lo spazio per la scritta e per il disco che entra, sotto una striscia di 60 pixel. La finestra è larga <code>7 * CELLA + 2 * X0</code> e alta <code>Y0 + 6 * CELLA + 60</code>. Il centro della casella nella riga r e nella colonna c è in <code>(X0 + c * CELLA + 30, Y0 + r * CELLA + 30)</code>.</p>
+<p>Cosa tieni del tuo codice: la griglia come lista di liste e le funzioni <code>dove_cade</code> e <code>vince</code>. Cosa togli: i nomi, il ciclo con <code>input</code> e la griglia stampata con <code>print</code>.</p>
+<p>Oltre che con il nome inglese, un colore si può scrivere come nelle pagine web: un <code>#</code> e sei cifre esadecimali, due per il rosso, due per il verde e due per il blu. Lo sfondo è <code>"#0d1a33"</code>; la griglia è un rettangolo blu, <code>"#1d4fa8"</code>, che sporge di 16 pixel per lato: <code>Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32))</code>. Sopra, ogni casella è un cerchio di raggio 22: del colore dello sfondo se è vuota, così sembra un buco, rosso <code>"#e53935"</code> con un disco X e giallo <code>"#fdd835"</code> con un disco O. Il colore giusto te lo dà una funzione, <code>colore(disco)</code>.</p>
+<p>Le mosse arrivano dai <b>clic</b>: Pygame Zero chiama <code>on_mouse_down(pos)</code> a ogni clic, o tocco sul telefono, e <code>pos</code> è il punto toccato, <code>(x, y)</code>. La colonna è <code>(pos[0] - X0) // CELLA</code>: se non è tra 0 e 6 il clic era fuori dalla griglia, e non conta.</p>
+<p>E il disco non compare in fondo di colpo: <b>cade</b>. La lista <code>cade</code> tiene il disco che sta cadendo, <code>[colonna, riga, y, velocità]</code>: la colonna, la riga dove si fermerà, presa da <code>dove_cade</code>, la y di adesso, che parte da <code>Y0 - 40</code>, sopra la griglia, e la velocità, che parte da 0. Pygame Zero chiama <code>update()</code> 60 volte al secondo: a ogni chiamata la velocità cresce di 2 e la y cresce della velocità, così il disco accelera come una cosa che cade davvero. Quando la y arriva al centro della sua casella il disco si ferma: entra nella griglia, <code>cade</code> torna vuota e si controlla se ha vinto. Mentre un disco cade, i clic non contano.</p>
+<p>In alto, in <code>(X0, 12)</code>, c'è scritto di chi è il turno, <code>Tocca al Rosso</code> o <code>Tocca al Giallo</code>; il Rosso comincia. Alla fine <code>Vince il Rosso!</code>, <code>Vince il Giallo!</code> o, dopo 42 dischi, <code>Pareggio!</code>, e i clic non contano più.</p>`],
+    task: `Porta Forza 4 nella finestra come qui sopra: caselle da 60 pixel da (40, 100), lo sfondo e la griglia blu con i buchi, i dischi rossi e gialli, il clic che sceglie la colonna, il disco che cade accelerando in <code>update()</code>, i turni, i quattro in fila in orizzontale e in verticale, il pareggio e le scritte. Quando chiudi la finestra, proverò a cliccare le colonne, a riempirne una, a far vincere tutti e due e a pareggiare.`,
+    solution: `# Forza 4, parte 5: nella finestra
+import pgzrun
+
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+griglia = []
+for r in range(6):
+    griglia.append([".", ".", ".", ".", ".", ".", "."])
+turno = "X"
+mosse = 0
+fine = ""
+cade = []
+
+
+def dove_cade(griglia, colonna):
+    for r in range(5, -1, -1):
+        if griglia[r][colonna] == ".":
+            return r
+    return -1
+
+
+def vince(griglia, disco):
+    for r in range(6):
+        for c in range(4):
+            if griglia[r][c] == disco and griglia[r][c + 1] == disco and griglia[r][c + 2] == disco and griglia[r][c + 3] == disco:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if griglia[r][c] == disco and griglia[r + 1][c] == disco and griglia[r + 2][c] == disco and griglia[r + 3][c] == disco:
+                return True
+    return False
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            if griglia[r][c] == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            else:
+                screen.draw.filled_circle(centro, 22, colore(griglia[r][c]))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    if fine != "":
+        screen.draw.text(fine, (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca al Rosso", (X0, 12))
+    else:
+        screen.draw.text("Tocca al Giallo", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global cade
+    if fine != "" or len(cade) > 0:
+        return
+    colonna = (pos[0] - X0) // CELLA
+    if colonna < 0 or colonna > 6:
+        return
+    riga = dove_cade(griglia, colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def update():
+    global cade, turno, mosse, fine
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia[cade[1]][cade[0]] = turno
+        cade = []
+        mosse += 1
+        if vince(griglia, turno):
+            if turno == "X":
+                fine = "Vince il Rosso!"
+            else:
+                fine = "Vince il Giallo!"
+        elif mosse == 42:
+            fine = "Pareggio!"
+        elif turno == "X":
+            turno = "O"
+        else:
+            turno = "X"
+
+
+pgzrun.go()`,
+    hints: ["Cosa deve ricordare il gioco mentre un disco cade? Quando un disco smette di cadere, e cosa succede in quel momento?",
+      "In cima import pgzrun, le misure, WIDTH e HEIGHT, la griglia, il turno, le mosse, la scritta della fine e la lista cade vuota. In draw() lo sfondo, il rettangolo blu, due for con un cerchio per ogni casella e, se cade non è vuota, il disco che cade. In on_mouse_down, con global, trovi la colonna e la riga e riempi cade. In update(), se cade non è vuota, la velocità e la y crescono; quando la y arriva al centro della casella, metti il disco nella griglia, svuota cade, conta la mossa, controlla vince e il pareggio, e cambia turno."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT]),
+    why: (o, c) => pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT]),
+    tests: c4WinTests("it")
+  },
+  en: {
+    title: "Build: Connect Four, part 5",
+    theory: [
+`<p>Part 5: Connect Four leaves the terminal and goes into a <b>window</b>, with the blue grid and the coloured discs of the preview. Every square is a square of 60 pixels, <code>CELL</code>, and the grid starts at <code>(X0, Y0)</code>, that is (40, 100): above it there's room for the text and for the disc coming in, below it a strip of 60 pixels. The window is <code>7 * CELL + 2 * X0</code> wide and <code>Y0 + 6 * CELL + 60</code> high. The centre of the square in row r and column c is at <code>(X0 + c * CELL + 30, Y0 + r * CELL + 30)</code>.</p>
+<p>What you keep of your code: the grid as a list of lists and the functions <code>landing_row</code> and <code>has_four</code>. What you take away: the names, the loop with <code>input</code> and the grid printed with <code>print</code>.</p>
+<p>Besides its English name, a colour can be written as on web pages: a <code>#</code> and six hexadecimal digits, two for red, two for green and two for blue. The background is <code>"#0d1a33"</code>; the grid is a blue rectangle, <code>"#1d4fa8"</code>, sticking out by 16 pixels on each side: <code>Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32))</code>. On top, every square is a circle with radius 22: the colour of the background if it's empty, so it looks like a hole, red <code>"#e53935"</code> with an X disc and yellow <code>"#fdd835"</code> with an O disc. A function gives you the right colour, <code>colour(disc)</code>.</p>
+<p>The moves come from <b>clicks</b>: Pygame Zero calls <code>on_mouse_down(pos)</code> at every click, or tap on a phone, and <code>pos</code> is the point touched, <code>(x, y)</code>. The column is <code>(pos[0] - X0) // CELL</code>: if it isn't between 0 and 6 the click was outside the grid, and it doesn't count.</p>
+<p>And the disc doesn't suddenly appear at the bottom: it <b>falls</b>. The list <code>falling</code> holds the disc that's falling, <code>[column, row, y, speed]</code>: the column, the row where it will stop, from <code>landing_row</code>, the y it's at now, which starts from <code>Y0 - 40</code>, above the grid, and the speed, which starts from 0. Pygame Zero calls <code>update()</code> 60 times a second: at every call the speed grows by 2 and y grows by the speed, so the disc speeds up like something really falling. When y reaches the centre of its square the disc stops: it goes into the grid, <code>falling</code> is empty again and you check whether it won. While a disc is falling, clicks don't count.</p>
+<p>At the top, at <code>(X0, 12)</code>, it says whose turn it is, <code>Red's turn</code> or <code>Yellow's turn</code>; Red starts. At the end <code>Red wins!</code>, <code>Yellow wins!</code> or, after 42 discs, <code>It's a draw!</code>, and clicks don't count any more.</p>`],
+    task: `Take Connect Four into the window as above: squares of 60 pixels from (40, 100), the background and the blue grid with its holes, the red and yellow discs, the click that picks the column, the disc falling faster and faster in <code>update()</code>, the turns, four in a row across and up and down, the draw and the texts. When you close the window, I'll try clicking the columns, filling one, letting both players win and drawing.`,
+    solution: `# Connect Four, part 5: in a window
+import pgzrun
+
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+grid = []
+for r in range(6):
+    grid.append([".", ".", ".", ".", ".", ".", "."])
+turn = "X"
+moves = 0
+ending = ""
+falling = []
+
+
+def landing_row(grid, column):
+    for r in range(5, -1, -1):
+        if grid[r][column] == ".":
+            return r
+    return -1
+
+
+def has_four(grid, disc):
+    for r in range(6):
+        for c in range(4):
+            if grid[r][c] == disc and grid[r][c + 1] == disc and grid[r][c + 2] == disc and grid[r][c + 3] == disc:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if grid[r][c] == disc and grid[r + 1][c] == disc and grid[r + 2][c] == disc and grid[r + 3][c] == disc:
+                return True
+    return False
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            if grid[r][c] == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            else:
+                screen.draw.filled_circle(centre, 22, colour(grid[r][c]))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    if ending != "":
+        screen.draw.text(ending, (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Red's turn", (X0, 12))
+    else:
+        screen.draw.text("Yellow's turn", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global falling
+    if ending != "" or len(falling) > 0:
+        return
+    column = (pos[0] - X0) // CELL
+    if column < 0 or column > 6:
+        return
+    row = landing_row(grid, column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def update():
+    global falling, turn, moves, ending
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid[falling[1]][falling[0]] = turn
+        falling = []
+        moves += 1
+        if has_four(grid, turn):
+            if turn == "X":
+                ending = "Red wins!"
+            else:
+                ending = "Yellow wins!"
+        elif moves == 42:
+            ending = "It's a draw!"
+        elif turn == "X":
+            turn = "O"
+        else:
+            turn = "X"
+
+
+pgzrun.go()`,
+    hints: ["What does the game need to remember while a disc is falling? When does a disc stop falling, and what happens at that moment?",
+      "At the top import pgzrun, the sizes, WIDTH and HEIGHT, the grid, the turn, the moves, the ending text and the empty falling list. In draw() the background, the blue rectangle, two for loops with a circle for every square and, if falling isn't empty, the falling disc. In on_mouse_down, with global, find the column and the row and fill falling. In update(), if falling isn't empty, the speed and y grow; when y reaches the centre of the square, put the disc in the grid, empty falling, count the move, check has_four and the draw, and change turn."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT]),
+    why: (o, c) => pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT]),
+    tests: c4WinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_forza4_6.py", "build_connect4_6.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 6",
+    theory: [
+`<p>Parte 6: un avversario sempre pronto, il <b>computer</b>. Tu sei il Rosso, X, e cominci tu; il computer è il Giallo, O.</p>
+<p>Quando il tuo disco si ferma e nessuno ha vinto, tocca al computer. Ma se giocasse subito, il suo disco partirebbe nello stesso istante e non vedresti la sua mossa: meglio aspettare un attimo. <code>clock.schedule(mossa_computer, 0.5)</code> chiede all'orologio di Pygame Zero di chiamare la funzione <code>mossa_computer</code> una volta sola, fra mezzo secondo. La funzione si consegna senza parentesi: con le parentesi la chiameresti subito tu.</p>
+<p><code>mossa_computer()</code> sceglie a caso tra le colonne non piene: con un <code>for</code> sulle 7 colonne costruisce la lista <code>libere</code> di quelle in cui <code>dove_cade</code> non dà -1, poi <code>random.choice(libere)</code> ne prende una a caso. Il suo disco cade come il tuo: basta riempire <code>cade</code>.</p>
+<p>Mentre tocca al computer i tuoi clic non contano. Le scritte diventano <code>Tocca a te</code>, <code>Tocca al computer...</code>, <code>Hai vinto!</code>, <code>Ha vinto il computer!</code> e <code>Pareggio!</code>.</p>`],
+    task: `Fai giocare il computer con i dischi gialli: dopo ogni tuo disco, se la partita non è finita, <code>mossa_computer</code> parte mezzo secondo dopo con <code>clock.schedule</code> e sceglie con <code>random.choice</code> una colonna non piena. Mentre tocca al computer i clic non contano; cambia le scritte come qui sopra. Quando chiudi la finestra, proverò con un computer truccato che i clic durante il suo turno non contino, che scelga solo colonne non piene e che si possa vincere e perdere.`,
+    solution: `# Forza 4, parte 6: contro il computer
+import pgzrun
+import random
+
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+griglia = []
+for r in range(6):
+    griglia.append([".", ".", ".", ".", ".", ".", "."])
+turno = "X"
+mosse = 0
+fine = ""
+cade = []
+
+
+def dove_cade(griglia, colonna):
+    for r in range(5, -1, -1):
+        if griglia[r][colonna] == ".":
+            return r
+    return -1
+
+
+def vince(griglia, disco):
+    for r in range(6):
+        for c in range(4):
+            if griglia[r][c] == disco and griglia[r][c + 1] == disco and griglia[r][c + 2] == disco and griglia[r][c + 3] == disco:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if griglia[r][c] == disco and griglia[r + 1][c] == disco and griglia[r + 2][c] == disco and griglia[r + 3][c] == disco:
+                return True
+    return False
+
+
+def mossa_computer():
+    global cade
+    libere = []
+    for c in range(7):
+        if dove_cade(griglia, c) != -1:
+            libere.append(c)
+    colonna = random.choice(libere)
+    cade = [colonna, dove_cade(griglia, colonna), Y0 - 40, 0]
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            if griglia[r][c] == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            else:
+                screen.draw.filled_circle(centro, 22, colore(griglia[r][c]))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    if fine != "":
+        screen.draw.text(fine, (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca a te", (X0, 12))
+    else:
+        screen.draw.text("Tocca al computer...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global cade
+    if fine != "" or len(cade) > 0 or turno != "X":
+        return
+    colonna = (pos[0] - X0) // CELLA
+    if colonna < 0 or colonna > 6:
+        return
+    riga = dove_cade(griglia, colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def update():
+    global cade, turno, mosse, fine
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia[cade[1]][cade[0]] = turno
+        cade = []
+        mosse += 1
+        if vince(griglia, turno):
+            if turno == "X":
+                fine = "Hai vinto!"
+            else:
+                fine = "Ha vinto il computer!"
+        elif mosse == 42:
+            fine = "Pareggio!"
+        elif turno == "X":
+            turno = "O"
+            clock.schedule(mossa_computer, 0.5)
+        else:
+            turno = "X"
+
+
+pgzrun.go()`,
+    hints: ["Quando deve partire la mossa del computer, e perché non subito? Tra quali colonne può scegliere?",
+      "In update(), quando il tuo disco si ferma e nessuno ha vinto, il turno passa a O e chiedi a clock.schedule di chiamare mossa_computer dopo 0.5 secondi. In mossa_computer, con global, una lista vuota, un for sulle colonne che aggiunge quelle in cui dove_cade non dà -1, random.choice per sceglierne una e cade riempita come nel clic. In on_mouse_down esci subito anche quando il turno non è X."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER]),
+    why: (o, c) => pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER]),
+    tests: c4ComputerTests("it", "griglia")
+  },
+  en: {
+    title: "Build: Connect Four, part 6",
+    theory: [
+`<p>Part 6: an opponent who's always ready, the <b>computer</b>. You're Red, X, and you start; the computer is Yellow, O.</p>
+<p>When your disc stops and nobody has won, it's the computer's turn. But if it played straight away, its disc would set off at the same moment and you wouldn't see its move: better to wait a moment. <code>clock.schedule(computer_move, 0.5)</code> asks Pygame Zero's clock to call the function <code>computer_move</code> just once, half a second from now. You hand the function over without brackets: with brackets you'd be calling it yourself straight away.</p>
+<p><code>computer_move()</code> picks at random among the columns that aren't full: with a <code>for</code> over the 7 columns it builds the list <code>free_columns</code> of the ones where <code>landing_row</code> doesn't give -1, then <code>random.choice(free_columns)</code> takes one at random. Its disc falls like yours: you just fill <code>falling</code>.</p>
+<p>While it's the computer's turn your clicks don't count. The texts become <code>Your turn</code>, <code>The computer's turn...</code>, <code>You win!</code>, <code>The computer wins!</code> and <code>It's a draw!</code>.</p>`],
+    task: `Let the computer play the yellow discs: after each of your discs, if the game isn't over, <code>computer_move</code> starts half a second later with <code>clock.schedule</code> and picks with <code>random.choice</code> a column that isn't full. While it's the computer's turn clicks don't count; change the texts as above. When you close the window, I'll check with a loaded computer that clicks during its turn don't count, that it only picks columns that aren't full and that you can win and lose.`,
+    solution: `# Connect Four, part 6: against the computer
+import pgzrun
+import random
+
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+grid = []
+for r in range(6):
+    grid.append([".", ".", ".", ".", ".", ".", "."])
+turn = "X"
+moves = 0
+ending = ""
+falling = []
+
+
+def landing_row(grid, column):
+    for r in range(5, -1, -1):
+        if grid[r][column] == ".":
+            return r
+    return -1
+
+
+def has_four(grid, disc):
+    for r in range(6):
+        for c in range(4):
+            if grid[r][c] == disc and grid[r][c + 1] == disc and grid[r][c + 2] == disc and grid[r][c + 3] == disc:
+                return True
+    for r in range(3):
+        for c in range(7):
+            if grid[r][c] == disc and grid[r + 1][c] == disc and grid[r + 2][c] == disc and grid[r + 3][c] == disc:
+                return True
+    return False
+
+
+def computer_move():
+    global falling
+    free_columns = []
+    for c in range(7):
+        if landing_row(grid, c) != -1:
+            free_columns.append(c)
+    column = random.choice(free_columns)
+    falling = [column, landing_row(grid, column), Y0 - 40, 0]
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            if grid[r][c] == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            else:
+                screen.draw.filled_circle(centre, 22, colour(grid[r][c]))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    if ending != "":
+        screen.draw.text(ending, (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Your turn", (X0, 12))
+    else:
+        screen.draw.text("The computer's turn...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global falling
+    if ending != "" or len(falling) > 0 or turn != "X":
+        return
+    column = (pos[0] - X0) // CELL
+    if column < 0 or column > 6:
+        return
+    row = landing_row(grid, column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def update():
+    global falling, turn, moves, ending
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid[falling[1]][falling[0]] = turn
+        falling = []
+        moves += 1
+        if has_four(grid, turn):
+            if turn == "X":
+                ending = "You win!"
+            else:
+                ending = "The computer wins!"
+        elif moves == 42:
+            ending = "It's a draw!"
+        elif turn == "X":
+            turn = "O"
+            clock.schedule(computer_move, 0.5)
+        else:
+            turn = "X"
+
+
+pgzrun.go()`,
+    hints: ["When should the computer's move start, and why not straight away? Which columns can it pick from?",
+      "In update(), when your disc stops and nobody has won, the turn goes to O and you ask clock.schedule to call computer_move after 0.5 seconds. In computer_move, with global, an empty list, a for over the columns that adds the ones where landing_row doesn't give -1, random.choice to pick one and falling filled as in the click. In on_mouse_down leave straight away also when the turn isn't X."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER]),
+    why: (o, c) => pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER]),
+    tests: c4ComputerTests("en", "grid")
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_forza4_7.py", "build_connect4_7.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 7",
+    theory: [
+`<p>Parte 7: due cose che mancano ancora. La prima sono le <b>diagonali</b>: quattro dischi in fila valgono anche in obliquo, nei due versi. Invece di aggiungere altri gruppi di cicli, la funzione nuova <code>quattro(griglia, disco)</code> guarda in quattro <b>direzioni</b> con un ciclo solo. Ogni direzione è un passo, <code>[dr, dc]</code>: quanto cambia la riga e quanto la colonna. <code>[0, 1]</code> va verso destra, <code>[1, 0]</code> verso il basso, <code>[1, 1]</code> in diagonale in basso a destra e <code>[1, -1]</code> in basso a sinistra.</p>
+<p>Per ogni casella (r, c) e ogni direzione d, le quattro caselle in fila sono nella riga <code>r + k * d[0]</code> e nella colonna <code>c + k * d[1]</code>, con k da 0 a 3: se sono tutte dentro la griglia e tutte del disco, hai trovato la fila. <code>quattro</code> restituisce la fila, cioè la lista delle quattro caselle <code>[riga, colonna]</code>, oppure una lista vuota se non ce n'è; così prende il posto di <code>vince</code>.</p>
+<p>Ora il gioco sa quali dischi hanno vinto, e li fa <b>lampeggiare</b>: la lista <code>fila</code> tiene la fila vincente, e <code>tempo</code> conta le chiamate di <code>update()</code>. In <code>draw()</code>, se la casella è nella fila e <code>(tempo // 15) % 2</code> fa 0, il disco è più chiaro, <code>"#ffab91"</code> se è rosso e <code>"#fff59d"</code> se è giallo, da una funzione <code>chiaro(disco)</code>: un quarto di secondo chiaro e un quarto normale.</p>
+<p>La seconda sono le <b>partite</b> una dopo l'altra. <code>nuova_partita()</code> prepara la griglia vuota e rimette il turno, le mosse, la fine, <code>cade</code> e <code>fila</code> come all'inizio; la chiami una prima volta prima di <code>pgzrun.go()</code>, e poi a ogni clic quando la partita è finita. Le vittorie invece restano: stanno in un dizionario, <code>vittorie = {"Tu": 0, "Computer": 0}</code>, e quando qualcuno vince il suo numero cresce di 1. Sotto la griglia, in <code>(X0, Y0 + 6 * CELLA + 26)</code>, scrivi <code>Tu 0 - 0 Computer</code>, con i numeri del dizionario, e alla fine della partita aggiungi alla scritta <code>Clicca per giocare ancora.</code></p>`],
+    task: `Scrivi <code>quattro(griglia, disco)</code>, che guarda nelle quattro direzioni e restituisce le caselle della fila o una lista vuota, e usala al posto di <code>vince</code>; fai lampeggiare la fila vincente; conta le vittorie nel dizionario <code>vittorie</code>, con le chiavi <code>"Tu"</code> e <code>"Computer"</code>, e scrivile sotto la griglia; con un clic a partita finita comincia una partita nuova con <code>nuova_partita()</code>. Quando chiudi la finestra, proverò <code>quattro</code> da sola, una vittoria in diagonale e una rivincita.`,
+    solution: `# Forza 4, parte 7: vittorie e diagonali
+import pgzrun
+import random
+
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+vittorie = {"Tu": 0, "Computer": 0}
+griglia = []
+turno = "X"
+mosse = 0
+fine = ""
+cade = []
+fila = []
+tempo = 0
+
+
+def dove_cade(griglia, colonna):
+    for r in range(5, -1, -1):
+        if griglia[r][colonna] == ".":
+            return r
+    return -1
+
+
+def quattro(griglia, disco):
+    for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+        for r in range(6):
+            for c in range(7):
+                caselle = []
+                for k in range(4):
+                    rr = r + k * d[0]
+                    cc = c + k * d[1]
+                    if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and griglia[rr][cc] == disco:
+                        caselle.append([rr, cc])
+                if len(caselle) == 4:
+                    return caselle
+    return []
+
+
+def nuova_partita():
+    global griglia, turno, mosse, fine, cade, fila
+    griglia = []
+    for r in range(6):
+        griglia.append([".", ".", ".", ".", ".", ".", "."])
+    turno = "X"
+    mosse = 0
+    fine = ""
+    cade = []
+    fila = []
+
+
+def mossa_computer():
+    global cade
+    libere = []
+    for c in range(7):
+        if dove_cade(griglia, c) != -1:
+            libere.append(c)
+    colonna = random.choice(libere)
+    cade = [colonna, dove_cade(griglia, colonna), Y0 - 40, 0]
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def chiaro(disco):
+    if disco == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            if griglia[r][c] == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            elif [r, c] in fila and (tempo // 15) % 2 == 0:
+                screen.draw.filled_circle(centro, 22, chiaro(griglia[r][c]))
+            else:
+                screen.draw.filled_circle(centro, 22, colore(griglia[r][c]))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    screen.draw.text(f"Tu {vittorie['Tu']} - {vittorie['Computer']} Computer", (X0, Y0 + 6 * CELLA + 26))
+    if fine != "":
+        screen.draw.text(fine + " Clicca per giocare ancora.", (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca a te", (X0, 12))
+    else:
+        screen.draw.text("Tocca al computer...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global cade
+    if fine != "":
+        nuova_partita()
+        return
+    if len(cade) > 0 or turno != "X":
+        return
+    colonna = (pos[0] - X0) // CELLA
+    if colonna < 0 or colonna > 6:
+        return
+    riga = dove_cade(griglia, colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def update():
+    global cade, turno, mosse, fine, fila, tempo
+    tempo += 1
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia[cade[1]][cade[0]] = turno
+        cade = []
+        mosse += 1
+        fila = quattro(griglia, turno)
+        if len(fila) == 4:
+            if turno == "X":
+                fine = "Hai vinto!"
+                vittorie["Tu"] += 1
+            else:
+                fine = "Ha vinto il computer!"
+                vittorie["Computer"] += 1
+        elif mosse == 42:
+            fine = "Pareggio!"
+        elif turno == "X":
+            turno = "O"
+            clock.schedule(mossa_computer, 0.5)
+        else:
+            turno = "X"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Come si scrive una direzione con due numeri? Cosa deve restare quando comincia una partita nuova, e cosa invece torna come all'inizio?",
+      "In quattro tre for, sulle direzioni, sulle righe e sulle colonne; dentro, una lista vuota e un for su k da 0 a 3 che aggiunge [rr, cc] quando la casella è dentro la griglia ed è del disco; se la lista ha 4 caselle la restituisci, e dopo tutti i for restituisci una lista vuota. In update() conta tempo e, quando un disco si ferma, metti in fila quello che dà quattro: se ha 4 caselle, aggiorna la scritta e il dizionario. In on_mouse_down, se la partita è finita, ne cominci una nuova e basta."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT, C4_QUATTRO.it]),
+    why: (o, c) => pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT, C4_QUATTRO.it]),
+    tests: (c) => c4LineTests("it", "quattro")(c).concat(c4WinsTests("it", "vittorie")(c))
+  },
+  en: {
+    title: "Build: Connect Four, part 7",
+    theory: [
+`<p>Part 7: two things are still missing. The first is the <b>diagonals</b>: four discs in a row count on a slant too, both ways. Instead of adding more groups of loops, the new function <code>four_in_row(grid, disc)</code> looks in four <b>directions</b> with a single loop. Every direction is a step, <code>[dr, dc]</code>: how much the row changes and how much the column. <code>[0, 1]</code> goes right, <code>[1, 0]</code> down, <code>[1, 1]</code> diagonally down to the right and <code>[1, -1]</code> down to the left.</p>
+<p>For every square (r, c) and every direction d, the four squares in a row are in row <code>r + k * d[0]</code> and column <code>c + k * d[1]</code>, with k from 0 to 3: if they're all inside the grid and all the disc's, you've found the line. <code>four_in_row</code> gives back the line, that is the list of the four squares <code>[row, column]</code>, or an empty list if there isn't one; so it takes the place of <code>has_four</code>.</p>
+<p>Now the game knows which discs won, and makes them <b>flash</b>: the list <code>line</code> holds the winning line, and <code>ticks</code> counts the calls of <code>update()</code>. In <code>draw()</code>, if the square is in the line and <code>(ticks // 15) % 2</code> gives 0, the disc is lighter, <code>"#ffab91"</code> if it's red and <code>"#fff59d"</code> if it's yellow, from a function <code>light(disc)</code>: a quarter of a second light and a quarter normal.</p>
+<p>The second is <b>games</b> one after another. <code>new_game()</code> gets the empty grid ready and puts the turn, the moves, the ending, <code>falling</code> and <code>line</code> back as at the start; you call it a first time before <code>pgzrun.go()</code>, and then at every click when the game is over. The wins stay instead: they're in a dictionary, <code>wins = {"You": 0, "Computer": 0}</code>, and when someone wins their number grows by 1. Below the grid, at <code>(X0, Y0 + 6 * CELL + 26)</code>, write <code>You 0 - 0 Computer</code>, with the numbers from the dictionary, and at the end of a game add <code>Click to play again.</code> to the text.</p>`],
+    task: `Write <code>four_in_row(grid, disc)</code>, which looks in the four directions and gives back the squares of the line or an empty list, and use it instead of <code>has_four</code>; make the winning line flash; count the wins in the dictionary <code>wins</code>, with the keys <code>"You"</code> and <code>"Computer"</code>, and write them below the grid; with a click when the game is over start a new one with <code>new_game()</code>. When you close the window, I'll test <code>four_in_row</code> on its own, a win on a diagonal and a rematch.`,
+    solution: `# Connect Four, part 7: wins and diagonals
+import pgzrun
+import random
+
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+wins = {"You": 0, "Computer": 0}
+grid = []
+turn = "X"
+moves = 0
+ending = ""
+falling = []
+line = []
+ticks = 0
+
+
+def landing_row(grid, column):
+    for r in range(5, -1, -1):
+        if grid[r][column] == ".":
+            return r
+    return -1
+
+
+def four_in_row(grid, disc):
+    for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+        for r in range(6):
+            for c in range(7):
+                squares = []
+                for k in range(4):
+                    rr = r + k * d[0]
+                    cc = c + k * d[1]
+                    if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and grid[rr][cc] == disc:
+                        squares.append([rr, cc])
+                if len(squares) == 4:
+                    return squares
+    return []
+
+
+def new_game():
+    global grid, turn, moves, ending, falling, line
+    grid = []
+    for r in range(6):
+        grid.append([".", ".", ".", ".", ".", ".", "."])
+    turn = "X"
+    moves = 0
+    ending = ""
+    falling = []
+    line = []
+
+
+def computer_move():
+    global falling
+    free_columns = []
+    for c in range(7):
+        if landing_row(grid, c) != -1:
+            free_columns.append(c)
+    column = random.choice(free_columns)
+    falling = [column, landing_row(grid, column), Y0 - 40, 0]
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def light(disc):
+    if disc == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            if grid[r][c] == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            elif [r, c] in line and (ticks // 15) % 2 == 0:
+                screen.draw.filled_circle(centre, 22, light(grid[r][c]))
+            else:
+                screen.draw.filled_circle(centre, 22, colour(grid[r][c]))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    screen.draw.text(f"You {wins['You']} - {wins['Computer']} Computer", (X0, Y0 + 6 * CELL + 26))
+    if ending != "":
+        screen.draw.text(ending + " Click to play again.", (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Your turn", (X0, 12))
+    else:
+        screen.draw.text("The computer's turn...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global falling
+    if ending != "":
+        new_game()
+        return
+    if len(falling) > 0 or turn != "X":
+        return
+    column = (pos[0] - X0) // CELL
+    if column < 0 or column > 6:
+        return
+    row = landing_row(grid, column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def update():
+    global falling, turn, moves, ending, line, ticks
+    ticks += 1
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid[falling[1]][falling[0]] = turn
+        falling = []
+        moves += 1
+        line = four_in_row(grid, turn)
+        if len(line) == 4:
+            if turn == "X":
+                ending = "You win!"
+                wins["You"] += 1
+            else:
+                ending = "The computer wins!"
+                wins["Computer"] += 1
+        elif moves == 42:
+            ending = "It's a draw!"
+        elif turn == "X":
+            turn = "O"
+            clock.schedule(computer_move, 0.5)
+        else:
+            turn = "X"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["How do you write a direction with two numbers? What should stay when a new game starts, and what goes back to how it was at the start?",
+      "In four_in_row three for loops, over the directions, the rows and the columns; inside, an empty list and a for over k from 0 to 3 that adds [rr, cc] when the square is inside the grid and is the disc's; if the list has 4 squares you give it back, and after all the for loops you give back an empty list. In update() count ticks and, when a disc stops, put in line what four_in_row gives: if it has 4 squares, update the text and the dictionary. In on_mouse_down, if the game is over, start a new one and that's it."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT, C4_QUATTRO.en]),
+    why: (o, c) => pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT, C4_QUATTRO.en]),
+    tests: (c) => c4LineTests("en", "four_in_row")(c).concat(c4WinsTests("en", "wins")(c))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_forza4_8.py", "build_connect4_8.py"],
+  it: {
+    title: "Costruisci: Forza 4, parte 8",
+    theory: [
+`<p>Parte 8: la griglia diventa un <b>oggetto</b>. La classe <code>Griglia</code> tiene insieme le caselle e quello che si può fare con loro:</p>
+<ul><li><code>__init__(self)</code> prepara <code>self.celle</code>, 6 righe di 7 caselle vuote, e <code>self.mosse</code>, i dischi messi, a 0;</li>
+<li><code>dove_cade(self, colonna)</code> restituisce la riga dove cadrebbe un disco, o -1 se la colonna è piena;</li>
+<li><code>libere(self)</code> restituisce la lista delle colonne non piene;</li>
+<li><code>metti(self, colonna, disco)</code> mette il disco nella colonna, conta la mossa e restituisce la riga dove si è fermato;</li>
+<li><code>quattro(self, disco)</code> cerca i quattro in fila come prima, ma nelle sue celle;</li>
+<li><code>piena(self)</code> restituisce <code>True</code> quando i dischi sono 42.</li></ul>
+<p><code>nuova_partita()</code> crea una griglia nuova, <code>griglia = Griglia()</code>, e il resto del gioco usa i suoi metodi: <code>griglia.dove_cade(colonna)</code> nel clic, <code>griglia.libere()</code> nella mossa del computer, <code>griglia.metti</code> e <code>griglia.quattro</code> quando un disco si ferma, <code>griglia.piena()</code> per il pareggio e <code>griglia.celle[r][c]</code> in <code>draw()</code>. La variabile <code>mosse</code> di fuori non serve più. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Griglia</code> con <code>__init__</code>, <code>dove_cade</code>, <code>libere</code>, <code>metti</code>, <code>quattro</code> e <code>piena</code>, come qui sopra, e usa un oggetto <code>griglia</code> al posto della lista di liste e delle mosse. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con una vittoria in diagonale e una rivincita.`,
+    solution: `# Forza 4, parte 8: la griglia è un oggetto
+import pgzrun
+import random
+
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+vittorie = {"Tu": 0, "Computer": 0}
+turno = "X"
+fine = ""
+cade = []
+fila = []
+tempo = 0
+
+
+class Griglia:
+    def __init__(self):
+        self.celle = []
+        for r in range(6):
+            self.celle.append([".", ".", ".", ".", ".", ".", "."])
+        self.mosse = 0
+
+    def dove_cade(self, colonna):
+        for r in range(5, -1, -1):
+            if self.celle[r][colonna] == ".":
+                return r
+        return -1
+
+    def libere(self):
+        colonne = []
+        for c in range(7):
+            if self.dove_cade(c) != -1:
+                colonne.append(c)
+        return colonne
+
+    def metti(self, colonna, disco):
+        r = self.dove_cade(colonna)
+        self.celle[r][colonna] = disco
+        self.mosse += 1
+        return r
+
+    def quattro(self, disco):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    caselle = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.celle[rr][cc] == disco:
+                            caselle.append([rr, cc])
+                    if len(caselle) == 4:
+                        return caselle
+        return []
+
+    def piena(self):
+        return self.mosse == 42
+
+
+def nuova_partita():
+    global griglia, turno, fine, cade, fila
+    griglia = Griglia()
+    turno = "X"
+    fine = ""
+    cade = []
+    fila = []
+
+
+def mossa_computer():
+    global cade
+    colonna = random.choice(griglia.libere())
+    cade = [colonna, griglia.dove_cade(colonna), Y0 - 40, 0]
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def chiaro(disco):
+    if disco == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            disco = griglia.celle[r][c]
+            if disco == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            elif [r, c] in fila and (tempo // 15) % 2 == 0:
+                screen.draw.filled_circle(centro, 22, chiaro(disco))
+            else:
+                screen.draw.filled_circle(centro, 22, colore(disco))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    screen.draw.text(f"Tu {vittorie['Tu']} - {vittorie['Computer']} Computer", (X0, Y0 + 6 * CELLA + 26))
+    if fine != "":
+        screen.draw.text(fine + " Clicca per giocare ancora.", (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca a te", (X0, 12))
+    else:
+        screen.draw.text("Tocca al computer...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global cade
+    if fine != "":
+        nuova_partita()
+        return
+    if len(cade) > 0 or turno != "X":
+        return
+    colonna = (pos[0] - X0) // CELLA
+    if colonna < 0 or colonna > 6:
+        return
+    riga = griglia.dove_cade(colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def update():
+    global cade, turno, fine, fila, tempo
+    tempo += 1
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia.metti(cade[0], turno)
+        cade = []
+        fila = griglia.quattro(turno)
+        if len(fila) == 4:
+            if turno == "X":
+                fine = "Hai vinto!"
+                vittorie["Tu"] += 1
+            else:
+                fine = "Ha vinto il computer!"
+                vittorie["Computer"] += 1
+        elif griglia.piena():
+            fine = "Pareggio!"
+        elif turno == "X":
+            turno = "O"
+            clock.schedule(mossa_computer, 0.5)
+        else:
+            turno = "X"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Quali funzioni di prima diventano metodi, e cosa cambia nelle loro parentesi? Cosa deve restituire metti, e perché può servire?",
+      "In __init__ self.celle con il for e l'append di prima, e self.mosse a 0. I metodi sono le funzioni di prima con self al posto della griglia, quindi self.celle[r][c]. libere fa il for sulle colonne che prima stava nella mossa del computer. metti chiama self.dove_cade, scrive il disco, aggiunge 1 alle mosse e restituisce la riga. piena confronta le mosse con 42."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.it)),
+    tests: (c) => c4ClassTests("it")(c).concat(c4WinsTests("it", "vittorie")(c))
+  },
+  en: {
+    title: "Build: Connect Four, part 8",
+    theory: [
+`<p>Part 8: the grid becomes an <b>object</b>. The class <code>Grid</code> keeps together the squares and what you can do with them:</p>
+<ul><li><code>__init__(self)</code> gets <code>self.cells</code> ready, 6 rows of 7 empty squares, and <code>self.moves</code>, the discs put in, at 0;</li>
+<li><code>landing_row(self, column)</code> gives back the row where a disc would land, or -1 if the column is full;</li>
+<li><code>free_columns(self)</code> gives back the list of the columns that aren't full;</li>
+<li><code>put(self, column, disc)</code> puts the disc in the column, counts the move and gives back the row where it stopped;</li>
+<li><code>four_in_row(self, disc)</code> looks for four in a row as before, but in its own cells;</li>
+<li><code>full(self)</code> gives back <code>True</code> when there are 42 discs.</li></ul>
+<p><code>new_game()</code> makes a new grid, <code>grid = Grid()</code>, and the rest of the game uses its methods: <code>grid.landing_row(column)</code> in the click, <code>grid.free_columns()</code> in the computer's move, <code>grid.put</code> and <code>grid.four_in_row</code> when a disc stops, <code>grid.full()</code> for the draw and <code>grid.cells[r][c]</code> in <code>draw()</code>. The <code>moves</code> variable outside isn't needed any more. The game stays the same.</p>`],
+    task: `Write the class <code>Grid</code> with <code>__init__</code>, <code>landing_row</code>, <code>free_columns</code>, <code>put</code>, <code>four_in_row</code> and <code>full</code>, as above, and use a <code>grid</code> object instead of the list of lists and the moves. When you close the window, I'll test the class on its own and then the game, with a win on a diagonal and a rematch.`,
+    solution: `# Connect Four, part 8: the grid is an object
+import pgzrun
+import random
+
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+wins = {"You": 0, "Computer": 0}
+turn = "X"
+ending = ""
+falling = []
+line = []
+ticks = 0
+
+
+class Grid:
+    def __init__(self):
+        self.cells = []
+        for r in range(6):
+            self.cells.append([".", ".", ".", ".", ".", ".", "."])
+        self.moves = 0
+
+    def landing_row(self, column):
+        for r in range(5, -1, -1):
+            if self.cells[r][column] == ".":
+                return r
+        return -1
+
+    def free_columns(self):
+        columns = []
+        for c in range(7):
+            if self.landing_row(c) != -1:
+                columns.append(c)
+        return columns
+
+    def put(self, column, disc):
+        r = self.landing_row(column)
+        self.cells[r][column] = disc
+        self.moves += 1
+        return r
+
+    def four_in_row(self, disc):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    squares = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.cells[rr][cc] == disc:
+                            squares.append([rr, cc])
+                    if len(squares) == 4:
+                        return squares
+        return []
+
+    def full(self):
+        return self.moves == 42
+
+
+def new_game():
+    global grid, turn, ending, falling, line
+    grid = Grid()
+    turn = "X"
+    ending = ""
+    falling = []
+    line = []
+
+
+def computer_move():
+    global falling
+    column = random.choice(grid.free_columns())
+    falling = [column, grid.landing_row(column), Y0 - 40, 0]
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def light(disc):
+    if disc == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            disc = grid.cells[r][c]
+            if disc == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            elif [r, c] in line and (ticks // 15) % 2 == 0:
+                screen.draw.filled_circle(centre, 22, light(disc))
+            else:
+                screen.draw.filled_circle(centre, 22, colour(disc))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    screen.draw.text(f"You {wins['You']} - {wins['Computer']} Computer", (X0, Y0 + 6 * CELL + 26))
+    if ending != "":
+        screen.draw.text(ending + " Click to play again.", (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Your turn", (X0, 12))
+    else:
+        screen.draw.text("The computer's turn...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global falling
+    if ending != "":
+        new_game()
+        return
+    if len(falling) > 0 or turn != "X":
+        return
+    column = (pos[0] - X0) // CELL
+    if column < 0 or column > 6:
+        return
+    row = grid.landing_row(column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def update():
+    global falling, turn, ending, line, ticks
+    ticks += 1
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid.put(falling[0], turn)
+        falling = []
+        line = grid.four_in_row(turn)
+        if len(line) == 4:
+            if turn == "X":
+                ending = "You win!"
+                wins["You"] += 1
+            else:
+                ending = "The computer wins!"
+                wins["Computer"] += 1
+        elif grid.full():
+            ending = "It's a draw!"
+        elif turn == "X":
+            turn = "O"
+            clock.schedule(computer_move, 0.5)
+        else:
+            turn = "X"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["Which functions from before become methods, and what changes in their brackets? What should put give back, and why could it be useful?",
+      "In __init__ self.cells with the for and the append from before, and self.moves at 0. The methods are the functions from before with self instead of the grid, so self.cells[r][c]. free_columns does the for over the columns that used to be in the computer's move. put calls self.landing_row, writes the disc, adds 1 to the moves and gives back the row. full compares the moves with 42."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.en)),
+    tests: (c) => c4ClassTests("en")(c).concat(c4WinsTests("en", "wins")(c))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_forza4.py", "final_challenge_connect4.py"],
+  it: {
+    title: "Costruisci: Forza 4 completo",
+    theory: [
+`<p>Parte 9, la sfida finale: il computer diventa più <b>furbo</b>. Prima di scegliere a caso, prova. Per ogni colonna libera mette per finta un suo disco, con <code>griglia.metti(c, "O")</code>, guarda con <code>quattro</code> se così vincerebbe, e lo toglie con un metodo nuovo, <code>togli(self, colonna)</code>, che toglie il disco più in alto della colonna e conta una mossa in meno. Se una colonna lo fa vincere, gioca lì. Se no prova allo stesso modo con i tuoi dischi, X: se in una colonna vinceresti tu, ti blocca giocando lì. Solo se non c'è niente da vincere né da bloccare sceglie a caso. Tutto questo sta in una funzione, <code>scelta_computer()</code>, che restituisce la colonna.</p>
+<p>E due regole nuove. Il dizionario conta anche i pareggi, <code>vittorie = {"Tu": 0, "Computer": 0, "Pareggi": 0}</code>, e sotto la griglia aggiungi <code>Pareggi: 0</code>. E la rivincita la comincia chi ha perso: la variabile <code>primo</code> dice chi comincia, all'inizio <code>"X"</code>; quando vinci tu diventa <code>"O"</code>, quando vince il computer <code>"X"</code>, e dopo un pareggio resta com'è. <code>nuova_partita()</code> mette il turno a <code>primo</code> e, se comincia il computer, programma la sua mossa con <code>clock.schedule</code>, come dopo il tuo disco.</p>`],
+    task: `Aggiungi a <code>Griglia</code> il metodo <code>togli</code> e scrivi <code>scelta_computer()</code>: prima cerca una colonna in cui il computer vince, poi una in cui vinceresti tu, per bloccarla, e solo alla fine sceglie a caso. Conta i pareggi nel dizionario con la chiave <code>"Pareggi"</code> e scrivili, e fai cominciare la rivincita a chi ha perso. Quando chiudi la finestra, proverò se il computer vince quando può, se ti blocca e chi comincia la rivincita.`,
+    solution: `# Forza 4, parte 9: un avversario più furbo
+import pgzrun
+import random
+
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+vittorie = {"Tu": 0, "Computer": 0, "Pareggi": 0}
+primo = "X"
+turno = "X"
+fine = ""
+cade = []
+fila = []
+tempo = 0
+
+
+class Griglia:
+    def __init__(self):
+        self.celle = []
+        for r in range(6):
+            self.celle.append([".", ".", ".", ".", ".", ".", "."])
+        self.mosse = 0
+
+    def dove_cade(self, colonna):
+        for r in range(5, -1, -1):
+            if self.celle[r][colonna] == ".":
+                return r
+        return -1
+
+    def libere(self):
+        colonne = []
+        for c in range(7):
+            if self.dove_cade(c) != -1:
+                colonne.append(c)
+        return colonne
+
+    def metti(self, colonna, disco):
+        r = self.dove_cade(colonna)
+        self.celle[r][colonna] = disco
+        self.mosse += 1
+        return r
+
+    def quattro(self, disco):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    caselle = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.celle[rr][cc] == disco:
+                            caselle.append([rr, cc])
+                    if len(caselle) == 4:
+                        return caselle
+        return []
+
+    def togli(self, colonna):
+        for r in range(6):
+            if self.celle[r][colonna] != ".":
+                self.celle[r][colonna] = "."
+                self.mosse -= 1
+                break
+
+    def piena(self):
+        return self.mosse == 42
+
+
+def nuova_partita():
+    global griglia, turno, fine, cade, fila
+    griglia = Griglia()
+    turno = primo
+    fine = ""
+    cade = []
+    fila = []
+    if turno == "O":
+        clock.schedule(mossa_computer, 0.5)
+
+
+def scelta_computer():
+    libere = griglia.libere()
+    for c in libere:
+        griglia.metti(c, "O")
+        vinta = len(griglia.quattro("O")) == 4
+        griglia.togli(c)
+        if vinta:
+            return c
+    for c in libere:
+        griglia.metti(c, "X")
+        pericolo = len(griglia.quattro("X")) == 4
+        griglia.togli(c)
+        if pericolo:
+            return c
+    return random.choice(libere)
+
+
+def mossa_computer():
+    global cade
+    colonna = scelta_computer()
+    cade = [colonna, griglia.dove_cade(colonna), Y0 - 40, 0]
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def chiaro(disco):
+    if disco == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            disco = griglia.celle[r][c]
+            if disco == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            elif [r, c] in fila and (tempo // 15) % 2 == 0:
+                screen.draw.filled_circle(centro, 22, chiaro(disco))
+            else:
+                screen.draw.filled_circle(centro, 22, colore(disco))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    screen.draw.text(f"Tu {vittorie['Tu']} - {vittorie['Computer']} Computer    Pareggi: {vittorie['Pareggi']}", (X0, Y0 + 6 * CELLA + 26))
+    if fine != "":
+        screen.draw.text(fine + " Clicca per giocare ancora.", (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca a te", (X0, 12))
+    else:
+        screen.draw.text("Tocca al computer...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global cade
+    if fine != "":
+        nuova_partita()
+        return
+    if len(cade) > 0 or turno != "X":
+        return
+    colonna = (pos[0] - X0) // CELLA
+    if colonna < 0 or colonna > 6:
+        return
+    riga = griglia.dove_cade(colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def update():
+    global cade, turno, fine, fila, tempo, primo
+    tempo += 1
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia.metti(cade[0], turno)
+        cade = []
+        fila = griglia.quattro(turno)
+        if len(fila) == 4:
+            if turno == "X":
+                fine = "Hai vinto!"
+                vittorie["Tu"] += 1
+                primo = "O"
+            else:
+                fine = "Ha vinto il computer!"
+                vittorie["Computer"] += 1
+                primo = "X"
+        elif griglia.piena():
+            fine = "Pareggio!"
+            vittorie["Pareggi"] += 1
+        elif turno == "X":
+            turno = "O"
+            clock.schedule(mossa_computer, 0.5)
+        else:
+            turno = "X"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Come fa il computer a sapere se una colonna lo farebbe vincere, senza giocarla davvero? Chi deve cominciare dopo una tua vittoria, e chi dopo una sconfitta?",
+      "togli scorre le righe dall'alto e svuota la prima casella piena, toglie 1 alle mosse ed esce dal ciclo con break. In scelta_computer un for sulle colonne libere: metti O, guarda se quattro dà 4 caselle, togli, e se sì restituisci la colonna; poi lo stesso for con X; alla fine random.choice. In update() aggiorna primo e i pareggi; in nuova_partita, se primo è O, clock.schedule."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.it, C4_SMART.it)),
+    why: (o, c) => pgzWhy(c, "it", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.it, C4_SMART.it)),
+    tests: (c) => c4SmartTests("it", "vittorie")(c).concat(c4ClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Connect Four",
+    theory: [
+`<p>Part 9, the final challenge: the computer gets <b>smarter</b>. Before picking at random, it tries. For every free column it pretends to put a disc of its own there, with <code>grid.put(c, "O")</code>, looks with <code>four_in_row</code> whether that would make it win, and takes it out with a new method, <code>take_out(self, column)</code>, which takes the top disc out of the column and counts one move less. If a column makes it win, it plays there. If not it tries the same way with your discs, X: if you'd win in a column, it blocks you by playing there. Only if there's nothing to win or to block does it pick at random. All this goes in a function, <code>computer_choice()</code>, which gives back the column.</p>
+<p>And two new rules. The dictionary counts the draws too, <code>wins = {"You": 0, "Computer": 0, "Draws": 0}</code>, and below the grid add <code>Draws: 0</code>. And whoever lost starts the rematch: the variable <code>first</code> says who starts, <code>"X"</code> at the beginning; when you win it becomes <code>"O"</code>, when the computer wins <code>"X"</code>, and after a draw it stays as it is. <code>new_game()</code> sets the turn to <code>first</code> and, if the computer starts, schedules its move with <code>clock.schedule</code>, as after your disc.</p>`],
+    task: `Add the method <code>take_out</code> to <code>Grid</code> and write <code>computer_choice()</code>: first it looks for a column where the computer wins, then one where you'd win, to block it, and only at the end it picks at random. Count the draws in the dictionary with the key <code>"Draws"</code> and write them, and let whoever lost start the rematch. When you close the window, I'll check whether the computer wins when it can, whether it blocks you and who starts the rematch.`,
+    solution: `# Connect Four, part 9: a smarter opponent
+import pgzrun
+import random
+
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+wins = {"You": 0, "Computer": 0, "Draws": 0}
+first = "X"
+turn = "X"
+ending = ""
+falling = []
+line = []
+ticks = 0
+
+
+class Grid:
+    def __init__(self):
+        self.cells = []
+        for r in range(6):
+            self.cells.append([".", ".", ".", ".", ".", ".", "."])
+        self.moves = 0
+
+    def landing_row(self, column):
+        for r in range(5, -1, -1):
+            if self.cells[r][column] == ".":
+                return r
+        return -1
+
+    def free_columns(self):
+        columns = []
+        for c in range(7):
+            if self.landing_row(c) != -1:
+                columns.append(c)
+        return columns
+
+    def put(self, column, disc):
+        r = self.landing_row(column)
+        self.cells[r][column] = disc
+        self.moves += 1
+        return r
+
+    def four_in_row(self, disc):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    squares = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.cells[rr][cc] == disc:
+                            squares.append([rr, cc])
+                    if len(squares) == 4:
+                        return squares
+        return []
+
+    def take_out(self, column):
+        for r in range(6):
+            if self.cells[r][column] != ".":
+                self.cells[r][column] = "."
+                self.moves -= 1
+                break
+
+    def full(self):
+        return self.moves == 42
+
+
+def new_game():
+    global grid, turn, ending, falling, line
+    grid = Grid()
+    turn = first
+    ending = ""
+    falling = []
+    line = []
+    if turn == "O":
+        clock.schedule(computer_move, 0.5)
+
+
+def computer_choice():
+    free_columns = grid.free_columns()
+    for c in free_columns:
+        grid.put(c, "O")
+        winning = len(grid.four_in_row("O")) == 4
+        grid.take_out(c)
+        if winning:
+            return c
+    for c in free_columns:
+        grid.put(c, "X")
+        danger = len(grid.four_in_row("X")) == 4
+        grid.take_out(c)
+        if danger:
+            return c
+    return random.choice(free_columns)
+
+
+def computer_move():
+    global falling
+    column = computer_choice()
+    falling = [column, grid.landing_row(column), Y0 - 40, 0]
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def light(disc):
+    if disc == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            disc = grid.cells[r][c]
+            if disc == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            elif [r, c] in line and (ticks // 15) % 2 == 0:
+                screen.draw.filled_circle(centre, 22, light(disc))
+            else:
+                screen.draw.filled_circle(centre, 22, colour(disc))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    screen.draw.text(f"You {wins['You']} - {wins['Computer']} Computer    Draws: {wins['Draws']}", (X0, Y0 + 6 * CELL + 26))
+    if ending != "":
+        screen.draw.text(ending + " Click to play again.", (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Your turn", (X0, 12))
+    else:
+        screen.draw.text("The computer's turn...", (X0, 12))
+
+
+def on_mouse_down(pos):
+    global falling
+    if ending != "":
+        new_game()
+        return
+    if len(falling) > 0 or turn != "X":
+        return
+    column = (pos[0] - X0) // CELL
+    if column < 0 or column > 6:
+        return
+    row = grid.landing_row(column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def update():
+    global falling, turn, ending, line, ticks, first
+    ticks += 1
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid.put(falling[0], turn)
+        falling = []
+        line = grid.four_in_row(turn)
+        if len(line) == 4:
+            if turn == "X":
+                ending = "You win!"
+                wins["You"] += 1
+                first = "O"
+            else:
+                ending = "The computer wins!"
+                wins["Computer"] += 1
+                first = "X"
+        elif grid.full():
+            ending = "It's a draw!"
+            wins["Draws"] += 1
+        elif turn == "X":
+            turn = "O"
+            clock.schedule(computer_move, 0.5)
+        else:
+            turn = "X"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["How can the computer know whether a column would make it win, without really playing it? Who should start after you win, and who after you lose?",
+      "take_out goes through the rows from the top and empties the first full square, takes 1 away from the moves and leaves the loop with break. In computer_choice a for over the free columns: put O, see whether four_in_row gives 4 squares, take it out, and if so give back the column; then the same for with X; at the end random.choice. In update() update first and the draws; in new_game, if first is O, clock.schedule."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.en, C4_SMART.en)),
+    why: (o, c) => pgzWhy(c, "en", [C4_NOINPUT, C4_CLICK, C4_UPDATE, PGZ_GLOBAL, C4_RECT, C4_CHOICE, C4_LATER, C4_DICT].concat(C4_CLASS.en, C4_SMART.en)),
+    tests: (c) => c4SmartTests("en", "wins")(c).concat(c4ClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: Forza 4 sul tuo computer",
+    theory: [
+`<p>Parte 10: Forza 4 è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>forza4.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python forza4.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo per primo in <code>on_key_down</code>.</p>
+<p>E si gioca anche senza mouse. Quando tocca a te, sopra la griglia, in <code>(X0 + puntatore * CELLA + 30, Y0 - 40)</code>, c'è il tuo disco rosso, il <b>puntatore</b>, nella colonna <code>puntatore</code>, che parte da 3, quella in mezzo. Le frecce sinistra e destra lo spostano, senza farlo uscire dalle colonne da 0 a 6, e Spazio lo fa cadere. Il clic e Spazio fanno la stessa cosa, quindi mettila in una funzione, <code>gioca(colonna)</code>, che chiamano tutti e due: se la partita è finita ne comincia una nuova, se no fa cadere il disco nella colonna, quando si può. Alla fine della partita la scritta dice <code>Clicca o premi Spazio.</code> Sul telefono le frecce, Spazio ed Esc compaiono accanto al gioco.</p>`],
+    task: `Prepara Forza 4 per il computer: un titolo per la finestra con <code>TITLE</code>, il puntatore sopra la griglia che si sposta con le frecce sinistra e destra, Spazio per far cadere il disco, il clic e Spazio che chiamano tutti e due <code>gioca(colonna)</code>, ed Esc per uscire con <code>exit()</code>. Proverò il titolo, il puntatore, Spazio e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca a Forza 4 sul tuo computer.`,
+    solution: `# Forza 4, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "Forza 4 di Ada"
+CELLA = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELLA + 2 * X0
+HEIGHT = Y0 + 6 * CELLA + 60
+vittorie = {"Tu": 0, "Computer": 0, "Pareggi": 0}
+primo = "X"
+puntatore = 3
+turno = "X"
+fine = ""
+cade = []
+fila = []
+tempo = 0
+
+
+class Griglia:
+    def __init__(self):
+        self.celle = []
+        for r in range(6):
+            self.celle.append([".", ".", ".", ".", ".", ".", "."])
+        self.mosse = 0
+
+    def dove_cade(self, colonna):
+        for r in range(5, -1, -1):
+            if self.celle[r][colonna] == ".":
+                return r
+        return -1
+
+    def libere(self):
+        colonne = []
+        for c in range(7):
+            if self.dove_cade(c) != -1:
+                colonne.append(c)
+        return colonne
+
+    def metti(self, colonna, disco):
+        r = self.dove_cade(colonna)
+        self.celle[r][colonna] = disco
+        self.mosse += 1
+        return r
+
+    def quattro(self, disco):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    caselle = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.celle[rr][cc] == disco:
+                            caselle.append([rr, cc])
+                    if len(caselle) == 4:
+                        return caselle
+        return []
+
+    def togli(self, colonna):
+        for r in range(6):
+            if self.celle[r][colonna] != ".":
+                self.celle[r][colonna] = "."
+                self.mosse -= 1
+                break
+
+    def piena(self):
+        return self.mosse == 42
+
+
+def nuova_partita():
+    global griglia, turno, fine, cade, fila
+    griglia = Griglia()
+    turno = primo
+    fine = ""
+    cade = []
+    fila = []
+    if turno == "O":
+        clock.schedule(mossa_computer, 0.5)
+
+
+def scelta_computer():
+    libere = griglia.libere()
+    for c in libere:
+        griglia.metti(c, "O")
+        vinta = len(griglia.quattro("O")) == 4
+        griglia.togli(c)
+        if vinta:
+            return c
+    for c in libere:
+        griglia.metti(c, "X")
+        pericolo = len(griglia.quattro("X")) == 4
+        griglia.togli(c)
+        if pericolo:
+            return c
+    return random.choice(libere)
+
+
+def mossa_computer():
+    global cade
+    colonna = scelta_computer()
+    cade = [colonna, griglia.dove_cade(colonna), Y0 - 40, 0]
+
+
+def colore(disco):
+    if disco == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def chiaro(disco):
+    if disco == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELLA + 32, 6 * CELLA + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centro = (X0 + c * CELLA + 30, Y0 + r * CELLA + 30)
+            disco = griglia.celle[r][c]
+            if disco == ".":
+                screen.draw.filled_circle(centro, 22, "#0d1a33")
+            elif [r, c] in fila and (tempo // 15) % 2 == 0:
+                screen.draw.filled_circle(centro, 22, chiaro(disco))
+            else:
+                screen.draw.filled_circle(centro, 22, colore(disco))
+    if len(cade) > 0:
+        screen.draw.filled_circle((X0 + cade[0] * CELLA + 30, cade[2]), 22, colore(turno))
+    elif fine == "" and turno == "X":
+        screen.draw.filled_circle((X0 + puntatore * CELLA + 30, Y0 - 40), 22, colore("X"))
+    screen.draw.text(f"Tu {vittorie['Tu']} - {vittorie['Computer']} Computer    Pareggi: {vittorie['Pareggi']}", (X0, Y0 + 6 * CELLA + 26))
+    if fine != "":
+        screen.draw.text(fine + " Clicca o premi Spazio.", (X0, 12))
+    elif turno == "X":
+        screen.draw.text("Tocca a te", (X0, 12))
+    else:
+        screen.draw.text("Tocca al computer...", (X0, 12))
+
+
+def gioca(colonna):
+    global cade
+    if fine != "":
+        nuova_partita()
+        return
+    if len(cade) > 0 or turno != "X":
+        return
+    if colonna < 0 or colonna > 6:
+        return
+    riga = griglia.dove_cade(colonna)
+    if riga != -1:
+        cade = [colonna, riga, Y0 - 40, 0]
+
+
+def on_mouse_down(pos):
+    gioca((pos[0] - X0) // CELLA)
+
+
+def on_key_down(key):
+    global puntatore
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.LEFT and puntatore > 0:
+        puntatore -= 1
+    if key == keys.RIGHT and puntatore < 6:
+        puntatore += 1
+    if key == keys.SPACE:
+        gioca(puntatore)
+
+
+def update():
+    global cade, turno, fine, fila, tempo, primo
+    tempo += 1
+    if len(cade) == 0:
+        return
+    cade[3] += 2
+    cade[2] += cade[3]
+    if cade[2] >= Y0 + cade[1] * CELLA + 30:
+        griglia.metti(cade[0], turno)
+        cade = []
+        fila = griglia.quattro(turno)
+        if len(fila) == 4:
+            if turno == "X":
+                fine = "Hai vinto!"
+                vittorie["Tu"] += 1
+                primo = "O"
+            else:
+                fine = "Ha vinto il computer!"
+                vittorie["Computer"] += 1
+                primo = "X"
+        elif griglia.piena():
+            fine = "Pareggio!"
+            vittorie["Pareggi"] += 1
+        elif turno == "X":
+            turno = "O"
+            clock.schedule(mossa_computer, 0.5)
+        else:
+            turno = "X"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa fanno di uguale il clic e Spazio, e cosa cambia tra i due? Quando si vede il puntatore, e dove?",
+      "In cima TITLE con il nome che vuoi, e il puntatore a 3. Sposta il contenuto di on_mouse_down in gioca(colonna), e on_mouse_down chiama gioca con la colonna del clic. In on_key_down, con global, per primo Esc con exit(); poi sinistra e destra cambiano il puntatore se non è già a 0 o a 6, e Spazio chiama gioca con il puntatore. In draw(), se nessun disco cade, la partita non è finita e tocca a te, un cerchio rosso sopra la colonna del puntatore."],
+    check: (o, c) => !pgzWhy(c, "it", [C4_CLICK, C4_KEYS, C4_UPDATE, PGZ_GLOBAL, C4_LATER, C4_DICT].concat(C4_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [C4_CLICK, C4_KEYS, C4_UPDATE, PGZ_GLOBAL, C4_LATER, C4_DICT].concat(C4_COMPUTER.it)),
+    tests: (c) => c4KeyTests("it")(c).concat(c4SmartTests("it", "vittorie")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: Connect Four on your computer",
+    theory: [
+`<p>Part 10: Connect Four is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>connect4.py</code>, and in the terminal, from the same folder, type <code>python connect4.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. Esc closes the game with <code>exit()</code>, the function that ends a program: check it first in <code>on_key_down</code>.</p>
+<p>And you can play without a mouse too. When it's your turn, above the grid, at <code>(X0 + pointer * CELL + 30, Y0 - 40)</code>, there's your red disc, the <b>pointer</b>, in the column <code>pointer</code>, which starts from 3, the one in the middle. The left and right arrows move it, without letting it leave the columns from 0 to 6, and Space drops it. The click and Space do the same thing, so put it in a function, <code>play(column)</code>, which both of them call: if the game is over it starts a new one, if not it drops the disc into the column, when it can. At the end of a game the text says <code>Click or press Space.</code> On a phone the arrows, Space and Esc show up next to the game.</p>`],
+    task: `Get Connect Four ready for your computer: a title for the window with <code>TITLE</code>, the pointer above the grid moving with the left and right arrows, Space to drop the disc, the click and Space both calling <code>play(column)</code>, and Esc to quit with <code>exit()</code>. I'll test the title, the pointer, Space and quitting. Then, if you like, follow the three steps above and play Connect Four on your computer.`,
+    solution: `# Connect Four, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "Connect Four by Ada"
+CELL = 60
+X0 = 40
+Y0 = 100
+WIDTH = 7 * CELL + 2 * X0
+HEIGHT = Y0 + 6 * CELL + 60
+wins = {"You": 0, "Computer": 0, "Draws": 0}
+first = "X"
+pointer = 3
+turn = "X"
+ending = ""
+falling = []
+line = []
+ticks = 0
+
+
+class Grid:
+    def __init__(self):
+        self.cells = []
+        for r in range(6):
+            self.cells.append([".", ".", ".", ".", ".", ".", "."])
+        self.moves = 0
+
+    def landing_row(self, column):
+        for r in range(5, -1, -1):
+            if self.cells[r][column] == ".":
+                return r
+        return -1
+
+    def free_columns(self):
+        columns = []
+        for c in range(7):
+            if self.landing_row(c) != -1:
+                columns.append(c)
+        return columns
+
+    def put(self, column, disc):
+        r = self.landing_row(column)
+        self.cells[r][column] = disc
+        self.moves += 1
+        return r
+
+    def four_in_row(self, disc):
+        for d in [[0, 1], [1, 0], [1, 1], [1, -1]]:
+            for r in range(6):
+                for c in range(7):
+                    squares = []
+                    for k in range(4):
+                        rr = r + k * d[0]
+                        cc = c + k * d[1]
+                        if rr >= 0 and rr < 6 and cc >= 0 and cc < 7 and self.cells[rr][cc] == disc:
+                            squares.append([rr, cc])
+                    if len(squares) == 4:
+                        return squares
+        return []
+
+    def take_out(self, column):
+        for r in range(6):
+            if self.cells[r][column] != ".":
+                self.cells[r][column] = "."
+                self.moves -= 1
+                break
+
+    def full(self):
+        return self.moves == 42
+
+
+def new_game():
+    global grid, turn, ending, falling, line
+    grid = Grid()
+    turn = first
+    ending = ""
+    falling = []
+    line = []
+    if turn == "O":
+        clock.schedule(computer_move, 0.5)
+
+
+def computer_choice():
+    free_columns = grid.free_columns()
+    for c in free_columns:
+        grid.put(c, "O")
+        winning = len(grid.four_in_row("O")) == 4
+        grid.take_out(c)
+        if winning:
+            return c
+    for c in free_columns:
+        grid.put(c, "X")
+        danger = len(grid.four_in_row("X")) == 4
+        grid.take_out(c)
+        if danger:
+            return c
+    return random.choice(free_columns)
+
+
+def computer_move():
+    global falling
+    column = computer_choice()
+    falling = [column, grid.landing_row(column), Y0 - 40, 0]
+
+
+def colour(disc):
+    if disc == "X":
+        return "#e53935"
+    return "#fdd835"
+
+
+def light(disc):
+    if disc == "X":
+        return "#ffab91"
+    return "#fff59d"
+
+
+def draw():
+    screen.fill("#0d1a33")
+    screen.draw.filled_rect(Rect((X0 - 16, Y0 - 16), (7 * CELL + 32, 6 * CELL + 32)), "#1d4fa8")
+    for r in range(6):
+        for c in range(7):
+            centre = (X0 + c * CELL + 30, Y0 + r * CELL + 30)
+            disc = grid.cells[r][c]
+            if disc == ".":
+                screen.draw.filled_circle(centre, 22, "#0d1a33")
+            elif [r, c] in line and (ticks // 15) % 2 == 0:
+                screen.draw.filled_circle(centre, 22, light(disc))
+            else:
+                screen.draw.filled_circle(centre, 22, colour(disc))
+    if len(falling) > 0:
+        screen.draw.filled_circle((X0 + falling[0] * CELL + 30, falling[2]), 22, colour(turn))
+    elif ending == "" and turn == "X":
+        screen.draw.filled_circle((X0 + pointer * CELL + 30, Y0 - 40), 22, colour("X"))
+    screen.draw.text(f"You {wins['You']} - {wins['Computer']} Computer    Draws: {wins['Draws']}", (X0, Y0 + 6 * CELL + 26))
+    if ending != "":
+        screen.draw.text(ending + " Click or press Space.", (X0, 12))
+    elif turn == "X":
+        screen.draw.text("Your turn", (X0, 12))
+    else:
+        screen.draw.text("The computer's turn...", (X0, 12))
+
+
+def play(column):
+    global falling
+    if ending != "":
+        new_game()
+        return
+    if len(falling) > 0 or turn != "X":
+        return
+    if column < 0 or column > 6:
+        return
+    row = grid.landing_row(column)
+    if row != -1:
+        falling = [column, row, Y0 - 40, 0]
+
+
+def on_mouse_down(pos):
+    play((pos[0] - X0) // CELL)
+
+
+def on_key_down(key):
+    global pointer
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.LEFT and pointer > 0:
+        pointer -= 1
+    if key == keys.RIGHT and pointer < 6:
+        pointer += 1
+    if key == keys.SPACE:
+        play(pointer)
+
+
+def update():
+    global falling, turn, ending, line, ticks, first
+    ticks += 1
+    if len(falling) == 0:
+        return
+    falling[3] += 2
+    falling[2] += falling[3]
+    if falling[2] >= Y0 + falling[1] * CELL + 30:
+        grid.put(falling[0], turn)
+        falling = []
+        line = grid.four_in_row(turn)
+        if len(line) == 4:
+            if turn == "X":
+                ending = "You win!"
+                wins["You"] += 1
+                first = "O"
+            else:
+                ending = "The computer wins!"
+                wins["Computer"] += 1
+                first = "X"
+        elif grid.full():
+            ending = "It's a draw!"
+            wins["Draws"] += 1
+        elif turn == "X":
+            turn = "O"
+            clock.schedule(computer_move, 0.5)
+        else:
+            turn = "X"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What do the click and Space do the same, and what's different between them? When can you see the pointer, and where?",
+      "At the top TITLE with the name you like, and the pointer at 3. Move what's in on_mouse_down into play(column), and on_mouse_down calls play with the click's column. In on_key_down, with global, first Esc with exit(); then left and right change the pointer if it isn't already at 0 or 6, and Space calls play with the pointer. In draw(), if no disc is falling, the game isn't over and it's your turn, a red circle above the pointer's column."],
+    check: (o, c) => !pgzWhy(c, "en", [C4_CLICK, C4_KEYS, C4_UPDATE, PGZ_GLOBAL, C4_LATER, C4_DICT].concat(C4_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [C4_CLICK, C4_KEYS, C4_UPDATE, PGZ_GLOBAL, C4_LATER, C4_DICT].concat(C4_COMPUTER.en)),
+    tests: (c) => c4KeyTests("en")(c).concat(c4SmartTests("en", "wins")(c).slice(1, 2))
+  }
+}
+]);
 
 
 /* ---------- Labirinto: the build levels of the "Maze" project ----------
@@ -18929,7 +21789,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "fe998c0144", APP_BUILT = "2026-11-10T01:04Z";
+const APP_VERSION = "b794a5b238", APP_BUILT = "2026-11-10T12:06Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
