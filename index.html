@@ -7934,7 +7934,7 @@ const PROJECTS = [
       learn: ["liste di liste", "turni", "controllare le file", "clic del mouse"] },
     en: { name: "Connect Four", tag: "Two players drop discs into seven columns: whoever lines up four wins.",
       learn: ["lists of lists", "turns", "checking the lines", "mouse clicks"] } },
-  { id: "2048", kind: "game", ready: false, diff: 2, where: "window", color: "#b0702a",
+  { id: "2048", kind: "game", ready: true, diff: 2, where: "window", color: "#b0702a",
     it: { name: "2048", tag: "Fai scorrere le tessere: due numeri uguali si uniscono, fino ad arrivare a 2048.",
       learn: ["liste di liste", "funzioni", "unire le righe", "tasti e scorrimenti"] },
     en: { name: "2048", tag: "Slide the tiles: two equal numbers merge, all the way up to 2048.",
@@ -8092,29 +8092,29 @@ const PROJECT_PARTS = {
       ["The grid is an object", "A Grid class with the methods to drop discs and find the winner."],
       ["A smarter opponent", "The computer wins when it can and blocks your lines of three; draws count too, and whoever lost starts the rematch."],
       ["On your computer", "The window's title, arrows and Space to play without a mouse, Esc to quit; with pip install pgzero your Connect Four runs on your computer too."]] },
-  "2048": {
+  "2048": { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["Il tabellone", "Un tabellone 4×4 con qualche tessera, disegnato con print, e le regole."],
       ["Potenze di 2", "Chiedi un esponente e calcola la tessera con **: quante unioni servono per arrivare a 2048?"],
       ["Due tessere si uniscono", "Con if decidi se due tessere vicine si uniscono, e se hai raggiunto 2048."],
-      ["Una riga scorre", "La riga è una lista: tolti gli zeri, le tessere uguali si uniscono; poi tutto il tabellone, in un ciclo."],
-      ["Funzioni per scorrere", "Far scorrere una riga e tutto il tabellone, e stamparlo, diventano funzioni; max trova la tessera più grande."],
-      ["Nella finestra", "Le tessere colorate in una finestra: le muovi con le frecce, o scorrendo il dito sul telefono."],
+      ["Una riga scorre", "La riga è una lista: tolti gli zeri, le tessere uguali si uniscono; poi tutto il tabellone scivola, a sinistra e a destra, in un ciclo."],
+      ["Funzioni per scorrere", "Far scorrere una riga e tutto il tabellone, anche su e giù, e stamparlo diventano funzioni; max trova la tessera più grande."],
+      ["Nella finestra", "Le tessere colorate dell'anteprima, che saltano fuori a ogni mossa: le muovi con le frecce, o con il dito sul telefono."],
       ["Nuove tessere", "Dopo ogni mossa compare un 2 (a volte un 4) in una casella vuota scelta a caso."],
-      ["Colori e record", "Un dizionario dà il colore a ogni valore, un altro tiene il record."],
+      ["Colori e record", "Un dizionario dà il colore a ogni valore, un altro tiene il record, e con N comincia una partita nuova."],
       ["Il tabellone è un oggetto", "Una classe Tabellone con la griglia, i punti e i metodi per scorrere e aggiungere tessere."],
-      ["La partita completa", "Il gioco capisce quando non ci sono più mosse, e puoi annullare l'ultima mossa."],
-      ["Sul tuo computer", "Con pip install pgzero il tuo 2048 gira anche sul computer, con lo stesso codice."]],
+      ["La partita completa", "Il gioco capisce quando non ci sono più mosse, e con U puoi annullare l'ultima mossa."],
+      ["Sul tuo computer", "Il titolo della finestra, Esc per uscire e i tasti scritti nel gioco; poi, con pip install pgzero, il tuo 2048 gira anche sul computer."]],
     en: [["The board", "A 4×4 board with a few tiles, drawn with print, and the rules."],
       ["Powers of 2", "Ask for an exponent and work out the tile with **: how many merges does it take to reach 2048?"],
       ["Two tiles merge", "With if decide whether two neighbouring tiles merge, and whether you've reached 2048."],
-      ["A row slides", "The row is a list: without the zeros, equal tiles merge; then the whole board, in a loop."],
-      ["Functions to slide", "Sliding a row and the whole board, and printing it, become functions; max finds the biggest tile."],
-      ["In a window", "Coloured tiles in a window: move them with the arrows, or with a swipe on a phone."],
+      ["A row slides", "The row is a list: without the zeros, equal tiles merge; then the whole board slides, left and right, in a loop."],
+      ["Functions to slide", "Sliding a row and the whole board, up and down too, and printing it become functions; max finds the biggest tile."],
+      ["In a window", "The preview's coloured tiles, popping up at every move: move them with the arrows, or with a swipe on a phone."],
       ["New tiles", "After every move a 2 (sometimes a 4) appears on a random empty square."],
-      ["Colours and records", "A dictionary gives each value its colour, another keeps the record."],
+      ["Colours and records", "A dictionary gives each value its colour, another keeps the record, and N starts a new game."],
       ["The board is an object", "A Board class with the grid, the points and the methods to slide and add tiles."],
-      ["The full game", "The game sees when there are no moves left, and you can undo the last move."],
-      ["On your computer", "With pip install pgzero your 2048 runs on your computer too, with the same code."]] },
+      ["The full game", "The game sees when there are no moves left, and with U you can undo the last move."],
+      ["On your computer", "The window's title, Esc to quit and the keys written in the game; then, with pip install pgzero, your 2048 runs on your computer too."]] },
   breakout: {
     it: [["Il muro", "Il muro di mattoncini, la racchetta e la pallina disegnati con print, più le regole."],
       ["La pallina vola", "Posizione e velocità della pallina in variabili: calcola dove sarà dopo un certo numero di passi."],
@@ -8196,6 +8196,3322 @@ const PROJECT_BUILDS = { guess: Object.fromEntries(SLOT_LEVELS.map((id) => [id, 
 /* adds a project's build lessons (a file per project, after this one): they start from the parts before them */
 function addProjectBuilds(project, lessons) { PROJECT_BUILDS[project] = readyLessons(lessons); }
 
+
+
+/* ---------- 2048: the build levels of the "2048" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the cover with the preview's board in 00; in the terminal,
+   powers of 2 with ** (01), two neighbouring tiles with if (02), the board as a list of lists sliding left and right
+   (03) and the functions, with up and down through the columns and max (04); then the window, in the preview's
+   colours, with the tiles that pop up after a move (04); random new tiles (05), the colours and the records in
+   dictionaries (05); the board as an object, then the end of the game and undo (06); the window's title and Esc, ready
+   to run on your own computer (07). Each part starts from the learner's code of the part before. */
+
+/* The cover: frame, the title 2048 on a line of its own, a board of 4 rows of 4 squares with some tiles, the moves,
+   a number worked out by Python */
+function t48CoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  const title = (l) => l.replace(/[^A-Za-z0-9]/g, "") === "2048";
+  const cell = /^(\.|0|-|_|2|4|8|16|32|64|128|256|512|1024|2048)$/;
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1);
+  if (!mid.some(title)) return it ? "In mezzo ci vuole il titolo del gioco, 2048, su una riga sua." : "The game's title, 2048, has to be in the middle, on a line of its own.";
+  const rows = mid.filter((l) => !title(l)).map((l) => l.trim().split(/[\s|]+/)).filter((t) => t.length === 4 && t.every((x) => cell.test(x)));
+  if (rows.length < 4) return it ? "Il tabellone deve avere almeno 4 righe di 4 caselle: numeri come 2 e 4, e punti per le caselle vuote." : "The board needs at least 4 rows of 4 squares: numbers like 2 and 4, and dots for the empty squares.";
+  if (!rows.some((t) => t.some((x) => /^[1-9]/.test(x)))) return it ? "Sul tabellone ci vuole qualche tessera, un numero come 2 o 4." : "The board needs some tiles, a number like 2 or 4.";
+  if (!mid.some((l) => /w\s*a\s*s\s*d/i.test(l))) return it ? "Scrivi anche le mosse: w a s d." : "Write the moves too: w a s d.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(2 + 2)." : "A number worked out by Python is missing, like print(2 + 2).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const T48 = {
+  it: {
+    pow: (n, t) => [`2 alla ${n} fa ${t}.`, `Tessere da 2 per farla: ${t / 2n}`, `Unioni per farla: ${t / 2n - 1n}`, `Punti per farla: ${(BigInt(n) - 1n) * t}`, `Tessere da ${t} per fare 2048: ${2048n / t}`],
+    empty2: "Due caselle vuote: non succede niente.", slides: (v) => `Una casella è vuota: la tessera ${v} scivola.`,
+    merge: (a, b) => [`Si uniscono: ${a} + ${b} = ${a + b}`, `Punti: +${a + b}`], won2: (v) => `Hai fatto ${v}: hai vinto!`,
+    differ: (a, b) => `${a} e ${b} sono diverse: restano dove sono.`,
+    points: (p) => `Punti: ${p}`, biggest: (b) => `Tessera più grande: ${b}`, won: "Hai fatto 2048: hai vinto!", bye: "Ciao!",
+    useAD: "Usa a o d.", useWASD: "Usa w, a, s o d.", still: "Non si muove niente."
+  },
+  en: {
+    pow: (n, t) => [`2 to the ${n} is ${t}.`, `Tiles of 2 to make it: ${t / 2n}`, `Merges to make it: ${t / 2n - 1n}`, `Points for making it: ${(BigInt(n) - 1n) * t}`, `Tiles of ${t} to make 2048: ${2048n / t}`],
+    empty2: "Two empty squares: nothing happens.", slides: (v) => `One square is empty: the ${v} tile slides.`,
+    merge: (a, b) => [`They merge: ${a} + ${b} = ${a + b}`, `Points: +${a + b}`], won2: (v) => `You made ${v}: you win!`,
+    differ: (a, b) => `${a} and ${b} are different: they stay where they are.`,
+    points: (p) => `Points: ${p}`, biggest: (b) => `Biggest tile: ${b}`, won: "You made 2048: you win!", bye: "Bye!",
+    useAD: "Use a or d.", useWASD: "Use w, a, s or d.", still: "Nothing moves."
+  }
+};
+/* The board of the chooser's preview, where the terminal parts start */
+const T48_START = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]];
+/* the j-th square of line k, counted from the side the tiles slide towards */
+const t48Square = (k, j, m) => (m === "a" ? [k, j] : m === "d" ? [k, 3 - j] : m === "w" ? [j, k] : [3 - j, k]);
+/* a line slid to the start: the empty squares go, two equal neighbours merge (once), zeros at the end */
+function t48Line(line) {
+  const tiles = line.filter((v) => v !== 0), out = [];
+  let pts = 0;
+  for (let i = 0; i < tiles.length; i++) {
+    if (i + 1 < tiles.length && tiles[i] === tiles[i + 1]) { out.push(tiles[i] * 2); pts += tiles[i] * 2; i++; } else out.push(tiles[i]);
+  }
+  while (out.length < 4) out.push(0);
+  return { line: out, points: pts };
+}
+function t48Move(board, m) {
+  const nb = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+  let pts = 0;
+  for (let k = 0; k < 4; k++) {
+    const s = t48Line([0, 1, 2, 3].map((j) => { const [r, c] = t48Square(k, j, m); return board[r][c]; }));
+    pts += s.points;
+    for (let j = 0; j < 4; j++) { const [r, c] = t48Square(k, j, m); nb[r][c] = s.line[j]; }
+  }
+  return { board: nb, points: pts };
+}
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number), "skip" (a case the simulator leaves to the hidden tests, like a negative exponent) */
+function t48Run(lang, part, ins, start) {
+  const T = T48[lang], lines = [], res = (end) => ({ lines, end });
+  if (part === 1) {
+    if (!ins.length) return res("more");
+    if (!isIntText(ins[0])) return res("crash");
+    const n = toInt(ins[0]);
+    if (n < 0 || n > 300) return res("skip");
+    lines.push(...T.pow(n, 2n ** BigInt(n)));
+    return res(ins.length === 1 ? "done" : "extra");
+  }
+  if (part === 2) {
+    if (ins.length < 2) return res(ins.length === 1 && !isIntText(ins[0]) ? "crash" : "more");
+    if (!isIntText(ins[0]) || !isIntText(ins[1])) return res("crash");
+    const a = toInt(ins[0]), b = toInt(ins[1]);
+    if (Math.abs(a) > 1e15 || Math.abs(b) > 1e15) return res("skip");
+    if (a === 0 && b === 0) lines.push(T.empty2);
+    else if (a === 0 || b === 0) lines.push(T.slides(a + b));
+    else if (a === b) { lines.push(...T.merge(a, b)); if (a + b >= 2048) lines.push(T.won2(a + b)); }
+    else lines.push(T.differ(a, b));
+    return res(ins.length === 2 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game, from the preview's board; part 3 only slides left and right, part 4 every way, with the
+     answers cleaned of spaces and capitals, the biggest tile and the win at 2048 */
+  let board = (start || T48_START).map((row) => row.slice()), points = 0, i = 0;
+  for (;;) {
+    for (const row of board) lines.push(row.map((v) => (v ? String(v) : ".").padStart(5)).join(""));
+    lines.push(T.points(points));
+    if (part >= 4) {
+      const big = Math.max(...board.map((row) => Math.max(...row)));
+      lines.push(T.biggest(big));
+      if (big >= 2048) { lines.push(T.won); break; }
+    }
+    if (i >= ins.length) return res("more");
+    const m = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (m === "q") { lines.push(T.bye); break; }
+    if (!(part >= 4 ? ["w", "a", "s", "d"] : ["a", "d"]).includes(m)) { lines.push(part >= 4 ? T.useWASD : T.useAD); continue; }
+    const r = t48Move(board, m);
+    if (JSON.stringify(r.board) === JSON.stringify(board)) { lines.push(T.still); continue; }
+    board = r.board;
+    points += r.points;
+    let put = false;
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if (!put && board[y][x] === 0) { board[y][x] = 2; put = true; }
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+/* the output as the page reads it: the board's rows start with spaces, and the first one loses them */
+const t48Expect = (lang, part, ins, start) => { const r = t48Run(lang, part, ins || [], start); return r.end === "done" ? norm(r.lines.join("\n")) : r.end === "skip" ? "" : null; };
+const t48Check = (lang, part, needs) => (o, c, x) => {
+  const want = t48Expect(lang, part, x.inputs);
+  return needs.every((re) => re.test(c)) && (want === "" || o === want);
+};
+/* Hidden tests: whole games with other answers */
+const t48Tests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = t48Expect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* part 3: a game with both moves, and the hidden games (a capital A isn't a move yet; sliding left again and again
+   fills the board until nothing moves) */
+const T48_SAMPLE3 = ["a", "d", "x", "a", "q"];
+const T48_GAMES3 = [T48_SAMPLE3, ["d", "d", "d", "q"], ["A", "q"], ["a", "a", "a", "a", "a", "a", "a", "a", "a", "q"],
+  ["a", "d", "a", "d", "a", "d", "a", "d", "a", "d", "a", "d", "q"], ["q"]];
+/* part 4: games with spaces and capitals, the functions one by one and a board that reaches 2048 */
+const t48FnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["stampa", "scorri", "muovi", "piu_grande"] : ["print_board", "slide", "slide_board", "biggest"], quit = { inputs: ["q"] };
+  const won = [[1024, 1024, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], wantWon = t48Expect(lang, 4, ["a"], won);
+  return t48Tests(lang, 4, [[" W", "s", "A ", "d", "x", "q"], ["w", "w", " Q "], ["s", "d", "s", "d", "s", "d", "s", "d", "s", "d", "q"],
+    ["a", "w", "d", "s", "a", "w", "d", "s", "a", "w", "d", "s", "q"]])(c).concat([
+    tcase(c + `\nprint(${F[1]}([2, 2, 2, 2]), ${F[1]}([0, 2, 0, 2]), ${F[1]}([4, 4, 8, 8]), ${F[1]}([2, 4, 8, 16]), ${F[1]}([2, 2, 4, 0]))`,
+      (o) => lastLines(o, 1) === "[[4, 4, 0, 0], 8] [[4, 0, 0, 0], 4] [[8, 16, 0, 0], 24] [[2, 4, 8, 16], 0] [[4, 4, 0, 0], 4]",
+      it ? "scorri doveva restituire la riga nuova e i punti: [2, 2, 2, 2] dà [[4, 4, 0, 0], 8], [0, 2, 0, 2] dà [[4, 0, 0, 0], 4], [2, 2, 4, 0] dà [[4, 4, 0, 0], 4] (il 4 nuovo non si unisce subito con l'altro)"
+        : "slide had to give back the new row and the points: [2, 2, 2, 2] gives [[4, 4, 0, 0], 8], [0, 2, 0, 2] gives [[4, 0, 0, 0], 4], [2, 2, 4, 0] gives [[4, 4, 0, 0], 4] (the new 4 doesn't merge with the other one straight away)", quit),
+    tcase(c + `\n_b = [[2, 0, 2, 4], [0, 4, 0, 4], [8, 0, 0, 8], [2, 2, 2, 0]]\nfor _m in ["w", "a", "s", "d"]:\n    print(${F[2]}(_b, _m))\nprint(_b)`,
+      (o) => lastLines(o, 5) === "[[[2, 4, 4, 8], [8, 2, 0, 8], [2, 0, 0, 0], [0, 0, 0, 0]], 12]\n[[[4, 4, 0, 0], [8, 0, 0, 0], [16, 0, 0, 0], [4, 2, 0, 0]], 32]\n[[[0, 0, 0, 0], [2, 0, 0, 0], [8, 4, 0, 8], [2, 2, 4, 8]], 12]\n[[[0, 0, 4, 4], [0, 0, 0, 8], [0, 0, 0, 16], [0, 0, 2, 4]], 32]\n[[2, 0, 2, 4], [0, 4, 0, 4], [8, 0, 0, 8], [2, 2, 2, 0]]",
+      it ? "muovi doveva restituire il tabellone nuovo e i punti per w, a, s e d (su e giù lavorano sulle colonne), senza cambiare il tabellone che riceve"
+        : "slide_board had to give back the new board and the points for w, a, s and d (up and down work on the columns), without changing the board it gets", quit),
+    tcase(c + `\nprint(${F[3]}([[2, 0, 0, 0], [0, 64, 0, 0], [0, 0, 8, 0], [0, 0, 0, 16]]), ${F[3]}([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]))`,
+      (o) => lastLines(o, 1) === "64 0", it ? "piu_grande doveva dare 64 per un tabellone con 2, 64, 8 e 16, e 0 per un tabellone vuoto" : "biggest had to give 64 for a board with 2, 64, 8 and 16, and 0 for an empty board", quit),
+    tcase(c + `\n${F[0]}([[2, 0, 0, 2048], [0, 16, 0, 0], [0, 0, 128, 0], [4, 0, 0, 0]])`,
+      (o) => lastLines(o, 4) === "    2    .    . 2048\n    .   16    .    .\n    .    .  128    .\n    4    .    .    .",
+      it ? "stampa doveva stampare le 4 righe, con ogni casella larga 5 e un punto per le caselle vuote" : "print_board had to print the 4 rows, with each square 5 wide and a dot for the empty squares", quit),
+    tcase(swapRe(c, /\[\[2, 0, 0, 2\], \[0, 0, 0, 0\], \[0, 4, 0, 0\], \[0, 0, 0, 2\]\]/, "[[1024, 1024, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]"), (o) => o === wantWon,
+      it ? "partendo da due 1024 vicini, con a si fa 2048: il gioco stampa il tabellone, Tessera più grande: 2048 e Hai fatto 2048: hai vinto!, e finisce" : "starting from two 1024s side by side, a makes 2048: the game prints the board, Biggest tile: 2048 and You made 2048: you win!, and ends", { inputs: ["a"] })
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview: background "#2a1d10", the board "#bbada0", the empty
+   squares "#cdc1b4", the tiles from "#eee4da" (2) up. Tiles of 96 pixels with 16 between them and the board at
+   (18, 100): the tile in row r and column c has its corner at (34 + 112 * c, 116 + 112 * r). */
+const T48_AT = (col) => "sorted([_r[:2] for _r in _t.rects('" + col + "') if _r[2] == 96])";
+const T48_TEXT = "' '.join(_t.texts())";
+/* loaded dice: random.choice takes the first (or the last) of the squares it's given, random.randint gives a number,
+   or these numbers in turn (then 5) */
+const T48_RIG = (pick, dice) => "import random\nrandom.choice = lambda seq: seq[" + (pick === "last" ? "-1" : "0") + "]\n" +
+  (Array.isArray(dice) ? "_dice = " + JSON.stringify(dice) + "\nrandom.randint = lambda a, b: _dice.pop(0) if _dice else 5\n" : "random.randint = lambda a, b: " + (dice || 5) + "\n");
+/* the names in the learner's program, as the tasks give them */
+const T48_N = {
+  it: { board: "tabellone", points: "punti", rec: "record", K: ["punti", "tessera"], cls: "Tabellone", grid: "tabellone.griglia", opoints: "tabellone.punti",
+    M: ["griglia", "punti", "nuove", "vuote", "gioca", "piu_grande", "bloccato", "annulla"], P: "Punti", R: "Record", won: "Hai fatto 2048", over: "Nessuna mossa" },
+  en: { board: "board", points: "points", rec: "best", K: ["points", "tile"], cls: "Board", grid: "board.grid", opoints: "board.points",
+    M: ["grid", "points", "popping", "empty", "play", "biggest", "stuck", "undo"], P: "Points", R: "Record", won: "You made 2048", over: "No moves left" }
+};
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const t48Need = (re, msg) => [re, msg, msg];
+const T48_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: le mosse arrivano dalle frecce, in on_key_down.", "In the window there's no more input: the moves come from the arrows, in on_key_down."];
+const T48_KEYS = [/^def\s+on_key_down\s*\(/m, "Le frecce vanno in def on_key_down(key):, che Pygame Zero chiama a ogni tasto premuto.", "The arrows go in def on_key_down(key):, which Pygame Zero calls at every key pressed."];
+const T48_ARROWS = [/\bkeys\.(UP|DOWN|LEFT|RIGHT)\b/, "In on_key_down confronta key con keys.UP, keys.DOWN, keys.LEFT e keys.RIGHT.", "In on_key_down compare key with keys.UP, keys.DOWN, keys.LEFT and keys.RIGHT."];
+const T48_RECT = [/\bRect\s*\(/, "Il tabellone e le tessere sono quadrati: si disegnano con screen.draw.filled_rect e un Rect.", "The board and the tiles are squares: they're drawn with screen.draw.filled_rect and a Rect."];
+const T48_UPDATE = [/^def\s+update\s*\(\s*\)/m, "Le tessere crescono un po' alla volta in def update():, che Pygame Zero chiama 60 volte al secondo.", "The tiles grow a bit at a time in def update():, which Pygame Zero calls 60 times a second."];
+const T48_RANDOM = [/\brandom\.choice\s*\([\s\S]*\brandom\.randint\s*\(|\brandom\.randint\s*\([\s\S]*\brandom\.choice\s*\(/, "La tessera nuova va in una casella vuota scelta con random.choice, e random.randint decide se è un 2 o un 4.", "The new tile goes on an empty square picked with random.choice, and random.randint decides whether it's a 2 or a 4."];
+const T48_DICT = [/\{\s*(\d+|["'])/, "I colori e i record stanno in dizionari.", "The colours and the records go in dictionaries."];
+const T48_NEW = [/\bkeys\.N\b/, "Con il tasto N comincia una partita nuova: keys.N.", "The N key starts a new game: keys.N."];
+const T48_CLASS = {
+  it: [t48Need(/\bclass\s+Tabellone\b/, "Il tabellone diventa un oggetto: class Tabellone:, con __init__ e i suoi metodi."),
+    t48Need(/\bdef\s+vuote\s*\(\s*self/, "Manca il metodo vuote(self), con la lista delle caselle vuote."), t48Need(/\bdef\s+aggiungi\s*\(\s*self/, "Manca il metodo aggiungi(self), che mette una tessera nuova."),
+    t48Need(/\bdef\s+gioca\s*\(\s*self/, "Manca il metodo gioca(self, mossa)."), t48Need(/\bdef\s+piu_grande\s*\(\s*self/, "Manca il metodo piu_grande(self).")],
+  en: [t48Need(/\bclass\s+Board\b/, "The board becomes an object: class Board:, with __init__ and its methods."),
+    t48Need(/\bdef\s+empty\s*\(\s*self/, "The method empty(self) is missing, with the list of the empty squares."), t48Need(/\bdef\s+add_tile\s*\(\s*self/, "The method add_tile(self) is missing: it puts in a new tile."),
+    t48Need(/\bdef\s+play\s*\(\s*self/, "The method play(self, move) is missing."), t48Need(/\bdef\s+biggest\s*\(\s*self/, "The method biggest(self) is missing.")]
+};
+const T48_END = {
+  it: [t48Need(/\bdef\s+bloccato\s*\(\s*self/, "Manca il metodo bloccato(self), che dice se non ci sono più mosse."), t48Need(/\bdef\s+annulla\s*\(\s*self/, "Manca il metodo annulla(self), che torna a prima dell'ultima mossa."),
+    t48Need(/\bkeys\.U\b/, "Con il tasto U si annulla l'ultima mossa: keys.U.")],
+  en: [t48Need(/\bdef\s+stuck\s*\(\s*self/, "The method stuck(self) is missing: it says whether there are no moves left."), t48Need(/\bdef\s+undo\s*\(\s*self/, "The method undo(self) is missing: it goes back to before the last move."),
+    t48Need(/\bkeys\.U\b/, "The U key undoes the last move: keys.U.")]
+};
+const T48_COMPUTER = {
+  it: [t48Need(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    t48Need(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), t48Need(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit().")],
+  en: [t48Need(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    t48Need(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), t48Need(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit().")]
+};
+
+/* Hidden tests of the window parts: the game played without a screen */
+/* part 5: the preview's board in the window, the arrows, the pop, the win */
+const t48WinTests = (lang) => (c) => {
+  const it = lang === "it", N = T48_N[lang], B = N.board;
+  return [
+    gtcase(c, "_t.step()\nprint(_t.background(), _t.rects('#bbada0'), len(_t.rects('#cdc1b4')), " + T48_AT("#eee4da") + ", " + T48_AT("#ede0c8") + ", '" + N.P + ": 0' in " + T48_TEXT + ")",
+      (o) => o === "#2a1d10 [(18, 100, 464, 464)] 16 [(34, 116), (370, 116), (370, 452)] [(146, 340)] True",
+      it ? "all'inizio lo sfondo è #2a1d10, il tabellone #bbada0 è in (18, 100) ed è largo 464, con 16 caselle #cdc1b4, e sopra ci sono le tessere della parte 4, larghe 96: tre 2 (#eee4da) e un 4 (#ede0c8); c'è scritto Punti: 0"
+        : "at the start the background is #2a1d10, the #bbada0 board is at (18, 100) and 464 wide, with 16 #cdc1b4 squares, and on it the tiles of part 4, 96 wide: three 2s (#eee4da) and a 4 (#ede0c8); it says Points: 0"),
+    gtcase(c, "_t.step()\n_t.tap('left')\n_s = [_r[2] for _r in _t.rects('#ede0c8') + _t.rects('#eee4da')]\n_t.wait(0.5)\nprint(min(_s) < 96, " + T48_AT("#ede0c8") + ", " + T48_AT("#eee4da") + ", '" + N.P + ": 4' in " + T48_TEXT + ")",
+      (o) => o === "True [(34, 116), (34, 340)] [(34, 452), (146, 116)] True",
+      it ? "con la freccia sinistra le tessere scorrono: i due 2 in alto fanno un 4, Punti diventa 4 e un 2 nuovo compare nella prima casella vuota; subito dopo la mossa le tessere che cambiano sono più piccole, poi crescono fino a 96"
+        : "with the left arrow the tiles slide: the two 2s at the top make a 4, Points becomes 4 and a new 2 appears on the first empty square; just after the move the tiles that change are smaller, then they grow to 96"),
+    gtcase(c, "_t.step()\nfor _k in ['up', 'up', 'down', 'right']:\n    _t.tap(_k)\n    _t.wait(0.3)\n    print(" + B + ")",
+      (o) => o === "[[2, 4, 2, 4], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]\n[[2, 4, 2, 4], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]\n[[2, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [2, 4, 2, 4]]\n[[2, 0, 0, 2], [0, 0, 0, 0], [0, 0, 0, 0], [2, 4, 2, 4]]",
+      it ? "su, su, giù e destra spostano il tabellone come muovi; quando una mossa non sposta niente (il secondo su) non compare nessuna tessera nuova"
+        : "up, up, down and right move the board like slide_board; when a move doesn't shift anything (the second up) no new tile appears"),
+    gtcase(c, "_t.step()\n" + B + "[0] = [1024, 1024, 0, 0]\n_t.tap('left')\n_t.wait(0.3)\n_a = str(" + B + ")\n_t.tap('right')\n_t.wait(0.3)\nprint('" + N.won + "' in " + T48_TEXT + ", str(" + B + ") == _a, " + T48_AT("#edcf72") + ")",
+      (o) => o === "True True [(34, 116)]",
+      it ? "quando due 1024 fanno 2048 compare Hai fatto 2048: hai vinto!, e dopo le frecce non spostano più niente; da 128 in su le tessere sono #edcf72"
+        : "when two 1024s make 2048, You made 2048: you win! appears, and after that the arrows don't move anything; from 128 up the tiles are #edcf72"),
+    gtcase(c, "_t.step()\n" + B + "[1] = [8, 16, 32, 64]\n_t.step()\nprint(" + ["#f2b179", "#f59563", "#f67c5f", "#f65e3b"].map(T48_AT).join(", ") + ")",
+      (o) => o === "[(34, 228)] [(146, 228)] [(258, 228)] [(370, 228)]",
+      it ? "le tessere 8, 16, 32 e 64 sono #f2b179, #f59563, #f67c5f e #f65e3b, come nell'anteprima" : "the 8, 16, 32 and 64 tiles are #f2b179, #f59563, #f67c5f and #f65e3b, as in the preview")
+  ];
+};
+/* part 6: random new tiles */
+const t48RandomTests = (lang) => (c) => {
+  const it = lang === "it", B = T48_N[lang].board;
+  return [
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\nprint(" + B + ")", (o) => o === "[[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]",
+      it ? "il tabellone parte vuoto, con due tessere in caselle vuote scelte con random.choice (qui le prime della lista)" : "the board starts empty, with two tiles on empty squares picked with random.choice (here the first ones in the list)"),
+    gtcase(T48_RIG("last", 5) + c, "_t.step()\nprint(" + B + ")", (o) => o === "[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 2, 2]]",
+      it ? "con random.choice che prende l'ultima casella le due tessere vanno in fondo a destra: la lista delle caselle vuote va riga per riga, da sinistra a destra"
+        : "with random.choice taking the last square the two tiles go to the bottom right: the list of empty squares goes row by row, left to right"),
+    gtcase(T48_RIG("first", [5, 5, 1]) + c, "_t.step()\n_t.tap('left')\n_t.wait(0.3)\n_a = str(" + B + ")\n_t.tap('up')\n_t.wait(0.3)\nprint(_a, " + B + ", " + T48_AT("#ede0c8") + ")",
+      (o) => o === "[[4, 4, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] [[4, 4, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] [(34, 116), (146, 116)]",
+      it ? "dopo una mossa la tessera nuova è un 4 quando random.randint(1, 10) dà 1; una mossa che non sposta niente non aggiunge tessere"
+        : "after a move the new tile is a 4 when random.randint(1, 10) gives 1; a move that doesn't shift anything adds no tiles"),
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\n" + B + "[0] = [1024, 1024, 0, 0]\n_t.tap('left')\n_t.wait(0.3)\nprint(" + B + "[0], '" + T48_N[lang].won + "' in " + T48_TEXT + ")",
+      (o) => o === "[2048, 2, 0, 0] True", it ? "due 1024 fanno 2048, e hai vinto" : "two 1024s make 2048, and you win")
+  ];
+};
+/* part 7: the colours from a dictionary, the records, N for a new game */
+const t48RecordTests = (lang) => (c) => {
+  const it = lang === "it", N = T48_N[lang], B = N.board;
+  return [
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\n" + B + "[1] = [128, 256, 512, 1024]\n" + B + "[2] = [2048, 4096, 0, 0]\n_t.step()\nprint(" + ["#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e", "#3c3a32"].map(T48_AT).join(", ") + ")",
+      (o) => o === "[(34, 228)] [(146, 228)] [(258, 228)] [(370, 228)] [(34, 340)] [(146, 340)]",
+      it ? "il dizionario COLORI dà il colore anche a 128 (#edcf72), 256, 512, 1024 e 2048 (#edc22e); le tessere che non ci sono, come 4096, sono #3c3a32"
+        : "the COLOURS dictionary gives a colour to 128 (#edcf72), 256, 512, 1024 and 2048 (#edc22e) too; tiles that aren't in it, like 4096, are #3c3a32"),
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\nfor _k in ['left', 'right']:\n    _t.tap(_k)\n    _t.wait(0.3)\nprint(" + B + ", " + N.points + ", _t.var('" + N.rec + "'), '" + N.R + ": 4' in " + T48_TEXT + ")\n_t.tap('n')\n_t.wait(0.3)\nprint(" + B + ", " + N.points + ", _t.var('" + N.rec + "'), '" + N.R + ": 4' in " + T48_TEXT + ")",
+      (o) => o === `[[2, 0, 4, 2], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 4 {'${N.K[0]}': 4, '${N.K[1]}': 4} True\n[[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 0 {'${N.K[0]}': 4, '${N.K[1]}': 4} True`,
+      it ? "dopo due mosse il dizionario record tiene i punti migliori e la tessera più grande, e c'è scritto Record: 4; con N comincia una partita nuova, a 0 punti, e il record resta"
+        : "after two moves the best dictionary holds the best points and the biggest tile, and it says Record: 4; with N a new game starts, at 0 points, and the record stays")
+  ];
+};
+/* part 8: the Board class on its own, then the game with the object */
+const t48ClassTests = (lang) => (c) => {
+  const it = lang === "it", N = T48_N[lang], M = N.M;
+  return [
+    gtcase(T48_RIG("first", 5) + c, `_g = ${N.cls}()\nprint(_g.${M[0]}, _g.${M[1]}, _g.${M[2]}, _g.${M[3]}()[:2], len(_g.${M[3]}()))`,
+      (o) => o === "[[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 0 [[0, 0], [0, 1]] [[0, 2], [0, 3]] 14",
+      it ? "un Tabellone() nuovo ha due tessere nella griglia, 0 punti e le due caselle nuove in nuove; vuote() dà le 14 caselle vuote, riga per riga"
+        : "a new Board() has two tiles in its grid, 0 points and the two new squares in popping; empty() gives the 14 empty squares, row by row"),
+    gtcase(T48_RIG("first", 5) + c, `_g = ${N.cls}()\n_a = _g.${M[4]}('w')\n_b = _g.${M[4]}('a')\nprint(_a, _b, _g.${M[0]}, _g.${M[1]}, _g.${M[5]}(), _g.${M[2]})`,
+      (o) => o === "False True [[4, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 4 4 [[0, 0], [0, 1]]",
+      it ? "gioca('w') non sposta niente e restituisce False; gioca('a') unisce i due 2, conta 4 punti, aggiunge una tessera nuova e restituisce True"
+        : "play('w') doesn't shift anything and gives back False; play('a') merges the two 2s, counts 4 points, adds a new tile and gives back True"),
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\nfor _k in ['left', 'right']:\n    _t.tap(_k)\n    _t.wait(0.3)\nprint(" + N.grid + ", " + N.opoints + ", _t.var('" + N.rec + "'))\n_t.tap('n')\n_t.wait(0.3)\nprint(" + N.grid + ", " + N.opoints + ")",
+      (o) => o === `[[2, 0, 4, 2], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 4 {'${N.K[0]}': 4, '${N.K[1]}': 4}\n[[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] 0`,
+      it ? "il gioco usa l'oggetto tabellone: le frecce cambiano tabellone.griglia e tabellone.punti, il record cresce, e con N arriva un Tabellone nuovo"
+        : "the game uses the board object: the arrows change board.grid and board.points, the record grows, and with N a new Board arrives")
+  ];
+};
+/* part 9: no moves left, undo */
+const t48EndTests = (lang) => (c) => {
+  const it = lang === "it", N = T48_N[lang], M = N.M, G = N.grid;
+  const full = "[[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [8, 16, 4, 2]]";
+  return [
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\n" + G + " = [[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [8, 16, 0, 4]]\n_t.tap('left')\n_t.wait(0.3)\n_a = '" + N.over + "' in " + T48_TEXT + "\n_t.tap('up')\n_t.tap('right')\nprint(_a, " + G + ")",
+      (o) => o === "True " + full,
+      it ? "quando il tabellone è pieno e non ci sono due tessere uguali vicine compare Nessuna mossa!, e le frecce non contano più"
+        : "when the board is full and no two equal tiles are side by side, No moves left! appears, and the arrows don't count any more"),
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\n_t.tap('left')\n_t.wait(0.3)\n_a = [str(" + G + "), " + N.opoints + "]\n_t.tap('u')\n_t.wait(0.3)\n_b = [str(" + G + "), " + N.opoints + "]\n_t.tap('u')\nprint(_a, _b, " + G + ")",
+      (o) => o === "['[[4, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]', 4] ['[[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]', 0] [[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]",
+      it ? "U riporta la griglia e i punti a prima dell'ultima mossa; un secondo U non fa più niente" : "U takes the grid and the points back to before the last move; a second U does nothing more"),
+    gtcase(T48_RIG("first", 5) + c, "_t.step()\n" + G + " = [[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [8, 16, 0, 4]]\n_t.tap('left')\n_t.wait(0.3)\n_t.tap('u')\n_t.wait(0.3)\nprint(" + G + ", '" + N.over + "' in " + T48_TEXT + ")",
+      (o) => o === "[[2, 4, 2, 4], [4, 2, 4, 2], [2, 4, 2, 4], [8, 16, 0, 4]] False",
+      it ? "anche a partita finita U annulla l'ultima mossa, e si può continuare" : "even when the game is over U undoes the last move, and you can go on"),
+    gtcase(T48_RIG("first", 5) + c, `_g = ${N.cls}()\n_g.${M[0]} = ${full}\n_a = _g.${M[6]}()\n_g.${M[0]}[3][3] = 4\n_b = _g.${M[6]}()\n_g.${M[0]}[3][3] = 2\n_g.${M[0]}[3][0] = 2\n_d = _g.${M[6]}()\n_g.${M[0]}[3][0] = 0\nprint(_a, _b, _d, _g.${M[6]}())`,
+      (o) => o === "True False False False", it ? "bloccato() dice True solo con il tabellone pieno e nessuna coppia uguale vicina: una coppia in orizzontale, una in verticale o una casella vuota lo sbloccano"
+        : "stuck() says True only with the board full and no equal pair side by side: a pair across, one up and down or an empty square unblock it")
+  ];
+};
+/* part 10: the window's title, the keys written in the game, Esc */
+const t48KeyTests = (lang) => (c) => {
+  const it = lang === "it";
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(c, "_t.step()\n_a = " + T48_TEXT + "\nprint('Esc' in _a and 'U' in _a and 'N' in _a, _t.size[1] > 600)", (o) => o === "True True",
+      it ? "in fondo alla finestra, che ora è alta più di 600, c'è scritto quali tasti usare: U, N ed Esc" : "at the bottom of the window, which is now more than 600 high, it says which keys to use: U, N and Esc"),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True", it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("2048", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_tabellone.py", "build_board.py"],
+  it: {
+    title: "Costruisci: il tabellone del 2048",
+    theory: [
+`<p>Da qui comincia il tuo progetto, il <b>2048</b>: un tabellone di 4 × 4 caselle con delle tessere numerate. A ogni mossa tutte le tessere scivolano dalla stessa parte, su, giù, a sinistra o a destra, e quando due tessere uguali si scontrano diventano una sola, che vale il doppio: due 2 fanno un 4, due 4 un 8, e così via fino a 2048. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, con il <b>tabellone</b>: una cornice sopra e sotto, il titolo, il tabellone con qualche tessera disegnato con <code>print</code>, le mosse, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">====================
+     2  0  4  8
+====================
+    2    .    .    2
+    .    .    .    .
+    .    4    .    .
+    .    .    .    2
+Mosse: w a s d
+Due tessere uguali si uniscono.
+Due 2 insieme fanno:
+4
+Arriva fino a 2048!
+====================</pre>
+<p>Il tabellone disegnalo come vuoi: 4 righe di 4 caselle, con un numero per ogni tessera e un punto per ogni casella vuota. Qui ogni casella è larga 5, con gli spazi davanti, così i numeri stanno in colonna.</p>`],
+    task: `Scrivi la copertina del 2048: la prima e l'ultima riga fatte solo di simboli, il titolo <code>2048</code> su una riga sua, il tabellone (4 righe di 4 caselle, con qualche tessera come 2 o 4 e dei punti per le caselle vuote), le mosse <code>w a s d</code> e un numero calcolato da Python, come <code>2 + 2</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# 2048, di Ada
+print("====================")
+print("     2  0  4  8")
+print("====================")
+print("    2    .    .    2")
+print("    .    .    .    .")
+print("    .    4    .    .")
+print("    .    .    .    2")
+print("Mosse: w a s d")
+print("Due tessere uguali si uniscono.")
+print("Due 2 insieme fanno:")
+print(2 + 2)
+print("Arriva fino a 2048!")
+print("====================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? Quante righe ha il tabellone, e quante caselle in ogni riga?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con il titolo, quattro print con quattro caselle ciascuno, uno con le mosse, uno o due con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !t48CoverWhy(o, c, "it"),
+    why: (o, c) => t48CoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the 2048 board",
+    theory: [
+`<p>Your project starts here, <b>2048</b>: a board of 4 × 4 squares with numbered tiles on it. At every move all the tiles slide the same way, up, down, left or right, and when two equal tiles bump into each other they become one, worth double: two 2s make a 4, two 4s an 8, and so on up to 2048. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, with the <b>board</b>: a frame above and below, the title, the board with a few tiles drawn with <code>print</code>, the moves, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">====================
+     2  0  4  8
+====================
+    2    .    .    2
+    .    .    .    .
+    .    4    .    .
+    .    .    .    2
+Moves: w a s d
+Two equal tiles merge.
+Two 2s together make:
+4
+Get all the way to 2048!
+====================</pre>
+<p>Draw the board as you like: 4 rows of 4 squares, with a number for each tile and a dot for each empty square. Here every square is 5 wide, with the spaces in front, so the numbers line up in columns.</p>`],
+    task: `Write the 2048 cover: the first and last lines made only of symbols, the title <code>2048</code> on a line of its own, the board (4 rows of 4 squares, with a few tiles like 2 or 4 and dots for the empty squares), the moves <code>w a s d</code> and a number worked out by Python, like <code>2 + 2</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# 2048, by Ada
+print("====================")
+print("     2  0  4  8")
+print("====================")
+print("    2    .    .    2")
+print("    .    .    .    .")
+print("    .    4    .    .")
+print("    .    .    .    2")
+print("Moves: w a s d")
+print("Two equal tiles merge.")
+print("Two 2s together make:")
+print(2 + 2)
+print("Get all the way to 2048!")
+print("====================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? How many rows does the board have, and how many squares in each row?",
+      "First line: a comment with #. Then a print of symbols, one with the title, four prints with four squares each, one with the moves, one or two with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !t48CoverWhy(o, c, "en"),
+    why: (o, c) => t48CoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: [], sample: ["5"], file: ["costruisci_2048_1.py", "build_2048_1.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 1",
+    theory: [
+`<p>Parte 1: le <b>potenze di 2</b>. Nel 2048 tutte le tessere sono potenze di 2: 2, 4, 8, 16... ognuna è il doppio di quella prima, perché nasce da due tessere uguali. Moltiplicare 2 per sé stesso tante volte si scrive con <code>**</code>, l'elevamento a potenza: <code>2 ** 5</code> fa 2 × 2 × 2 × 2 × 2, cioè 32. Il numero dopo <code>**</code> è l'<b>esponente</b>, e 2048 è <code>2 ** 11</code>.</p>
+<p>Una tessera è fatta di tante tessere da 2: la tessera 32 ne contiene 16, la metà del suo valore, <code>32 // 2</code>. Ogni unione mette insieme due tessere in una, quindi ogni unione ne toglie una: da 16 tessere a una sola servono 15 unioni. Ogni unione dà anche dei <b>punti</b>, quanto vale la tessera nuova. Per fare 8 si fanno due 4 (4 + 4 punti) e poi l'8 (8 punti): due giri di unioni, e ogni giro vale in tutto quanto la tessera finale. Per fare la tessera <code>2 ** n</code> i giri sono <code>n - 1</code>, quindi i punti sono <code>(n - 1) * tessera</code>. E <code>obiettivo // tessera</code> dice quante tessere così servono per fare 2048.</p>
+<pre class="term-sample">Che esponente (da 1 a 11)? 5
+2 alla 5 fa 32.
+Tessere da 2 per farla: 16
+Unioni per farla: 15
+Punti per farla: 128
+Tessere da 32 per fare 2048: 64</pre>`],
+    task: `Chiedi l'esponente (un numero intero) e calcola la tessera con <code>**</code>. Poi stampa la tessera, quante tessere da 2 servono per farla e quante unioni, con <code>//</code>, i punti che si prendono e quante tessere così fanno 2048. Le righe devono essere proprio come nell'esempio. Proverò anche con altri esponenti, da 1 a 11.`,
+    starter: `# 2048, parte 1: potenze di 2\nobiettivo = 2048\n\n`,
+    solution: `# 2048, parte 1: potenze di 2
+obiettivo = 2048
+
+n = int(input("Che esponente (da 1 a 11)? "))
+tessera = 2 ** n
+print(f"2 alla {n} fa {tessera}.")
+print(f"Tessere da 2 per farla: {tessera // 2}")
+print(f"Unioni per farla: {tessera // 2 - 1}")
+print(f"Punti per farla: {(n - 1) * tessera}")
+print(f"Tessere da {tessera} per fare {obiettivo}: {obiettivo // tessera}")`,
+    hints: ["Quanto vale 2 ** n per l'esponente che hai chiesto? Da quanti 2 è fatta quella tessera, e quante unioni servono per arrivarci?",
+      "L'input dentro int(), la tessera con 2 ** n, poi cinque print con le f-string: la tessera; la sua metà con //; quella metà meno 1; n meno 1 per la tessera; e l'obiettivo diviso con // per la tessera."],
+    check: t48Check("it", 1, [/\*\*/, /\/\//]), expect: (x) => t48Expect("it", 1, x.inputs),
+    tests: t48Tests("it", 1, [["1"], ["3"], ["8"], ["10"], ["11"]])
+  },
+  en: {
+    title: "Build: 2048, part 1",
+    theory: [
+`<p>Part 1: <b>powers of 2</b>. In 2048 all the tiles are powers of 2: 2, 4, 8, 16... each one is double the one before, because it's born from two equal tiles. Multiplying 2 by itself many times is written with <code>**</code>, raising to a power: <code>2 ** 5</code> is 2 × 2 × 2 × 2 × 2, that is 32. The number after <code>**</code> is the <b>exponent</b>, and 2048 is <code>2 ** 11</code>.</p>
+<p>A tile is made of lots of 2 tiles: the 32 tile holds 16 of them, half its value, <code>32 // 2</code>. Every merge puts two tiles together into one, so every merge takes one away: from 16 tiles to just one takes 15 merges. Every merge also gives <b>points</b>, as much as the new tile is worth. To make 8 you make two 4s (4 + 4 points) and then the 8 (8 points): two rounds of merges, and each round is worth in all as much as the final tile. To make the <code>2 ** n</code> tile there are <code>n - 1</code> rounds, so the points are <code>(n - 1) * tile</code>. And <code>target // tile</code> says how many such tiles it takes to make 2048.</p>
+<pre class="term-sample">Which exponent (from 1 to 11)? 5
+2 to the 5 is 32.
+Tiles of 2 to make it: 16
+Merges to make it: 15
+Points for making it: 128
+Tiles of 32 to make 2048: 64</pre>`],
+    task: `Ask for the exponent (a whole number) and work out the tile with <code>**</code>. Then print the tile, how many 2 tiles it takes to make it and how many merges, with <code>//</code>, the points you get and how many such tiles make 2048. The lines must be exactly as in the example. I'll also try other exponents, from 1 to 11.`,
+    starter: `# 2048, part 1: powers of 2\ntarget = 2048\n\n`,
+    solution: `# 2048, part 1: powers of 2
+target = 2048
+
+n = int(input("Which exponent (from 1 to 11)? "))
+tile = 2 ** n
+print(f"2 to the {n} is {tile}.")
+print(f"Tiles of 2 to make it: {tile // 2}")
+print(f"Merges to make it: {tile // 2 - 1}")
+print(f"Points for making it: {(n - 1) * tile}")
+print(f"Tiles of {tile} to make {target}: {target // tile}")`,
+    hints: ["What is 2 ** n for the exponent you asked for? How many 2s is that tile made of, and how many merges does it take to get there?",
+      "The input inside int(), the tile with 2 ** n, then five prints with f-strings: the tile; its half with //; that half minus 1; n minus 1 times the tile; and the target divided with // by the tile."],
+    check: t48Check("en", 1, [/\*\*/, /\/\//]), expect: (x) => t48Expect("en", 1, x.inputs),
+    tests: t48Tests("en", 1, [["1"], ["3"], ["8"], ["10"], ["11"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["1024", "1024"], file: ["costruisci_2048_2.py", "build_2048_2.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 2",
+    theory: [
+`<p>Parte 2: le <b>regole</b>, per due caselle vicine. Ogni casella ha una tessera oppure è vuota, e una casella vuota la scrivi come 0. Quando le tessere scivolano una verso l'altra può succedere questo, nell'ordine:</p>
+<ul><li>se tutte e due le caselle sono vuote, non succede niente;</li>
+<li>se ne è vuota una sola, la tessera dell'altra scivola: e siccome la casella vuota vale 0, quella tessera è proprio <code>a + b</code>;</li>
+<li>se le tessere sono uguali si uniscono in una che vale <code>a + b</code>, e i punti crescono di tanto; e se la tessera nuova arriva all'obiettivo, o lo supera, hai vinto;</li>
+<li>se no sono diverse, e restano dove sono.</li></ul>
+<pre class="term-sample">Prima tessera (0 se è vuota)? 1024
+Seconda tessera (0 se è vuota)? 1024
+Si uniscono: 1024 + 1024 = 2048
+Punti: +2048
+Hai fatto 2048: hai vinto!</pre>
+<p>Le altre righe, con i numeri giusti: <code>Due caselle vuote: non succede niente.</code>, <code>Una casella è vuota: la tessera 8 scivola.</code> e <code>4 e 8 sono diverse: restano dove sono.</code></p>`],
+    task: `Fai crescere il programma: al posto dell'esponente chiedi le due tessere (0 per una casella vuota) e togli le righe di prima, ma tieni <code>obiettivo</code>. Poi decidi con una catena di <code>if</code> cosa succede, nell'ordine qui sopra, e se l'unione arriva all'obiettivo scrivi che hai vinto. Proverò tutti i casi: caselle vuote, tessere uguali e diverse, e l'unione che fa 2048.`,
+    solution: `# 2048, parte 2: due tessere vicine
+obiettivo = 2048
+
+a = int(input("Prima tessera (0 se è vuota)? "))
+b = int(input("Seconda tessera (0 se è vuota)? "))
+if a == 0 and b == 0:
+    print("Due caselle vuote: non succede niente.")
+elif a == 0 or b == 0:
+    print(f"Una casella è vuota: la tessera {a + b} scivola.")
+elif a == b:
+    print(f"Si uniscono: {a} + {b} = {a + b}")
+    print(f"Punti: +{a + b}")
+    if a + b >= obiettivo:
+        print(f"Hai fatto {a + b}: hai vinto!")
+else:
+    print(f"{a} e {b} sono diverse: restano dove sono.")`,
+    hints: ["In quali casi c'è una casella vuota, e come lo controlli con and e con or? Quando si stampa la riga della vittoria?",
+      "Due input dentro int(). Poi un if che controlla se valgono 0 tutte e due, un elif con or per una casella vuota sola, un elif per le tessere uguali, con i due print e dentro un if che confronta la somma con l'obiettivo, e un else per le tessere diverse."],
+    check: t48Check("it", 2, [/\bif\b/, /\belif\b|\belse\b/]), expect: (x) => t48Expect("it", 2, x.inputs),
+    tests: t48Tests("it", 2, [["0", "0"], ["0", "8"], ["16", "0"], ["4", "4"], ["4", "8"], ["2048", "2048"], ["512", "512"], ["2", "32"]])
+  },
+  en: {
+    title: "Build: 2048, part 2",
+    theory: [
+`<p>Part 2: the <b>rules</b>, for two neighbouring squares. Every square has a tile or is empty, and you write an empty square as 0. When the tiles slide towards each other this can happen, in this order:</p>
+<ul><li>if both squares are empty, nothing happens;</li>
+<li>if only one is empty, the other one's tile slides: and since the empty square is worth 0, that tile is exactly <code>a + b</code>;</li>
+<li>if the tiles are equal they merge into one worth <code>a + b</code>, and the points grow by that much; and if the new tile reaches the target, or goes past it, you win;</li>
+<li>if not they're different, and they stay where they are.</li></ul>
+<pre class="term-sample">First tile (0 if it's empty)? 1024
+Second tile (0 if it's empty)? 1024
+They merge: 1024 + 1024 = 2048
+Points: +2048
+You made 2048: you win!</pre>
+<p>The other lines, with the right numbers: <code>Two empty squares: nothing happens.</code>, <code>One square is empty: the 8 tile slides.</code> and <code>4 and 8 are different: they stay where they are.</code></p>`],
+    task: `Grow the program: instead of the exponent ask for the two tiles (0 for an empty square) and take away the lines from before, but keep <code>target</code>. Then decide with a chain of <code>if</code> what happens, in the order above, and if the merge reaches the target write that you win. I'll try every case: empty squares, equal and different tiles, and the merge that makes 2048.`,
+    solution: `# 2048, part 2: two neighbouring tiles
+target = 2048
+
+a = int(input("First tile (0 if it's empty)? "))
+b = int(input("Second tile (0 if it's empty)? "))
+if a == 0 and b == 0:
+    print("Two empty squares: nothing happens.")
+elif a == 0 or b == 0:
+    print(f"One square is empty: the {a + b} tile slides.")
+elif a == b:
+    print(f"They merge: {a} + {b} = {a + b}")
+    print(f"Points: +{a + b}")
+    if a + b >= target:
+        print(f"You made {a + b}: you win!")
+else:
+    print(f"{a} and {b} are different: they stay where they are.")`,
+    hints: ["In which cases is there an empty square, and how do you check it with and and with or? When is the winning line printed?",
+      "Two inputs inside int(). Then an if that checks whether both are 0, an elif with or for just one empty square, an elif for equal tiles, with the two prints and inside an if that compares the sum with the target, and an else for different tiles."],
+    check: t48Check("en", 2, [/\bif\b/, /\belif\b|\belse\b/]), expect: (x) => t48Expect("en", 2, x.inputs),
+    tests: t48Tests("en", 2, [["0", "0"], ["0", "8"], ["16", "0"], ["4", "4"], ["4", "8"], ["2048", "2048"], ["512", "512"], ["2", "32"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: T48_SAMPLE3, file: ["costruisci_2048_3.py", "build_2048_3.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 3",
+    theory: [
+`<p>Parte 3: il tabellone vero, che scivola. È una <b>lista di liste</b>: 4 righe, ognuna una lista di 4 numeri, con 0 per le caselle vuote. Comincia come nella copertina: <code>tabellone = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]</code>, e i punti a 0.</p>
+<p>A ogni giro il programma stampa il tabellone, una riga alla volta, con ogni casella larga 5: un punto se è vuota, se no il numero, con <code>str</code>, e davanti gli spazi che servono finché non è lunga 5. Sotto scrive i punti e chiede la mossa: per ora <code>a</code> per sinistra e <code>d</code> per destra, <code>q</code> per smettere.</p>
+<pre class="term-sample">    2    .    .    2
+    .    .    .    .
+    .    4    .    .
+    .    .    .    2
+Punti: 0
+Mossa (a d, q per uscire)? a
+    4    2    .    .
+    .    .    .    .
+    4    .    .    .
+    2    .    .    .
+Punti: 4
+Mossa (a d, q per uscire)?</pre>
+<p>Come scivola una riga verso sinistra. Prima togli gli zeri, tenendo le tessere in ordine in una lista nuova. Poi la scorri con un indice e un <code>while</code>: se la tessera è uguale a quella dopo, si uniscono: nella riga fatta va il doppio, i punti crescono di tanto e l'indice salta avanti di due; se no la tessera passa com'è e l'indice va avanti di uno. Così ogni tessera si unisce una volta sola, e <code>[2, 2, 2, 2]</code> diventa <code>[4, 4, 0, 0]</code>. Alla fine aggiungi zeri finché la riga non ha di nuovo 4 caselle.</p>
+<p>Verso destra è lo stesso lavoro, con la riga letta al contrario: la casella j contando da destra è la <code>3 - j</code>. E la riga fatta, alla fine, va girata di nuovo.</p>
+<p>Le regole, nell'ordine. Con q scrivi <code>Ciao!</code> ed esci dal ciclo; con un'altra lettera che non sia a o d scrivi <code>Usa a o d.</code>. Se dopo la mossa il tabellone nuovo è uguale a quello di prima scrivi <code>Non si muove niente.</code>; se no il tabellone nuovo prende il posto del vecchio e compare un 2 nella <b>prima casella vuota</b>, cercandola riga per riga, da sinistra a destra.</p>`],
+    task: `Trasforma il programma nel tabellone che scivola: la lista di liste qui sopra, i punti a 0, un ciclo <code>while</code> che a ogni giro stampa il tabellone e i punti e chiede la mossa, e le regole qui sopra: le righe che scivolano a sinistra e a destra, le tessere che si uniscono una volta sola, il 2 nuovo nella prima casella vuota. Proverò tante partite, con a, d, lettere sbagliate e mosse che non spostano niente.`,
+    solution: `# 2048, parte 3: il tabellone scorre
+tabellone = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+punti = 0
+
+while True:
+    for riga in tabellone:
+        testo = ""
+        for v in riga:
+            if v == 0:
+                cella = "."
+            else:
+                cella = str(v)
+            while len(cella) < 5:
+                cella = " " + cella
+            testo = testo + cella
+        print(testo)
+    print(f"Punti: {punti}")
+    mossa = input("Mossa (a d, q per uscire)? ")
+    if mossa == "q":
+        print("Ciao!")
+        break
+    elif mossa != "a" and mossa != "d":
+        print("Usa a o d.")
+    else:
+        nuovo = []
+        for r in range(4):
+            riga = []
+            for j in range(4):
+                if mossa == "a":
+                    riga.append(tabellone[r][j])
+                else:
+                    riga.append(tabellone[r][3 - j])
+            tessere = []
+            for v in riga:
+                if v != 0:
+                    tessere.append(v)
+            fatta = []
+            i = 0
+            while i < len(tessere):
+                if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+                    fatta.append(tessere[i] * 2)
+                    punti += tessere[i] * 2
+                    i += 2
+                else:
+                    fatta.append(tessere[i])
+                    i += 1
+            while len(fatta) < 4:
+                fatta.append(0)
+            if mossa == "d":
+                rovescia = []
+                for j in range(4):
+                    rovescia.append(fatta[3 - j])
+                fatta = rovescia
+            nuovo.append(fatta)
+        if nuovo == tabellone:
+            print("Non si muove niente.")
+        else:
+            tabellone = nuovo
+            messa = False
+            for r in range(4):
+                for c in range(4):
+                    if tabellone[r][c] == 0 and not messa:
+                        tabellone[r][c] = 2
+                        messa = True`,
+    hints: ["Cosa si ripete a ogni giro, e cosa a ogni riga? Quando due tessere vicine si uniscono, e perché poi l'indice salta avanti di due?",
+      "Nel while True: due for per stampare, poi l'input, e con q break. Per a e d costruisci un tabellone nuovo: per ogni riga una lista letta dritta o al contrario, la lista delle tessere senza zeri, un while con un indice che unisce le coppie uguali e conta i punti, gli zeri in fondo e, per d, la riga girata di nuovo. Se il nuovo è uguale al vecchio lo dici; se no lo tieni e cerchi la prima casella con 0, con due for e una variabile vera o falsa."],
+    check: t48Check("it", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => t48Expect("it", 3, x.inputs),
+    tests: t48Tests("it", 3, T48_GAMES3)
+  },
+  en: {
+    title: "Build: 2048, part 3",
+    theory: [
+`<p>Part 3: the real board, sliding. It's a <b>list of lists</b>: 4 rows, each a list of 4 numbers, with 0 for the empty squares. It starts as on the cover: <code>board = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]</code>, and the points at 0.</p>
+<p>At every turn the program prints the board, one row at a time, with each square 5 wide: a dot if it's empty, otherwise the number, with <code>str</code>, and in front the spaces it needs until it's 5 long. Below it writes the points and asks for the move: for now <code>a</code> for left and <code>d</code> for right, <code>q</code> to stop.</p>
+<pre class="term-sample">    2    .    .    2
+    .    .    .    .
+    .    4    .    .
+    .    .    .    2
+Points: 0
+Move (a d, q to quit)? a
+    4    2    .    .
+    .    .    .    .
+    4    .    .    .
+    2    .    .    .
+Points: 4
+Move (a d, q to quit)?</pre>
+<p>How a row slides to the left. First take the zeros away, keeping the tiles in order in a new list. Then go through it with an index and a <code>while</code>: if the tile is equal to the next one, they merge: double goes into the finished row, the points grow by that much and the index jumps on by two; otherwise the tile goes through as it is and the index moves on by one. So each tile merges only once, and <code>[2, 2, 2, 2]</code> becomes <code>[4, 4, 0, 0]</code>. At the end add zeros until the row has 4 squares again.</p>
+<p>To the right it's the same job, with the row read backwards: square j counting from the right is <code>3 - j</code>. And the finished row, at the end, has to be turned round again.</p>
+<p>The rules, in order. With q write <code>Bye!</code> and leave the loop; with any other letter that isn't a or d write <code>Use a or d.</code>. If after the move the new board is the same as before write <code>Nothing moves.</code>; otherwise the new board takes the old one's place and a 2 appears on the <b>first empty square</b>, looking for it row by row, left to right.</p>`],
+    task: `Turn the program into the sliding board: the list of lists above, the points at 0, a <code>while</code> loop that at every turn prints the board and the points and asks for the move, and the rules above: rows sliding left and right, tiles merging only once, the new 2 on the first empty square. I'll try lots of games, with a, d, wrong letters and moves that don't shift anything.`,
+    solution: `# 2048, part 3: the board slides
+board = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+points = 0
+
+while True:
+    for row in board:
+        text = ""
+        for v in row:
+            if v == 0:
+                cell = "."
+            else:
+                cell = str(v)
+            while len(cell) < 5:
+                cell = " " + cell
+            text = text + cell
+        print(text)
+    print(f"Points: {points}")
+    move = input("Move (a d, q to quit)? ")
+    if move == "q":
+        print("Bye!")
+        break
+    elif move != "a" and move != "d":
+        print("Use a or d.")
+    else:
+        new_board = []
+        for r in range(4):
+            row = []
+            for j in range(4):
+                if move == "a":
+                    row.append(board[r][j])
+                else:
+                    row.append(board[r][3 - j])
+            tiles = []
+            for v in row:
+                if v != 0:
+                    tiles.append(v)
+            slid = []
+            i = 0
+            while i < len(tiles):
+                if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+                    slid.append(tiles[i] * 2)
+                    points += tiles[i] * 2
+                    i += 2
+                else:
+                    slid.append(tiles[i])
+                    i += 1
+            while len(slid) < 4:
+                slid.append(0)
+            if move == "d":
+                flipped = []
+                for j in range(4):
+                    flipped.append(slid[3 - j])
+                slid = flipped
+            new_board.append(slid)
+        if new_board == board:
+            print("Nothing moves.")
+        else:
+            board = new_board
+            placed = False
+            for r in range(4):
+                for c in range(4):
+                    if board[r][c] == 0 and not placed:
+                        board[r][c] = 2
+                        placed = True`,
+    hints: ["What repeats at every turn, and what for every row? When do two neighbouring tiles merge, and why does the index then jump on by two?",
+      "In the while True: two for loops to print, then the input, and with q break. For a and d build a new board: for every row a list read forwards or backwards, the list of tiles without zeros, a while with an index that merges equal pairs and counts the points, the zeros at the end and, for d, the row turned round again. If the new one is the same as the old one say so; otherwise keep it and look for the first square with 0, with two for loops and a true or false variable."],
+    check: t48Check("en", 3, [/\bwhile\b/, /\w\s*\[[^\]\n]+\]\s*\[[^\]\n]+\]/]), expect: (x) => t48Expect("en", 3, x.inputs),
+    tests: t48Tests("en", 3, T48_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: [" W", "s", "A ", "d", "q"], file: ["costruisci_2048_4.py", "build_2048_4.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico, e scivola solo a sinistra e a destra. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>stampa(tabellone)</code> stampa le 4 righe del tabellone;</li>
+<li><code>scorri(riga)</code> fa scivolare una riga di 4 caselle verso l'inizio e restituisce una lista con due cose: la riga nuova e i punti fatti, come <code>[[4, 4, 0, 0], 8]</code>. Una funzione restituisce una cosa sola, ma quella cosa può essere una lista;</li>
+<li><code>casella(k, j, mossa)</code> restituisce <code>[riga, colonna]</code> della casella j della linea k, contando dal bordo verso cui scivolano le tessere: con a la riga k da sinistra, <code>[k, j]</code>; con d da destra, <code>[k, 3 - j]</code>; con w la <b>colonna</b> k dall'alto, <code>[j, k]</code>; con s dal basso, <code>[3 - j, k]</code>;</li>
+<li><code>muovi(tabellone, mossa)</code> legge le 4 linee nell'ordine giusto con <code>casella</code>, le fa scivolare con <code>scorri</code>, le scrive in un tabellone nuovo e restituisce <code>[tabellone nuovo, punti]</code>, senza toccare quello che riceve;</li>
+<li><code>piu_grande(tabellone)</code> restituisce la tessera più grande: <code>max(riga)</code> dà la più grande di una riga, e tra queste tieni la più grande.</li></ul>
+<p>Così le mosse diventano quattro: w su, a sinistra, s giù e d destra. Il ciclo si accorcia: stampa il tabellone, i punti e <code>Tessera più grande: 4</code>; se la tessera più grande arriva a 2048 scrive <code>Hai fatto 2048: hai vinto!</code> e finisce. Con le lettere sbagliate scrive <code>Usa w, a, s o d.</code>. E rendi il gioco più gentile: con <code>strip</code> e <code>lower</code> la mossa vale anche in maiuscolo o con degli spazi intorno.</p>`],
+    task: `Metti la stampa in <code>stampa(tabellone)</code>, lo scivolare di una riga in <code>scorri(riga)</code>, le caselle di ogni linea in <code>casella(k, j, mossa)</code>, la mossa intera in <code>muovi(tabellone, mossa)</code> e la tessera più grande in <code>piu_grande(tabellone)</code>, con <code>max</code>, come qui sopra, e usale nel ciclo con tutte e quattro le mosse. Pulisci la mossa con <code>strip</code> e <code>lower</code>. Proverò le funzioni una per una, partite con spazi e maiuscole e un tabellone che arriva a 2048.`,
+    solution: `# 2048, parte 4: funzioni per scorrere
+def stampa(tabellone):
+    for riga in tabellone:
+        testo = ""
+        for v in riga:
+            if v == 0:
+                cella = "."
+            else:
+                cella = str(v)
+            while len(cella) < 5:
+                cella = " " + cella
+            testo = testo + cella
+        print(testo)
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+def piu_grande(tabellone):
+    grande = 0
+    for riga in tabellone:
+        if max(riga) > grande:
+            grande = max(riga)
+    return grande
+
+
+tabellone = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+punti = 0
+
+while True:
+    stampa(tabellone)
+    print(f"Punti: {punti}")
+    print(f"Tessera più grande: {piu_grande(tabellone)}")
+    if piu_grande(tabellone) >= 2048:
+        print("Hai fatto 2048: hai vinto!")
+        break
+    mossa = input("Mossa (w a s d, q per uscire)? ").strip().lower()
+    if mossa == "q":
+        print("Ciao!")
+        break
+    elif mossa != "w" and mossa != "a" and mossa != "s" and mossa != "d":
+        print("Usa w, a, s o d.")
+    else:
+        fatto = muovi(tabellone, mossa)
+        if fatto[0] == tabellone:
+            print("Non si muove niente.")
+        else:
+            tabellone = fatto[0]
+            punti += fatto[1]
+            messa = False
+            for r in range(4):
+                for c in range(4):
+                    if tabellone[r][c] == 0 and not messa:
+                        tabellone[r][c] = 2
+                        messa = True`,
+    hints: ["Cosa ricevono e cosa restituiscono scorri e muovi? Con la mossa w, in che ordine vanno lette le caselle di una colonna?",
+      "Sposta i due for della stampa in stampa e il lavoro su una riga in scorri, che alla fine restituisce la riga e i punti in una lista. casella è una catena di if con quattro return. In muovi prepara un tabellone di zeri; per ogni k leggi le 4 caselle con casella, chiama scorri e scrivi la riga fatta nelle stesse caselle. In piu_grande un for sulle righe con max. Nel ciclo, l'input con strip e lower."],
+    check: t48Check("it", 4, [/def\s+stampa\s*\(/, /def\s+scorri\s*\(/, /def\s+muovi\s*\(/, /def\s+piu_grande\s*\(/, /\bmax\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => t48Expect("it", 4, x.inputs),
+    tests: t48FnTests("it")
+  },
+  en: {
+    title: "Build: 2048, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block, and it only slides left and right. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>print_board(board)</code> prints the board's 4 rows;</li>
+<li><code>slide(row)</code> slides a row of 4 squares towards its start and gives back a list with two things: the new row and the points made, like <code>[[4, 4, 0, 0], 8]</code>. A function gives back one thing only, but that thing can be a list;</li>
+<li><code>square(k, j, move)</code> gives back <code>[row, column]</code> of square j of line k, counting from the edge the tiles slide towards: with a row k from the left, <code>[k, j]</code>; with d from the right, <code>[k, 3 - j]</code>; with w <b>column</b> k from the top, <code>[j, k]</code>; with s from the bottom, <code>[3 - j, k]</code>;</li>
+<li><code>slide_board(board, move)</code> reads the 4 lines in the right order with <code>square</code>, slides them with <code>slide</code>, writes them into a new board and gives back <code>[new board, points]</code>, without touching the one it gets;</li>
+<li><code>biggest(board)</code> gives back the biggest tile: <code>max(row)</code> gives the biggest of a row, and among those you keep the biggest.</li></ul>
+<p>So there are four moves now: w up, a left, s down and d right. The loop gets shorter: it prints the board, the points and <code>Biggest tile: 4</code>; if the biggest tile reaches 2048 it writes <code>You made 2048: you win!</code> and ends. With wrong letters it writes <code>Use w, a, s or d.</code>. And make the game kinder: with <code>strip</code> and <code>lower</code> the move works in capitals too, or with spaces around it.</p>`],
+    task: `Put the printing in <code>print_board(board)</code>, sliding a row in <code>slide(row)</code>, the squares of each line in <code>square(k, j, move)</code>, the whole move in <code>slide_board(board, move)</code> and the biggest tile in <code>biggest(board)</code>, with <code>max</code>, as above, and use them in the loop with all four moves. Clean the move with <code>strip</code> and <code>lower</code>. I'll test the functions one by one, games with spaces and capitals and a board that reaches 2048.`,
+    solution: `# 2048, part 4: functions to slide
+def print_board(board):
+    for row in board:
+        text = ""
+        for v in row:
+            if v == 0:
+                cell = "."
+            else:
+                cell = str(v)
+            while len(cell) < 5:
+                cell = " " + cell
+            text = text + cell
+        print(text)
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+def biggest(board):
+    big = 0
+    for row in board:
+        if max(row) > big:
+            big = max(row)
+    return big
+
+
+board = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+points = 0
+
+while True:
+    print_board(board)
+    print(f"Points: {points}")
+    print(f"Biggest tile: {biggest(board)}")
+    if biggest(board) >= 2048:
+        print("You made 2048: you win!")
+        break
+    move = input("Move (w a s d, q to quit)? ").strip().lower()
+    if move == "q":
+        print("Bye!")
+        break
+    elif move != "w" and move != "a" and move != "s" and move != "d":
+        print("Use w, a, s or d.")
+    else:
+        result = slide_board(board, move)
+        if result[0] == board:
+            print("Nothing moves.")
+        else:
+            board = result[0]
+            points += result[1]
+            placed = False
+            for r in range(4):
+                for c in range(4):
+                    if board[r][c] == 0 and not placed:
+                        board[r][c] = 2
+                        placed = True`,
+    hints: ["What do slide and slide_board get and give back? With the move w, in which order should the squares of a column be read?",
+      "Move the two for loops of the printing into print_board and the work on a row into slide, which at the end gives back the row and the points in a list. square is a chain of if with four returns. In slide_board get a board of zeros ready; for each k read the 4 squares with square, call slide and write the finished row into the same squares. In biggest a for over the rows with max. In the loop, the input with strip and lower."],
+    check: t48Check("en", 4, [/def\s+print_board\s*\(/, /def\s+slide\s*\(/, /def\s+slide_board\s*\(/, /def\s+biggest\s*\(/, /\bmax\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => t48Expect("en", 4, x.inputs),
+    tests: t48FnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_2048_5.py", "build_2048_5.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 5",
+    theory: [
+`<p>Parte 5: il 2048 esce dal terminale ed entra in una <b>finestra</b>, con i colori dell'anteprima. Le tessere sono quadrati di 96 pixel, <code>LATO</code>, con 16 pixel tra l'una e l'altra, <code>SPAZIO</code>: dall'angolo di una tessera a quello della vicina ci sono <code>PASSO = LATO + SPAZIO</code> pixel. Il tabellone comincia in <code>(X0, Y0)</code>, cioè (18, 100), ed è largo <code>4 * PASSO + SPAZIO</code>, 464 pixel; sopra resta una striscia per le scritte. La finestra è larga <code>4 * PASSO + SPAZIO + 2 * X0</code> e alta <code>Y0 + 4 * PASSO + SPAZIO + 16</code>. La tessera nella riga r e nella colonna c ha l'angolo in <code>(X0 + SPAZIO + c * PASSO, Y0 + SPAZIO + r * PASSO)</code>.</p>
+<p>Cosa tieni del tuo codice: il tabellone, i punti e le funzioni <code>scorri</code>, <code>casella</code>, <code>muovi</code> e <code>piu_grande</code>. Cosa togli: il ciclo con <code>input</code> e <code>stampa</code>.</p>
+<p>Oltre che con il nome inglese, un colore si può scrivere come nelle pagine web: un <code>#</code> e sei cifre esadecimali, due per il rosso, due per il verde e due per il blu. Lo sfondo è <code>"#2a1d10"</code>, il tabellone <code>"#bbada0"</code> e ogni casella, sotto le tessere, <code>"#cdc1b4"</code>. Ogni tessera ha due colori, quello del quadrato e quello del numero, e te li dà una funzione, <code>colori(v)</code>, con una catena di <code>if</code> che restituisce una lista di due colori:</p>
+<ul><li>2: <code>["#eee4da", "#776e65"]</code> e 4: <code>["#ede0c8", "#776e65"]</code>, chiari con i numeri scuri;</li>
+<li>8: <code>"#f2b179"</code>, 16: <code>"#f59563"</code>, 32: <code>"#f67c5f"</code>, 64: <code>"#f65e3b"</code> e da 128 in su <code>"#edcf72"</code>, tutti con i numeri <code>"white"</code>.</li></ul>
+<p>Il numero va in mezzo alla tessera: <code>screen.draw.text</code> accetta <code>center=(x, y)</code> al posto della posizione, <code>fontsize</code> per la grandezza e <code>color</code> per il colore. La grandezza è 64 per 2, 4 e 8, 52 fino a 999 e 42 per i numeri di quattro cifre. In alto, in <code>(X0, 16)</code>, c'è scritto <code>Punti: 0</code>, con <code>fontsize=36</code>.</p>
+<p>Le frecce, in <code>on_key_down</code>, diventano le lettere di prima: su è <code>"w"</code>, sinistra <code>"a"</code>, giù <code>"s"</code> e destra <code>"d"</code>, così <code>muovi</code> fa tutto il lavoro. Se il tabellone nuovo è diverso da quello di prima, prende il suo posto, i punti crescono e un 2 compare nella prima casella vuota, come nel terminale. Sul telefono le frecce compaiono accanto al gioco, e puoi anche far scorrere il dito sul tabellone.</p>
+<p>E come nell'anteprima, le tessere che cambiano <b>saltano fuori</b>. Nella lista <code>nuove</code> metti le caselle che dopo la mossa hanno una tessera diversa da prima, più quella del 2 nuovo, e <code>tempo</code> torna a 0. <code>update()</code>, che Pygame Zero chiama 60 volte al secondo, fa crescere <code>tempo</code> di 1. Una tessera che è in <code>nuove</code> si disegna larga <code>min(LATO, LATO // 2 + tempo * 5)</code>, al centro della sua casella: parte da metà e in 10 chiamate torna grande. Quando la tessera più grande arriva a 2048, sotto i punti compare <code>Hai fatto 2048: hai vinto!</code> e le frecce non spostano più niente.</p>`],
+    task: `Porta il 2048 nella finestra come qui sopra: tessere da 96 pixel con 16 tra l'una e l'altra, il tabellone da (18, 100), i colori dell'anteprima con <code>colori(v)</code>, i numeri in mezzo alle tessere, la scritta dei punti, le frecce che passano da <code>muovi</code>, il 2 nella prima casella vuota, le tessere che saltano fuori con <code>update()</code> e la vittoria a 2048. Quando chiudi la finestra, proverò le frecce, i colori, una mossa che non sposta niente e la vittoria.`,
+    solution: `# 2048, parte 5: nella finestra
+import pgzrun
+
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 16
+tabellone = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+punti = 0
+nuove = []
+tempo = 0
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+def piu_grande(tabellone):
+    grande = 0
+    for riga in tabellone:
+        if max(riga) > grande:
+            grande = max(riga)
+    return grande
+
+
+def colori(v):
+    if v == 2:
+        return ["#eee4da", "#776e65"]
+    if v == 4:
+        return ["#ede0c8", "#776e65"]
+    if v == 8:
+        return ["#f2b179", "white"]
+    if v == 16:
+        return ["#f59563", "white"]
+    if v == 32:
+        return ["#f67c5f", "white"]
+    if v == 64:
+        return ["#f65e3b", "white"]
+    return ["#edcf72", "white"]
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori(v)[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori(v)[1])
+    screen.draw.text(f"Punti: {punti}", (X0, 16), fontsize=36)
+    if piu_grande(tabellone) >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto!", (X0, 58), fontsize=28, color="#edc22e")
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tabellone, punti, nuove, tempo
+    if piu_grande(tabellone) >= 2048:
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    fatto = muovi(tabellone, mossa)
+    if fatto[0] == tabellone:
+        return
+    nuove = []
+    for r in range(4):
+        for c in range(4):
+            if fatto[0][r][c] != 0 and fatto[0][r][c] != tabellone[r][c]:
+                nuove.append([r, c])
+    tabellone = fatto[0]
+    punti += fatto[1]
+    messa = False
+    for r in range(4):
+        for c in range(4):
+            if tabellone[r][c] == 0 and not messa:
+                tabellone[r][c] = 2
+                nuove.append([r, c])
+                messa = True
+    tempo = 0
+
+
+pgzrun.go()`,
+    hints: ["Cosa deve ricordare il gioco tra una mossa e l'altra? Dopo una mossa, quali caselle hanno una tessera diversa da prima?",
+      "In cima import pgzrun, le misure, WIDTH e HEIGHT, il tabellone, i punti, la lista nuove e tempo. In draw() lo sfondo, il tabellone, due for con una casella per ogni posto e, se c'è una tessera, il suo quadrato (più piccolo se è in nuove) e il numero; poi la scritta. In update(), con global, tempo cresce. In on_key_down, con global, la freccia diventa una lettera e muovi fa la mossa; se cambia qualcosa, raccogli le caselle cambiate, tieni il tabellone nuovo, aggiungi i punti, metti il 2 e rimetti tempo a 0."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE]),
+    why: (o, c) => pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE]),
+    tests: t48WinTests("it")
+  },
+  en: {
+    title: "Build: 2048, part 5",
+    theory: [
+`<p>Part 5: 2048 leaves the terminal and goes into a <b>window</b>, in the colours of the preview. The tiles are squares of 96 pixels, <code>SIDE</code>, with 16 pixels between them, <code>GAP</code>: from the corner of a tile to its neighbour's there are <code>STEP = SIDE + GAP</code> pixels. The board starts at <code>(X0, Y0)</code>, that is (18, 100), and is <code>4 * STEP + GAP</code> wide, 464 pixels; above it there's a strip for the texts. The window is <code>4 * STEP + GAP + 2 * X0</code> wide and <code>Y0 + 4 * STEP + GAP + 16</code> high. The tile in row r and column c has its corner at <code>(X0 + GAP + c * STEP, Y0 + GAP + r * STEP)</code>.</p>
+<p>What you keep of your code: the board, the points and the functions <code>slide</code>, <code>square</code>, <code>slide_board</code> and <code>biggest</code>. What you take away: the loop with <code>input</code> and <code>print_board</code>.</p>
+<p>Besides its English name, a colour can be written as on web pages: a <code>#</code> and six hexadecimal digits, two for red, two for green and two for blue. The background is <code>"#2a1d10"</code>, the board <code>"#bbada0"</code> and every square, under the tiles, <code>"#cdc1b4"</code>. Every tile has two colours, the square's and the number's, and a function gives them to you, <code>colours(v)</code>, with a chain of <code>if</code> that gives back a list of two colours:</p>
+<ul><li>2: <code>["#eee4da", "#776e65"]</code> and 4: <code>["#ede0c8", "#776e65"]</code>, light with dark numbers;</li>
+<li>8: <code>"#f2b179"</code>, 16: <code>"#f59563"</code>, 32: <code>"#f67c5f"</code>, 64: <code>"#f65e3b"</code> and from 128 up <code>"#edcf72"</code>, all with <code>"white"</code> numbers.</li></ul>
+<p>The number goes in the middle of the tile: <code>screen.draw.text</code> takes <code>center=(x, y)</code> instead of the position, <code>fontsize</code> for the size and <code>color</code> for the colour. The size is 64 for 2, 4 and 8, 52 up to 999 and 42 for four-digit numbers. At the top, at <code>(X0, 16)</code>, it says <code>Points: 0</code>, with <code>fontsize=36</code>.</p>
+<p>The arrows, in <code>on_key_down</code>, become the letters from before: up is <code>"w"</code>, left <code>"a"</code>, down <code>"s"</code> and right <code>"d"</code>, so <code>slide_board</code> does all the work. If the new board is different from the one before, it takes its place, the points grow and a 2 appears on the first empty square, as in the terminal. On a phone the arrows show up next to the game, and you can also swipe a finger across the board.</p>
+<p>And as in the preview, the tiles that change <b>pop up</b>. Into the list <code>popping</code> go the squares that after the move have a different tile from before, plus the new 2's, and <code>ticks</code> goes back to 0. <code>update()</code>, which Pygame Zero calls 60 times a second, makes <code>ticks</code> grow by 1. A tile that's in <code>popping</code> is drawn <code>min(SIDE, SIDE // 2 + ticks * 5)</code> wide, in the middle of its square: it starts at half and in 10 calls it's big again. When the biggest tile reaches 2048, under the points <code>You made 2048: you win!</code> appears and the arrows don't move anything any more.</p>`],
+    task: `Take 2048 into the window as above: tiles of 96 pixels with 16 between them, the board from (18, 100), the preview's colours with <code>colours(v)</code>, the numbers in the middle of the tiles, the text with the points, the arrows going through <code>slide_board</code>, the 2 on the first empty square, tiles popping up with <code>update()</code> and the win at 2048. When you close the window, I'll try the arrows, the colours, a move that doesn't shift anything and the win.`,
+    solution: `# 2048, part 5: in a window
+import pgzrun
+
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 16
+board = [[2, 0, 0, 2], [0, 0, 0, 0], [0, 4, 0, 0], [0, 0, 0, 2]]
+points = 0
+popping = []
+ticks = 0
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+def biggest(board):
+    big = 0
+    for row in board:
+        if max(row) > big:
+            big = max(row)
+    return big
+
+
+def colours(v):
+    if v == 2:
+        return ["#eee4da", "#776e65"]
+    if v == 4:
+        return ["#ede0c8", "#776e65"]
+    if v == 8:
+        return ["#f2b179", "white"]
+    if v == 16:
+        return ["#f59563", "white"]
+    if v == 32:
+        return ["#f67c5f", "white"]
+    if v == 64:
+        return ["#f65e3b", "white"]
+    return ["#edcf72", "white"]
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours(v)[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours(v)[1])
+    screen.draw.text(f"Points: {points}", (X0, 16), fontsize=36)
+    if biggest(board) >= 2048:
+        screen.draw.text("You made 2048: you win!", (X0, 58), fontsize=28, color="#edc22e")
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global board, points, popping, ticks
+    if biggest(board) >= 2048:
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    result = slide_board(board, move)
+    if result[0] == board:
+        return
+    popping = []
+    for r in range(4):
+        for c in range(4):
+            if result[0][r][c] != 0 and result[0][r][c] != board[r][c]:
+                popping.append([r, c])
+    board = result[0]
+    points += result[1]
+    placed = False
+    for r in range(4):
+        for c in range(4):
+            if board[r][c] == 0 and not placed:
+                board[r][c] = 2
+                popping.append([r, c])
+                placed = True
+    ticks = 0
+
+
+pgzrun.go()`,
+    hints: ["What does the game need to remember between one move and the next? After a move, which squares have a different tile from before?",
+      "At the top import pgzrun, the sizes, WIDTH and HEIGHT, the board, the points, the popping list and ticks. In draw() the background, the board, two for loops with a square for every place and, if there's a tile, its square (smaller if it's in popping) and the number; then the text. In update(), with global, ticks grows. In on_key_down, with global, the arrow becomes a letter and slide_board makes the move; if something changes, collect the changed squares, keep the new board, add the points, put the 2 in and set ticks back to 0."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE]),
+    why: (o, c) => pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE]),
+    tests: t48WinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_2048_6.py", "build_2048_6.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 6",
+    theory: [
+`<p>Parte 6: le tessere nuove arrivano <b>a caso</b>, come nel gioco vero. Il tabellone parte vuoto, con quattro righe di zeri, e prima di <code>pgzrun.go()</code> ci metti due tessere a caso.</p>
+<p>La funzione <code>aggiungi(tabellone)</code> fa la lista <code>vuote</code> delle caselle vuote, ognuna <code>[r, c]</code>, riga per riga e da sinistra a destra, e ne sceglie una con <code>random.choice(vuote)</code>. Lì mette un 2, ma una volta su dieci un 4: <code>random.randint(1, 10)</code> dà un numero da 1 a 10, e se è 1 la tessera è un 4. Poi restituisce la casella scelta, così chi la chiama la può mettere in <code>nuove</code> e la tessera salta fuori.</p>
+<p>Dopo ogni mossa che sposta qualcosa, la tessera nuova arriva con <code>aggiungi</code>, al posto del 2 nella prima casella vuota; dopo una mossa che non sposta niente, niente tessere nuove, come prima. E una casella vuota c'è sempre: se qualcosa si è mosso, o il tabellone non era pieno o due tessere si sono unite.</p>`],
+    task: `Fai partire il tabellone vuoto e scrivi <code>aggiungi(tabellone)</code>: la lista delle caselle vuote riga per riga, una scelta con <code>random.choice</code>, un 4 quando <code>random.randint(1, 10)</code> dà 1 e se no un 2, e la casella scelta restituita. Usala due volte prima di <code>pgzrun.go()</code> e dopo ogni mossa che sposta qualcosa, mettendo la casella in <code>nuove</code>. Quando chiudi la finestra, proverò con dei dadi truccati dove compaiono le tessere e se arriva il 4.`,
+    solution: `# 2048, parte 6: tessere a caso
+import pgzrun
+import random
+
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 16
+tabellone = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+punti = 0
+nuove = []
+tempo = 0
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+def piu_grande(tabellone):
+    grande = 0
+    for riga in tabellone:
+        if max(riga) > grande:
+            grande = max(riga)
+    return grande
+
+
+def aggiungi(tabellone):
+    vuote = []
+    for r in range(4):
+        for c in range(4):
+            if tabellone[r][c] == 0:
+                vuote.append([r, c])
+    cella = random.choice(vuote)
+    if random.randint(1, 10) == 1:
+        tabellone[cella[0]][cella[1]] = 4
+    else:
+        tabellone[cella[0]][cella[1]] = 2
+    return cella
+
+
+def colori(v):
+    if v == 2:
+        return ["#eee4da", "#776e65"]
+    if v == 4:
+        return ["#ede0c8", "#776e65"]
+    if v == 8:
+        return ["#f2b179", "white"]
+    if v == 16:
+        return ["#f59563", "white"]
+    if v == 32:
+        return ["#f67c5f", "white"]
+    if v == 64:
+        return ["#f65e3b", "white"]
+    return ["#edcf72", "white"]
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori(v)[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori(v)[1])
+    screen.draw.text(f"Punti: {punti}", (X0, 16), fontsize=36)
+    if piu_grande(tabellone) >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto!", (X0, 58), fontsize=28, color="#edc22e")
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tabellone, punti, nuove, tempo
+    if piu_grande(tabellone) >= 2048:
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    fatto = muovi(tabellone, mossa)
+    if fatto[0] == tabellone:
+        return
+    nuove = []
+    for r in range(4):
+        for c in range(4):
+            if fatto[0][r][c] != 0 and fatto[0][r][c] != tabellone[r][c]:
+                nuove.append([r, c])
+    tabellone = fatto[0]
+    punti += fatto[1]
+    nuove.append(aggiungi(tabellone))
+    tempo = 0
+
+
+nuove.append(aggiungi(tabellone))
+nuove.append(aggiungi(tabellone))
+pgzrun.go()`,
+    hints: ["In che ordine metti le caselle vuote nella lista? Quando la tessera nuova è un 4, e quando un 2?",
+      "In aggiungi una lista vuota e due for sulle righe e sulle colonne che aggiungono [r, c] quando la casella vale 0; poi random.choice sulla lista, un if con random.randint uguale a 1 per scrivere nel tabellone 4 oppure 2, e il return della casella. In on_key_down, al posto dei for del 2, metti nella lista nuove quello che restituisce aggiungi."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM]),
+    why: (o, c) => pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM]),
+    tests: t48RandomTests("it")
+  },
+  en: {
+    title: "Build: 2048, part 6",
+    theory: [
+`<p>Part 6: the new tiles arrive <b>at random</b>, as in the real game. The board starts empty, with four rows of zeros, and before <code>pgzrun.go()</code> you put two random tiles on it.</p>
+<p>The function <code>add_tile(board)</code> makes the list <code>empty</code> of the empty squares, each <code>[r, c]</code>, row by row and left to right, and picks one with <code>random.choice(empty)</code>. It puts a 2 there, but one time in ten a 4: <code>random.randint(1, 10)</code> gives a number from 1 to 10, and if it's 1 the tile is a 4. Then it gives back the square it picked, so whoever calls it can put it in <code>popping</code> and the tile pops up.</p>
+<p>After every move that shifts something, the new tile comes with <code>add_tile</code>, instead of the 2 on the first empty square; after a move that doesn't shift anything, no new tiles, as before. And there's always an empty square: if something moved, either the board wasn't full or two tiles merged.</p>`],
+    task: `Start the board empty and write <code>add_tile(board)</code>: the list of empty squares row by row, one picked with <code>random.choice</code>, a 4 when <code>random.randint(1, 10)</code> gives 1 and otherwise a 2, and the square picked given back. Use it twice before <code>pgzrun.go()</code> and after every move that shifts something, putting the square into <code>popping</code>. When you close the window, I'll check with loaded dice where the tiles appear and whether the 4 comes.`,
+    solution: `# 2048, part 6: random tiles
+import pgzrun
+import random
+
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 16
+board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+points = 0
+popping = []
+ticks = 0
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+def biggest(board):
+    big = 0
+    for row in board:
+        if max(row) > big:
+            big = max(row)
+    return big
+
+
+def add_tile(board):
+    empty = []
+    for r in range(4):
+        for c in range(4):
+            if board[r][c] == 0:
+                empty.append([r, c])
+    cell = random.choice(empty)
+    if random.randint(1, 10) == 1:
+        board[cell[0]][cell[1]] = 4
+    else:
+        board[cell[0]][cell[1]] = 2
+    return cell
+
+
+def colours(v):
+    if v == 2:
+        return ["#eee4da", "#776e65"]
+    if v == 4:
+        return ["#ede0c8", "#776e65"]
+    if v == 8:
+        return ["#f2b179", "white"]
+    if v == 16:
+        return ["#f59563", "white"]
+    if v == 32:
+        return ["#f67c5f", "white"]
+    if v == 64:
+        return ["#f65e3b", "white"]
+    return ["#edcf72", "white"]
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours(v)[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours(v)[1])
+    screen.draw.text(f"Points: {points}", (X0, 16), fontsize=36)
+    if biggest(board) >= 2048:
+        screen.draw.text("You made 2048: you win!", (X0, 58), fontsize=28, color="#edc22e")
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global board, points, popping, ticks
+    if biggest(board) >= 2048:
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    result = slide_board(board, move)
+    if result[0] == board:
+        return
+    popping = []
+    for r in range(4):
+        for c in range(4):
+            if result[0][r][c] != 0 and result[0][r][c] != board[r][c]:
+                popping.append([r, c])
+    board = result[0]
+    points += result[1]
+    popping.append(add_tile(board))
+    ticks = 0
+
+
+popping.append(add_tile(board))
+popping.append(add_tile(board))
+pgzrun.go()`,
+    hints: ["In which order do you put the empty squares in the list? When is the new tile a 4, and when a 2?",
+      "In add_tile an empty list and two for loops over the rows and the columns that add [r, c] when the square is 0; then random.choice on the list, an if with random.randint equal to 1 to write 4 or else 2 into the board, and the return of the square. In on_key_down, instead of the for loops of the 2, put into the popping list what add_tile gives back."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM]),
+    why: (o, c) => pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM]),
+    tests: t48RandomTests("en")
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_2048_7.py", "build_2048_7.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 7",
+    theory: [
+`<p>Parte 7: due <b>dizionari</b>. Il primo prende il posto della catena di <code>if</code> dei colori: <code>COLORI</code> ha come chiavi i valori delle tessere e come valori le liste dei due colori, da 2 fino a 2048:</p>
+<pre class="term-sample">COLORI = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}</pre>
+<p>In <code>draw()</code>, <code>COLORI.get(v, ["#3c3a32", "white"])</code> dà i colori della tessera; per una tessera che nel dizionario non c'è, come 4096, dà quelli scuri che gli passi.</p>
+<p>Il secondo è il <b>record</b>: <code>record = {"punti": 0, "tessera": 0}</code> tiene i punti migliori e la tessera più grande che hai fatto. Dopo ogni mossa che sposta qualcosa, se i punti superano il record il record diventa i tuoi punti, e lo stesso per la tessera più grande. In alto a destra scrivi <code>Record: 0</code>, con <code>topright=(WIDTH - X0, 16)</code>, che attacca la scritta a destra, e sotto i punti <code>Miglior tessera: 0    N: nuova partita</code>.</p>
+<p>Perché il record conti ci vogliono più partite: con il tasto N, <code>keys.N</code>, ne comincia una nuova. Mettila in una funzione, <code>nuova_partita()</code>, che svuota il tabellone, azzera i punti e aggiunge due tessere, e chiamala anche prima di <code>pgzrun.go()</code>. Il record invece resta. E quando arrivi a 2048 la scritta diventa <code>Hai fatto 2048: hai vinto! N per giocare ancora.</code></p>`],
+    task: `Metti i colori nel dizionario <code>COLORI</code>, da 2 a 2048, e prendili con <code>get</code>; tieni i punti migliori e la tessera più grande nel dizionario <code>record</code>, con le chiavi <code>"punti"</code> e <code>"tessera"</code>, e scrivili; con N comincia una partita nuova con <code>nuova_partita()</code>. Quando chiudi la finestra, proverò i colori delle tessere grandi, il record e una partita nuova.`,
+    solution: `# 2048, parte 7: colori e record
+import pgzrun
+import random
+
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 16
+tabellone = []
+punti = 0
+nuove = []
+tempo = 0
+COLORI = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+record = {"punti": 0, "tessera": 0}
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+def piu_grande(tabellone):
+    grande = 0
+    for riga in tabellone:
+        if max(riga) > grande:
+            grande = max(riga)
+    return grande
+
+
+def aggiungi(tabellone):
+    vuote = []
+    for r in range(4):
+        for c in range(4):
+            if tabellone[r][c] == 0:
+                vuote.append([r, c])
+    cella = random.choice(vuote)
+    if random.randint(1, 10) == 1:
+        tabellone[cella[0]][cella[1]] = 4
+    else:
+        tabellone[cella[0]][cella[1]] = 2
+    return cella
+
+
+def nuova_partita():
+    global tabellone, punti, nuove, tempo
+    tabellone = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    nuove = [aggiungi(tabellone), aggiungi(tabellone)]
+    tempo = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                colori = COLORI.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori[1])
+    screen.draw.text(f"Punti: {punti}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {record['punti']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if piu_grande(tabellone) >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto! N per giocare ancora.", (X0, 58), fontsize=28, color="#edc22e")
+    else:
+        screen.draw.text(f"Miglior tessera: {record['tessera']}    N: nuova partita", (X0, 58), fontsize=28)
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tabellone, punti, nuove, tempo
+    if key == keys.N:
+        nuova_partita()
+        return
+    if piu_grande(tabellone) >= 2048:
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    fatto = muovi(tabellone, mossa)
+    if fatto[0] == tabellone:
+        return
+    nuove = []
+    for r in range(4):
+        for c in range(4):
+            if fatto[0][r][c] != 0 and fatto[0][r][c] != tabellone[r][c]:
+                nuove.append([r, c])
+    tabellone = fatto[0]
+    punti += fatto[1]
+    nuove.append(aggiungi(tabellone))
+    tempo = 0
+    if punti > record["punti"]:
+        record["punti"] = punti
+    if piu_grande(tabellone) > record["tessera"]:
+        record["tessera"] = piu_grande(tabellone)
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Quali sono le chiavi del dizionario dei colori, e cosa restituisce get per una tessera che non c'è? Cosa deve restare quando cominci una partita nuova?",
+      "COLORI con undici coppie, dal 2 al 2048, e in draw() get al posto della funzione colori. record con due chiavi a 0. In on_key_down, prima di tutto, se il tasto è N chiami nuova_partita e basta; dopo una mossa riuscita due if aggiornano il record. nuova_partita, con global, rimette il tabellone, i punti, nuove e tempo come all'inizio."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW]),
+    why: (o, c) => pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW]),
+    tests: (c) => t48RecordTests("it")(c).concat(t48RandomTests("it")(c).slice(0, 3))
+  },
+  en: {
+    title: "Build: 2048, part 7",
+    theory: [
+`<p>Part 7: two <b>dictionaries</b>. The first takes the place of the chain of <code>if</code> for the colours: <code>COLOURS</code> has the tiles' values as keys and the lists of the two colours as values, from 2 up to 2048:</p>
+<pre class="term-sample">COLOURS = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}</pre>
+<p>In <code>draw()</code>, <code>COLOURS.get(v, ["#3c3a32", "white"])</code> gives the tile's colours; for a tile that isn't in the dictionary, like 4096, it gives the dark ones you hand it.</p>
+<p>The second is the <b>record</b>: <code>best = {"points": 0, "tile": 0}</code> holds the best points and the biggest tile you've made. After every move that shifts something, if the points go past the record the record becomes your points, and the same for the biggest tile. At the top right write <code>Record: 0</code>, with <code>topright=(WIDTH - X0, 16)</code>, which pins the text to the right, and under the points <code>Best tile: 0    N: new game</code>.</p>
+<p>For the record to count you need more games: with the N key, <code>keys.N</code>, a new one starts. Put it in a function, <code>new_game()</code>, which empties the board, sets the points to zero and adds two tiles, and call it before <code>pgzrun.go()</code> too. The record stays instead. And when you reach 2048 the text becomes <code>You made 2048: you win! N to play again.</code></p>`],
+    task: `Put the colours in the dictionary <code>COLOURS</code>, from 2 to 2048, and take them with <code>get</code>; keep the best points and the biggest tile in the dictionary <code>best</code>, with the keys <code>"points"</code> and <code>"tile"</code>, and write them; with N start a new game with <code>new_game()</code>. When you close the window, I'll test the colours of the big tiles, the record and a new game.`,
+    solution: `# 2048, part 7: colours and records
+import pgzrun
+import random
+
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 16
+board = []
+points = 0
+popping = []
+ticks = 0
+COLOURS = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+best = {"points": 0, "tile": 0}
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+def biggest(board):
+    big = 0
+    for row in board:
+        if max(row) > big:
+            big = max(row)
+    return big
+
+
+def add_tile(board):
+    empty = []
+    for r in range(4):
+        for c in range(4):
+            if board[r][c] == 0:
+                empty.append([r, c])
+    cell = random.choice(empty)
+    if random.randint(1, 10) == 1:
+        board[cell[0]][cell[1]] = 4
+    else:
+        board[cell[0]][cell[1]] = 2
+    return cell
+
+
+def new_game():
+    global board, points, popping, ticks
+    board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    popping = [add_tile(board), add_tile(board)]
+    ticks = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                colours = COLOURS.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours[1])
+    screen.draw.text(f"Points: {points}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {best['points']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if biggest(board) >= 2048:
+        screen.draw.text("You made 2048: you win! N to play again.", (X0, 58), fontsize=28, color="#edc22e")
+    else:
+        screen.draw.text(f"Best tile: {best['tile']}    N: new game", (X0, 58), fontsize=28)
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global board, points, popping, ticks
+    if key == keys.N:
+        new_game()
+        return
+    if biggest(board) >= 2048:
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    result = slide_board(board, move)
+    if result[0] == board:
+        return
+    popping = []
+    for r in range(4):
+        for c in range(4):
+            if result[0][r][c] != 0 and result[0][r][c] != board[r][c]:
+                popping.append([r, c])
+    board = result[0]
+    points += result[1]
+    popping.append(add_tile(board))
+    ticks = 0
+    if points > best["points"]:
+        best["points"] = points
+    if biggest(board) > best["tile"]:
+        best["tile"] = biggest(board)
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What are the keys of the colours dictionary, and what does get give back for a tile that isn't there? What should stay when you start a new game?",
+      "COLOURS with eleven pairs, from 2 to 2048, and in draw() get instead of the colours function. best with two keys at 0. In on_key_down, first of all, if the key is N call new_game and that's it; after a move that worked two ifs update the record. new_game, with global, puts the board, the points, popping and ticks back as at the start."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW]),
+    why: (o, c) => pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW]),
+    tests: (c) => t48RecordTests("en")(c).concat(t48RandomTests("en")(c).slice(0, 3))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_2048_8.py", "build_2048_8.py"],
+  it: {
+    title: "Costruisci: il 2048, parte 8",
+    theory: [
+`<p>Parte 8: il tabellone diventa un <b>oggetto</b>. La classe <code>Tabellone</code> tiene insieme quello che il gioco sa della partita: <code>griglia</code>, la lista di liste con le tessere, <code>punti</code> e <code>nuove</code>, le caselle che saltano fuori. <code>__init__(self)</code> prepara una griglia vuota, i punti a 0 e <code>nuove</code> vuota, e mette due tessere con <code>aggiungi</code>. I metodi fanno quello che prima facevano le funzioni e <code>on_key_down</code>:</p>
+<ul><li><code>vuote(self)</code> restituisce la lista delle caselle vuote, riga per riga;</li>
+<li><code>aggiungi(self)</code> mette una tessera a caso in una casella vuota, un 4 una volta su dieci, e mette la casella in <code>nuove</code>;</li>
+<li><code>gioca(self, mossa)</code> fa la mossa con <code>muovi</code>: se non si sposta niente restituisce <code>False</code>; se no aggiorna <code>nuove</code>, la griglia e i punti, aggiunge una tessera e restituisce <code>True</code>;</li>
+<li><code>piu_grande(self)</code> restituisce la tessera più grande della sua griglia.</li></ul>
+<p><code>scorri</code>, <code>casella</code> e <code>muovi</code> restano funzioni: lavorano su qualsiasi tabellone e non hanno bisogno dell'oggetto. <code>nuova_partita()</code> crea un tabellone nuovo, <code>tabellone = Tabellone()</code>; <code>on_key_down</code> trasforma la freccia in una lettera e chiama <code>tabellone.gioca(mossa)</code>, e se restituisce <code>True</code> rimette <code>tempo</code> a 0 e aggiorna il record. <code>draw()</code> legge griglia, punti e <code>nuove</code> dall'oggetto. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Tabellone</code> con <code>__init__</code>, <code>vuote</code>, <code>aggiungi</code>, <code>gioca</code> e <code>piu_grande</code>, come qui sopra, e usa un oggetto <code>tabellone</code> al posto della lista di liste, dei punti e di <code>nuove</code>. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con il record e una partita nuova.`,
+    solution: `# 2048, parte 8: il tabellone è un oggetto
+import pgzrun
+import random
+
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 16
+tempo = 0
+COLORI = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+record = {"punti": 0, "tessera": 0}
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+class Tabellone:
+    def __init__(self):
+        self.griglia = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.punti = 0
+        self.nuove = []
+        self.aggiungi()
+        self.aggiungi()
+
+    def vuote(self):
+        caselle = []
+        for r in range(4):
+            for c in range(4):
+                if self.griglia[r][c] == 0:
+                    caselle.append([r, c])
+        return caselle
+
+    def aggiungi(self):
+        cella = random.choice(self.vuote())
+        if random.randint(1, 10) == 1:
+            self.griglia[cella[0]][cella[1]] = 4
+        else:
+            self.griglia[cella[0]][cella[1]] = 2
+        self.nuove.append(cella)
+
+    def gioca(self, mossa):
+        fatto = muovi(self.griglia, mossa)
+        if fatto[0] == self.griglia:
+            return False
+        self.nuove = []
+        for r in range(4):
+            for c in range(4):
+                if fatto[0][r][c] != 0 and fatto[0][r][c] != self.griglia[r][c]:
+                    self.nuove.append([r, c])
+        self.griglia = fatto[0]
+        self.punti += fatto[1]
+        self.aggiungi()
+        return True
+
+    def piu_grande(self):
+        grande = 0
+        for riga in self.griglia:
+            if max(riga) > grande:
+                grande = max(riga)
+        return grande
+
+
+def nuova_partita():
+    global tabellone, tempo
+    tabellone = Tabellone()
+    tempo = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone.griglia[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in tabellone.nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                colori = COLORI.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori[1])
+    screen.draw.text(f"Punti: {tabellone.punti}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {record['punti']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if tabellone.piu_grande() >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto! N per giocare ancora.", (X0, 58), fontsize=28, color="#edc22e")
+    else:
+        screen.draw.text(f"Miglior tessera: {record['tessera']}    N: nuova partita", (X0, 58), fontsize=28)
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tempo
+    if key == keys.N:
+        nuova_partita()
+        return
+    if tabellone.piu_grande() >= 2048:
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    if tabellone.gioca(mossa):
+        tempo = 0
+        if tabellone.punti > record["punti"]:
+            record["punti"] = tabellone.punti
+        if tabellone.piu_grande() > record["tessera"]:
+            record["tessera"] = tabellone.piu_grande()
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Quali variabili diventano attributi dell'oggetto, e quali funzioni diventano metodi? Cosa deve restituire gioca, e a chi serve saperlo?",
+      "In __init__ tre attributi con self e due chiamate al metodo che aggiunge una tessera. vuote e aggiungi sono la funzione di prima divisa in due, con self.griglia. gioca chiama muovi con self.griglia: se il tabellone nuovo è uguale restituisce False; se no fa quello che prima faceva on_key_down, con self davanti, e restituisce True. In on_key_down la chiamata a gioca va dentro un if."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.it)),
+    tests: t48ClassTests("it")
+  },
+  en: {
+    title: "Build: 2048, part 8",
+    theory: [
+`<p>Part 8: the board becomes an <b>object</b>. The class <code>Board</code> keeps together what the game knows about the match: <code>grid</code>, the list of lists with the tiles, <code>points</code> and <code>popping</code>, the squares that pop up. <code>__init__(self)</code> gets an empty grid ready, the points at 0 and <code>popping</code> empty, and puts two tiles in with <code>add_tile</code>. The methods do what the functions and <code>on_key_down</code> used to do:</p>
+<ul><li><code>empty(self)</code> gives back the list of the empty squares, row by row;</li>
+<li><code>add_tile(self)</code> puts a random tile on an empty square, a 4 one time in ten, and puts the square in <code>popping</code>;</li>
+<li><code>play(self, move)</code> makes the move with <code>slide_board</code>: if nothing shifts it gives back <code>False</code>; otherwise it updates <code>popping</code>, the grid and the points, adds a tile and gives back <code>True</code>;</li>
+<li><code>biggest(self)</code> gives back the biggest tile in its grid.</li></ul>
+<p><code>slide</code>, <code>square</code> and <code>slide_board</code> stay functions: they work on any board and don't need the object. <code>new_game()</code> makes a new board, <code>board = Board()</code>; <code>on_key_down</code> turns the arrow into a letter and calls <code>board.play(move)</code>, and if it gives back <code>True</code> sets <code>ticks</code> back to 0 and updates the record. <code>draw()</code> reads the grid, the points and <code>popping</code> from the object. The game stays the same.</p>`],
+    task: `Write the class <code>Board</code> with <code>__init__</code>, <code>empty</code>, <code>add_tile</code>, <code>play</code> and <code>biggest</code>, as above, and use a <code>board</code> object instead of the list of lists, the points and <code>popping</code>. When you close the window, I'll test the class on its own and then the game, with the record and a new game.`,
+    solution: `# 2048, part 8: the board is an object
+import pgzrun
+import random
+
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 16
+ticks = 0
+COLOURS = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+best = {"points": 0, "tile": 0}
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+class Board:
+    def __init__(self):
+        self.grid = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.points = 0
+        self.popping = []
+        self.add_tile()
+        self.add_tile()
+
+    def empty(self):
+        squares = []
+        for r in range(4):
+            for c in range(4):
+                if self.grid[r][c] == 0:
+                    squares.append([r, c])
+        return squares
+
+    def add_tile(self):
+        cell = random.choice(self.empty())
+        if random.randint(1, 10) == 1:
+            self.grid[cell[0]][cell[1]] = 4
+        else:
+            self.grid[cell[0]][cell[1]] = 2
+        self.popping.append(cell)
+
+    def play(self, move):
+        result = slide_board(self.grid, move)
+        if result[0] == self.grid:
+            return False
+        self.popping = []
+        for r in range(4):
+            for c in range(4):
+                if result[0][r][c] != 0 and result[0][r][c] != self.grid[r][c]:
+                    self.popping.append([r, c])
+        self.grid = result[0]
+        self.points += result[1]
+        self.add_tile()
+        return True
+
+    def biggest(self):
+        big = 0
+        for row in self.grid:
+            if max(row) > big:
+                big = max(row)
+        return big
+
+
+def new_game():
+    global board, ticks
+    board = Board()
+    ticks = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board.grid[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in board.popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                colours = COLOURS.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours[1])
+    screen.draw.text(f"Points: {board.points}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {best['points']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if board.biggest() >= 2048:
+        screen.draw.text("You made 2048: you win! N to play again.", (X0, 58), fontsize=28, color="#edc22e")
+    else:
+        screen.draw.text(f"Best tile: {best['tile']}    N: new game", (X0, 58), fontsize=28)
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global ticks
+    if key == keys.N:
+        new_game()
+        return
+    if board.biggest() >= 2048:
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    if board.play(move):
+        ticks = 0
+        if board.points > best["points"]:
+            best["points"] = board.points
+        if board.biggest() > best["tile"]:
+            best["tile"] = board.biggest()
+
+new_game()
+pgzrun.go()`,
+    hints: ["Which variables become attributes of the object, and which functions become methods? What should play give back, and who needs to know it?",
+      "In __init__ three attributes with self and two calls to the method that adds a tile. empty and add_tile are the function from before split in two, with self.grid. play calls slide_board with self.grid: if the new board is the same it gives back False; otherwise it does what on_key_down used to do, with self in front, and gives back True. In on_key_down the call to play goes inside an if."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.en)),
+    tests: t48ClassTests("en")
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_2048.py", "final_challenge_2048.py"],
+  it: {
+    title: "Costruisci: il 2048 completo",
+    theory: [
+`<p>Parte 9, la sfida finale: la partita completa. Prima di tutto il gioco capisce quando è <b>finita</b>. Il metodo <code>bloccato(self)</code> restituisce <code>True</code> quando non c'è più nessuna mossa: la griglia è piena e nessuna tessera è uguale a quella alla sua destra o a quella sotto. Lo scopri con due <code>for</code>: appena trovi una casella vuota, o una coppia uguale vicina, restituisci <code>False</code>; se arrivi in fondo, <code>True</code>. Quando il tabellone è bloccato compare <code>Nessuna mossa! U annulla, N nuova partita.</code> e le frecce non contano più.</p>
+<p>Poi puoi <b>annullare</b> l'ultima mossa, con il tasto U. L'attributo <code>prima</code> ricorda com'era la partita prima dell'ultima mossa: in <code>gioca</code>, prima di cambiare qualcosa, <code>self.prima = [self.griglia, self.punti]</code>. Basta tenere la griglia vecchia così com'è, perché <code>muovi</code> ne fa sempre una nuova, e quella vecchia nessuno la tocca più. Il metodo <code>annulla(self)</code>, se <code>prima</code> non è vuota, rimette la griglia e i punti di prima e svuota <code>prima</code> e <code>nuove</code>: si annulla una mossa sola. Anche a partita finita U funziona, e si può continuare. Sotto i punti, mentre si gioca, scrivi <code>Miglior tessera: 0    U: annulla    N: nuova</code>.</p>`],
+    task: `Aggiungi a <code>Tabellone</code> l'attributo <code>prima</code> e i metodi <code>bloccato</code> e <code>annulla</code>, come qui sopra, e in <code>gioca</code> ricorda la griglia e i punti prima di cambiarli. Il tasto U annulla l'ultima mossa; quando il tabellone è bloccato scrivi <code>Nessuna mossa! U annulla, N nuova partita.</code> e le frecce non contano più. Quando chiudi la finestra, proverò un tabellone che si blocca, l'annullamento e <code>bloccato</code> da solo.`,
+    solution: `# 2048, parte 9: la partita completa
+import pgzrun
+import random
+
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 16
+tempo = 0
+COLORI = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+record = {"punti": 0, "tessera": 0}
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+class Tabellone:
+    def __init__(self):
+        self.griglia = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.punti = 0
+        self.nuove = []
+        self.prima = []
+        self.aggiungi()
+        self.aggiungi()
+
+    def vuote(self):
+        caselle = []
+        for r in range(4):
+            for c in range(4):
+                if self.griglia[r][c] == 0:
+                    caselle.append([r, c])
+        return caselle
+
+    def aggiungi(self):
+        cella = random.choice(self.vuote())
+        if random.randint(1, 10) == 1:
+            self.griglia[cella[0]][cella[1]] = 4
+        else:
+            self.griglia[cella[0]][cella[1]] = 2
+        self.nuove.append(cella)
+
+    def gioca(self, mossa):
+        fatto = muovi(self.griglia, mossa)
+        if fatto[0] == self.griglia:
+            return False
+        self.prima = [self.griglia, self.punti]
+        self.nuove = []
+        for r in range(4):
+            for c in range(4):
+                if fatto[0][r][c] != 0 and fatto[0][r][c] != self.griglia[r][c]:
+                    self.nuove.append([r, c])
+        self.griglia = fatto[0]
+        self.punti += fatto[1]
+        self.aggiungi()
+        return True
+
+    def piu_grande(self):
+        grande = 0
+        for riga in self.griglia:
+            if max(riga) > grande:
+                grande = max(riga)
+        return grande
+
+    def bloccato(self):
+        for r in range(4):
+            for c in range(4):
+                v = self.griglia[r][c]
+                if v == 0:
+                    return False
+                if c < 3 and v == self.griglia[r][c + 1]:
+                    return False
+                if r < 3 and v == self.griglia[r + 1][c]:
+                    return False
+        return True
+
+    def annulla(self):
+        if len(self.prima) > 0:
+            self.griglia = self.prima[0]
+            self.punti = self.prima[1]
+            self.prima = []
+            self.nuove = []
+
+
+def nuova_partita():
+    global tabellone, tempo
+    tabellone = Tabellone()
+    tempo = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone.griglia[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in tabellone.nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                colori = COLORI.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori[1])
+    screen.draw.text(f"Punti: {tabellone.punti}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {record['punti']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if tabellone.piu_grande() >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto! N per giocare ancora.", (X0, 58), fontsize=28, color="#edc22e")
+    elif tabellone.bloccato():
+        screen.draw.text("Nessuna mossa! U annulla, N nuova partita.", (X0, 58), fontsize=28, color="#f67c5f")
+    else:
+        screen.draw.text(f"Miglior tessera: {record['tessera']}    U: annulla    N: nuova", (X0, 58), fontsize=28)
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tempo
+    if key == keys.N:
+        nuova_partita()
+        return
+    if key == keys.U:
+        tabellone.annulla()
+        return
+    if tabellone.piu_grande() >= 2048 or tabellone.bloccato():
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    if tabellone.gioca(mossa):
+        tempo = 0
+        if tabellone.punti > record["punti"]:
+            record["punti"] = tabellone.punti
+        if tabellone.piu_grande() > record["tessera"]:
+            record["tessera"] = tabellone.piu_grande()
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Quando una mossa è ancora possibile anche se il tabellone è pieno? Cosa deve ricordare l'oggetto per tornare indietro di una mossa?",
+      "In bloccato due for sulle righe e sulle colonne: return False per una casella con 0, per una tessera uguale a quella a destra (se c è minore di 3) o a quella sotto (se r è minore di 3); dopo i for return True. In gioca, prima di cambiare la griglia, metti in self.prima la griglia e i punti. annulla controlla che prima non sia vuota e rimette le due cose. In on_key_down U chiama annulla, e le frecce escono subito se il tabellone è bloccato."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.it, T48_END.it)),
+    why: (o, c) => pgzWhy(c, "it", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.it, T48_END.it)),
+    tests: (c) => t48EndTests("it")(c).concat(t48ClassTests("it")(c).slice(0, 2))
+  },
+  en: {
+    title: "Build: the full 2048",
+    theory: [
+`<p>Part 9, the final challenge: the full game. First of all the game understands when it's <b>over</b>. The method <code>stuck(self)</code> gives back <code>True</code> when there are no moves left: the grid is full and no tile is equal to the one on its right or the one below. You find out with two <code>for</code> loops: as soon as you find an empty square, or an equal pair side by side, you give back <code>False</code>; if you reach the end, <code>True</code>. When the board is stuck <code>No moves left! U to undo, N for a new game.</code> appears and the arrows don't count any more.</p>
+<p>Then you can <b>undo</b> the last move, with the U key. The attribute <code>before</code> remembers how the game was before the last move: in <code>play</code>, before changing anything, <code>self.before = [self.grid, self.points]</code>. Keeping the old grid as it is is enough, because <code>slide_board</code> always makes a new one, and nobody touches the old one again. The method <code>undo(self)</code>, if <code>before</code> isn't empty, puts back the grid and the points from before and empties <code>before</code> and <code>popping</code>: you undo just one move. U works when the game is over too, and you can go on. Under the points, while you play, write <code>Best tile: 0    U: undo    N: new</code>.</p>`],
+    task: `Add the attribute <code>before</code> and the methods <code>stuck</code> and <code>undo</code> to <code>Board</code>, as above, and in <code>play</code> remember the grid and the points before changing them. The U key undoes the last move; when the board is stuck write <code>No moves left! U to undo, N for a new game.</code> and the arrows don't count any more. When you close the window, I'll test a board that gets stuck, undoing and <code>stuck</code> on its own.`,
+    solution: `# 2048, part 9: the full game
+import pgzrun
+import random
+
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 16
+ticks = 0
+COLOURS = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+best = {"points": 0, "tile": 0}
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+class Board:
+    def __init__(self):
+        self.grid = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.points = 0
+        self.popping = []
+        self.before = []
+        self.add_tile()
+        self.add_tile()
+
+    def empty(self):
+        squares = []
+        for r in range(4):
+            for c in range(4):
+                if self.grid[r][c] == 0:
+                    squares.append([r, c])
+        return squares
+
+    def add_tile(self):
+        cell = random.choice(self.empty())
+        if random.randint(1, 10) == 1:
+            self.grid[cell[0]][cell[1]] = 4
+        else:
+            self.grid[cell[0]][cell[1]] = 2
+        self.popping.append(cell)
+
+    def play(self, move):
+        result = slide_board(self.grid, move)
+        if result[0] == self.grid:
+            return False
+        self.before = [self.grid, self.points]
+        self.popping = []
+        for r in range(4):
+            for c in range(4):
+                if result[0][r][c] != 0 and result[0][r][c] != self.grid[r][c]:
+                    self.popping.append([r, c])
+        self.grid = result[0]
+        self.points += result[1]
+        self.add_tile()
+        return True
+
+    def biggest(self):
+        big = 0
+        for row in self.grid:
+            if max(row) > big:
+                big = max(row)
+        return big
+
+    def stuck(self):
+        for r in range(4):
+            for c in range(4):
+                v = self.grid[r][c]
+                if v == 0:
+                    return False
+                if c < 3 and v == self.grid[r][c + 1]:
+                    return False
+                if r < 3 and v == self.grid[r + 1][c]:
+                    return False
+        return True
+
+    def undo(self):
+        if len(self.before) > 0:
+            self.grid = self.before[0]
+            self.points = self.before[1]
+            self.before = []
+            self.popping = []
+
+
+def new_game():
+    global board, ticks
+    board = Board()
+    ticks = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board.grid[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in board.popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                colours = COLOURS.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours[1])
+    screen.draw.text(f"Points: {board.points}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {best['points']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if board.biggest() >= 2048:
+        screen.draw.text("You made 2048: you win! N to play again.", (X0, 58), fontsize=28, color="#edc22e")
+    elif board.stuck():
+        screen.draw.text("No moves left! U to undo, N for a new game.", (X0, 58), fontsize=28, color="#f67c5f")
+    else:
+        screen.draw.text(f"Best tile: {best['tile']}    U: undo    N: new", (X0, 58), fontsize=28)
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global ticks
+    if key == keys.N:
+        new_game()
+        return
+    if key == keys.U:
+        board.undo()
+        return
+    if board.biggest() >= 2048 or board.stuck():
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    if board.play(move):
+        ticks = 0
+        if board.points > best["points"]:
+            best["points"] = board.points
+        if board.biggest() > best["tile"]:
+            best["tile"] = board.biggest()
+
+new_game()
+pgzrun.go()`,
+    hints: ["When is a move still possible even if the board is full? What does the object need to remember to go back one move?",
+      "In stuck two for loops over the rows and the columns: return False for a square with 0, for a tile equal to the one on the right (if c is less than 3) or the one below (if r is less than 3); after the for loops return True. In play, before changing the grid, put the grid and the points into self.before. undo checks that before isn't empty and puts the two things back. In on_key_down U calls undo, and the arrows leave straight away if the board is stuck."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.en, T48_END.en)),
+    why: (o, c) => pgzWhy(c, "en", [T48_NOINPUT, T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_RECT, T48_UPDATE, T48_RANDOM, T48_DICT, T48_NEW].concat(T48_CLASS.en, T48_END.en)),
+    tests: (c) => t48EndTests("en")(c).concat(t48ClassTests("en")(c).slice(0, 2))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: il 2048 sul tuo computer",
+    theory: [
+`<p>Parte 10: il 2048 è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>gioco2048.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python gioco2048.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo per primo in <code>on_key_down</code>. E chi gioca deve sapere quali tasti usare: la finestra si allunga di 40 pixel, con <code>HEIGHT = Y0 + 4 * PASSO + SPAZIO + 56</code>, e in fondo scrivi <code>Frecce: muovi    U: annulla    N: nuova    Esc: esci</code>, con <code>midbottom=(WIDTH // 2, HEIGHT - 14)</code>: la scritta sta in mezzo, con il fondo a quell'altezza. Così sotto i punti resta solo <code>Miglior tessera: 0</code>.</p>`],
+    task: `Prepara il 2048 per il computer: un titolo per la finestra con <code>TITLE</code>, Esc per uscire con <code>exit()</code>, la finestra più alta e in fondo la riga con i tasti da usare. Proverò il titolo, la riga dei tasti e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca al 2048 sul tuo computer.`,
+    solution: `# 2048, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "2048 di Ada"
+LATO = 96
+SPAZIO = 16
+PASSO = LATO + SPAZIO
+X0 = 18
+Y0 = 100
+WIDTH = 4 * PASSO + SPAZIO + 2 * X0
+HEIGHT = Y0 + 4 * PASSO + SPAZIO + 56
+tempo = 0
+COLORI = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+record = {"punti": 0, "tessera": 0}
+
+
+def scorri(riga):
+    tessere = []
+    for v in riga:
+        if v != 0:
+            tessere.append(v)
+    fatta = []
+    punti = 0
+    i = 0
+    while i < len(tessere):
+        if i + 1 < len(tessere) and tessere[i] == tessere[i + 1]:
+            fatta.append(tessere[i] * 2)
+            punti += tessere[i] * 2
+            i += 2
+        else:
+            fatta.append(tessere[i])
+            i += 1
+    while len(fatta) < 4:
+        fatta.append(0)
+    return [fatta, punti]
+
+
+def casella(k, j, mossa):
+    if mossa == "a":
+        return [k, j]
+    if mossa == "d":
+        return [k, 3 - j]
+    if mossa == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def muovi(tabellone, mossa):
+    nuovo = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    punti = 0
+    for k in range(4):
+        riga = []
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            riga.append(tabellone[rc[0]][rc[1]])
+        fatto = scorri(riga)
+        punti += fatto[1]
+        for j in range(4):
+            rc = casella(k, j, mossa)
+            nuovo[rc[0]][rc[1]] = fatto[0][j]
+    return [nuovo, punti]
+
+
+class Tabellone:
+    def __init__(self):
+        self.griglia = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.punti = 0
+        self.nuove = []
+        self.prima = []
+        self.aggiungi()
+        self.aggiungi()
+
+    def vuote(self):
+        caselle = []
+        for r in range(4):
+            for c in range(4):
+                if self.griglia[r][c] == 0:
+                    caselle.append([r, c])
+        return caselle
+
+    def aggiungi(self):
+        cella = random.choice(self.vuote())
+        if random.randint(1, 10) == 1:
+            self.griglia[cella[0]][cella[1]] = 4
+        else:
+            self.griglia[cella[0]][cella[1]] = 2
+        self.nuove.append(cella)
+
+    def gioca(self, mossa):
+        fatto = muovi(self.griglia, mossa)
+        if fatto[0] == self.griglia:
+            return False
+        self.prima = [self.griglia, self.punti]
+        self.nuove = []
+        for r in range(4):
+            for c in range(4):
+                if fatto[0][r][c] != 0 and fatto[0][r][c] != self.griglia[r][c]:
+                    self.nuove.append([r, c])
+        self.griglia = fatto[0]
+        self.punti += fatto[1]
+        self.aggiungi()
+        return True
+
+    def piu_grande(self):
+        grande = 0
+        for riga in self.griglia:
+            if max(riga) > grande:
+                grande = max(riga)
+        return grande
+
+    def bloccato(self):
+        for r in range(4):
+            for c in range(4):
+                v = self.griglia[r][c]
+                if v == 0:
+                    return False
+                if c < 3 and v == self.griglia[r][c + 1]:
+                    return False
+                if r < 3 and v == self.griglia[r + 1][c]:
+                    return False
+        return True
+
+    def annulla(self):
+        if len(self.prima) > 0:
+            self.griglia = self.prima[0]
+            self.punti = self.prima[1]
+            self.prima = []
+            self.nuove = []
+
+
+def nuova_partita():
+    global tabellone, tempo
+    tabellone = Tabellone()
+    tempo = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * PASSO + SPAZIO, 4 * PASSO + SPAZIO)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + SPAZIO + c * PASSO
+            y = Y0 + SPAZIO + r * PASSO
+            screen.draw.filled_rect(Rect((x, y), (LATO, LATO)), "#cdc1b4")
+            v = tabellone.griglia[r][c]
+            if v != 0:
+                lato = LATO
+                if [r, c] in tabellone.nuove:
+                    lato = min(LATO, LATO // 2 + tempo * 5)
+                d = (LATO - lato) // 2
+                colori = COLORI.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (lato, lato)), colori[0])
+                if v < 10:
+                    misura = 64
+                elif v < 1000:
+                    misura = 52
+                else:
+                    misura = 42
+                screen.draw.text(str(v), center=(x + LATO // 2, y + LATO // 2), fontsize=misura, color=colori[1])
+    screen.draw.text(f"Punti: {tabellone.punti}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {record['punti']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if tabellone.piu_grande() >= 2048:
+        screen.draw.text("Hai fatto 2048: hai vinto! N per giocare ancora.", (X0, 58), fontsize=28, color="#edc22e")
+    elif tabellone.bloccato():
+        screen.draw.text("Nessuna mossa! U annulla, N nuova partita.", (X0, 58), fontsize=28, color="#f67c5f")
+    else:
+        screen.draw.text(f"Miglior tessera: {record['tessera']}", (X0, 58), fontsize=28)
+    screen.draw.text("Frecce: muovi    U: annulla    N: nuova    Esc: esci", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24)
+
+
+def update():
+    global tempo
+    tempo += 1
+
+
+def on_key_down(key):
+    global tempo
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.N:
+        nuova_partita()
+        return
+    if key == keys.U:
+        tabellone.annulla()
+        return
+    if tabellone.piu_grande() >= 2048 or tabellone.bloccato():
+        return
+    if key == keys.UP:
+        mossa = "w"
+    elif key == keys.LEFT:
+        mossa = "a"
+    elif key == keys.DOWN:
+        mossa = "s"
+    elif key == keys.RIGHT:
+        mossa = "d"
+    else:
+        return
+    if tabellone.gioca(mossa):
+        tempo = 0
+        if tabellone.punti > record["punti"]:
+            record["punti"] = tabellone.punti
+        if tabellone.piu_grande() > record["tessera"]:
+            record["tessera"] = tabellone.piu_grande()
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Perché Esc va controllato prima di tutto il resto? Di quanto deve crescere la finestra per la riga dei tasti?",
+      "In cima TITLE con il nome che vuoi, e in HEIGHT 56 al posto di 16. In on_key_down, per primo: se il tasto è Esc, exit(). In draw() la riga dei tasti con midbottom, e sotto i punti solo la miglior tessera."],
+    check: (o, c) => !pgzWhy(c, "it", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.it, T48_END.it, T48_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.it, T48_END.it, T48_COMPUTER.it)),
+    tests: (c) => t48KeyTests("it")(c).concat(t48EndTests("it")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: 2048 on your computer",
+    theory: [
+`<p>Part 10: 2048 is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>game2048.py</code>, and in the terminal, from the same folder, type <code>python game2048.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. Esc closes the game with <code>exit()</code>, the function that ends a program: check it first in <code>on_key_down</code>. And whoever plays needs to know which keys to use: the window gets 40 pixels taller, with <code>HEIGHT = Y0 + 4 * STEP + GAP + 56</code>, and at the bottom write <code>Arrows: move    U: undo    N: new    Esc: quit</code>, with <code>midbottom=(WIDTH // 2, HEIGHT - 14)</code>: the text sits in the middle, with its bottom at that height. So under the points only <code>Best tile: 0</code> stays.</p>`],
+    task: `Get 2048 ready for your computer: a title for the window with <code>TITLE</code>, Esc to quit with <code>exit()</code>, the window taller and at the bottom the line with the keys to use. I'll test the title, the line with the keys and quitting. Then, if you like, follow the three steps above and play 2048 on your computer.`,
+    solution: `# 2048, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "2048 by Ada"
+SIDE = 96
+GAP = 16
+STEP = SIDE + GAP
+X0 = 18
+Y0 = 100
+WIDTH = 4 * STEP + GAP + 2 * X0
+HEIGHT = Y0 + 4 * STEP + GAP + 56
+ticks = 0
+COLOURS = {2: ["#eee4da", "#776e65"], 4: ["#ede0c8", "#776e65"], 8: ["#f2b179", "white"], 16: ["#f59563", "white"],
+          32: ["#f67c5f", "white"], 64: ["#f65e3b", "white"], 128: ["#edcf72", "white"], 256: ["#edcc61", "white"],
+          512: ["#edc850", "white"], 1024: ["#edc53f", "white"], 2048: ["#edc22e", "white"]}
+best = {"points": 0, "tile": 0}
+
+
+def slide(row):
+    tiles = []
+    for v in row:
+        if v != 0:
+            tiles.append(v)
+    slid = []
+    points = 0
+    i = 0
+    while i < len(tiles):
+        if i + 1 < len(tiles) and tiles[i] == tiles[i + 1]:
+            slid.append(tiles[i] * 2)
+            points += tiles[i] * 2
+            i += 2
+        else:
+            slid.append(tiles[i])
+            i += 1
+    while len(slid) < 4:
+        slid.append(0)
+    return [slid, points]
+
+
+def square(k, j, move):
+    if move == "a":
+        return [k, j]
+    if move == "d":
+        return [k, 3 - j]
+    if move == "w":
+        return [j, k]
+    return [3 - j, k]
+
+
+def slide_board(board, move):
+    new_board = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    points = 0
+    for k in range(4):
+        row = []
+        for j in range(4):
+            rc = square(k, j, move)
+            row.append(board[rc[0]][rc[1]])
+        result = slide(row)
+        points += result[1]
+        for j in range(4):
+            rc = square(k, j, move)
+            new_board[rc[0]][rc[1]] = result[0][j]
+    return [new_board, points]
+
+
+class Board:
+    def __init__(self):
+        self.grid = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        self.points = 0
+        self.popping = []
+        self.before = []
+        self.add_tile()
+        self.add_tile()
+
+    def empty(self):
+        squares = []
+        for r in range(4):
+            for c in range(4):
+                if self.grid[r][c] == 0:
+                    squares.append([r, c])
+        return squares
+
+    def add_tile(self):
+        cell = random.choice(self.empty())
+        if random.randint(1, 10) == 1:
+            self.grid[cell[0]][cell[1]] = 4
+        else:
+            self.grid[cell[0]][cell[1]] = 2
+        self.popping.append(cell)
+
+    def play(self, move):
+        result = slide_board(self.grid, move)
+        if result[0] == self.grid:
+            return False
+        self.before = [self.grid, self.points]
+        self.popping = []
+        for r in range(4):
+            for c in range(4):
+                if result[0][r][c] != 0 and result[0][r][c] != self.grid[r][c]:
+                    self.popping.append([r, c])
+        self.grid = result[0]
+        self.points += result[1]
+        self.add_tile()
+        return True
+
+    def biggest(self):
+        big = 0
+        for row in self.grid:
+            if max(row) > big:
+                big = max(row)
+        return big
+
+    def stuck(self):
+        for r in range(4):
+            for c in range(4):
+                v = self.grid[r][c]
+                if v == 0:
+                    return False
+                if c < 3 and v == self.grid[r][c + 1]:
+                    return False
+                if r < 3 and v == self.grid[r + 1][c]:
+                    return False
+        return True
+
+    def undo(self):
+        if len(self.before) > 0:
+            self.grid = self.before[0]
+            self.points = self.before[1]
+            self.before = []
+            self.popping = []
+
+
+def new_game():
+    global board, ticks
+    board = Board()
+    ticks = 0
+
+
+def draw():
+    screen.fill("#2a1d10")
+    screen.draw.filled_rect(Rect((X0, Y0), (4 * STEP + GAP, 4 * STEP + GAP)), "#bbada0")
+    for r in range(4):
+        for c in range(4):
+            x = X0 + GAP + c * STEP
+            y = Y0 + GAP + r * STEP
+            screen.draw.filled_rect(Rect((x, y), (SIDE, SIDE)), "#cdc1b4")
+            v = board.grid[r][c]
+            if v != 0:
+                side = SIDE
+                if [r, c] in board.popping:
+                    side = min(SIDE, SIDE // 2 + ticks * 5)
+                d = (SIDE - side) // 2
+                colours = COLOURS.get(v, ["#3c3a32", "white"])
+                screen.draw.filled_rect(Rect((x + d, y + d), (side, side)), colours[0])
+                if v < 10:
+                    size = 64
+                elif v < 1000:
+                    size = 52
+                else:
+                    size = 42
+                screen.draw.text(str(v), center=(x + SIDE // 2, y + SIDE // 2), fontsize=size, color=colours[1])
+    screen.draw.text(f"Points: {board.points}", (X0, 16), fontsize=36)
+    screen.draw.text(f"Record: {best['points']}", topright=(WIDTH - X0, 16), fontsize=36)
+    if board.biggest() >= 2048:
+        screen.draw.text("You made 2048: you win! N to play again.", (X0, 58), fontsize=28, color="#edc22e")
+    elif board.stuck():
+        screen.draw.text("No moves left! U to undo, N for a new game.", (X0, 58), fontsize=28, color="#f67c5f")
+    else:
+        screen.draw.text(f"Best tile: {best['tile']}", (X0, 58), fontsize=28)
+    screen.draw.text("Arrows: move    U: undo    N: new    Esc: quit", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24)
+
+
+def update():
+    global ticks
+    ticks += 1
+
+
+def on_key_down(key):
+    global ticks
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.N:
+        new_game()
+        return
+    if key == keys.U:
+        board.undo()
+        return
+    if board.biggest() >= 2048 or board.stuck():
+        return
+    if key == keys.UP:
+        move = "w"
+    elif key == keys.LEFT:
+        move = "a"
+    elif key == keys.DOWN:
+        move = "s"
+    elif key == keys.RIGHT:
+        move = "d"
+    else:
+        return
+    if board.play(move):
+        ticks = 0
+        if board.points > best["points"]:
+            best["points"] = board.points
+        if board.biggest() > best["tile"]:
+            best["tile"] = board.biggest()
+
+new_game()
+pgzrun.go()`,
+    hints: ["Why should Esc be checked before everything else? By how much does the window have to grow for the line with the keys?",
+      "At the top TITLE with the name you like, and in HEIGHT 56 instead of 16. In on_key_down, first of all: if the key is Esc, exit(). In draw() the line with the keys with midbottom, and under the points only the best tile."],
+    check: (o, c) => !pgzWhy(c, "en", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.en, T48_END.en, T48_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [T48_KEYS, T48_ARROWS, PGZ_GLOBAL, T48_UPDATE, T48_NEW].concat(T48_CLASS.en, T48_END.en, T48_COMPUTER.en)),
+    tests: (c) => t48KeyTests("en")(c).concat(t48EndTests("en")(c).slice(1, 2))
+  }
+}
+]);
 
 
 /* ---------- Forza 4: the build levels of the "Connect Four" project ----------
@@ -21789,7 +25105,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "b794a5b238", APP_BUILT = "2026-11-10T12:06Z";
+const APP_VERSION = "86a8136ddb", APP_BUILT = "2026-11-10T12:45Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
