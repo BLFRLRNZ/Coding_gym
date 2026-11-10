@@ -7944,7 +7944,7 @@ const PROJECTS = [
       learn: ["Rect e collisioni", "velocità e rimbalzi", "liste di mattoncini", "vite e punteggio"] },
     en: { name: "Breakout", tag: "Bounce the ball off a paddle into a wall of bricks, until you knock it all down.",
       learn: ["Rect and collisions", "speed and bounces", "lists of bricks", "lives and score"] } },
-  { id: "mines", kind: "game", ready: false, diff: 3, where: "window", color: "#4f5d6e",
+  { id: "mines", kind: "game", ready: true, diff: 3, where: "window", color: "#4f5d6e",
     it: { name: "Campo minato", tag: "Scopri le caselle senza far scoppiare le mine: i numeri dicono quante ce ne sono intorno.",
       learn: ["liste di liste", "contare i vicini", "aprire le caselle vuote", "clic e bandierine"] },
     en: { name: "Minesweeper", tag: "Uncover the squares without setting off the mines: the numbers say how many are around.",
@@ -8138,28 +8138,28 @@ const PROJECT_PARTS = {
       ["The ball is an object", "A Ball class with position, speed and the methods to move and bounce."],
       ["Levels and lives", "Brick objects that take several hits, different levels and three lives."],
       ["On your computer", "With pip install pgzero your Breakout runs on your computer too, with the same code."]] },
-  mines: {
+  mines: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["Il campo coperto", "La griglia di caselle coperte con i numeri di righe e colonne, disegnata con print."],
-      ["Scegli una casella", "Chiedi riga e colonna, e calcola il numero della casella e la distanza da una mina."],
-      ["Boom o salvo", "Con if dici se è una mina, se la casella esiste e se c'è una mina lì accanto (con abs)."],
-      ["Contare le vicine", "Le mine in una lista: due cicli contano quelle intorno a ogni casella, e la partita va avanti finché non scoppia."],
-      ["Funzioni per il campo", "Contare le vicine, scoprire una casella e aprire le zone vuote diventano funzioni."],
-      ["Nella finestra", "Clic per scoprire, clic destro per la bandierina (tocco lungo sul telefono)."],
-      ["Mine a caso", "Le mine si piazzano a caso, tutte in caselle diverse."],
-      ["Colori e record", "Un dizionario colora i numeri, un altro tiene il record di tempo per ogni difficoltà."],
+      ["Scegli una casella", "Chiedi riga e colonna, calcola il numero della casella e, con abs, la distanza da una mina."],
+      ["Boom o salvo", "Con una catena di if dici se la casella non c'è, se è la mina o se la mina è lì accanto."],
+      ["Contare le vicine", "Il campo è una lista di liste e le mine una lista: due cicli contano quelle intorno, e si gioca finché non scoppia o vinci."],
+      ["Funzioni per il campo", "Contare le vicine, scoprire una casella e aprire da sole le zone vuote diventano funzioni."],
+      ["Nella finestra", "Il campo dell'anteprima in una finestra: clic per scoprire, clic destro per la bandierina (tocco lungo sul telefono)."],
+      ["Mine a caso", "Le mine si pescano a caso con randint, tutte in caselle diverse, e un clic comincia una partita nuova."],
+      ["Colori e record", "Un dizionario colora i numeri, il tempo parte al primo clic e un altro dizionario tiene il record di tempo."],
       ["La casella è un oggetto", "Una classe Casella che sa se è una mina, se è scoperta, se ha la bandierina e quante mine ha intorno."],
-      ["La partita completa", "Tre difficoltà, il primo clic sempre sicuro, il tempo e la schermata della vittoria."],
+      ["La partita completa", "Tre difficoltà con i tasti 1, 2 e 3, il primo clic sempre sicuro e la schermata della vittoria."],
       ["Sul tuo computer", "Con pip install pgzero il tuo Campo minato gira anche sul computer, con lo stesso codice."]],
     en: [["The covered field", "The grid of covered squares with row and column numbers, drawn with print."],
-      ["Pick a square", "Ask for row and column, and work out the square's number and its distance from a mine."],
-      ["Boom or safe", "With if say whether it's a mine, whether the square exists and whether there's a mine next to it (with abs)."],
-      ["Counting neighbours", "The mines in a list: two loops count those around each square, and the game goes on until something blows up."],
-      ["Functions for the field", "Counting neighbours, uncovering a square and opening empty areas become functions."],
-      ["In a window", "Click to uncover, right-click for the flag (a long press on a phone)."],
-      ["Random mines", "The mines are placed at random, all on different squares."],
-      ["Colours and records", "A dictionary colours the numbers, another keeps the time record for each difficulty."],
+      ["Pick a square", "Ask for row and column, work out the square's number and, with abs, its distance from a mine."],
+      ["Boom or safe", "With a chain of if say whether the square doesn't exist, whether it's the mine or whether the mine is next to it."],
+      ["Counting neighbours", "The field is a list of lists and the mines a list: two loops count those around, and you play until a boom or a win."],
+      ["Functions for the field", "Counting neighbours, uncovering a square and opening the empty areas by themselves become functions."],
+      ["In a window", "The preview's field in a window: click to uncover, right-click for the flag (a long press on a phone)."],
+      ["Random mines", "The mines are picked at random with randint, all on different squares, and a click starts a new game."],
+      ["Colours and records", "A dictionary colours the numbers, the time starts at the first click and another dictionary keeps the time record."],
       ["The square is an object", "A Square class that knows if it's a mine, if it's uncovered, if it has a flag and how many mines are around it."],
-      ["The full game", "Three difficulties, the first click always safe, the timer and the winning screen."],
+      ["The full game", "Three levels with the keys 1, 2 and 3, the first click always safe and the winning screen."],
       ["On your computer", "With pip install pgzero your Minesweeper runs on your computer too, with the same code."]] },
   tetris: {
     it: [["Il pozzo", "Il pozzo vuoto con un pezzo che cade, disegnati con print, più i comandi."],
@@ -20333,6 +20333,3079 @@ pgzrun.go()`,
 ]);
 
 
+/* ---------- Campo minato: the build levels of the "Minesweeper" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the covered field with the numbers of its rows and columns
+   in 00; in the terminal, a square's number and its distance from a mine, with abs (01), boom or safe with if (02), the
+   field as a list of lists and the mines around counted with two loops (03), the functions, with the empty areas that
+   open by themselves (04); then the window, with the preview's field, its mines, clicks and flags (04); random mines
+   (05), the numbers' colours in a dictionary, the time and the records (05); the square as an object, then three
+   levels, a first click that's always safe and the winning screen (06); the window's title, a pause and Esc, ready to
+   run on your own computer (07). Each part starts from the learner's code of the part before. */
+
+/* The cover: frame, title, the column numbers, the 6 rows of 8 covered squares with their numbers, a number worked out
+   by Python */
+function minesCoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1);
+  const title = it ? /c\s*a\s*m\s*p\s*o\s*m\s*i\s*n\s*a\s*t\s*o/i : /m\s*i\s*n\s*e\s*s\s*w\s*e\s*e\s*p\s*e\s*r/i;
+  if (!mid.some((l) => title.test(l))) return it ? "In mezzo ci vuole il titolo del gioco: CAMPO MINATO." : "The game's title has to be in the middle: MINESWEEPER.";
+  if (!mid.some((l) => /^\s*1\s+2\s+3\s+4\s+5\s+6\s+7\s+8\s*$/.test(l))) return it ? "Sopra il campo ci vuole una riga con i numeri delle colonne, da 1 a 8, separati da spazi." : "Above the field there has to be a line with the column numbers, from 1 to 8, with spaces between them.";
+  const rows = mid.map((l) => l.match(/^\s*(\d+)\D*?(#\s*){8,}\W*$/)).filter(Boolean).map((m) => Number(m[1]));
+  for (let k = 1; k <= 6; k++) if (!rows.includes(k)) return it ? `Il campo ha 6 righe di 8 caselle coperte #, ognuna con il suo numero davanti: manca la riga ${k}.` : `The field has 6 rows of 8 covered squares #, each with its number in front: row ${k} is missing.`;
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(3 + 3)." : "A number worked out by Python is missing, like print(3 + 3).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const MINES = {
+  it: {
+    number: (r, c) => `È la casella numero ${(r - 1) * 8 + c} del campo.`, away: (dr, dc) => `La mina è a ${dr} righe e ${dc} colonne di distanza.`,
+    none: "Quella casella non c'è.", theMine: "BOOM! Era la mina.", near: "Salvo, ma la mina è qui accanto!", safe: "Salvo, e intorno non ci sono mine.",
+    open: "Quella casella è già scoperta.", boom: "BOOM! Era una mina: hai perso.", win: "Hai scoperto tutte le caselle sicure: hai vinto!", bye: "Ciao!"
+  },
+  en: {
+    number: (r, c) => `It's square number ${(r - 1) * 8 + c} of the field.`, away: (dr, dc) => `The mine is ${dr} rows and ${dc} columns away.`,
+    none: "That square doesn't exist.", theMine: "BOOM! That was the mine.", near: "Safe, but the mine is right next to it!", safe: "Safe, and there are no mines around.",
+    open: "That square is already uncovered.", boom: "BOOM! That was a mine: you lost.", win: "You uncovered all the safe squares: you won!", bye: "Bye!"
+  }
+};
+/* The mines of the terminal field (row and column counted from 0): the one of parts 1 and 2 is [3, 3] */
+const MINES_TERM = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]];
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number), "skip" (numbers too big to follow, left to the hidden tests) */
+function minesRun(lang, part, ins) {
+  const T = MINES[lang], lines = [], res = (end) => ({ lines, end });
+  const num = (k) => (k >= ins.length ? "more" : !isIntText(ins[k]) ? "crash" : Math.abs(toInt(ins[k])) > 1e12 ? "skip" : null);
+  if (part === 1 || part === 2) {
+    for (const k of [0, 1]) { const b = num(k); if (b) return res(b); }
+    const r = toInt(ins[0]), c = toInt(ins[1]);
+    if (part === 1) lines.push(T.number(r, c), T.away(Math.abs(r - 4), Math.abs(c - 4)));
+    else if (r < 1 || r > 6 || c < 1 || c > 8) lines.push(T.none);
+    else if (r === 4 && c === 4) lines.push(T.theMine);
+    else if (Math.abs(r - 4) <= 1 && Math.abs(c - 4) <= 1) lines.push(T.near);
+    else lines.push(T.safe);
+    return res(ins.length === 2 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game on the 6 × 8 field; in part 4 an empty square opens the area around it, and the answers
+     can have spaces around them, with Q as q */
+  const field = Array.from({ length: 6 }, () => Array(8).fill("#"));
+  const mine = (r, c) => MINES_TERM.some(([a, b]) => a === r && b === c);
+  const inside = (r, c) => r >= 0 && r < 6 && c >= 0 && c < 8;
+  const uncover = (r, c) => {
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if (mine(r + dr, c + dc)) n++;
+    field[r][c] = n ? String(n) : ".";
+    return n;
+  };
+  const openArea = (r, c) => {
+    let k = 0;
+    for (const q = [[r, c]]; q.length;) {
+      const [a, b] = q.shift();
+      if (!inside(a, b) || field[a][b] !== "#") continue;
+      k++;
+      if (uncover(a, b) === 0) for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) q.push([a + dr, b + dc]);
+    }
+    return k;
+  };
+  let open = 0, end = "", i = 0;
+  for (;;) {
+    lines.push("   1 2 3 4 5 6 7 8");
+    for (let r = 0; r < 6; r++) lines.push(String(r + 1) + " " + field[r].map((x) => " " + x).join(""));
+    if (end) { lines.push(end); break; }
+    if (i >= ins.length) return res("more");
+    const ch = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (ch === "q") { lines.push(T.bye); break; }
+    if (!isIntText(ch)) return res("crash");
+    if (i >= ins.length) return res("more");
+    if (!isIntText(ins[i])) return res("crash");
+    const r = toInt(ch) - 1, c = toInt(ins[i++]) - 1;
+    if (!inside(r, c)) lines.push(T.none);
+    else if (field[r][c] !== "#") lines.push(T.open);
+    else if (mine(r, c)) { for (const [a, b] of MINES_TERM) field[a][b] = "*"; end = T.boom; }
+    else {
+      open += part >= 4 ? openArea(r, c) : (uncover(r, c), 1);
+      if (open === 48 - MINES_TERM.length) end = T.win;
+    }
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const minesExpect = (lang, part, ins) => { const r = minesRun(lang, part, ins || []); return r.end === "done" ? norm(r.lines.join("\n")) : r.end === "skip" ? "" : null; };
+const minesCheck = (lang, part, needs) => (o, c, x) => {
+  const want = minesExpect(lang, part, x.inputs);
+  return needs.every((re) => re.test(c)) && (want === "" || o === want);
+};
+/* Hidden tests: whole games with other answers */
+const minesTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = minesExpect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* part 3: a square with a mine next to it, the same square again, then a mine; and the hidden games, one won by
+   uncovering all the 42 safe squares */
+const MINES_SAMPLE3 = ["1", "2", "1", "2", "4", "4"];
+const MINES_SAFE_TERM = [];
+for (let r = 0; r < 6; r++) for (let c = 0; c < 8; c++) if (!MINES_TERM.some(([a, b]) => a === r && b === c)) MINES_SAFE_TERM.push(String(r + 1), String(c + 1));
+const MINES_GAMES3 = [MINES_SAMPLE3, ["0", "3", "7", "1", "2", "9", "1", "1", "q"], ["6", "1", "5", "1"], MINES_SAFE_TERM, ["2", "2", "2", "2", "q"], ["q"]];
+/* part 4: games with spaces and capitals and empty areas, then the functions one by one */
+const MINES_WIN4 = ["1", "1", "1", "4", "1", "5", "1", "7", "1", "8", "2", "8", "3", "7", "4", "5", "4", "6", "4", "8", "5", "2", "5", "3", "5", "4", "5", "8", "6", "1", "6", "2", "6", "3"];
+const MINES_FIELD0 = "_f = []\nfor _r in range(6):\n    _f.append(['#'] * 8)\n";
+const minesFnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["stampa", "dentro", "conta_vicine", "scopri", "apri"] : ["print_field", "inside", "count_nearby", "uncover", "open_area"], quit = { inputs: ["q"] };
+  const M = JSON.stringify(MINES_TERM);
+  return minesTests(lang, 4, [[" 1 ", "1 ", "Q"], [" 6", " 8", "2 ", "8", " q "], MINES_WIN4, ["1", "3"], ["3", " 1", "3", "1", "Q"]])(c).concat([
+    tcase(c + `\nprint(${F[1]}(0, 0), ${F[1]}(5, 7), ${F[1]}(-1, 3), ${F[1]}(6, 0), ${F[1]}(2, 8), ${F[1]}(3, -1))`,
+      (o) => lastLines(o, 1) === "True True False False False False",
+      it ? "dentro doveva dire True per le caselle del campo, con r da 0 a 5 e c da 0 a 7, e False fuori" : "inside had to say True for the squares of the field, with r from 0 to 5 and c from 0 to 7, and False outside", quit),
+    tcase(c + `\nprint(${F[2]}([[0, 0], [1, 1], [5, 5]], 0, 1), ${F[2]}([[0, 0]], 2, 2), ${F[2]}([[1, 2], [3, 3], [2, 1], [0, 0]], 2, 2))`,
+      (o) => lastLines(o, 1) === "2 0 3",
+      it ? "conta_vicine doveva contare le mine della lista nelle caselle intorno: 2 intorno a [0, 1], 0 e poi 3 intorno a [2, 2]" : "count_nearby had to count the mines of the list in the squares around: 2 around [0, 1], 0 and then 3 around [2, 2]", quit),
+    tcase(c + "\n" + MINES_FIELD0 + `print(${F[3]}(_f, [[0, 0]], 1, 1), _f[1][1], ${F[3]}(_f, [[0, 0]], 3, 3), _f[3][3], _f[0][0])`,
+      (o) => lastLines(o, 1) === "1 1 0 . #",
+      it ? "scopri doveva scrivere nella casella il numero delle mine intorno, come testo, o un punto se non ce ne sono, e restituire quel numero" : "uncover had to write in the square the number of mines around, as text, or a dot if there are none, and give that number back", quit),
+    tcase(c + "\n" + MINES_FIELD0 + `print(${F[4]}(_f, ${M}, 0, 0), ${F[4]}(_f, ${M}, 0, 0), ${F[4]}(_f, ${M}, 0, 1), ${F[4]}(_f, ${M}, 5, 7))\n${F[0]}(_f)`,
+      (o) => lastLines(o, 8) === "11 0 0 6\n   1 2 3 4 5 6 7 8\n1  . 1 # # # # # #\n2  . 1 1 # # # # #\n3  . . 1 # # # # #\n4  1 1 1 # # # 1 1\n5  # # # # # # 1 .\n6  # # # # # # 1 .",
+      it ? "apri doveva scoprire la casella e, se intorno non ci sono mine, tutta la zona vuota, e restituire quante caselle ha scoperto: 11 da [0, 0], 0 su caselle già scoperte, 6 da [5, 7]; e stampa doveva stampare il campo con i numeri delle righe e delle colonne"
+        : "open_area had to uncover the square and, if there are no mines around, the whole empty area, and give back how many squares it uncovered: 11 from [0, 0], 0 on squares already uncovered, 6 from [5, 7]; and print_field had to print the field with the numbers of the rows and the columns", quit)
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview: background "#151b23", covered squares "#4f5d6e" with a
+   "#6b7a8c" strip on top, uncovered "#c9d2dc", the numbers in "#1e88e5", "#43a047"..., the flag "#dbe3f1" and "#e53935";
+   squares of 39 every 42 pixels, 7 rows of 12 from (48, 96): the centre of square (r, c) is at (68 + 42 * c, 116 + 42 * r).
+   The preview's field has 8 mines, and a click in row 3, column 6 opens 52 squares. */
+const MINES_AT = "def _at(_r, _c):\n    return (48 + _c * 42 + 20, 96 + _r * 42 + 20)\n";
+const MINES_TEXT = "' '.join(_t.texts())";
+/* the numbers on the screen, with their colours */
+const MINES_NUMS = "sorted(set((_c[1], _c[5]['c']) for _c in _t.picture if _c[0] == 'text' and _c[1].isdigit()))";
+/* squares clicked one after the other (button 3: the right one) */
+const MINES_CLICKS = (squares, button) => "for _s in " + JSON.stringify(squares) + ":\n    _t.click(_at(_s[0], _s[1])" + (button ? ", " + button : "") + ")\n";
+const MINES_PREVIEW = [[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]];
+/* after a click in (3, 6), the clicks that uncover the rest of the preview's field: the last one wins */
+const MINES_PREVIEW_WIN = [[0, 0], [0, 1], [0, 9], [0, 10], [0, 11], [1, 0], [4, 11], [5, 8], [5, 9], [5, 10], [5, 11], [6, 1], [6, 2], [6, 3], [6, 7], [6, 8], [6, 9]];
+/* 8 mines around the square (1, 1): a click in (6, 11) opens everything else, 75 squares, and (1, 1) has 8 around it */
+const MINES_RING = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]];
+/* the dice: the preview's mines with the first one twice; then, for the first safe click in (3, 6), four squares too
+   near to it, the ring and four more mines for the level with 12 */
+const MINES_DUP = [[0, 5], [1, 1], [1, 9], [0, 5], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]];
+const MINES_EXTRA = [[4, 9], [4, 10], [4, 11], [5, 9]];
+const MINES_FIRST = [[3, 6], [2, 5], [4, 7], [3, 5]].concat(MINES_RING, MINES_EXTRA);
+/* loaded dice: random.randint gives in turn the rows and the columns of a list of squares (a row when it's asked for
+   a number from a range of 7, a column otherwise), and starts again from the beginning when the list is over */
+const MINES_RIG = (squares) => "import random\n_rig = [" + JSON.stringify(squares.map((s) => s[0])) + ", " + JSON.stringify(squares.map((s) => s[1])) + ", 0, 0]\n" +
+  "def _randint(a, b):\n    _k = 0 if b - a == 6 else 1\n    _v = _rig[_k][_rig[_k + 2] % len(_rig[_k])]\n    _rig[_k + 2] += 1\n    return a + _v\nrandom.randint = _randint\n";
+/* the names in the learner's program, as the tasks give them */
+const MINES_N = {
+  it: { mines: "mine", field: "campo", state: "stato", count: "quante", rec: "record", colours: "COLORI", open: "scoperte", cls: "Casella",
+    A: ["x", "y", "mina", "scoperta", "bandiera", "vicine", "cambia_bandiera"], S: ["gioco", "persa", "vinta"], T: ["Mine", "Record", "Tempo"],
+    M: ["BOOM! Era una mina: hai perso.", "Tutte le caselle sicure: hai vinto!", "BOOM! Clicca per giocare ancora.", "Hai vinto! Clicca per giocare ancora.", "CAMPO PULITO!", "Nuovo record!", "Pausa: P per continuare"] },
+  en: { mines: "mines", field: "field", state: "state", count: "how_many", rec: "best", colours: "COLOURS", open: "cleared", cls: "Square",
+    A: ["x", "y", "mine", "uncovered", "flag", "nearby", "toggle_flag"], S: ["playing", "lost", "won"], T: ["Mines", "Record", "Time"],
+    M: ["BOOM! That was a mine: you lost.", "All the safe squares: you won!", "BOOM! Click to play again.", "You won! Click to play again.", "FIELD CLEARED!", "New record!", "Paused: P to go on"] }
+};
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const minesNeed = (re, msg) => [re, msg, msg];
+const MINES_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: le caselle si scoprono con i clic, in on_mouse_down.", "In the window there's no more input: the squares are uncovered with clicks, in on_mouse_down."];
+const MINES_CLICK = [/^def\s+on_mouse_down\s*\(\s*pos\s*,\s*button\s*\)/m, "I clic vanno in def on_mouse_down(pos, button):, che Pygame Zero chiama a ogni clic con il punto e il tasto del mouse.", "The clicks go in def on_mouse_down(pos, button):, which Pygame Zero calls at every click with the point and the mouse button."];
+const MINES_RIGHT = [/\bbutton\s*==\s*mouse\.RIGHT\b|\bmouse\.RIGHT\s*==\s*button\b/, "Il clic destro si riconosce con button == mouse.RIGHT: lì metti o togli la bandierina.", "The right click is recognised with button == mouse.RIGHT: that's where you put or take away the flag."];
+const MINES_RECT = [/\bRect\s*\(/, "Le caselle sono quadrati: si disegnano con screen.draw.filled_rect e un Rect.", "The squares are squares: they're drawn with screen.draw.filled_rect and a Rect."];
+const MINES_RANDOM = [/\brandom\.randint\s*\(/, "Le mine si pescano a caso con random.randint: prima la riga, poi la colonna.", "The mines are picked at random with random.randint: first the row, then the column."];
+const MINES_COLOURS = [/\{\s*1\s*:/, "I colori dei numeri vanno in un dizionario, con i numeri come chiavi: {1: \"#1e88e5\", 2: ...}.", "The numbers' colours go in a dictionary, with the numbers as keys: {1: \"#1e88e5\", 2: ...}."];
+const MINES_DICT = [/=\s*\{\s*\}/, "I record stanno in un dizionario, con il numero delle mine come chiave: all'inizio è vuoto, {}.", "The records go in a dictionary, with the number of mines as the key: at the start it's empty, {}."];
+const MINES_TICK = [/\bclock\.schedule_interval\s*\(\s*\w+\s*,/, "Il tempo cresce da solo: consegna la funzione che conta i secondi a clock.schedule_interval, senza parentesi.", "The time grows by itself: hand the function that counts the seconds to clock.schedule_interval, without brackets."];
+const MINES_CLASS = {
+  it: [minesNeed(/\bclass\s+Casella\b/, "La casella diventa un oggetto: class Casella:, con __init__ e i suoi metodi."),
+    minesNeed(/\bdef\s+cambia_bandiera\s*\(\s*self/, "Manca il metodo cambia_bandiera(self), che mette o toglie la bandierina."),
+    minesNeed(/\bdef\s+copertura\s*\(\s*self/, "Manca il metodo copertura(self), che disegna la casella coperta."),
+    minesNeed(/\bdef\s+disegna\s*\(\s*self/, "Manca il metodo disegna(self).")],
+  en: [minesNeed(/\bclass\s+Square\b/, "The square becomes an object: class Square:, with __init__ and its methods."),
+    minesNeed(/\bdef\s+toggle_flag\s*\(\s*self/, "The method toggle_flag(self) is missing: it puts the flag on or takes it away."),
+    minesNeed(/\bdef\s+draw_cover\s*\(\s*self/, "The method draw_cover(self) is missing: it draws the covered square."),
+    minesNeed(/\bdef\s+show\s*\(\s*self/, "The method show(self) is missing.")]
+};
+const MINES_SAFE = { it: minesNeed(/\bdef\s+metti_mine\s*\(/, "Le mine si mettono al primo clic, con def metti_mine(r0, c0):."), en: minesNeed(/\bdef\s+place_mines\s*\(/, "The mines are placed at the first click, with def place_mines(r0, c0):.") };
+const MINES_LEVELS = [/^def\s+on_key_down\s*\(/m, "I tasti 1, 2, 3 e N vanno in def on_key_down(key):.", "The keys 1, 2, 3 and N go in def on_key_down(key):."];
+const MINES_NUMKEYS = [/^(?=[\s\S]*\bkeys\.K_1\b)(?=[\s\S]*\bkeys\.K_2\b)(?=[\s\S]*\bkeys\.K_3\b)/, "I tasti 1, 2 e 3 sono keys.K_1, keys.K_2 e keys.K_3.", "The keys 1, 2 and 3 are keys.K_1, keys.K_2 and keys.K_3."];
+const MINES_NEW = [/\bkeys\.N\b/, "Con il tasto N comincia una partita nuova: keys.N.", "The N key starts a new game: keys.N."];
+const MINES_COMPUTER = {
+  it: [minesNeed(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    minesNeed(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), minesNeed(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    minesNeed(/\bkeys\.P\b/, "La pausa va e viene con il tasto P: keys.P.")],
+  en: [minesNeed(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    minesNeed(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), minesNeed(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    minesNeed(/\bkeys\.P\b/, "The pause comes and goes with the P key: keys.P.")]
+};
+const MINES_WIN5 = [MINES_NOINPUT, MINES_CLICK, MINES_RIGHT, PGZ_GLOBAL, MINES_RECT];
+const MINES_WIN7 = MINES_WIN5.concat([MINES_RANDOM, MINES_COLOURS, MINES_DICT, MINES_TICK]);
+
+/* Hidden tests of the window parts: the game played without a screen */
+/* part 5: the preview's field, a click opens an area, flags with the right button, a mine, a won game, clicks outside */
+const minesWinTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  return [
+    gtcase(c, "_t.step()\nprint(_t.background(), len(_t.rects('#4f5d6e')), sorted(set(_r[2:] for _r in _t.rects('#4f5d6e'))), len(_t.rects('#6b7a8c')), sorted(set(_r[2:] for _r in _t.rects('#6b7a8c'))), (48, 96, 39, 39) in _t.rects('#4f5d6e'), (510, 348, 39, 39) in _t.rects('#4f5d6e'), (510, 348, 39, 4) in _t.rects('#6b7a8c'), _t.size, " + has(N.T[0] + ": 8") + ")",
+      (o) => o === "#151b23 84 [(39, 39)] 84 [(39, 4)] True True True (600, 420) True",
+      it ? "all'inizio lo sfondo è #151b23 e ci sono le 84 caselle coperte, 7 righe di 12 da (48, 96) ogni 42 pixel: quadrati #4f5d6e di 39 con in cima la striscia #6b7a8c alta 4; la finestra è 600 × 420 e c'è scritto Mine: 8"
+        : "at the start the background is #151b23 and there are the 84 covered squares, 7 rows of 12 from (48, 96) every 42 pixels: #4f5d6e squares of 39 with the #6b7a8c strip 4 high on top; the window is 600 × 420 and it says Mines: 8"),
+    gtcase(c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n_n = [(_c[1], _c[2], _c[3], _c[4], _c[5]['s']) for _c in _t.picture if _c[0] == 'text' and _c[1].isdigit()]\nprint(len(_t.rects('#c9d2dc')), len(_t.rects('#4f5d6e')), (300, 222, 39, 39) in _t.rects('#c9d2dc'), " + MINES_NUMS + ", ('1', 152, 117, 'center', 40) in _n, len(_n))",
+      (o) => o === "52 32 True [('1', '#1e88e5')] True 29",
+      it ? "un clic sulla casella nella riga 3 e colonna 6, contate da 0, la scopre, #c9d2dc, e apre la zona vuota intorno, 52 caselle come nell'anteprima, con 29 numeri 1 in #1e88e5, grandi 40 e centrati in (x + 20, y + 21)"
+        : "a click on the square in row 3 and column 6, counted from 0, uncovers it, #c9d2dc, and opens the empty area around it, 52 squares as in the preview, with 29 number 1s in #1e88e5, size 40 and centred at (x + 20, y + 21)"),
+    gtcase(c, MINES_AT + "_t.step()\n_t.click(_at(1, 9), 3)\n_a = [_t.rects('#e53935'), _t.rects('#dbe3f1'), " + has(N.T[0] + ": 7") + "]\n_t.click(_at(1, 9))\n_b = [len(_t.rects('#c9d2dc')), len(_t.rects('#e53935'))]\n_t.click(_at(1, 9), 3)\n_c2 = [_t.rects('#e53935'), " + has(N.T[0] + ": 8") + "]\n_t.click(_at(3, 6))\n_t.click(_at(3, 6), 3)\nprint(_a, _b, _c2, " + has(N.T[0] + ": 8") + ", len(_t.rects('#dbe3f1')))",
+      (o) => o === "[[(445, 147, 14, 12)], [(441, 147, 4, 24)], True] [0, 1] [[], True] True 0",
+      it ? "con il tasto destro sulla casella coperta nella riga 1 e colonna 9 compare la bandierina, l'asta #dbe3f1 di 4 × 24 in (x + 15, y + 9) e la bandiera #e53935 di 14 × 12 in (x + 19, y + 9), e le mine scritte diventano 7; un clic sinistro sulla bandierina non scopre niente; un altro clic destro la toglie, e su una casella scoperta il clic destro non fa niente"
+        : "with the right button on the covered square in row 1 and column 9 the flag appears, the #dbe3f1 pole of 4 × 24 at (x + 15, y + 9) and the #e53935 flag of 14 × 12 at (x + 19, y + 9), and the mines written become 7; a left click on the flag uncovers nothing; another right click takes it away, and on an uncovered square the right click does nothing"),
+    gtcase(c, MINES_AT + "_t.step()\n_t.click(_at(1, 9), 3)\n_t.click(_at(0, 5))\n_a = [sorted(_t.rects('#e53935')), len(_t.circles('#151b23')), sorted(set(_c[2] for _c in _t.circles('#151b23'))), (278, 116, 12) in _t.circles('#151b23'), (110, 158, 12) in _t.circles('#151b23'), len(_t.rects('#c9d2dc')), " + has(N.M[0]) + "]\n_t.click(_at(3, 6))\n_t.click(_at(6, 0), 3)\nprint(_a, len(_t.rects('#c9d2dc')), len(_t.rects('#dbe3f1')))",
+      (o) => o === "[[(258, 96, 39, 39), (445, 147, 14, 12)], 7, [12], True, True, 6, True] 6 1",
+      it ? `un clic sulla mina nella riga 0 e colonna 5 la fa scoppiare: la sua casella diventa #e53935 con il cerchio #151b23 di raggio 12 in (x + 20, y + 20), le altre mine compaiono su caselle scoperte, tranne quella con la bandierina, e c'è scritto ${N.M[0]}; dopo, i clic non fanno più niente`
+        : `a click on the mine in row 0 and column 5 sets it off: its square becomes #e53935 with the #151b23 circle with radius 12 at (x + 20, y + 20), the other mines appear on uncovered squares, except the one with the flag, and it says ${N.M[0]}; afterwards clicks do nothing any more`),
+    gtcase(c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n" + MINES_CLICKS(MINES_PREVIEW_WIN) + "_a = [len(_t.rects('#c9d2dc')), len(_t.rects('#4f5d6e')), " + has(N.M[1]) + ", ('2', '#43a047') in " + MINES_NUMS + "]\n_t.click(_at(0, 5))\nprint(_a, len(_t.rects('#e53935')))",
+      (o) => o === "[76, 8, True, True] 0",
+      it ? `scoperte tutte le 76 caselle senza mine, con i numeri 2 in #43a047, restano coperte solo le 8 mine e c'è scritto ${N.M[1]}; dopo, un clic su una mina non fa niente`
+        : `once all the 76 squares without mines are uncovered, with the 2s in #43a047, only the 8 mines stay covered and it says ${N.M[1]}; afterwards a click on a mine does nothing`),
+    gtcase(c, "_t.step()\nfor _p in [(47, 200), (300, 95), (552, 200), (300, 390), (10, 10), (599, 419)]:\n    _t.click(_p)\n    _t.click(_p, 3)\nprint(len(_t.rects('#c9d2dc')), len(_t.rects('#e53935')), " + has(N.T[0] + ": 8") + ")",
+      (o) => o === "0 0 True", it ? "un clic fuori dal campo, con tutti e due i tasti, non fa niente" : "a click off the field, with either button, does nothing")
+  ];
+};
+/* part 6: random mines, all on different squares, and another game after the end */
+const minesRandomTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  return [
+    gtcase(MINES_RIG(MINES_DUP) + c, "_t.step()\nprint(sorted(" + N.mines + "), len(" + N.mines + "), " + N.count + ")",
+      (o) => o === "[[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]] 8 8",
+      it ? "con dei dadi truccati che danno le caselle delle mine dell'anteprima, e la prima due volte, le mine sono proprio quelle 8: la casella già pescata va saltata, e si pesca finché le mine sono quante"
+        : "with loaded dice that give the squares of the preview's mines, and the first one twice, the mines are exactly those 8: the square already picked has to be skipped, and you keep picking until there are how_many mines"),
+    gtcase(MINES_RIG(MINES_DUP) + c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n_a = len(_t.rects('#c9d2dc'))\n_t.click(_at(0, 5))\n_b = " + has(N.M[2]) + "\n_t.click(_at(3, 6))\n_c2 = [len(_t.rects('#4f5d6e')), len(_t.rects('#c9d2dc')), " + has(N.M[2]) + ", " + has(N.T[0] + ": 8") + "]\n_t.click(_at(3, 6))\nprint(_a, _b, _c2, len(_t.rects('#c9d2dc')))",
+      (o) => o === "52 True [84, 0, False, True] 52",
+      it ? `dopo una mina c'è scritto ${N.M[2]}, e il clic dopo comincia una partita nuova, tutta coperta, senza scoprire niente; il clic ancora dopo gioca`
+        : `after a mine it says ${N.M[2]}, and the next click starts a new game, all covered, without uncovering anything; the click after that plays`),
+    gtcase(MINES_RIG(MINES_DUP) + c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n" + MINES_CLICKS(MINES_PREVIEW_WIN) + "_a = " + has(N.M[3]) + "\n_t.click(_at(0, 0))\nprint(_a, len(_t.rects('#4f5d6e')), " + has(N.M[3]) + ", " + N.state + ")",
+      (o) => o === `True 84 False ${N.S[0]}`,
+      it ? `quando vinci c'è scritto ${N.M[3]}, e un clic comincia una partita nuova` : `when you win it says ${N.M[3]}, and a click starts a new game`)
+  ];
+};
+/* part 7: the colours in a dictionary, the time from the first click, the record of time for 8 mines */
+const minesRecordTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  const game = (wait) => "_t.click(_at(6, 11))\n_t.wait(" + wait + ")\n_t.click(_at(1, 1))\n";
+  return [
+    gtcase(MINES_RIG(MINES_RING) + c, MINES_AT + "_t.step()\n_t.click(_at(6, 11))\n_a = " + MINES_NUMS + "\n_t.click(_at(1, 1))\nprint([" + N.colours + "[_k] for _k in range(1, 9)], _a, " + MINES_NUMS + ")",
+      (o) => o === "['#1e88e5', '#43a047', '#e53935', '#5e35b1', '#ef6c00', '#00897b', '#37474f', '#6d4c41'] [('1', '#1e88e5'), ('2', '#43a047'), ('3', '#e53935')] [('1', '#1e88e5'), ('2', '#43a047'), ('3', '#e53935'), ('8', '#6d4c41')]",
+      it ? "il dizionario COLORI dà a ogni numero da 1 a 8 il suo colore, e i numeri nel campo hanno quei colori: con 8 mine intorno alla casella nella riga 1 e colonna 1 compaiono 1, 2, 3 e 8"
+        : "the COLOURS dictionary gives each number from 1 to 8 its colour, and the numbers on the field have those colours: with 8 mines around the square in row 1 and column 1 there are 1, 2, 3 and 8"),
+    gtcase(MINES_RIG(MINES_RING) + c, MINES_AT + "_t.step()\n_a = [" + has(N.T[1] + ": -") + ", " + has(N.T[2] + ": 0 s") + "]\n_t.wait(2.1)\n_a.append(" + has(N.T[2] + ": 0 s") + ")\n_t.click(_at(6, 11))\n_t.wait(2.05)\n_b = " + has(N.T[2] + ": 2 s") + "\n_t.click(_at(1, 1))\n_t.wait(2.1)\nprint(_a, _b, " + has(N.T[2] + ": 2 s") + ", " + has(N.T[1] + ": 2") + ", _t.var('" + N.rec + "'))",
+      (o) => o === "[True, True, True] True True True {8: 2}",
+      it ? "all'inizio c'è scritto Record: - e Tempo: 0 s; il tempo non parte prima del primo clic, poi cresce di un secondo alla volta e si ferma quando vinci; vinta la partita in 2 secondi, il record per 8 mine è 2"
+        : "at the start it says Record: - and Time: 0 s; the time doesn't start before the first click, then it grows a second at a time and stops when you win; after a game won in 2 seconds, the record for 8 mines is 2"),
+    gtcase(MINES_RIG(MINES_RING) + c, MINES_AT + "_t.step()\n" + game(3.05) + "_a = str(_t.var('" + N.rec + "'))\n_t.click(_at(6, 11))\n" + game(1.05) + "_b = str(_t.var('" + N.rec + "'))\n_t.click(_at(6, 11))\n" + game(2.05) + "print(_a, _b, _t.var('" + N.rec + "'), " + has(N.T[1] + ": 1") + ")",
+      (o) => o === "{8: 3} {8: 1} {8: 1} True",
+      it ? "il dizionario record tiene per 8 mine il tempo più basso: 3, poi 1 con una partita più veloce, e resta 1 dopo una partita da 2" : "the best dictionary keeps for 8 mines the lowest time: 3, then 1 with a faster game, and it stays 1 after a game of 2")
+  ];
+};
+/* part 8: the Casella class on its own, then the game made of Casella objects */
+const minesClassTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], A = N.A, K = N.cls, F = N.field, has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  const all = (attr) => "sorted([_r, _c] for _r in range(7) for _c in range(12) if " + F + "[_r][_c]." + attr + ")";
+  return [
+    gtcase(c, `_k = ${K}(2, 3)\n_a = [_k.${A[0]}, _k.${A[1]}, _k.${A[2]}, _k.${A[3]}, _k.${A[4]}, _k.${A[5]}]\n_k.${A[6]}()\n_b = _k.${A[4]}\n_k.${A[6]}()\n_c2 = _k.${A[4]}\n_k.${A[3]} = True\n_k.${A[6]}()\nprint(_a, _b, _c2, _k.${A[4]})`,
+      (o) => o === "[174, 180, False, False, False, 0] True False False",
+      it ? "Casella(2, 3) sta in (174, 180), coperta, senza mina, senza bandierina e con 0 vicine; cambia_bandiera mette la bandierina e la toglie, ma non su una casella scoperta"
+        : "Square(2, 3) is at (174, 180), covered, without a mine, without a flag and with 0 nearby; toggle_flag puts the flag on and takes it away, but not on an uncovered square"),
+    gtcase(MINES_RIG(MINES_RING) + c, MINES_AT + "_t.step()\n_a = [len(" + F + "), len(" + F + "[0]), type(" + F + "[0][0]).__name__, " + all(A[2]) + ", " + F + "[1][1]." + A[5] + ", " + F + "[3][1]." + A[5] + ", " + F + "[6][11]." + A[5] + "]\n_t.click(_at(6, 11))\n_b = [len(_t.rects('#c9d2dc')), len(" + all(A[3]) + ")]\n_t.click(_at(1, 1), 3)\n_t.click(_at(1, 1))\n_c2 = [" + F + "[1][1]." + A[4] + ", " + F + "[1][1]." + A[3] + ", " + has(N.T[0] + ": 7") + ", _t.rects('#e53935')]\n_t.click(_at(1, 1), 3)\n_t.click(_at(1, 1))\nprint(_a, _b, _c2, " + N.state + ")",
+      (o) => o === `[7, 12, '${K}', [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]], 8, 3, 0] [75, 75] [True, False, True, [(109, 147, 14, 12)]] ${N.S[2]}`,
+      it ? "il campo è una lista di 7 righe di 12 oggetti Casella; le mine dei dadi hanno mina vera e ogni casella sa quante ne ha intorno; un clic apre la zona vuota, la bandierina si mette e si toglie con il tasto destro e ferma il clic sinistro, e scoperte tutte le caselle sicure si vince"
+        : "the field is a list of 7 rows of 12 Square objects; the dice's mines have mine true and every square knows how many it has around; a click opens the empty area, the flag goes on and off with the right button and stops the left click, and with all the safe squares uncovered you win"),
+    gtcase(MINES_RIG(MINES_RING) + c, MINES_AT + "_t.step()\n_t.click(_at(6, 11))\n_t.click(_at(0, 0), 3)\n_t.click(_at(0, 1))\nprint(sorted(_t.rects('#e53935')), len(_t.circles('#151b23')), " + has(N.M[2]) + ")",
+      (o) => o === "[(67, 105, 14, 12), (90, 96, 39, 39)] 7 True",
+      it ? "finendo su una mina la sua casella diventa rossa, le altre mine compaiono, tranne quella con la bandierina, e c'è scritto di cliccare per giocare ancora" : "landing on a mine its square turns red, the other mines appear, except the one with the flag, and it says to click to play again")
+  ];
+};
+/* part 9: three levels, the first click always safe, the winning screen, the records of each level, N */
+const minesLevelTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], A = N.A, F = N.field, has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  const all = (attr) => "sorted([_r, _c] for _r in range(7) for _c in range(12) if " + F + "[_r][_c]." + attr + ")";
+  return [
+    gtcase(c, "_t.step()\n_a = [" + N.count + ", " + has(N.T[0] + ": 8") + ", _t.size]\n_t.tap('k_2')\n_b = [" + N.count + ", " + has(N.T[0] + ": 12") + "]\n_t.tap('k_3')\n_c2 = [" + N.count + ", " + has(N.T[0] + ": 16") + "]\n_t.tap('k_1')\nprint(_a, _b, _c2, " + N.count + ", " + has(N.T[0] + ": 8") + ")",
+      (o) => o === "[8, True, (600, 460)] [12, True] [16, True] 8 True",
+      it ? "si comincia con 8 mine, e la finestra è alta 460; il tasto 2 porta a 12 mine, il 3 a 16 e l'1 di nuovo a 8" : "you start with 8 mines, and the window is 460 high; the 2 key takes you to 12 mines, the 3 to 16 and the 1 back to 8"),
+    gtcase(MINES_RIG(MINES_FIRST) + c, MINES_AT + "_t.step()\n_a = len(" + all(A[2]) + ")\n_t.click(_at(3, 6))\n_b = [" + all(A[2]) + ", len(_t.rects('#c9d2dc')), " + F + "[3][1]." + A[5] + "]\n_t.click(_at(1, 1))\n_w = [(_c[2], _c[3], _c[4], _c[5]['s'], _c[5]['c']) for _c in _t.picture if _c[0] == 'text' and _c[1] == '" + N.M[4] + "']\nprint(_a, _b, _t.rects('#ffca28'), (114, 162, 372, 162) in _t.rects('#151b23'), _w, " + has(N.M[5]) + ", _t.texts().count('" + N.T[2] + ": 0 s'))",
+      (o) => o === `0 [[[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]], 75, 3] [(110, 158, 380, 170)] True [(300, 196, 'center', 48, '#ffca28')] True 2`,
+      it ? `prima del primo clic non ci sono mine; al primo clic, nella riga 3 e colonna 6, i dadi propongono quella casella e tre vicine, che vanno saltate, e poi le 8 mine intorno alla riga 1 e colonna 1: il clic apre 75 caselle; vinta la partita compare il riquadro #ffca28 di 380 × 170 in (110, 158), con dentro quello #151b23, la scritta ${N.M[4]} grande 48 centrata in (300, 196), il tempo e ${N.M[5]}`
+        : `before the first click there are no mines; at the first click, in row 3 and column 6, the dice offer that square and three next to it, which have to be skipped, and then the 8 mines around row 1 and column 1: the click opens 75 squares; once the game is won the #ffca28 box of 380 × 170 at (110, 158) appears, with the #151b23 one inside, the text ${N.M[4]} size 48 centred at (300, 196), the time and ${N.M[5]}`),
+    gtcase(MINES_RIG(MINES_FIRST) + c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n_t.click(_at(1, 1))\n_t.tap('k_2')\n_t.click(_at(3, 6))\n_a = len(" + all(A[2]) + ")\n" + MINES_CLICKS([[1, 1], [5, 10], [5, 11], [6, 9], [6, 10], [6, 11]]) + "_b = [" + N.state + ", sorted(_t.var('" + N.rec + "'))]\n_t.tap('k_1')\n_c2 = ('" + N.T[1] + ": ' + str(_t.var('" + N.rec + "')[8])) in " + MINES_TEXT + " and " + N.count + " == 8\n_t.click(_at(3, 6))\n_t.tap('n')\nprint(_a, _b, _c2, " + N.state + ", " + N.open + ", len(_t.rects('#4f5d6e')), " + N.count + ")",
+      (o) => o === `12 ['${N.S[2]}', [8, 12]] True ${N.S[0]} 0 84 8`,
+      it ? "il dizionario dei record tiene un record per ogni difficoltà, 8 e 12 mine; N comincia una partita nuova con le stesse mine, anche a metà" : "the records dictionary keeps a record for each level, 8 and 12 mines; N starts a new game with the same mines, even halfway through")
+  ];
+};
+/* part 10: the window's title, the pause, Esc */
+const minesKeyTests = (lang) => (c) => {
+  const it = lang === "it", N = MINES_N[lang], has = (s) => "'" + s.replace(/'/g, "\\'") + "' in " + MINES_TEXT;
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(MINES_RIG(MINES_FIRST) + c, MINES_AT + "_t.step()\n_t.click(_at(3, 6))\n_t.click(_at(1, 1), 3)\n_t.tap('p')\n_a = [len(_t.rects('#4f5d6e')), len(_t.rects('#c9d2dc')), len(_t.rects('#e53935')), " + has(N.M[6]) + "]\n_t.wait(2.1)\n_t.click(_at(6, 11))\n_t.click(_at(1, 1), 3)\n_t.tap('k_2')\n_b = [" + has(N.T[2] + ": 0 s") + ", " + N.open + ", " + N.count + "]\n_t.tap('p')\nprint(_a, _b, len(_t.rects('#c9d2dc')), len(_t.rects('#e53935')))",
+      (o) => o === "[84, 0, 0, True] [True, 75, 8] 75 1",
+      it ? "con P il gioco va in pausa: le caselle si vedono tutte coperte, il tempo si ferma e i clic e i tasti non contano; con P di nuovo si riprende, e il campo ricompare com'era" : "with P the game pauses: the squares all look covered, the time stops and clicks and keys don't count; with P again it goes on, and the field shows again as it was"),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True", it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("mines", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_campo.py", "build_field.py"],
+  it: {
+    title: "Costruisci: il campo minato",
+    theory: [
+`<p>Da qui comincia il tuo progetto, il <b>Campo minato</b>: un campo di caselle coperte, e sotto alcune ci sono delle mine. Scopri una casella alla volta: se c'è una mina scoppia, e hai perso; se no compare un numero, che dice quante mine ci sono nelle 8 caselle intorno. Con i numeri capisci dove sono le mine, e vinci quando hai scoperto tutte le caselle senza mine. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, con il <b>campo coperto</b>: una cornice sopra e sotto, il titolo, il campo disegnato con <code>print</code>, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">=======================
+    CAMPO  MINATO
+=======================
+   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Scopri le caselle senza mine:
+i numeri dicono quante mine
+ci sono intorno.
+Mine nascoste:
+6
+=======================</pre>
+<p>Il campo ha 6 righe di 8 caselle, e ogni casella coperta è un <code>#</code>. Sopra ci sono i numeri delle colonne, da 1 a 8, e davanti a ogni riga il suo numero, da 1 a 6: serviranno per dire quale casella vuoi scoprire, come nella battaglia navale.</p>`],
+    task: `Scrivi la copertina del Campo minato: la prima e l'ultima riga fatte solo di simboli, il titolo <code>CAMPO MINATO</code>, la riga con i numeri delle colonne da 1 a 8, il campo (6 righe di 8 <code>#</code>, ognuna con il suo numero davanti), le regole e un numero calcolato da Python, come <code>3 + 3</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Campo minato, di Ada
+print("=======================")
+print("    CAMPO  MINATO")
+print("=======================")
+print("   1 2 3 4 5 6 7 8")
+print("1  # # # # # # # #")
+print("2  # # # # # # # #")
+print("3  # # # # # # # #")
+print("4  # # # # # # # #")
+print("5  # # # # # # # #")
+print("6  # # # # # # # #")
+print("Scopri le caselle senza mine:")
+print("i numeri dicono quante mine")
+print("ci sono intorno.")
+print("Mine nascoste:")
+print(3 + 3)
+print("=======================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? Cosa c'è in ogni riga del campo prima delle caselle?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con il titolo, uno con i numeri delle colonne, sei print con il numero della riga e otto # ciascuno, due o tre con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !minesCoverWhy(o, c, "it"),
+    why: (o, c) => minesCoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the minefield",
+    theory: [
+`<p>Your project starts here, <b>Minesweeper</b>: a field of covered squares, and under some of them there are mines. You uncover one square at a time: if there's a mine it goes off, and you've lost; if not a number appears, which says how many mines there are in the 8 squares around it. With the numbers you work out where the mines are, and you win when you've uncovered all the squares without mines. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, with the <b>covered field</b>: a frame above and below, the title, the field drawn with <code>print</code>, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">=======================
+     MINESWEEPER
+=======================
+   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Uncover the squares without mines:
+the numbers say how many mines
+are around them.
+Hidden mines:
+6
+=======================</pre>
+<p>The field has 6 rows of 8 squares, and every covered square is a <code>#</code>. Above it there are the column numbers, from 1 to 8, and in front of every row its number, from 1 to 6: they'll be used to say which square you want to uncover, as in battleships.</p>`],
+    task: `Write the Minesweeper cover: the first and last lines made only of symbols, the title <code>MINESWEEPER</code>, the line with the column numbers from 1 to 8, the field (6 rows of 8 <code>#</code>, each with its number in front), the rules and a number worked out by Python, like <code>3 + 3</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Minesweeper, by Ada
+print("=======================")
+print("     MINESWEEPER")
+print("=======================")
+print("   1 2 3 4 5 6 7 8")
+print("1  # # # # # # # #")
+print("2  # # # # # # # #")
+print("3  # # # # # # # #")
+print("4  # # # # # # # #")
+print("5  # # # # # # # #")
+print("6  # # # # # # # #")
+print("Uncover the squares without mines:")
+print("the numbers say how many mines")
+print("are around them.")
+print("Hidden mines:")
+print(3 + 3)
+print("=======================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? What comes before the squares in every row of the field?",
+      "First line: a comment with #. Then a print of symbols, one with the title, one with the column numbers, six prints with the row's number and eight # each, two or three with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !minesCoverWhy(o, c, "en"),
+    why: (o, c) => minesCoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: ["abs"], sample: ["2", "7"], file: ["costruisci_campo_minato_1.py", "build_minesweeper_1.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 1",
+    theory: [
+`<p>Parte 1: <b>scegli una casella</b>. Il giocatore dice la riga e la colonna, e il programma risponde con due conti.</p>
+<p>Il primo è il <b>numero della casella</b>, contando le caselle una dopo l'altra, riga per riga. Ogni riga ne ha 8, quante le <code>colonne</code>: prima della riga 2 ce ne sono 8, prima della riga 3 ce ne sono 16. Quindi la casella nella riga 2 e colonna 7 è la numero <code>(2 - 1) * 8 + 7</code>, cioè 15.</p>
+<p>Il secondo è la <b>distanza da una mina</b>. Per ora la mina è una sola, nella riga 4 e colonna 4. Quante righe ci sono tra la casella e la mina? <code>riga - 4</code>, ma se la casella sta sopra la mina il conto viene negativo: con la riga 2, <code>2 - 4</code> fa -2. Una distanza però non è mai negativa, e qui serve <code>abs</code>, il <b>valore assoluto</b>: restituisce il numero senza il segno meno, se c'è. <code>abs(-2)</code> fa 2, <code>abs(3)</code> fa 3 e <code>abs(0)</code> fa 0. Così <code>abs(riga - mina_riga)</code> è la distanza in righe, che la casella sia sopra o sotto la mina, e lo stesso vale per le colonne.</p>
+<pre class="term-sample">Riga (1-6)? 2
+Colonna (1-8)? 7
+È la casella numero 15 del campo.
+La mina è a 2 righe e 3 colonne di distanza.</pre>`],
+    task: `Metti la mina in <code>mina_riga</code> e <code>mina_colonna</code>, tutte e due 4. Chiedi la riga e la colonna, poi scrivi il numero della casella e la distanza dalla mina in righe e in colonne, con <code>abs</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altre caselle: sopra, sotto, a sinistra e a destra della mina, e sulla mina.`,
+    starter: `# Campo minato, parte 1: scegli una casella\ncolonne = 8\n\n`,
+    solution: `# Campo minato, parte 1: scegli una casella
+colonne = 8
+mina_riga = 4
+mina_colonna = 4
+
+riga = int(input("Riga (1-6)? "))
+colonna = int(input("Colonna (1-8)? "))
+print(f"È la casella numero {(riga - 1) * colonne + colonna} del campo.")
+print(f"La mina è a {abs(riga - mina_riga)} righe e {abs(colonna - mina_colonna)} colonne di distanza.")`,
+    hints: ["Quante caselle ci sono nelle righe prima di quella scelta? Perché la distanza ha bisogno di abs?",
+      "Due input dentro int(). Il primo print calcola il numero: la riga meno 1, per le colonne, più la colonna. Il secondo usa abs due volte, sulla riga meno mina_riga e sulla colonna meno mina_colonna."],
+    check: minesCheck("it", 1, [/\babs\s*\(/]), expect: (x) => minesExpect("it", 1, x.inputs),
+    tests: minesTests("it", 1, [["1", "1"], ["6", "8"], ["4", "4"], ["3", "2"], ["5", "6"], ["1", "8"]])
+  },
+  en: {
+    title: "Build: Minesweeper, part 1",
+    theory: [
+`<p>Part 1: <b>pick a square</b>. The player says the row and the column, and the program answers with two sums.</p>
+<p>The first is the <b>square's number</b>, counting the squares one after the other, row by row. Every row has 8 of them, as many as the <code>columns</code>: before row 2 there are 8, before row 3 there are 16. So the square in row 2 and column 7 is number <code>(2 - 1) * 8 + 7</code>, that is 15.</p>
+<p>The second is the <b>distance from a mine</b>. For now there's only one mine, in row 4 and column 4. How many rows are there between the square and the mine? <code>row - 4</code>, but if the square is above the mine the sum comes out negative: with row 2, <code>2 - 4</code> gives -2. A distance, though, is never negative, and this is where you need <code>abs</code>, the <b>absolute value</b>: it gives back the number without the minus sign, if there is one. <code>abs(-2)</code> gives 2, <code>abs(3)</code> gives 3 and <code>abs(0)</code> gives 0. So <code>abs(row - mine_row)</code> is the distance in rows, whether the square is above or below the mine, and the same goes for the columns.</p>
+<pre class="term-sample">Row (1-6)? 2
+Column (1-8)? 7
+It's square number 15 of the field.
+The mine is 2 rows and 3 columns away.</pre>`],
+    task: `Put the mine in <code>mine_row</code> and <code>mine_column</code>, both 4. Ask for the row and the column, then write the square's number and the distance from the mine in rows and in columns, with <code>abs</code>. The lines must be exactly as in the example. I'll also try other squares: above, below, left and right of the mine, and on the mine.`,
+    starter: `# Minesweeper, part 1: pick a square\ncolumns = 8\n\n`,
+    solution: `# Minesweeper, part 1: pick a square
+columns = 8
+mine_row = 4
+mine_column = 4
+
+row = int(input("Row (1-6)? "))
+column = int(input("Column (1-8)? "))
+print(f"It's square number {(row - 1) * columns + column} of the field.")
+print(f"The mine is {abs(row - mine_row)} rows and {abs(column - mine_column)} columns away.")`,
+    hints: ["How many squares are there in the rows before the one picked? Why does the distance need abs?",
+      "Two inputs inside int(). The first print works out the number: the row minus 1, times the columns, plus the column. The second uses abs twice, on the row minus mine_row and on the column minus mine_column."],
+    check: minesCheck("en", 1, [/\babs\s*\(/]), expect: (x) => minesExpect("en", 1, x.inputs),
+    tests: minesTests("en", 1, [["1", "1"], ["6", "8"], ["4", "4"], ["3", "2"], ["5", "6"], ["1", "8"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["3", "5"], file: ["costruisci_campo_minato_2.py", "build_minesweeper_2.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 2",
+    theory: [
+`<p>Parte 2: <b>boom o salvo</b>. Ora il programma decide cosa succede quando scopri la casella, con una catena di <code>if</code>, in quest'ordine:</p>
+<ul><li>se la riga non è tra 1 e 6, o la colonna non è tra 1 e 8, quella casella non c'è: <code>Quella casella non c'è.</code>;</li>
+<li>se riga e colonna sono quelle della mina: <code>BOOM! Era la mina.</code>;</li>
+<li>se la mina è in una delle 8 caselle intorno: <code>Salvo, ma la mina è qui accanto!</code>;</li>
+<li>se no: <code>Salvo, e intorno non ci sono mine.</code>.</li></ul>
+<p>Quando una mina è «intorno»? Quando è lontana al massimo una riga e al massimo una colonna: <code>abs(riga - mina_riga) &lt;= 1</code> e anche <code>abs(colonna - mina_colonna) &lt;= 1</code>. Sono le 8 caselle attorno alla mina, ma anche la casella della mina: quella però l'hai già controllata prima, ed ecco perché l'ordine conta.</p>
+<pre class="term-sample">Riga (1-6)? 3
+Colonna (1-8)? 5
+Salvo, ma la mina è qui accanto!</pre>`],
+    task: `Fai crescere il programma: la mina resta nella riga 4 e colonna 4, e togli i conti di prima. Chiedi la riga e la colonna e rispondi con la catena di <code>if</code> qui sopra, nell'ordine. Proverò tutti i casi: caselle che non ci sono, la mina, le caselle intorno e quelle lontane.`,
+    solution: `# Campo minato, parte 2: boom o salvo
+mina_riga = 4
+mina_colonna = 4
+
+riga = int(input("Riga (1-6)? "))
+colonna = int(input("Colonna (1-8)? "))
+if riga < 1 or riga > 6 or colonna < 1 or colonna > 8:
+    print("Quella casella non c'è.")
+elif riga == mina_riga and colonna == mina_colonna:
+    print("BOOM! Era la mina.")
+elif abs(riga - mina_riga) <= 1 and abs(colonna - mina_colonna) <= 1:
+    print("Salvo, ma la mina è qui accanto!")
+else:
+    print("Salvo, e intorno non ci sono mine.")`,
+    hints: ["Quale controllo va fatto per primo? Perché la mina va controllata prima delle caselle intorno?",
+      "Due input dentro int(). Un if con quattro confronti uniti da or per le caselle fuori dal campo, un elif con and per la mina, un elif con abs per le caselle intorno e un else."],
+    check: minesCheck("it", 2, [/\bif\b/, /\belif\b/, /\babs\s*\(/]), expect: (x) => minesExpect("it", 2, x.inputs),
+    tests: minesTests("it", 2, [["0", "4"], ["7", "1"], ["2", "9"], ["4", "4"], ["3", "5"], ["5", "3"], ["4", "6"], ["1", "1"], ["6", "8"], ["-1", "-1"]])
+  },
+  en: {
+    title: "Build: Minesweeper, part 2",
+    theory: [
+`<p>Part 2: <b>boom or safe</b>. Now the program decides what happens when you uncover the square, with a chain of <code>if</code>, in this order:</p>
+<ul><li>if the row isn't between 1 and 6, or the column isn't between 1 and 8, that square doesn't exist: <code>That square doesn't exist.</code>;</li>
+<li>if the row and the column are the mine's: <code>BOOM! That was the mine.</code>;</li>
+<li>if the mine is in one of the 8 squares around: <code>Safe, but the mine is right next to it!</code>;</li>
+<li>otherwise: <code>Safe, and there are no mines around.</code>.</li></ul>
+<p>When is a mine «around»? When it's at most one row and at most one column away: <code>abs(row - mine_row) &lt;= 1</code> and also <code>abs(column - mine_column) &lt;= 1</code>. Those are the 8 squares around the mine, but also the mine's own square: you've already checked that one before, though, and that's why the order matters.</p>
+<pre class="term-sample">Row (1-6)? 3
+Column (1-8)? 5
+Safe, but the mine is right next to it!</pre>`],
+    task: `Grow the program: the mine stays in row 4 and column 4, and take away the sums from before. Ask for the row and the column and answer with the chain of <code>if</code> above, in order. I'll try every case: squares that don't exist, the mine, the squares around it and those far away.`,
+    solution: `# Minesweeper, part 2: boom or safe
+mine_row = 4
+mine_column = 4
+
+row = int(input("Row (1-6)? "))
+column = int(input("Column (1-8)? "))
+if row < 1 or row > 6 or column < 1 or column > 8:
+    print("That square doesn't exist.")
+elif row == mine_row and column == mine_column:
+    print("BOOM! That was the mine.")
+elif abs(row - mine_row) <= 1 and abs(column - mine_column) <= 1:
+    print("Safe, but the mine is right next to it!")
+else:
+    print("Safe, and there are no mines around.")`,
+    hints: ["Which check has to come first? Why does the mine have to be checked before the squares around it?",
+      "Two inputs inside int(). An if with four comparisons joined by or for the squares off the field, an elif with and for the mine, an elif with abs for the squares around and an else."],
+    check: minesCheck("en", 2, [/\bif\b/, /\belif\b/, /\babs\s*\(/]), expect: (x) => minesExpect("en", 2, x.inputs),
+    tests: minesTests("en", 2, [["0", "4"], ["7", "1"], ["2", "9"], ["4", "4"], ["3", "5"], ["5", "3"], ["4", "6"], ["1", "1"], ["6", "8"], ["-1", "-1"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: MINES_SAMPLE3, file: ["costruisci_campo_minato_3.py", "build_minesweeper_3.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 3",
+    theory: [
+`<p>Parte 3: si gioca davvero, con <b>6 mine</b>. Le mine stanno in una <b>lista</b>, e ognuna è a sua volta una lista di due numeri, la riga e la colonna, contate da 0: <code>mine = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]</code>. La mina della parte 2, nella riga 4 e colonna 4, ora è <code>[3, 3]</code>. Per sapere se in una casella c'è una mina basta chiedere <code>[r, c] in mine</code>.</p>
+<p>Anche il campo è una lista di liste: <code>campo</code> ha 6 righe, e ogni riga è una lista di 8 testi, uno per casella. All'inizio sono tutti <code>"#"</code>, coperti: lo costruisci con due <code>for</code>, uno dentro l'altro, e con <code>append</code>. La casella nella riga r e colonna c è <code>campo[r][c]</code>: prima la riga, poi la colonna.</p>
+<p>Quando scopri una casella senza mina conti le mine intorno con altri due cicli: <code>dr</code> e <code>dc</code> vanno da -1 a 1, con <code>range(-1, 2)</code>, e per ognuna delle 9 coppie guardi se <code>[r + dr, c + dc]</code> è nella lista delle mine. Nella casella poi scrivi quel numero, con <code>str</code>, o un punto, <code>"."</code>, se intorno non ce n'è nessuna.</p>
+<p>Il gioco è un ciclo. A ogni giro il programma stampa il campo, come nella copertina, e chiede la riga (o <code>q</code> per smettere) e la colonna.</p>
+<pre class="term-sample">   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Riga (1-6, q per uscire)? 1
+Colonna (1-8)? 2
+   1 2 3 4 5 6 7 8
+1  # 1 # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Riga (1-6, q per uscire)?</pre>
+<p>Le regole, nell'ordine. Con q scrivi <code>Ciao!</code> ed esci dal ciclo. Con una casella che non c'è scrivi <code>Quella casella non c'è.</code>, e con una già scoperta <code>Quella casella è già scoperta.</code>. Se c'è una mina, metti <code>"*"</code> in tutte le caselle con le mine, e la partita finisce con <code>BOOM! Era una mina: hai perso.</code>. Se no scopri la casella e conti le caselle scoperte: quando sono 42, cioè 48 meno le mine, la partita finisce con <code>Hai scoperto tutte le caselle sicure: hai vinto!</code>. Il messaggio della fine lo tieni in una variabile, <code>fine</code>, vuota finché si gioca: a ogni giro, dopo il campo, se <code>fine</code> non è vuota la stampi ed esci dal ciclo. Così alla fine si vede il campo un'ultima volta, e sotto il messaggio.</p>`],
+    task: `Trasforma il programma nel gioco vero: la lista delle mine qui sopra, il campo di 6 righe di 8 <code>"#"</code>, un ciclo <code>while</code> che a ogni giro stampa il campo e chiede la casella, le mine intorno contate con due cicli e le regole qui sopra, nell'ordine. Proverò tante partite: caselle sicure, caselle già scoperte, caselle che non ci sono, mine, q e una partita vinta.`,
+    solution: `# Campo minato, parte 3: contare le vicine
+mine = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]
+campo = []
+for r in range(6):
+    riga = []
+    for c in range(8):
+        riga.append("#")
+    campo.append(riga)
+scoperte = 0
+fine = ""
+
+while True:
+    print("   1 2 3 4 5 6 7 8")
+    for r in range(6):
+        testo = str(r + 1) + " "
+        for c in range(8):
+            testo = testo + " " + campo[r][c]
+        print(testo)
+    if fine != "":
+        print(fine)
+        break
+    scelta = input("Riga (1-6, q per uscire)? ")
+    if scelta == "q":
+        print("Ciao!")
+        break
+    r = int(scelta) - 1
+    c = int(input("Colonna (1-8)? ")) - 1
+    if r < 0 or r > 5 or c < 0 or c > 7:
+        print("Quella casella non c'è.")
+    elif campo[r][c] != "#":
+        print("Quella casella è già scoperta.")
+    elif [r, c] in mine:
+        for m in mine:
+            campo[m[0]][m[1]] = "*"
+        fine = "BOOM! Era una mina: hai perso."
+    else:
+        n = 0
+        for dr in range(-1, 2):
+            for dc in range(-1, 2):
+                if [r + dr, c + dc] in mine:
+                    n += 1
+        if n == 0:
+            campo[r][c] = "."
+        else:
+            campo[r][c] = str(n)
+        scoperte += 1
+        if scoperte == 48 - len(mine):
+            fine = "Hai scoperto tutte le caselle sicure: hai vinto!"`,
+    hints: ["Cosa si ripete a ogni giro? Come trasformi la riga e la colonna del giocatore nei posti delle liste, e come sai se intorno c'è una mina?",
+      "Prima del ciclo le mine, il campo con due for e append, le scoperte a 0 e fine vuota. Nel while True: la stampa con due for, poi se fine non è vuota la stampi e break; l'input, e con q break; riga e colonna meno 1; un if con i controlli e, nell'ultimo else, due for su range(-1, 2) che contano le mine, la casella scritta e le scoperte più 1."],
+    check: minesCheck("it", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/, /\bin\s+\w+/]), expect: (x) => minesExpect("it", 3, x.inputs),
+    tests: minesTests("it", 3, MINES_GAMES3)
+  },
+  en: {
+    title: "Build: Minesweeper, part 3",
+    theory: [
+`<p>Part 3: now you really play, with <b>6 mines</b>. The mines are in a <b>list</b>, and each of them is in turn a list of two numbers, the row and the column, counted from 0: <code>mines = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]</code>. The mine of part 2, in row 4 and column 4, is now <code>[3, 3]</code>. To know whether there's a mine in a square just ask <code>[r, c] in mines</code>.</p>
+<p>The field is a list of lists too: <code>field</code> has 6 rows, and every row is a list of 8 texts, one per square. At the start they're all <code>"#"</code>, covered: you build it with two <code>for</code> loops, one inside the other, and with <code>append</code>. The square in row r and column c is <code>field[r][c]</code>: first the row, then the column.</p>
+<p>When you uncover a square without a mine you count the mines around it with two more loops: <code>dr</code> and <code>dc</code> go from -1 to 1, with <code>range(-1, 2)</code>, and for each of the 9 pairs you look whether <code>[r + dr, c + dc]</code> is in the list of mines. Then in the square you write that number, with <code>str</code>, or a dot, <code>"."</code>, if there are none around.</p>
+<p>The game is a loop. At every turn the program prints the field, as on the cover, and asks for the row (or <code>q</code> to stop) and the column.</p>
+<pre class="term-sample">   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Row (1-6, q to quit)? 1
+Column (1-8)? 2
+   1 2 3 4 5 6 7 8
+1  # 1 # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Row (1-6, q to quit)?</pre>
+<p>The rules, in order. With q write <code>Bye!</code> and leave the loop. With a square that doesn't exist write <code>That square doesn't exist.</code>, and with one already uncovered <code>That square is already uncovered.</code>. If there's a mine, put <code>"*"</code> in all the squares with mines, and the game ends with <code>BOOM! That was a mine: you lost.</code>. Otherwise uncover the square and count the uncovered squares: when they're 42, that is 48 minus the mines, the game ends with <code>You uncovered all the safe squares: you won!</code>. You keep the end message in a variable, <code>outcome</code>, empty while you play: at every turn, after the field, if <code>outcome</code> isn't empty you print it and leave the loop. So at the end you see the field one last time, with the message under it.</p>`],
+    task: `Turn the program into the real game: the list of mines above, the field of 6 rows of 8 <code>"#"</code>, a <code>while</code> loop that at every turn prints the field and asks for the square, the mines around counted with two loops and the rules above, in order. I'll try lots of games: safe squares, squares already uncovered, squares that don't exist, mines, q and a game won.`,
+    solution: `# Minesweeper, part 3: counting neighbours
+mines = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]
+field = []
+for r in range(6):
+    row = []
+    for c in range(8):
+        row.append("#")
+    field.append(row)
+cleared = 0
+outcome = ""
+
+while True:
+    print("   1 2 3 4 5 6 7 8")
+    for r in range(6):
+        text = str(r + 1) + " "
+        for c in range(8):
+            text = text + " " + field[r][c]
+        print(text)
+    if outcome != "":
+        print(outcome)
+        break
+    choice = input("Row (1-6, q to quit)? ")
+    if choice == "q":
+        print("Bye!")
+        break
+    r = int(choice) - 1
+    c = int(input("Column (1-8)? ")) - 1
+    if r < 0 or r > 5 or c < 0 or c > 7:
+        print("That square doesn't exist.")
+    elif field[r][c] != "#":
+        print("That square is already uncovered.")
+    elif [r, c] in mines:
+        for m in mines:
+            field[m[0]][m[1]] = "*"
+        outcome = "BOOM! That was a mine: you lost."
+    else:
+        n = 0
+        for dr in range(-1, 2):
+            for dc in range(-1, 2):
+                if [r + dr, c + dc] in mines:
+                    n += 1
+        if n == 0:
+            field[r][c] = "."
+        else:
+            field[r][c] = str(n)
+        cleared += 1
+        if cleared == 48 - len(mines):
+            outcome = "You uncovered all the safe squares: you won!"`,
+    hints: ["What repeats at every turn? How do you turn the player's row and column into the places in the lists, and how do you know whether there's a mine around?",
+      "Before the loop the mines, the field with two for loops and append, the cleared squares at 0 and outcome empty. In the while True: the printing with two for loops, then if outcome isn't empty print it and break; the input, and with q break; row and column minus 1; an if with the checks and, in the last else, two for loops over range(-1, 2) that count the mines, the square written and the cleared squares plus 1."],
+    check: minesCheck("en", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/, /\bin\s+\w+/]), expect: (x) => minesExpect("en", 3, x.inputs),
+    tests: minesTests("en", 3, MINES_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: [" 1 ", "1 ", "4", "6", "Q"], file: ["costruisci_campo_minato_4.py", "build_minesweeper_4.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>stampa(campo)</code> stampa il campo con i numeri delle righe e delle colonne;</li>
+<li><code>dentro(r, c)</code> restituisce <code>True</code> se la casella c'è, cioè se r va da 0 a 5 e c da 0 a 7;</li>
+<li><code>conta_vicine(mine, r, c)</code> restituisce quante mine ci sono intorno alla casella;</li>
+<li><code>scopri(campo, mine, r, c)</code> scrive nella casella il numero delle mine intorno, o <code>"."</code>, e restituisce quel numero;</li>
+<li><code>apri(campo, mine, r, c)</code> scopre la casella e, se intorno non ci sono mine, anche quelle intorno, e restituisce quante caselle ha scoperto.</li></ul>
+<p><code>apri</code> è il pezzo nuovo, e fa quello che fa il Campo minato vero: se una casella non ha mine intorno, le caselle intorno sono tutte sicure, e si aprono da sole; se tra loro c'è un'altra casella vuota si aprono anche quelle intorno a lei, e così via, finché la zona vuota è tutta aperta. Per farlo tieni una lista di caselle <code>da_aprire</code>, che all'inizio contiene solo <code>[r, c]</code>. Finché non è vuota prendi la prima, <code>da_aprire[0]</code>, e la togli dalla lista con <code>da_aprire = da_aprire[1:]</code>; se è dentro il campo ed è ancora coperta la scopri, e se intorno non ha mine aggiungi in fondo alla lista le 9 caselle intorno. Quelle fuori dal campo o già scoperte le salti: per questo la lista prima o poi si svuota. Così basta una risposta per aprire una zona intera:</p>
+<pre class="term-sample">   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Riga (1-6, q per uscire)? 1
+Colonna (1-8)? 1
+   1 2 3 4 5 6 7 8
+1  . 1 # # # # # #
+2  . 1 1 # # # # #
+3  . . 1 # # # # #
+4  1 1 1 # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Riga (1-6, q per uscire)?</pre>
+<p>Il ciclo resta, ma diventa corto: chiama le funzioni, e le scoperte crescono di quello che restituisce <code>apri</code>. E rendi il gioco più gentile: con <code>strip</code> le risposte possono avere degli spazi intorno, e con <code>lower</code> anche <code>Q</code> fa uscire.</p>`],
+    task: `Metti la stampa in <code>stampa(campo)</code>, il controllo dei bordi in <code>dentro(r, c)</code>, il conto in <code>conta_vicine(mine, r, c)</code>, la casella scoperta in <code>scopri(campo, mine, r, c)</code> e la zona vuota che si apre in <code>apri(campo, mine, r, c)</code>, come qui sopra, e usale nel ciclo. Pulisci le risposte con <code>strip</code>, e la prima anche con <code>lower</code>. Proverò le funzioni una per una e partite con spazi, maiuscole e zone vuote.`,
+    solution: `# Campo minato, parte 4: funzioni per il campo
+def stampa(campo):
+    print("   1 2 3 4 5 6 7 8")
+    for r in range(6):
+        testo = str(r + 1) + " "
+        for c in range(8):
+            testo = testo + " " + campo[r][c]
+        print(testo)
+
+
+def dentro(r, c):
+    return r >= 0 and r < 6 and c >= 0 and c < 8
+
+
+def conta_vicine(mine, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mine:
+                n += 1
+    return n
+
+
+def scopri(campo, mine, r, c):
+    n = conta_vicine(mine, r, c)
+    if n == 0:
+        campo[r][c] = "."
+    else:
+        campo[r][c] = str(n)
+    return n
+
+
+def apri(campo, mine, r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc) and campo[rr][cc] == "#":
+            aperte += 1
+            if scopri(campo, mine, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+mine = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]
+campo = []
+for r in range(6):
+    riga = []
+    for c in range(8):
+        riga.append("#")
+    campo.append(riga)
+scoperte = 0
+fine = ""
+
+while True:
+    stampa(campo)
+    if fine != "":
+        print(fine)
+        break
+    scelta = input("Riga (1-6, q per uscire)? ").strip().lower()
+    if scelta == "q":
+        print("Ciao!")
+        break
+    r = int(scelta) - 1
+    c = int(input("Colonna (1-8)? ").strip()) - 1
+    if not dentro(r, c):
+        print("Quella casella non c'è.")
+    elif campo[r][c] != "#":
+        print("Quella casella è già scoperta.")
+    elif [r, c] in mine:
+        for m in mine:
+            campo[m[0]][m[1]] = "*"
+        fine = "BOOM! Era una mina: hai perso."
+    else:
+        scoperte += apri(campo, mine, r, c)
+        if scoperte == 48 - len(mine):
+            fine = "Hai scoperto tutte le caselle sicure: hai vinto!"`,
+    hints: ["Quando apri aggiunge caselle alla lista, e perché la lista prima o poi si svuota? Cosa restituisce apri, e a cosa serve nel ciclo?",
+      "Sposta la stampa in stampa e i due cicli del conto in conta_vicine. dentro è un return con quattro confronti uniti da and. In apri un while finché da_aprire non è vuota: prendi la prima, la togli con [1:], e se è dentro e coperta conti 1 e la scopri; se scopri restituisce 0 aggiungi le 9 caselle intorno con due for. Nel ciclo, le scoperte crescono di quello che restituisce apri."],
+    check: minesCheck("it", 4, [/def\s+stampa\s*\(/, /def\s+dentro\s*\(/, /def\s+conta_vicine\s*\(/, /def\s+scopri\s*\(/, /def\s+apri\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => minesExpect("it", 4, x.inputs),
+    tests: minesFnTests("it")
+  },
+  en: {
+    title: "Build: Minesweeper, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>print_field(field)</code> prints the field with the numbers of the rows and the columns;</li>
+<li><code>inside(r, c)</code> gives back <code>True</code> if the square exists, that is if r goes from 0 to 5 and c from 0 to 7;</li>
+<li><code>count_nearby(mines, r, c)</code> gives back how many mines there are around the square;</li>
+<li><code>uncover(field, mines, r, c)</code> writes in the square the number of mines around, or <code>"."</code>, and gives that number back;</li>
+<li><code>open_area(field, mines, r, c)</code> uncovers the square and, if there are no mines around, the ones around it too, and gives back how many squares it uncovered.</li></ul>
+<p><code>open_area</code> is the new piece, and it does what the real Minesweeper does: if a square has no mines around it, the squares around are all safe, and they open by themselves; if among them there's another empty square the ones around it open too, and so on, until the empty area is all open. To do it you keep a list of squares <code>to_open</code>, which at the start holds just <code>[r, c]</code>. While it isn't empty you take the first one, <code>to_open[0]</code>, and take it off the list with <code>to_open = to_open[1:]</code>; if it's inside the field and still covered you uncover it, and if it has no mines around you add the 9 squares around it at the end of the list. Those off the field or already uncovered you skip: that's why the list sooner or later gets empty. So a single answer opens a whole area:</p>
+<pre class="term-sample">   1 2 3 4 5 6 7 8
+1  # # # # # # # #
+2  # # # # # # # #
+3  # # # # # # # #
+4  # # # # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Row (1-6, q to quit)? 1
+Column (1-8)? 1
+   1 2 3 4 5 6 7 8
+1  . 1 # # # # # #
+2  . 1 1 # # # # #
+3  . . 1 # # # # #
+4  1 1 1 # # # # #
+5  # # # # # # # #
+6  # # # # # # # #
+Row (1-6, q to quit)?</pre>
+<p>The loop stays, but it gets short: it calls the functions, and the cleared squares grow by what <code>open_area</code> gives back. And make the game kinder: with <code>strip</code> the answers can have spaces around them, and with <code>lower</code> <code>Q</code> quits too.</p>`],
+    task: `Put the printing in <code>print_field(field)</code>, the check of the edges in <code>inside(r, c)</code>, the count in <code>count_nearby(mines, r, c)</code>, the uncovered square in <code>uncover(field, mines, r, c)</code> and the empty area that opens in <code>open_area(field, mines, r, c)</code>, as above, and use them in the loop. Clean the answers with <code>strip</code>, and the first one with <code>lower</code> too. I'll test the functions one by one and games with spaces, capitals and empty areas.`,
+    solution: `# Minesweeper, part 4: functions for the field
+def print_field(field):
+    print("   1 2 3 4 5 6 7 8")
+    for r in range(6):
+        text = str(r + 1) + " "
+        for c in range(8):
+            text = text + " " + field[r][c]
+        print(text)
+
+
+def inside(r, c):
+    return r >= 0 and r < 6 and c >= 0 and c < 8
+
+
+def count_nearby(mines, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mines:
+                n += 1
+    return n
+
+
+def uncover(field, mines, r, c):
+    n = count_nearby(mines, r, c)
+    if n == 0:
+        field[r][c] = "."
+    else:
+        field[r][c] = str(n)
+    return n
+
+
+def open_area(field, mines, r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc) and field[rr][cc] == "#":
+            opened += 1
+            if uncover(field, mines, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+mines = [[0, 2], [1, 6], [2, 7], [3, 3], [4, 0], [5, 5]]
+field = []
+for r in range(6):
+    row = []
+    for c in range(8):
+        row.append("#")
+    field.append(row)
+cleared = 0
+outcome = ""
+
+while True:
+    print_field(field)
+    if outcome != "":
+        print(outcome)
+        break
+    choice = input("Row (1-6, q to quit)? ").strip().lower()
+    if choice == "q":
+        print("Bye!")
+        break
+    r = int(choice) - 1
+    c = int(input("Column (1-8)? ").strip()) - 1
+    if not inside(r, c):
+        print("That square doesn't exist.")
+    elif field[r][c] != "#":
+        print("That square is already uncovered.")
+    elif [r, c] in mines:
+        for m in mines:
+            field[m[0]][m[1]] = "*"
+        outcome = "BOOM! That was a mine: you lost."
+    else:
+        cleared += open_area(field, mines, r, c)
+        if cleared == 48 - len(mines):
+            outcome = "You uncovered all the safe squares: you won!"`,
+    hints: ["When does open_area add squares to the list, and why does the list sooner or later get empty? What does open_area give back, and what is it for in the loop?",
+      "Move the printing into print_field and the two counting loops into count_nearby. inside is a return with four comparisons joined by and. In open_area a while until to_open is empty: take the first one, take it off with [1:], and if it's inside and covered count 1 and uncover it; if uncover gives back 0 add the 9 squares around with two for loops. In the loop, the cleared squares grow by what open_area gives back."],
+    check: minesCheck("en", 4, [/def\s+print_field\s*\(/, /def\s+inside\s*\(/, /def\s+count_nearby\s*\(/, /def\s+uncover\s*\(/, /def\s+open_area\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => minesExpect("en", 4, x.inputs),
+    tests: minesFnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_campo_minato_5.py", "build_minesweeper_5.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 5",
+    theory: [
+`<p>Parte 5: il Campo minato esce dal terminale ed entra in una <b>finestra</b>, con il campo dell'anteprima: 7 righe di 12 caselle, <code>RIGHE</code> e <code>COLONNE</code>, e le sue 8 mine, <code>mine = [[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]]</code>. Ogni casella occupa un quadrato di 42 pixel, <code>LATO</code>, ma si disegna larga e alta <code>LATO - 3</code>, così tra una casella e l'altra resta una riga scura. Il campo comincia in <code>(X0, Y0)</code>, cioè (48, 96), e sopra resta una striscia per le scritte: la casella nella riga r e colonna c ha l'angolo in <code>(X0 + c * LATO, Y0 + r * LATO)</code>. La finestra è larga <code>2 * X0 + COLONNE * LATO</code> e alta <code>Y0 + RIGHE * LATO + 30</code>.</p>
+<p>Cosa tieni del tuo codice: il campo come lista di liste, <code>dentro</code> (con <code>RIGHE</code> e <code>COLONNE</code> al posto di 6 e 8), <code>conta_vicine</code>, <code>scopri</code>, <code>apri</code> e le scoperte. Cosa togli: il ciclo con <code>input</code> e la stampa.</p>
+<p>I colori sono quelli dell'anteprima. Lo sfondo è <code>"#151b23"</code>. Una casella coperta è un quadrato <code>"#4f5d6e"</code> con in cima una striscia più chiara, <code>"#6b7a8c"</code>, alta 4 pixel; una scoperta è <code>"#c9d2dc"</code>. Le caselle le disegna <code>disegna_casella(segno, x, y)</code>, che riceve quello che c'è scritto nella casella e il suo angolo:</p>
+<ul><li><code>"#"</code>, coperta; <code>"B"</code>, coperta con la <b>bandierina</b>: un'asta <code>"#dbe3f1"</code> di 4 × 24 in <code>(x + 15, y + 9)</code> e una bandiera <code>"#e53935"</code> di 14 × 12 in <code>(x + 19, y + 9)</code>;</li>
+<li><code>"."</code>, scoperta e vuota; un numero, scoperta con il numero al centro, <code>center=(x + 20, y + 21)</code>, grande 40, del colore che gli dà <code>colore_numero(segno)</code>: <code>"#1e88e5"</code> per 1, <code>"#43a047"</code> per 2, <code>"#e53935"</code> per 3, <code>"#5e35b1"</code> per 4 e <code>"#37474f"</code> per gli altri;</li>
+<li><code>"*"</code>, una mina: scoperta, con un cerchio <code>"#151b23"</code> di raggio 12 in <code>(x + 20, y + 20)</code>; <code>"X"</code>, la mina scoppiata: la stessa, ma su un quadrato rosso, <code>"#e53935"</code>.</li></ul>
+<p>Le mosse arrivano dai <b>clic</b>: Pygame Zero chiama <code>on_mouse_down(pos, button)</code> a ogni clic, con il punto e il tasto del mouse. La riga è <code>(pos[1] - Y0) // LATO</code> e la colonna <code>(pos[0] - X0) // LATO</code>; se la casella non è <code>dentro</code> il campo, il clic non conta. Con il tasto destro, <code>button == mouse.RIGHT</code>, metti la bandierina su una casella coperta, scrivendoci <code>"B"</code>, o la togli; sul telefono il clic destro è un tocco lungo. La bandierina serve a ricordarti dove secondo te c'è una mina, e una casella con la bandierina non si scopre. Le bandierine le conti in <code>bandiere</code>. Con il tasto sinistro scopri una casella coperta: se c'è una mina la segni <code>"X"</code>, metti <code>"*"</code> nelle caselle delle altre mine, ma non dove c'è la bandierina, e hai perso; se no la apri con <code>apri</code>.</p>
+<p>Come va la partita lo dice <code>stato</code>: <code>"gioco"</code>, <code>"persa"</code>, o <code>"vinta"</code> quando le scoperte sono tutte le caselle meno le mine. Finita la partita, i clic non contano più. In alto, in <code>(X0, 16)</code> e grande 32, c'è scritto <code>Mine: 8</code>, cioè le mine meno le bandierine; sotto, in <code>(X0, 56)</code> e grande 28, <code>BOOM! Era una mina: hai perso.</code> in <code>"#ef5350"</code> o <code>Tutte le caselle sicure: hai vinto!</code> in <code>"#ffca28"</code>.</p>`],
+    task: `Porta il Campo minato nella finestra come qui sopra: il campo dell'anteprima, 7 righe di 12 caselle da (48, 96) ogni 42 pixel, con le sue 8 mine; i colori dell'anteprima; <code>disegna_casella</code> con le bandierine, i numeri e le mine; il clic che scopre e apre le zone vuote, il clic destro che mette e toglie la bandierina, e le scritte in alto. Quando chiudi la finestra, proverò a scoprire caselle, a mettere bandierine, a finire su una mina, a cliccare fuori dal campo e a vincere.`,
+    solution: `# Campo minato, parte 5: nella finestra
+import pgzrun
+
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 30
+mine = [[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]]
+campo = []
+for r in range(RIGHE):
+    riga = []
+    for c in range(COLONNE):
+        riga.append("#")
+    campo.append(riga)
+bandiere = 0
+scoperte = 0
+stato = "gioco"
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(mine, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mine:
+                n += 1
+    return n
+
+
+def scopri(campo, mine, r, c):
+    n = conta_vicine(mine, r, c)
+    if n == 0:
+        campo[r][c] = "."
+    else:
+        campo[r][c] = str(n)
+    return n
+
+
+def apri(campo, mine, r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc) and campo[rr][cc] == "#":
+            aperte += 1
+            if scopri(campo, mine, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def colore_numero(segno):
+    if segno == "1":
+        return "#1e88e5"
+    elif segno == "2":
+        return "#43a047"
+    elif segno == "3":
+        return "#e53935"
+    elif segno == "4":
+        return "#5e35b1"
+    else:
+        return "#37474f"
+
+
+def disegna_casella(segno, x, y):
+    if segno == "#" or segno == "B":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, 4)), "#6b7a8c")
+        if segno == "B":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif segno == "X":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+        if segno == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif segno != ".":
+            screen.draw.text(segno, center=(x + 20, y + 21), fontsize=40, color=colore_numero(segno))
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            disegna_casella(campo[r][c], X0 + c * LATO, Y0 + r * LATO)
+    screen.draw.text(f"Mine: {len(mine) - bandiere}", (X0, 16), fontsize=32)
+    if stato == "persa":
+        screen.draw.text("BOOM! Era una mina: hai perso.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Tutte le caselle sicure: hai vinto!", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global bandiere, scoperte, stato
+    if stato != "gioco":
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    if button == mouse.RIGHT:
+        if campo[r][c] == "#":
+            campo[r][c] = "B"
+            bandiere += 1
+        elif campo[r][c] == "B":
+            campo[r][c] = "#"
+            bandiere -= 1
+    elif campo[r][c] == "#":
+        if [r, c] in mine:
+            for m in mine:
+                if campo[m[0]][m[1]] == "#":
+                    campo[m[0]][m[1]] = "*"
+            campo[r][c] = "X"
+            stato = "persa"
+        else:
+            scoperte += apri(campo, mine, r, c)
+            if scoperte == RIGHE * COLONNE - len(mine):
+                stato = "vinta"
+
+
+pgzrun.go()`,
+    hints: ["Cosa deve ricordare il gioco tra un clic e l'altro? Cosa cambia tra il tasto sinistro e il destro, e cosa succede quando finisci su una mina?",
+      "In cima import pgzrun, le misure, WIDTH e HEIGHT, le mine, il campo, le bandiere, le scoperte e lo stato. In draw() lo sfondo, due for che chiamano disegna_casella con l'angolo di ogni casella, e le scritte. In on_mouse_down, con global, esci se lo stato non è gioco; trovi riga e colonna ed esci se non sono dentro; con mouse.RIGHT cambi # in B o B in #, e le bandiere; se no, su una casella coperta, controlli la mina o chiami apri e controlli la vittoria."],
+    check: (o, c) => !pgzWhy(c, "it", MINES_WIN5),
+    why: (o, c) => pgzWhy(c, "it", MINES_WIN5),
+    tests: minesWinTests("it")
+  },
+  en: {
+    title: "Build: Minesweeper, part 5",
+    theory: [
+`<p>Part 5: Minesweeper leaves the terminal and goes into a <b>window</b>, with the preview's field: 7 rows of 12 squares, <code>ROWS</code> and <code>COLUMNS</code>, and its 8 mines, <code>mines = [[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]]</code>. Every square takes up a square of 42 pixels, <code>SIDE</code>, but it's drawn <code>SIDE - 3</code> wide and high, so a dark line stays between one square and the next. The field starts at <code>(X0, Y0)</code>, that is (48, 96), and above it there's a strip for the texts: the square in row r and column c has its corner at <code>(X0 + c * SIDE, Y0 + r * SIDE)</code>. The window is <code>2 * X0 + COLUMNS * SIDE</code> wide and <code>Y0 + ROWS * SIDE + 30</code> high.</p>
+<p>What you keep of your code: the field as a list of lists, <code>inside</code> (with <code>ROWS</code> and <code>COLUMNS</code> instead of 6 and 8), <code>count_nearby</code>, <code>uncover</code>, <code>open_area</code> and the cleared squares. What you take away: the loop with <code>input</code> and the printing.</p>
+<p>The colours are the preview's. The background is <code>"#151b23"</code>. A covered square is a <code>"#4f5d6e"</code> square with a lighter strip on top, <code>"#6b7a8c"</code>, 4 pixels high; an uncovered one is <code>"#c9d2dc"</code>. The squares are drawn by <code>draw_square(mark, x, y)</code>, which gets what's written in the square and its corner:</p>
+<ul><li><code>"#"</code>, covered; <code>"F"</code>, covered with the <b>flag</b>: a <code>"#dbe3f1"</code> pole of 4 × 24 at <code>(x + 15, y + 9)</code> and a <code>"#e53935"</code> flag of 14 × 12 at <code>(x + 19, y + 9)</code>;</li>
+<li><code>"."</code>, uncovered and empty; a number, uncovered with the number in the middle, <code>center=(x + 20, y + 21)</code>, size 40, in the colour <code>number_colour(mark)</code> gives it: <code>"#1e88e5"</code> for 1, <code>"#43a047"</code> for 2, <code>"#e53935"</code> for 3, <code>"#5e35b1"</code> for 4 and <code>"#37474f"</code> for the others;</li>
+<li><code>"*"</code>, a mine: uncovered, with a <code>"#151b23"</code> circle with radius 12 at <code>(x + 20, y + 20)</code>; <code>"X"</code>, the mine that went off: the same, but on a red square, <code>"#e53935"</code>.</li></ul>
+<p>The moves come from <b>clicks</b>: Pygame Zero calls <code>on_mouse_down(pos, button)</code> at every click, with the point and the mouse button. The row is <code>(pos[1] - Y0) // SIDE</code> and the column <code>(pos[0] - X0) // SIDE</code>; if the square isn't <code>inside</code> the field, the click doesn't count. With the right button, <code>button == mouse.RIGHT</code>, you put the flag on a covered square, writing <code>"F"</code> in it, or take it away; on a phone the right click is a long press. The flag helps you remember where you think there's a mine, and a square with a flag can't be uncovered. You count the flags in <code>flags</code>. With the left button you uncover a covered square: if there's a mine you mark it <code>"X"</code>, put <code>"*"</code> in the squares of the other mines, but not where there's a flag, and you've lost; otherwise you open it with <code>open_area</code>.</p>
+<p>How the game is going is in <code>state</code>: <code>"playing"</code>, <code>"lost"</code>, or <code>"won"</code> when the cleared squares are all the squares minus the mines. Once the game is over, clicks don't count any more. At the top, at <code>(X0, 16)</code> and size 32, it says <code>Mines: 8</code>, that is the mines minus the flags; below, at <code>(X0, 56)</code> and size 28, <code>BOOM! That was a mine: you lost.</code> in <code>"#ef5350"</code> or <code>All the safe squares: you won!</code> in <code>"#ffca28"</code>.</p>`],
+    task: `Take Minesweeper into the window as above: the preview's field, 7 rows of 12 squares from (48, 96) every 42 pixels, with its 8 mines; the preview's colours; <code>draw_square</code> with the flags, the numbers and the mines; the click that uncovers and opens the empty areas, the right click that puts the flag on and takes it away, and the texts at the top. When you close the window, I'll try uncovering squares, putting flags, landing on a mine, clicking off the field and winning.`,
+    solution: `# Minesweeper, part 5: in a window
+import pgzrun
+
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 30
+mines = [[0, 5], [1, 1], [1, 9], [4, 10], [5, 3], [5, 7], [6, 0], [6, 11]]
+field = []
+for r in range(ROWS):
+    row = []
+    for c in range(COLUMNS):
+        row.append("#")
+    field.append(row)
+flags = 0
+cleared = 0
+state = "playing"
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(mines, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mines:
+                n += 1
+    return n
+
+
+def uncover(field, mines, r, c):
+    n = count_nearby(mines, r, c)
+    if n == 0:
+        field[r][c] = "."
+    else:
+        field[r][c] = str(n)
+    return n
+
+
+def open_area(field, mines, r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc) and field[rr][cc] == "#":
+            opened += 1
+            if uncover(field, mines, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def number_colour(mark):
+    if mark == "1":
+        return "#1e88e5"
+    elif mark == "2":
+        return "#43a047"
+    elif mark == "3":
+        return "#e53935"
+    elif mark == "4":
+        return "#5e35b1"
+    else:
+        return "#37474f"
+
+
+def draw_square(mark, x, y):
+    if mark == "#" or mark == "F":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, 4)), "#6b7a8c")
+        if mark == "F":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif mark == "X":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+        if mark == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif mark != ".":
+            screen.draw.text(mark, center=(x + 20, y + 21), fontsize=40, color=number_colour(mark))
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            draw_square(field[r][c], X0 + c * SIDE, Y0 + r * SIDE)
+    screen.draw.text(f"Mines: {len(mines) - flags}", (X0, 16), fontsize=32)
+    if state == "lost":
+        screen.draw.text("BOOM! That was a mine: you lost.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("All the safe squares: you won!", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global flags, cleared, state
+    if state != "playing":
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    if button == mouse.RIGHT:
+        if field[r][c] == "#":
+            field[r][c] = "F"
+            flags += 1
+        elif field[r][c] == "F":
+            field[r][c] = "#"
+            flags -= 1
+    elif field[r][c] == "#":
+        if [r, c] in mines:
+            for m in mines:
+                if field[m[0]][m[1]] == "#":
+                    field[m[0]][m[1]] = "*"
+            field[r][c] = "X"
+            state = "lost"
+        else:
+            cleared += open_area(field, mines, r, c)
+            if cleared == ROWS * COLUMNS - len(mines):
+                state = "won"
+
+
+pgzrun.go()`,
+    hints: ["What does the game need to remember between one click and the next? What changes between the left and the right button, and what happens when you land on a mine?",
+      "At the top import pgzrun, the sizes, WIDTH and HEIGHT, the mines, the field, the flags, the cleared squares and the state. In draw() the background, two for loops that call draw_square with each square's corner, and the texts. In on_mouse_down, with global, leave if the state isn't playing; find the row and the column and leave if they aren't inside; with mouse.RIGHT change # into F or F into #, and the flags; otherwise, on a covered square, check for the mine or call open_area and check for the win."],
+    check: (o, c) => !pgzWhy(c, "en", MINES_WIN5),
+    why: (o, c) => pgzWhy(c, "en", MINES_WIN5),
+    tests: minesWinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_campo_minato_6.py", "build_minesweeper_6.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 6",
+    theory: [
+`<p>Parte 6: le mine si mettono <b>a caso</b>, se no impareresti a memoria dove sono. Quante sono lo dice <code>quante</code>, che per ora è 8.</p>
+<p>La funzione <code>nuova_partita()</code> prepara una partita: il campo tutto coperto, la lista delle mine, le bandiere e le scoperte a 0 e lo stato <code>"gioco"</code>. Le mine le pesca a caso: finché nella lista sono meno di <code>quante</code>, sceglie una riga con <code>random.randint(0, RIGHE - 1)</code> e poi una colonna con <code>random.randint(0, COLONNE - 1)</code>, e se quella casella non è già nella lista, <code>[r, c] not in mine</code>, ce la mette. Se invece è già una mina la salta, e pesca di nuovo: così le mine sono tutte in caselle diverse, e alla fine sono proprio <code>quante</code>.</p>
+<p>Chiami <code>nuova_partita()</code> una prima volta prima di <code>pgzrun.go()</code>, e poi quando la partita è finita: allora un clic comincia una partita nuova, e non scopre niente. E le scritte lo dicono: <code>BOOM! Clicca per giocare ancora.</code> e <code>Hai vinto! Clicca per giocare ancora.</code>.</p>`],
+    task: `Scrivi <code>nuova_partita()</code>, che crea il campo coperto, pesca <code>quante</code> mine in caselle tutte diverse con <code>random.randint</code>, prima la riga e poi la colonna, e azzera tutto il resto. A partita finita, un clic ne comincia un'altra. Quando chiudi la finestra, proverò con dei dadi truccati dove finiscono le mine, anche quando i dadi scelgono due volte la stessa casella, e se si gioca una seconda partita.`,
+    solution: `# Campo minato, parte 6: mine a caso
+import pgzrun
+import random
+
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 30
+quante = 8
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(mine, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mine:
+                n += 1
+    return n
+
+
+def scopri(campo, mine, r, c):
+    n = conta_vicine(mine, r, c)
+    if n == 0:
+        campo[r][c] = "."
+    else:
+        campo[r][c] = str(n)
+    return n
+
+
+def apri(campo, mine, r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc) and campo[rr][cc] == "#":
+            aperte += 1
+            if scopri(campo, mine, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def nuova_partita():
+    global campo, mine, bandiere, scoperte, stato
+    campo = []
+    for r in range(RIGHE):
+        riga = []
+        for c in range(COLONNE):
+            riga.append("#")
+        campo.append(riga)
+    mine = []
+    while len(mine) < quante:
+        r = random.randint(0, RIGHE - 1)
+        c = random.randint(0, COLONNE - 1)
+        if [r, c] not in mine:
+            mine.append([r, c])
+    bandiere = 0
+    scoperte = 0
+    stato = "gioco"
+
+
+def colore_numero(segno):
+    if segno == "1":
+        return "#1e88e5"
+    elif segno == "2":
+        return "#43a047"
+    elif segno == "3":
+        return "#e53935"
+    elif segno == "4":
+        return "#5e35b1"
+    else:
+        return "#37474f"
+
+
+def disegna_casella(segno, x, y):
+    if segno == "#" or segno == "B":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, 4)), "#6b7a8c")
+        if segno == "B":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif segno == "X":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+        if segno == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif segno != ".":
+            screen.draw.text(segno, center=(x + 20, y + 21), fontsize=40, color=colore_numero(segno))
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            disegna_casella(campo[r][c], X0 + c * LATO, Y0 + r * LATO)
+    screen.draw.text(f"Mine: {len(mine) - bandiere}", (X0, 16), fontsize=32)
+    if stato == "persa":
+        screen.draw.text("BOOM! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Hai vinto! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global bandiere, scoperte, stato
+    if stato != "gioco":
+        nuova_partita()
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    if button == mouse.RIGHT:
+        if campo[r][c] == "#":
+            campo[r][c] = "B"
+            bandiere += 1
+        elif campo[r][c] == "B":
+            campo[r][c] = "#"
+            bandiere -= 1
+    elif campo[r][c] == "#":
+        if [r, c] in mine:
+            for m in mine:
+                if campo[m[0]][m[1]] == "#":
+                    campo[m[0]][m[1]] = "*"
+            campo[r][c] = "X"
+            stato = "persa"
+        else:
+            scoperte += apri(campo, mine, r, c)
+            if scoperte == RIGHE * COLONNE - len(mine):
+                stato = "vinta"
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa succede se i dadi scelgono una casella che è già una mina? Quando smetti di pescare?",
+      "In nuova_partita, con global, il campo con due for come prima, la lista delle mine vuota e un while finché è più corta di quante: due randint, e un if con not in prima dell'append. Poi bandiere, scoperte e stato come all'inizio. In on_mouse_down, se lo stato non è gioco, chiami nuova_partita e basta."],
+    check: (o, c) => !pgzWhy(c, "it", MINES_WIN5.concat([MINES_RANDOM])),
+    why: (o, c) => pgzWhy(c, "it", MINES_WIN5.concat([MINES_RANDOM])),
+    tests: minesRandomTests("it")
+  },
+  en: {
+    title: "Build: Minesweeper, part 6",
+    theory: [
+`<p>Part 6: the mines are placed <b>at random</b>, otherwise you'd learn by heart where they are. How many there are is in <code>how_many</code>, which for now is 8.</p>
+<p>The function <code>new_game()</code> gets a game ready: the field all covered, the list of mines, the flags and the cleared squares at 0 and the state <code>"playing"</code>. It picks the mines at random: while there are fewer than <code>how_many</code> in the list, it picks a row with <code>random.randint(0, ROWS - 1)</code> and then a column with <code>random.randint(0, COLUMNS - 1)</code>, and if that square isn't in the list yet, <code>[r, c] not in mines</code>, it puts it there. If it's already a mine, though, it skips it and picks again: so the mines are all on different squares, and in the end there are exactly <code>how_many</code>.</p>
+<p>You call <code>new_game()</code> a first time before <code>pgzrun.go()</code>, and then when the game is over: then a click starts a new game, and uncovers nothing. And the texts say so: <code>BOOM! Click to play again.</code> and <code>You won! Click to play again.</code>.</p>`],
+    task: `Write <code>new_game()</code>, which makes the covered field, picks <code>how_many</code> mines on squares all different with <code>random.randint</code>, first the row and then the column, and resets everything else. When the game is over, a click starts another. When you close the window, I'll check with loaded dice where the mines end up, even when the dice pick the same square twice, and whether a second game can be played.`,
+    solution: `# Minesweeper, part 6: random mines
+import pgzrun
+import random
+
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 30
+how_many = 8
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(mines, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mines:
+                n += 1
+    return n
+
+
+def uncover(field, mines, r, c):
+    n = count_nearby(mines, r, c)
+    if n == 0:
+        field[r][c] = "."
+    else:
+        field[r][c] = str(n)
+    return n
+
+
+def open_area(field, mines, r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc) and field[rr][cc] == "#":
+            opened += 1
+            if uncover(field, mines, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def new_game():
+    global field, mines, flags, cleared, state
+    field = []
+    for r in range(ROWS):
+        row = []
+        for c in range(COLUMNS):
+            row.append("#")
+        field.append(row)
+    mines = []
+    while len(mines) < how_many:
+        r = random.randint(0, ROWS - 1)
+        c = random.randint(0, COLUMNS - 1)
+        if [r, c] not in mines:
+            mines.append([r, c])
+    flags = 0
+    cleared = 0
+    state = "playing"
+
+
+def number_colour(mark):
+    if mark == "1":
+        return "#1e88e5"
+    elif mark == "2":
+        return "#43a047"
+    elif mark == "3":
+        return "#e53935"
+    elif mark == "4":
+        return "#5e35b1"
+    else:
+        return "#37474f"
+
+
+def draw_square(mark, x, y):
+    if mark == "#" or mark == "F":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, 4)), "#6b7a8c")
+        if mark == "F":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif mark == "X":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+        if mark == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif mark != ".":
+            screen.draw.text(mark, center=(x + 20, y + 21), fontsize=40, color=number_colour(mark))
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            draw_square(field[r][c], X0 + c * SIDE, Y0 + r * SIDE)
+    screen.draw.text(f"Mines: {len(mines) - flags}", (X0, 16), fontsize=32)
+    if state == "lost":
+        screen.draw.text("BOOM! Click to play again.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("You won! Click to play again.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global flags, cleared, state
+    if state != "playing":
+        new_game()
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    if button == mouse.RIGHT:
+        if field[r][c] == "#":
+            field[r][c] = "F"
+            flags += 1
+        elif field[r][c] == "F":
+            field[r][c] = "#"
+            flags -= 1
+    elif field[r][c] == "#":
+        if [r, c] in mines:
+            for m in mines:
+                if field[m[0]][m[1]] == "#":
+                    field[m[0]][m[1]] = "*"
+            field[r][c] = "X"
+            state = "lost"
+        else:
+            cleared += open_area(field, mines, r, c)
+            if cleared == ROWS * COLUMNS - len(mines):
+                state = "won"
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What happens if the dice pick a square that's already a mine? When do you stop picking?",
+      "In new_game, with global, the field with two for loops as before, the list of mines empty and a while as long as it's shorter than how_many: two randint calls, and an if with not in before the append. Then flags, cleared squares and state as at the start. In on_mouse_down, if the state isn't playing, call new_game and that's it."],
+    check: (o, c) => !pgzWhy(c, "en", MINES_WIN5.concat([MINES_RANDOM])),
+    why: (o, c) => pgzWhy(c, "en", MINES_WIN5.concat([MINES_RANDOM])),
+    tests: minesRandomTests("en")
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_campo_minato_7.py", "build_minesweeper_7.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 7",
+    theory: [
+`<p>Parte 7: i <b>colori</b> dei numeri, il <b>tempo</b> e il <b>record</b>.</p>
+<p>Al posto della catena di <code>if</code> di <code>colore_numero</code> c'è un dizionario, <code>COLORI</code>, con il numero come chiave e il colore come valore, per tutti i numeri da 1 a 8: <code>{1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}</code>. Nel campo il numero è un testo, come <code>"3"</code>, e la chiave è un numero: il colore è <code>COLORI[int(segno)]</code>.</p>
+<p>Il tempo si conta in secondi: <code>clock.schedule_interval(un_secondo, 1)</code> chiama la funzione <code>un_secondo</code> ogni secondo, per sempre, e lei fa crescere <code>secondi</code> di 1, ma solo mentre si gioca, cioè con lo stato <code>"gioco"</code> e almeno una casella scoperta: come nel Campo minato vero, il tempo parte con il primo clic. <code>nuova_partita()</code> rimette <code>secondi</code> a 0.</p>
+<p>Il record è il tempo più basso, e dipende da quante mine ci sono: con più mine serve più tempo. Per questo sta in un dizionario, <code>record</code>, che all'inizio è vuoto, <code>{}</code>, con il numero delle mine come chiave: per ora le mine sono sempre 8, ma nella parte 9 arriveranno altre difficoltà. Quando vinci, se <code>quante</code> non è ancora nel dizionario, o se hai fatto meno del record, il record diventa il tuo: <code>record[quante] = secondi</code>.</p>
+<p>In alto, a sinistra le mine, in mezzo <code>Record: 25</code>, con <code>midtop=(WIDTH // 2, 16)</code>, e a destra <code>Tempo: 0 s</code>, con <code>topright=(WIDTH - X0, 16)</code>, tutti grandi 32. Il record lo prendi con <code>record.get(quante, "-")</code>: se ancora non c'è, al suo posto viene un trattino.</p>`],
+    task: `Metti i colori dei numeri nel dizionario <code>COLORI</code>; conta i secondi con <code>clock.schedule_interval</code> e una funzione che li fa crescere solo mentre si gioca, dal primo clic; tieni nel dizionario <code>record</code> il tempo migliore per 8 mine, e aggiornalo quando vinci; scrivi in alto mine, record e tempo. Quando chiudi la finestra, proverò i colori, il tempo che parte e si ferma, e tre partite di fila per il record.`,
+    solution: `# Campo minato, parte 7: colori e record
+import pgzrun
+import random
+
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 30
+quante = 8
+COLORI = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+record = {}
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(mine, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mine:
+                n += 1
+    return n
+
+
+def scopri(campo, mine, r, c):
+    n = conta_vicine(mine, r, c)
+    if n == 0:
+        campo[r][c] = "."
+    else:
+        campo[r][c] = str(n)
+    return n
+
+
+def apri(campo, mine, r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc) and campo[rr][cc] == "#":
+            aperte += 1
+            if scopri(campo, mine, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def nuova_partita():
+    global campo, mine, bandiere, scoperte, stato, secondi
+    campo = []
+    for r in range(RIGHE):
+        riga = []
+        for c in range(COLONNE):
+            riga.append("#")
+        campo.append(riga)
+    mine = []
+    while len(mine) < quante:
+        r = random.randint(0, RIGHE - 1)
+        c = random.randint(0, COLONNE - 1)
+        if [r, c] not in mine:
+            mine.append([r, c])
+    bandiere = 0
+    scoperte = 0
+    stato = "gioco"
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if stato == "gioco" and scoperte > 0:
+        secondi += 1
+
+
+def disegna_casella(segno, x, y):
+    if segno == "#" or segno == "B":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, 4)), "#6b7a8c")
+        if segno == "B":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif segno == "X":
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+        if segno == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif segno != ".":
+            screen.draw.text(segno, center=(x + 20, y + 21), fontsize=40, color=COLORI[int(segno)])
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            disegna_casella(campo[r][c], X0 + c * LATO, Y0 + r * LATO)
+    screen.draw.text(f"Mine: {len(mine) - bandiere}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if stato == "persa":
+        screen.draw.text("BOOM! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Hai vinto! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global bandiere, scoperte, stato
+    if stato != "gioco":
+        nuova_partita()
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    if button == mouse.RIGHT:
+        if campo[r][c] == "#":
+            campo[r][c] = "B"
+            bandiere += 1
+        elif campo[r][c] == "B":
+            campo[r][c] = "#"
+            bandiere -= 1
+    elif campo[r][c] == "#":
+        if [r, c] in mine:
+            for m in mine:
+                if campo[m[0]][m[1]] == "#":
+                    campo[m[0]][m[1]] = "*"
+            campo[r][c] = "X"
+            stato = "persa"
+        else:
+            scoperte += apri(campo, mine, r, c)
+            if scoperte == RIGHE * COLONNE - len(mine):
+                stato = "vinta"
+                if quante not in record or secondi < record[quante]:
+                    record[quante] = secondi
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Quando deve partire il tempo, e quando fermarsi? In quale momento esatto controlli il record?",
+      "COLORI ha 8 coppie numero: colore. un_secondo, con global, aggiunge 1 se lo stato è gioco e le scoperte sono più di 0, e clock.schedule_interval la chiama ogni secondo: scrivilo una volta sola, prima di pgzrun.go(). record parte vuoto. Quando vinci, se quante non è nel record, oppure i secondi sono meno del record, lo sostituisci. In draw() tre scritte in alto, con get per il record."],
+    check: (o, c) => !pgzWhy(c, "it", MINES_WIN7),
+    why: (o, c) => pgzWhy(c, "it", MINES_WIN7),
+    tests: (c) => minesRecordTests("it")(c).concat(minesRandomTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: Minesweeper, part 7",
+    theory: [
+`<p>Part 7: the numbers' <b>colours</b>, the <b>time</b> and the <b>record</b>.</p>
+<p>Instead of the chain of <code>if</code> in <code>number_colour</code> there's a dictionary, <code>COLOURS</code>, with the number as the key and the colour as the value, for all the numbers from 1 to 8: <code>{1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}</code>. In the field the number is a text, like <code>"3"</code>, and the key is a number: the colour is <code>COLOURS[int(mark)]</code>.</p>
+<p>The time is counted in seconds: <code>clock.schedule_interval(one_second, 1)</code> calls the function <code>one_second</code> every second, for ever, and it makes <code>seconds</code> grow by 1, but only while you're playing, that is with the state <code>"playing"</code> and at least one square uncovered: as in the real Minesweeper, the time starts with the first click. <code>new_game()</code> puts <code>seconds</code> back to 0.</p>
+<p>The record is the lowest time, and it depends on how many mines there are: with more mines you need more time. That's why it's in a dictionary, <code>best</code>, which is empty at the start, <code>{}</code>, with the number of mines as the key: for now there are always 8 mines, but in part 9 other levels will come. When you win, if <code>how_many</code> isn't in the dictionary yet, or if you took less than the record, the record becomes yours: <code>best[how_many] = seconds</code>.</p>
+<p>At the top, the mines on the left, <code>Record: 25</code> in the middle, with <code>midtop=(WIDTH // 2, 16)</code>, and <code>Time: 0 s</code> on the right, with <code>topright=(WIDTH - X0, 16)</code>, all size 32. You take the record with <code>best.get(how_many, "-")</code>: if there isn't one yet, a dash comes instead.</p>`],
+    task: `Put the numbers' colours in the dictionary <code>COLOURS</code>; count the seconds with <code>clock.schedule_interval</code> and a function that makes them grow only while you're playing, from the first click; keep in the dictionary <code>best</code> the best time for 8 mines, and update it when you win; write the mines, the record and the time at the top. When you close the window, I'll test the colours, the time starting and stopping, and three games in a row for the record.`,
+    solution: `# Minesweeper, part 7: colours and records
+import pgzrun
+import random
+
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 30
+how_many = 8
+COLOURS = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+best = {}
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(mines, r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if [r + dr, c + dc] in mines:
+                n += 1
+    return n
+
+
+def uncover(field, mines, r, c):
+    n = count_nearby(mines, r, c)
+    if n == 0:
+        field[r][c] = "."
+    else:
+        field[r][c] = str(n)
+    return n
+
+
+def open_area(field, mines, r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc) and field[rr][cc] == "#":
+            opened += 1
+            if uncover(field, mines, rr, cc) == 0:
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def new_game():
+    global field, mines, flags, cleared, state, seconds
+    field = []
+    for r in range(ROWS):
+        row = []
+        for c in range(COLUMNS):
+            row.append("#")
+        field.append(row)
+    mines = []
+    while len(mines) < how_many:
+        r = random.randint(0, ROWS - 1)
+        c = random.randint(0, COLUMNS - 1)
+        if [r, c] not in mines:
+            mines.append([r, c])
+    flags = 0
+    cleared = 0
+    state = "playing"
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if state == "playing" and cleared > 0:
+        seconds += 1
+
+
+def draw_square(mark, x, y):
+    if mark == "#" or mark == "F":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, 4)), "#6b7a8c")
+        if mark == "F":
+            screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+            screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+    elif mark == "X":
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+        screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+    else:
+        screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+        if mark == "*":
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif mark != ".":
+            screen.draw.text(mark, center=(x + 20, y + 21), fontsize=40, color=COLOURS[int(mark)])
+
+
+def draw():
+    screen.fill("#151b23")
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            draw_square(field[r][c], X0 + c * SIDE, Y0 + r * SIDE)
+    screen.draw.text(f"Mines: {len(mines) - flags}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(how_many, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if state == "lost":
+        screen.draw.text("BOOM! Click to play again.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("You won! Click to play again.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global flags, cleared, state
+    if state != "playing":
+        new_game()
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    if button == mouse.RIGHT:
+        if field[r][c] == "#":
+            field[r][c] = "F"
+            flags += 1
+        elif field[r][c] == "F":
+            field[r][c] = "#"
+            flags -= 1
+    elif field[r][c] == "#":
+        if [r, c] in mines:
+            for m in mines:
+                if field[m[0]][m[1]] == "#":
+                    field[m[0]][m[1]] = "*"
+            field[r][c] = "X"
+            state = "lost"
+        else:
+            cleared += open_area(field, mines, r, c)
+            if cleared == ROWS * COLUMNS - len(mines):
+                state = "won"
+                if how_many not in best or seconds < best[how_many]:
+                    best[how_many] = seconds
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["When should the time start, and when should it stop? At which exact moment do you check the record?",
+      "COLOURS has 8 number: colour pairs. one_second, with global, adds 1 if the state is playing and the cleared squares are more than 0, and clock.schedule_interval calls it every second: write that just once, before pgzrun.go(). best starts empty. When you win, if how_many isn't in best, or the seconds are fewer than the record, you replace it. In draw() three texts at the top, with get for the record."],
+    check: (o, c) => !pgzWhy(c, "en", MINES_WIN7),
+    why: (o, c) => pgzWhy(c, "en", MINES_WIN7),
+    tests: (c) => minesRecordTests("en")(c).concat(minesRandomTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_campo_minato_8.py", "build_minesweeper_8.py"],
+  it: {
+    title: "Costruisci: il Campo minato, parte 8",
+    theory: [
+`<p>Parte 8: la casella diventa un <b>oggetto</b>. La classe <code>Casella</code> tiene insieme quello che il gioco sa di una casella: l'angolo <code>x</code> e <code>y</code>, calcolato dalla riga e dalla colonna come prima, e quattro cose che prima stavano sparse tra la lista delle mine e i segni nel campo: <code>mina</code>, <code>scoperta</code> e <code>bandiera</code>, vere o false, e <code>vicine</code>, il numero delle mine intorno. <code>__init__(self, r, c)</code> riceve la riga e la colonna e crea una casella coperta, senza mina, senza bandierina e con 0 vicine. I suoi metodi:</p>
+<ul><li><code>cambia_bandiera(self)</code> mette o toglie la bandierina, ma solo se la casella è coperta;</li>
+<li><code>copertura(self)</code> disegna la casella coperta: il quadrato con la striscia;</li>
+<li><code>disegna(self)</code> disegna la casella com'è: scoperta e con la mina, cioè la mina scoppiata, in rosso; scoperta, con il numero se le vicine sono più di 0; coperta ma con la mina, a partita persa e senza bandierina, come una mina scoperta; se no la <code>copertura()</code>, con la bandierina se c'è.</li></ul>
+<p>Il campo diventa una lista di liste di oggetti: <code>nuova_partita()</code> crea una <code>Casella</code> per ogni posto, poi pesca le mine e le segna con <code>mina = True</code>, contandole in <code>messe</code> finché sono <code>quante</code>, e alla fine scrive in ogni casella le sue <code>vicine</code>. <code>conta_vicine(r, c)</code> ora guarda <code>campo[r + dr][c + dc].mina</code>, ma prima controlla con <code>dentro</code> che quella casella ci sia: <code>campo[-1]</code> in Python non è un errore, è l'ultima riga, e conteresti le mine dall'altra parte del campo. <code>apri(r, c)</code> scopre le caselle mettendo <code>scoperta = True</code>, e salta quelle con la bandierina.</p>
+<p><code>draw()</code> chiede a ogni casella di disegnarsi, e intanto conta le bandierine; <code>on_mouse_down</code> trova la casella cliccata, <code>campo[r][c]</code>, e con il tasto destro chiama <code>cambia_bandiera()</code>. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Casella</code> con <code>__init__</code>, <code>cambia_bandiera</code>, <code>copertura</code> e <code>disegna</code>, come qui sopra, e fai del campo una lista di liste di oggetti <code>Casella</code>, con le mine segnate da <code>mina</code> e le <code>vicine</code> contate all'inizio. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con le bandierine, le mine, il tempo e il record.`,
+    solution: `# Campo minato, parte 8: la casella è un oggetto
+import pgzrun
+import random
+
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 30
+quante = 8
+COLORI = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+record = {}
+
+
+class Casella:
+    def __init__(self, r, c):
+        self.x = X0 + c * LATO
+        self.y = Y0 + r * LATO
+        self.mina = False
+        self.scoperta = False
+        self.bandiera = False
+        self.vicine = 0
+
+    def cambia_bandiera(self):
+        if not self.scoperta:
+            self.bandiera = not self.bandiera
+
+    def copertura(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, 4)), "#6b7a8c")
+
+    def disegna(self):
+        x = self.x
+        y = self.y
+        if self.scoperta and self.mina:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.scoperta:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            if self.vicine > 0:
+                screen.draw.text(str(self.vicine), center=(x + 20, y + 21), fontsize=40, color=COLORI[self.vicine])
+        elif self.mina and stato == "persa" and not self.bandiera:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.copertura()
+            if self.bandiera:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if dentro(r + dr, c + dc) and campo[r + dr][c + dc].mina:
+                n += 1
+    return n
+
+
+def apri(r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc):
+            casella = campo[rr][cc]
+            if not casella.scoperta and not casella.bandiera:
+                casella.scoperta = True
+                aperte += 1
+                if casella.vicine == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def nuova_partita():
+    global campo, scoperte, stato, secondi
+    campo = []
+    for r in range(RIGHE):
+        riga = []
+        for c in range(COLONNE):
+            riga.append(Casella(r, c))
+        campo.append(riga)
+    messe = 0
+    while messe < quante:
+        r = random.randint(0, RIGHE - 1)
+        c = random.randint(0, COLONNE - 1)
+        if not campo[r][c].mina:
+            campo[r][c].mina = True
+            messe += 1
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            campo[r][c].vicine = conta_vicine(r, c)
+    scoperte = 0
+    stato = "gioco"
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if stato == "gioco" and scoperte > 0:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    bandiere = 0
+    for riga in campo:
+        for casella in riga:
+            casella.disegna()
+            if casella.bandiera:
+                bandiere += 1
+    screen.draw.text(f"Mine: {quante - bandiere}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if stato == "persa":
+        screen.draw.text("BOOM! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.text("Hai vinto! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global scoperte, stato
+    if stato != "gioco":
+        nuova_partita()
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    casella = campo[r][c]
+    if button == mouse.RIGHT:
+        casella.cambia_bandiera()
+    elif not casella.scoperta and not casella.bandiera:
+        if casella.mina:
+            casella.scoperta = True
+            stato = "persa"
+        else:
+            scoperte += apri(r, c)
+            if scoperte == RIGHE * COLONNE - quante:
+                stato = "vinta"
+                if quante not in record or secondi < record[quante]:
+                    record[quante] = secondi
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Quali informazioni deve tenere ogni casella? Perché conta_vicine deve controllare che la casella intorno sia dentro il campo?",
+      "In __init__ sei attributi con self. cambia_bandiera usa not su bandiera se la casella non è scoperta. disegna sceglie come faceva disegna_casella, con self. In nuova_partita due for con append(Casella(r, c)), un while che mette quante mine diverse e due for che scrivono le vicine. In on_mouse_down prendi campo[r][c] e usi i suoi attributi."],
+    check: (o, c) => !pgzWhy(c, "it", MINES_WIN7.concat(MINES_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", MINES_WIN7.concat(MINES_CLASS.it)),
+    tests: (c) => minesClassTests("it")(c).concat(minesRecordTests("it")(c))
+  },
+  en: {
+    title: "Build: Minesweeper, part 8",
+    theory: [
+`<p>Part 8: the square becomes an <b>object</b>. The class <code>Square</code> keeps together what the game knows about a square: the corner <code>x</code> and <code>y</code>, worked out from the row and the column as before, and four things that used to be scattered between the list of mines and the marks in the field: <code>mine</code>, <code>uncovered</code> and <code>flag</code>, true or false, and <code>nearby</code>, the number of mines around. <code>__init__(self, r, c)</code> gets the row and the column and makes a covered square, without a mine, without a flag and with 0 nearby. Its methods:</p>
+<ul><li><code>toggle_flag(self)</code> puts the flag on or takes it away, but only if the square is covered;</li>
+<li><code>draw_cover(self)</code> draws the covered square: the square with the strip;</li>
+<li><code>show(self)</code> draws the square as it is: uncovered and with the mine, that is the mine that went off, in red; uncovered, with the number if nearby is more than 0; covered but with the mine, when the game is lost and without a flag, like an uncovered mine; otherwise <code>draw_cover()</code>, with the flag if there is one.</li></ul>
+<p>The field becomes a list of lists of objects: <code>new_game()</code> makes a <code>Square</code> for every place, then picks the mines and marks them with <code>mine = True</code>, counting them in <code>placed</code> until there are <code>how_many</code>, and at the end writes in every square its <code>nearby</code>. <code>count_nearby(r, c)</code> now looks at <code>field[r + dr][c + dc].mine</code>, but first it checks with <code>inside</code> that the square exists: <code>field[-1]</code> isn't an error in Python, it's the last row, and you'd count the mines on the other side of the field. <code>open_area(r, c)</code> uncovers the squares by setting <code>uncovered = True</code>, and skips the ones with a flag.</p>
+<p><code>draw()</code> asks every square to draw itself, and meanwhile counts the flags; <code>on_mouse_down</code> finds the square clicked, <code>field[r][c]</code>, and with the right button calls <code>toggle_flag()</code>. The game stays the same.</p>`],
+    task: `Write the class <code>Square</code> with <code>__init__</code>, <code>toggle_flag</code>, <code>draw_cover</code> and <code>show</code>, as above, and make the field a list of lists of <code>Square</code> objects, with the mines marked by <code>mine</code> and <code>nearby</code> counted at the start. When you close the window, I'll test the class on its own and then the game, with the flags, the mines, the time and the record.`,
+    solution: `# Minesweeper, part 8: the square is an object
+import pgzrun
+import random
+
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 30
+how_many = 8
+COLOURS = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+best = {}
+
+
+class Square:
+    def __init__(self, r, c):
+        self.x = X0 + c * SIDE
+        self.y = Y0 + r * SIDE
+        self.mine = False
+        self.uncovered = False
+        self.flag = False
+        self.nearby = 0
+
+    def toggle_flag(self):
+        if not self.uncovered:
+            self.flag = not self.flag
+
+    def draw_cover(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, 4)), "#6b7a8c")
+
+    def show(self):
+        x = self.x
+        y = self.y
+        if self.uncovered and self.mine:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.uncovered:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            if self.nearby > 0:
+                screen.draw.text(str(self.nearby), center=(x + 20, y + 21), fontsize=40, color=COLOURS[self.nearby])
+        elif self.mine and state == "lost" and not self.flag:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.draw_cover()
+            if self.flag:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if inside(r + dr, c + dc) and field[r + dr][c + dc].mine:
+                n += 1
+    return n
+
+
+def open_area(r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc):
+            square = field[rr][cc]
+            if not square.uncovered and not square.flag:
+                square.uncovered = True
+                opened += 1
+                if square.nearby == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def new_game():
+    global field, cleared, state, seconds
+    field = []
+    for r in range(ROWS):
+        row = []
+        for c in range(COLUMNS):
+            row.append(Square(r, c))
+        field.append(row)
+    placed = 0
+    while placed < how_many:
+        r = random.randint(0, ROWS - 1)
+        c = random.randint(0, COLUMNS - 1)
+        if not field[r][c].mine:
+            field[r][c].mine = True
+            placed += 1
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            field[r][c].nearby = count_nearby(r, c)
+    cleared = 0
+    state = "playing"
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if state == "playing" and cleared > 0:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    flags = 0
+    for row in field:
+        for square in row:
+            square.show()
+            if square.flag:
+                flags += 1
+    screen.draw.text(f"Mines: {how_many - flags}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(how_many, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if state == "lost":
+        screen.draw.text("BOOM! Click to play again.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.text("You won! Click to play again.", (X0, 56), fontsize=28, color="#ffca28")
+
+
+def on_mouse_down(pos, button):
+    global cleared, state
+    if state != "playing":
+        new_game()
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    square = field[r][c]
+    if button == mouse.RIGHT:
+        square.toggle_flag()
+    elif not square.uncovered and not square.flag:
+        if square.mine:
+            square.uncovered = True
+            state = "lost"
+        else:
+            cleared += open_area(r, c)
+            if cleared == ROWS * COLUMNS - how_many:
+                state = "won"
+                if how_many not in best or seconds < best[how_many]:
+                    best[how_many] = seconds
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["What information does every square need to keep? Why does count_nearby have to check that the square around is inside the field?",
+      "In __init__ six attributes with self. toggle_flag uses not on flag if the square isn't uncovered. show picks as draw_square used to, with self. In new_game two for loops with append(Square(r, c)), a while that places how_many different mines and two for loops that write nearby. In on_mouse_down take field[r][c] and use its attributes."],
+    check: (o, c) => !pgzWhy(c, "en", MINES_WIN7.concat(MINES_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", MINES_WIN7.concat(MINES_CLASS.en)),
+    tests: (c) => minesClassTests("en")(c).concat(minesRecordTests("en")(c))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_campo_minato.py", "final_challenge_minesweeper.py"],
+  it: {
+    title: "Costruisci: il Campo minato completo",
+    theory: [
+`<p>Parte 9, la sfida finale: <b>la partita completa</b>, con tre cose nuove.</p>
+<p>Le <b>difficoltà</b>. Con i tasti, in <code>on_key_down</code>, scegli quante mine ci sono: 1, cioè <code>keys.K_1</code>, per 8 mine, 2, <code>keys.K_2</code>, per 12, e 3, <code>keys.K_3</code>, per 16; ogni volta comincia una partita nuova. N, <code>keys.N</code>, comincia una partita nuova con le stesse mine, anche a metà. E il dizionario dei record ora serve davvero: <code>record[quante]</code> tiene il record di ogni difficoltà. La finestra diventa più alta, <code>HEIGHT = Y0 + RIGHE * LATO + 70</code>, e in fondo, con <code>midbottom=(WIDTH // 2, HEIGHT - 14)</code>, grande 24 e in <code>"#c9d2dc"</code>, scrivi i tasti: <code>1: facile    2: medio    3: difficile    N: nuova partita</code>.</p>
+<p>Il <b>primo clic sempre sicuro</b>. Perdere al primo clic non è giusto, perché ancora non sai niente. Allora le mine non si mettono in <code>nuova_partita()</code>, ma al primo clic sinistro, cioè quando le scoperte sono ancora 0: <code>metti_mine(r0, c0)</code> pesca le mine come prima, ma salta la casella cliccata e le 8 intorno, quelle con <code>abs(r - r0) &lt;= 1</code> e anche <code>abs(c - c0) &lt;= 1</code>; poi conta le vicine di ogni casella. Così il primo clic apre sempre una zona vuota.</p>
+<p>La <b>schermata della vittoria</b>. Quando vinci, sopra il campo compare un riquadro: un rettangolo <code>"#ffca28"</code> di 380 × 170 in <code>(WIDTH // 2 - 190, Y0 + 62)</code>, e sopra uno <code>"#151b23"</code> 4 pixel più piccolo per lato. Dentro, centrate con <code>center</code> su <code>WIDTH // 2</code>: <code>CAMPO PULITO!</code>, grande 48 e in <code>"#ffca28"</code>, a <code>Y0 + 100</code>; il tempo, come <code>Tempo: 25 s</code>, grande 32, a <code>Y0 + 142</code>; <code>Nuovo record!</code>, grande 28 e in <code>"#43a047"</code>, a <code>Y0 + 175</code>, ma solo se il record l'hai appena fatto, e lo ricorda la variabile <code>nuovo_record</code>; e <code>Clicca o premi N per giocare ancora</code>, grande 24 e in <code>"#c9d2dc"</code>, a <code>Y0 + 208</code>.</p>`],
+    task: `Aggiungi le tre difficoltà con i tasti 1, 2 e 3 e la partita nuova con N, in <code>on_key_down</code>; metti le mine al primo clic con <code>metti_mine(r0, c0)</code>, lontano dalla casella cliccata; quando vinci mostra la schermata della vittoria, con <code>Nuovo record!</code> solo se è un record; e scrivi i tasti in fondo. Quando chiudi la finestra, proverò le difficoltà, il primo clic con dei dadi che vorrebbero mettere le mine proprio lì, la schermata della vittoria, i record e N.`,
+    solution: `# Campo minato, parte 9: la partita completa
+import pgzrun
+import random
+
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 70
+quante = 8
+COLORI = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+record = {}
+
+
+class Casella:
+    def __init__(self, r, c):
+        self.x = X0 + c * LATO
+        self.y = Y0 + r * LATO
+        self.mina = False
+        self.scoperta = False
+        self.bandiera = False
+        self.vicine = 0
+
+    def cambia_bandiera(self):
+        if not self.scoperta:
+            self.bandiera = not self.bandiera
+
+    def copertura(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, 4)), "#6b7a8c")
+
+    def disegna(self):
+        x = self.x
+        y = self.y
+        if self.scoperta and self.mina:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.scoperta:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            if self.vicine > 0:
+                screen.draw.text(str(self.vicine), center=(x + 20, y + 21), fontsize=40, color=COLORI[self.vicine])
+        elif self.mina and stato == "persa" and not self.bandiera:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.copertura()
+            if self.bandiera:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if dentro(r + dr, c + dc) and campo[r + dr][c + dc].mina:
+                n += 1
+    return n
+
+
+def apri(r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc):
+            casella = campo[rr][cc]
+            if not casella.scoperta and not casella.bandiera:
+                casella.scoperta = True
+                aperte += 1
+                if casella.vicine == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def metti_mine(r0, c0):
+    messe = 0
+    while messe < quante:
+        r = random.randint(0, RIGHE - 1)
+        c = random.randint(0, COLONNE - 1)
+        lontana = abs(r - r0) > 1 or abs(c - c0) > 1
+        if lontana and not campo[r][c].mina:
+            campo[r][c].mina = True
+            messe += 1
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            campo[r][c].vicine = conta_vicine(r, c)
+
+
+def nuova_partita():
+    global campo, scoperte, stato, secondi, nuovo_record
+    campo = []
+    for r in range(RIGHE):
+        riga = []
+        for c in range(COLONNE):
+            riga.append(Casella(r, c))
+        campo.append(riga)
+    scoperte = 0
+    stato = "gioco"
+    secondi = 0
+    nuovo_record = False
+
+
+def un_secondo():
+    global secondi
+    if stato == "gioco" and scoperte > 0:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    bandiere = 0
+    for riga in campo:
+        for casella in riga:
+            casella.disegna()
+            if casella.bandiera:
+                bandiere += 1
+    screen.draw.text(f"Mine: {quante - bandiere}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    screen.draw.text("1: facile    2: medio    3: difficile    N: nuova partita", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24, color="#c9d2dc")
+    if stato == "persa":
+        screen.draw.text("BOOM! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 190, Y0 + 62), (380, 170)), "#ffca28")
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 186, Y0 + 66), (372, 162)), "#151b23")
+        screen.draw.text("CAMPO PULITO!", center=(WIDTH // 2, Y0 + 100), fontsize=48, color="#ffca28")
+        screen.draw.text(f"Tempo: {secondi} s", center=(WIDTH // 2, Y0 + 142), fontsize=32)
+        if nuovo_record:
+            screen.draw.text("Nuovo record!", center=(WIDTH // 2, Y0 + 175), fontsize=28, color="#43a047")
+        screen.draw.text("Clicca o premi N per giocare ancora", center=(WIDTH // 2, Y0 + 208), fontsize=24, color="#c9d2dc")
+
+
+def on_key_down(key):
+    global quante
+    if key == keys.K_1:
+        quante = 8
+    elif key == keys.K_2:
+        quante = 12
+    elif key == keys.K_3:
+        quante = 16
+    elif key != keys.N:
+        return
+    nuova_partita()
+
+
+def on_mouse_down(pos, button):
+    global scoperte, stato, nuovo_record
+    if stato != "gioco":
+        nuova_partita()
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    casella = campo[r][c]
+    if button == mouse.RIGHT:
+        casella.cambia_bandiera()
+    elif not casella.scoperta and not casella.bandiera:
+        if scoperte == 0:
+            metti_mine(r, c)
+        if casella.mina:
+            casella.scoperta = True
+            stato = "persa"
+        else:
+            scoperte += apri(r, c)
+            if scoperte == RIGHE * COLONNE - quante:
+                stato = "vinta"
+                if quante not in record or secondi < record[quante]:
+                    record[quante] = secondi
+                    nuovo_record = True
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Come fa il gioco a sapere che un clic è il primo della partita? Quali caselle deve saltare metti_mine?",
+      "on_key_down, con global, cambia quante con 1, 2 o 3 e chiama nuova_partita, anche con N; con gli altri tasti esce subito. nuova_partita crea le caselle senza mine. In on_mouse_down, prima di aprire, se le scoperte sono 0 chiami metti_mine con la riga e la colonna del clic. In draw(), se lo stato è vinta, i due rettangoli e le scritte."],
+    check: (o, c) => !pgzWhy(c, "it", MINES_WIN7.concat(MINES_CLASS.it, [MINES_SAFE.it, MINES_LEVELS, MINES_NUMKEYS, MINES_NEW])),
+    why: (o, c) => pgzWhy(c, "it", MINES_WIN7.concat(MINES_CLASS.it, [MINES_SAFE.it, MINES_LEVELS, MINES_NUMKEYS, MINES_NEW])),
+    tests: (c) => minesLevelTests("it")(c).concat(minesClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Minesweeper",
+    theory: [
+`<p>Part 9, the final challenge: <b>the full game</b>, with three new things.</p>
+<p>The <b>levels</b>. With the keys, in <code>on_key_down</code>, you pick how many mines there are: 1, that is <code>keys.K_1</code>, for 8 mines, 2, <code>keys.K_2</code>, for 12, and 3, <code>keys.K_3</code>, for 16; each time a new game starts. N, <code>keys.N</code>, starts a new game with the same mines, even halfway through. And the records dictionary is really needed now: <code>best[how_many]</code> keeps the record for each level. The window gets taller, <code>HEIGHT = Y0 + ROWS * SIDE + 70</code>, and at the bottom, with <code>midbottom=(WIDTH // 2, HEIGHT - 14)</code>, size 24 and in <code>"#c9d2dc"</code>, write the keys: <code>1: easy    2: medium    3: hard    N: new game</code>.</p>
+<p>The <b>first click always safe</b>. Losing at the first click isn't fair, because you don't know anything yet. So the mines aren't placed in <code>new_game()</code>, but at the first left click, that is when the cleared squares are still 0: <code>place_mines(r0, c0)</code> picks the mines as before, but skips the square clicked and the 8 around it, those with <code>abs(r - r0) &lt;= 1</code> and also <code>abs(c - c0) &lt;= 1</code>; then it counts nearby for every square. So the first click always opens an empty area.</p>
+<p>The <b>winning screen</b>. When you win, a box appears over the field: a <code>"#ffca28"</code> rectangle of 380 × 170 at <code>(WIDTH // 2 - 190, Y0 + 62)</code>, and on top a <code>"#151b23"</code> one 4 pixels smaller on each side. Inside, centred with <code>center</code> on <code>WIDTH // 2</code>: <code>FIELD CLEARED!</code>, size 48 and in <code>"#ffca28"</code>, at <code>Y0 + 100</code>; the time, like <code>Time: 25 s</code>, size 32, at <code>Y0 + 142</code>; <code>New record!</code>, size 28 and in <code>"#43a047"</code>, at <code>Y0 + 175</code>, but only if you've just made the record, which the variable <code>new_record</code> remembers; and <code>Click or press N to play again</code>, size 24 and in <code>"#c9d2dc"</code>, at <code>Y0 + 208</code>.</p>`],
+    task: `Add the three levels with the keys 1, 2 and 3 and the new game with N, in <code>on_key_down</code>; place the mines at the first click with <code>place_mines(r0, c0)</code>, away from the square clicked; when you win show the winning screen, with <code>New record!</code> only if it's a record; and write the keys at the bottom. When you close the window, I'll test the levels, the first click with dice that would like to put the mines right there, the winning screen, the records and N.`,
+    solution: `# Minesweeper, part 9: the full game
+import pgzrun
+import random
+
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 70
+how_many = 8
+COLOURS = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+best = {}
+
+
+class Square:
+    def __init__(self, r, c):
+        self.x = X0 + c * SIDE
+        self.y = Y0 + r * SIDE
+        self.mine = False
+        self.uncovered = False
+        self.flag = False
+        self.nearby = 0
+
+    def toggle_flag(self):
+        if not self.uncovered:
+            self.flag = not self.flag
+
+    def draw_cover(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, 4)), "#6b7a8c")
+
+    def show(self):
+        x = self.x
+        y = self.y
+        if self.uncovered and self.mine:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.uncovered:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            if self.nearby > 0:
+                screen.draw.text(str(self.nearby), center=(x + 20, y + 21), fontsize=40, color=COLOURS[self.nearby])
+        elif self.mine and state == "lost" and not self.flag:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.draw_cover()
+            if self.flag:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if inside(r + dr, c + dc) and field[r + dr][c + dc].mine:
+                n += 1
+    return n
+
+
+def open_area(r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc):
+            square = field[rr][cc]
+            if not square.uncovered and not square.flag:
+                square.uncovered = True
+                opened += 1
+                if square.nearby == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def place_mines(r0, c0):
+    placed = 0
+    while placed < how_many:
+        r = random.randint(0, ROWS - 1)
+        c = random.randint(0, COLUMNS - 1)
+        far = abs(r - r0) > 1 or abs(c - c0) > 1
+        if far and not field[r][c].mine:
+            field[r][c].mine = True
+            placed += 1
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            field[r][c].nearby = count_nearby(r, c)
+
+
+def new_game():
+    global field, cleared, state, seconds, new_record
+    field = []
+    for r in range(ROWS):
+        row = []
+        for c in range(COLUMNS):
+            row.append(Square(r, c))
+        field.append(row)
+    cleared = 0
+    state = "playing"
+    seconds = 0
+    new_record = False
+
+
+def one_second():
+    global seconds
+    if state == "playing" and cleared > 0:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    flags = 0
+    for row in field:
+        for square in row:
+            square.show()
+            if square.flag:
+                flags += 1
+    screen.draw.text(f"Mines: {how_many - flags}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(how_many, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    screen.draw.text("1: easy    2: medium    3: hard    N: new game", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24, color="#c9d2dc")
+    if state == "lost":
+        screen.draw.text("BOOM! Click to play again.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 190, Y0 + 62), (380, 170)), "#ffca28")
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 186, Y0 + 66), (372, 162)), "#151b23")
+        screen.draw.text("FIELD CLEARED!", center=(WIDTH // 2, Y0 + 100), fontsize=48, color="#ffca28")
+        screen.draw.text(f"Time: {seconds} s", center=(WIDTH // 2, Y0 + 142), fontsize=32)
+        if new_record:
+            screen.draw.text("New record!", center=(WIDTH // 2, Y0 + 175), fontsize=28, color="#43a047")
+        screen.draw.text("Click or press N to play again", center=(WIDTH // 2, Y0 + 208), fontsize=24, color="#c9d2dc")
+
+
+def on_key_down(key):
+    global how_many
+    if key == keys.K_1:
+        how_many = 8
+    elif key == keys.K_2:
+        how_many = 12
+    elif key == keys.K_3:
+        how_many = 16
+    elif key != keys.N:
+        return
+    new_game()
+
+
+def on_mouse_down(pos, button):
+    global cleared, state, new_record
+    if state != "playing":
+        new_game()
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    square = field[r][c]
+    if button == mouse.RIGHT:
+        square.toggle_flag()
+    elif not square.uncovered and not square.flag:
+        if cleared == 0:
+            place_mines(r, c)
+        if square.mine:
+            square.uncovered = True
+            state = "lost"
+        else:
+            cleared += open_area(r, c)
+            if cleared == ROWS * COLUMNS - how_many:
+                state = "won"
+                if how_many not in best or seconds < best[how_many]:
+                    best[how_many] = seconds
+                    new_record = True
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["How can the game know that a click is the first of the game? Which squares does place_mines have to skip?",
+      "on_key_down, with global, changes how_many with 1, 2 or 3 and calls new_game, with N too; with other keys it leaves straight away. new_game makes the squares without mines. In on_mouse_down, before opening, if the cleared squares are 0 call place_mines with the click's row and column. In draw(), if the state is won, the two rectangles and the texts."],
+    check: (o, c) => !pgzWhy(c, "en", MINES_WIN7.concat(MINES_CLASS.en, [MINES_SAFE.en, MINES_LEVELS, MINES_NUMKEYS, MINES_NEW])),
+    why: (o, c) => pgzWhy(c, "en", MINES_WIN7.concat(MINES_CLASS.en, [MINES_SAFE.en, MINES_LEVELS, MINES_NUMKEYS, MINES_NEW])),
+    tests: (c) => minesLevelTests("en")(c).concat(minesClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: il Campo minato sul tuo computer",
+    theory: [
+`<p>Parte 10: il Campo minato è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>campo_minato.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python campo_minato.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in <b>pausa</b> e fa ripartire, con una variabile vera o falsa, <code>pausa</code>: in pausa il tempo si ferma, i clic e gli altri tasti non contano e le caselle si vedono tutte coperte, con <code>copertura()</code>, così non puoi studiare il campo a tempo fermo; sotto le mine, in <code>"#c9d2dc"</code>, c'è scritto <code>Pausa: P per continuare</code>. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, in <code>on_key_down</code>. E in fondo la riga dei tasti diventa <code>1, 2, 3: difficoltà    N: nuova    P: pausa    Esc: esci</code>.</p>`],
+    task: `Prepara il Campo minato per il computer: un titolo per la finestra con <code>TITLE</code>, la pausa con P (il tempo fermo, i clic e i tasti che non contano e le caselle coperte, con la scritta <code>Pausa: P per continuare</code>), Esc per uscire con <code>exit()</code> e la riga dei tasti in fondo. Proverò il titolo, la pausa e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca a Campo minato sul tuo computer.`,
+    solution: `# Campo minato, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "Campo minato di Ada"
+RIGHE = 7
+COLONNE = 12
+LATO = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLONNE * LATO
+HEIGHT = Y0 + RIGHE * LATO + 70
+quante = 8
+COLORI = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+record = {}
+pausa = False
+
+
+class Casella:
+    def __init__(self, r, c):
+        self.x = X0 + c * LATO
+        self.y = Y0 + r * LATO
+        self.mina = False
+        self.scoperta = False
+        self.bandiera = False
+        self.vicine = 0
+
+    def cambia_bandiera(self):
+        if not self.scoperta:
+            self.bandiera = not self.bandiera
+
+    def copertura(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, LATO - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (LATO - 3, 4)), "#6b7a8c")
+
+    def disegna(self):
+        x = self.x
+        y = self.y
+        if self.scoperta and self.mina:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.scoperta:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            if self.vicine > 0:
+                screen.draw.text(str(self.vicine), center=(x + 20, y + 21), fontsize=40, color=COLORI[self.vicine])
+        elif self.mina and stato == "persa" and not self.bandiera:
+            screen.draw.filled_rect(Rect((x, y), (LATO - 3, LATO - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.copertura()
+            if self.bandiera:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def dentro(r, c):
+    return r >= 0 and r < RIGHE and c >= 0 and c < COLONNE
+
+
+def conta_vicine(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if dentro(r + dr, c + dc) and campo[r + dr][c + dc].mina:
+                n += 1
+    return n
+
+
+def apri(r, c):
+    aperte = 0
+    da_aprire = [[r, c]]
+    while len(da_aprire) > 0:
+        rr = da_aprire[0][0]
+        cc = da_aprire[0][1]
+        da_aprire = da_aprire[1:]
+        if dentro(rr, cc):
+            casella = campo[rr][cc]
+            if not casella.scoperta and not casella.bandiera:
+                casella.scoperta = True
+                aperte += 1
+                if casella.vicine == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            da_aprire.append([rr + dr, cc + dc])
+    return aperte
+
+
+def metti_mine(r0, c0):
+    messe = 0
+    while messe < quante:
+        r = random.randint(0, RIGHE - 1)
+        c = random.randint(0, COLONNE - 1)
+        lontana = abs(r - r0) > 1 or abs(c - c0) > 1
+        if lontana and not campo[r][c].mina:
+            campo[r][c].mina = True
+            messe += 1
+    for r in range(RIGHE):
+        for c in range(COLONNE):
+            campo[r][c].vicine = conta_vicine(r, c)
+
+
+def nuova_partita():
+    global campo, scoperte, stato, secondi, nuovo_record
+    campo = []
+    for r in range(RIGHE):
+        riga = []
+        for c in range(COLONNE):
+            riga.append(Casella(r, c))
+        campo.append(riga)
+    scoperte = 0
+    stato = "gioco"
+    secondi = 0
+    nuovo_record = False
+
+
+def un_secondo():
+    global secondi
+    if stato == "gioco" and scoperte > 0 and not pausa:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    bandiere = 0
+    for riga in campo:
+        for casella in riga:
+            if pausa:
+                casella.copertura()
+            else:
+                casella.disegna()
+            if casella.bandiera:
+                bandiere += 1
+    screen.draw.text(f"Mine: {quante - bandiere}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    screen.draw.text("1, 2, 3: difficoltà    N: nuova    P: pausa    Esc: esci", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24, color="#c9d2dc")
+    if pausa:
+        screen.draw.text("Pausa: P per continuare", (X0, 56), fontsize=28, color="#c9d2dc")
+    elif stato == "persa":
+        screen.draw.text("BOOM! Clicca per giocare ancora.", (X0, 56), fontsize=28, color="#ef5350")
+    elif stato == "vinta":
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 190, Y0 + 62), (380, 170)), "#ffca28")
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 186, Y0 + 66), (372, 162)), "#151b23")
+        screen.draw.text("CAMPO PULITO!", center=(WIDTH // 2, Y0 + 100), fontsize=48, color="#ffca28")
+        screen.draw.text(f"Tempo: {secondi} s", center=(WIDTH // 2, Y0 + 142), fontsize=32)
+        if nuovo_record:
+            screen.draw.text("Nuovo record!", center=(WIDTH // 2, Y0 + 175), fontsize=28, color="#43a047")
+        screen.draw.text("Clicca o premi N per giocare ancora", center=(WIDTH // 2, Y0 + 208), fontsize=24, color="#c9d2dc")
+
+
+def on_key_down(key):
+    global quante, pausa
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        pausa = not pausa
+        return
+    if pausa:
+        return
+    if key == keys.K_1:
+        quante = 8
+    elif key == keys.K_2:
+        quante = 12
+    elif key == keys.K_3:
+        quante = 16
+    elif key != keys.N:
+        return
+    nuova_partita()
+
+
+def on_mouse_down(pos, button):
+    global scoperte, stato, nuovo_record
+    if pausa:
+        return
+    if stato != "gioco":
+        nuova_partita()
+        return
+    r = (pos[1] - Y0) // LATO
+    c = (pos[0] - X0) // LATO
+    if not dentro(r, c):
+        return
+    casella = campo[r][c]
+    if button == mouse.RIGHT:
+        casella.cambia_bandiera()
+    elif not casella.scoperta and not casella.bandiera:
+        if scoperte == 0:
+            metti_mine(r, c)
+        if casella.mina:
+            casella.scoperta = True
+            stato = "persa"
+        else:
+            scoperte += apri(r, c)
+            if scoperte == RIGHE * COLONNE - quante:
+                stato = "vinta"
+                if quante not in record or secondi < record[quante]:
+                    record[quante] = secondi
+                    nuovo_record = True
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Cosa deve smettere di funzionare durante la pausa? Perché Esc va controllato prima di tutto il resto?",
+      "In cima TITLE, e pausa falsa. In on_key_down, per primo Esc con exit(); poi P rovescia pausa con not, e durante la pausa gli altri tasti escono subito. un_secondo conta solo se non c'è la pausa, on_mouse_down esce subito in pausa, e draw() in pausa disegna ogni casella con copertura()."],
+    check: (o, c) => !pgzWhy(c, "it", [MINES_CLICK, MINES_RIGHT, PGZ_GLOBAL, MINES_TICK].concat(MINES_CLASS.it, [MINES_SAFE.it, MINES_LEVELS, MINES_NEW], MINES_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [MINES_CLICK, MINES_RIGHT, PGZ_GLOBAL, MINES_TICK].concat(MINES_CLASS.it, [MINES_SAFE.it, MINES_LEVELS, MINES_NEW], MINES_COMPUTER.it)),
+    tests: (c) => minesKeyTests("it")(c).concat(minesLevelTests("it")(c).slice(2, 3))
+  },
+  en: {
+    title: "Build: Minesweeper on your computer",
+    theory: [
+`<p>Part 10: Minesweeper is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>minesweeper.py</code>, and in the terminal, from the same folder, type <code>python minesweeper.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key <b>pauses</b> and goes on again, with a true or false variable, <code>paused</code>: in the pause the time stops, clicks and the other keys don't count and the squares all look covered, with <code>draw_cover()</code>, so you can't study the field while the time is stopped; under the mines, in <code>"#c9d2dc"</code>, it says <code>Paused: P to go on</code>. Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, in <code>on_key_down</code>. And at the bottom the line with the keys becomes <code>1, 2, 3: level    N: new    P: pause    Esc: quit</code>.</p>`],
+    task: `Get Minesweeper ready for your computer: a title for the window with <code>TITLE</code>, the pause with P (the time stopped, clicks and keys not counting and the squares covered, with the text <code>Paused: P to go on</code>), Esc to quit with <code>exit()</code> and the line with the keys at the bottom. I'll test the title, the pause and quitting. Then, if you like, follow the three steps above and play Minesweeper on your computer.`,
+    solution: `# Minesweeper, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "Minesweeper by Ada"
+ROWS = 7
+COLUMNS = 12
+SIDE = 42
+X0 = 48
+Y0 = 96
+WIDTH = 2 * X0 + COLUMNS * SIDE
+HEIGHT = Y0 + ROWS * SIDE + 70
+how_many = 8
+COLOURS = {1: "#1e88e5", 2: "#43a047", 3: "#e53935", 4: "#5e35b1", 5: "#ef6c00", 6: "#00897b", 7: "#37474f", 8: "#6d4c41"}
+best = {}
+paused = False
+
+
+class Square:
+    def __init__(self, r, c):
+        self.x = X0 + c * SIDE
+        self.y = Y0 + r * SIDE
+        self.mine = False
+        self.uncovered = False
+        self.flag = False
+        self.nearby = 0
+
+    def toggle_flag(self):
+        if not self.uncovered:
+            self.flag = not self.flag
+
+    def draw_cover(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, SIDE - 3)), "#4f5d6e")
+        screen.draw.filled_rect(Rect((self.x, self.y), (SIDE - 3, 4)), "#6b7a8c")
+
+    def show(self):
+        x = self.x
+        y = self.y
+        if self.uncovered and self.mine:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#e53935")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        elif self.uncovered:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            if self.nearby > 0:
+                screen.draw.text(str(self.nearby), center=(x + 20, y + 21), fontsize=40, color=COLOURS[self.nearby])
+        elif self.mine and state == "lost" and not self.flag:
+            screen.draw.filled_rect(Rect((x, y), (SIDE - 3, SIDE - 3)), "#c9d2dc")
+            screen.draw.filled_circle((x + 20, y + 20), 12, "#151b23")
+        else:
+            self.draw_cover()
+            if self.flag:
+                screen.draw.filled_rect(Rect((x + 15, y + 9), (4, 24)), "#dbe3f1")
+                screen.draw.filled_rect(Rect((x + 19, y + 9), (14, 12)), "#e53935")
+
+
+def inside(r, c):
+    return r >= 0 and r < ROWS and c >= 0 and c < COLUMNS
+
+
+def count_nearby(r, c):
+    n = 0
+    for dr in range(-1, 2):
+        for dc in range(-1, 2):
+            if inside(r + dr, c + dc) and field[r + dr][c + dc].mine:
+                n += 1
+    return n
+
+
+def open_area(r, c):
+    opened = 0
+    to_open = [[r, c]]
+    while len(to_open) > 0:
+        rr = to_open[0][0]
+        cc = to_open[0][1]
+        to_open = to_open[1:]
+        if inside(rr, cc):
+            square = field[rr][cc]
+            if not square.uncovered and not square.flag:
+                square.uncovered = True
+                opened += 1
+                if square.nearby == 0:
+                    for dr in range(-1, 2):
+                        for dc in range(-1, 2):
+                            to_open.append([rr + dr, cc + dc])
+    return opened
+
+
+def place_mines(r0, c0):
+    placed = 0
+    while placed < how_many:
+        r = random.randint(0, ROWS - 1)
+        c = random.randint(0, COLUMNS - 1)
+        far = abs(r - r0) > 1 or abs(c - c0) > 1
+        if far and not field[r][c].mine:
+            field[r][c].mine = True
+            placed += 1
+    for r in range(ROWS):
+        for c in range(COLUMNS):
+            field[r][c].nearby = count_nearby(r, c)
+
+
+def new_game():
+    global field, cleared, state, seconds, new_record
+    field = []
+    for r in range(ROWS):
+        row = []
+        for c in range(COLUMNS):
+            row.append(Square(r, c))
+        field.append(row)
+    cleared = 0
+    state = "playing"
+    seconds = 0
+    new_record = False
+
+
+def one_second():
+    global seconds
+    if state == "playing" and cleared > 0 and not paused:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#151b23")
+    flags = 0
+    for row in field:
+        for square in row:
+            if paused:
+                square.draw_cover()
+            else:
+                square.show()
+            if square.flag:
+                flags += 1
+    screen.draw.text(f"Mines: {how_many - flags}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(how_many, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    screen.draw.text("1, 2, 3: level    N: new    P: pause    Esc: quit", midbottom=(WIDTH // 2, HEIGHT - 14), fontsize=24, color="#c9d2dc")
+    if paused:
+        screen.draw.text("Paused: P to go on", (X0, 56), fontsize=28, color="#c9d2dc")
+    elif state == "lost":
+        screen.draw.text("BOOM! Click to play again.", (X0, 56), fontsize=28, color="#ef5350")
+    elif state == "won":
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 190, Y0 + 62), (380, 170)), "#ffca28")
+        screen.draw.filled_rect(Rect((WIDTH // 2 - 186, Y0 + 66), (372, 162)), "#151b23")
+        screen.draw.text("FIELD CLEARED!", center=(WIDTH // 2, Y0 + 100), fontsize=48, color="#ffca28")
+        screen.draw.text(f"Time: {seconds} s", center=(WIDTH // 2, Y0 + 142), fontsize=32)
+        if new_record:
+            screen.draw.text("New record!", center=(WIDTH // 2, Y0 + 175), fontsize=28, color="#43a047")
+        screen.draw.text("Click or press N to play again", center=(WIDTH // 2, Y0 + 208), fontsize=24, color="#c9d2dc")
+
+
+def on_key_down(key):
+    global how_many, paused
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        paused = not paused
+        return
+    if paused:
+        return
+    if key == keys.K_1:
+        how_many = 8
+    elif key == keys.K_2:
+        how_many = 12
+    elif key == keys.K_3:
+        how_many = 16
+    elif key != keys.N:
+        return
+    new_game()
+
+
+def on_mouse_down(pos, button):
+    global cleared, state, new_record
+    if paused:
+        return
+    if state != "playing":
+        new_game()
+        return
+    r = (pos[1] - Y0) // SIDE
+    c = (pos[0] - X0) // SIDE
+    if not inside(r, c):
+        return
+    square = field[r][c]
+    if button == mouse.RIGHT:
+        square.toggle_flag()
+    elif not square.uncovered and not square.flag:
+        if cleared == 0:
+            place_mines(r, c)
+        if square.mine:
+            square.uncovered = True
+            state = "lost"
+        else:
+            cleared += open_area(r, c)
+            if cleared == ROWS * COLUMNS - how_many:
+                state = "won"
+                if how_many not in best or seconds < best[how_many]:
+                    best[how_many] = seconds
+                    new_record = True
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["What should stop working during the pause? Why should Esc be checked before everything else?",
+      "At the top TITLE, and paused false. In on_key_down, first Esc with exit(); then P flips paused with not, and during the pause the other keys leave straight away. one_second only counts if there's no pause, on_mouse_down leaves straight away in the pause, and draw() in the pause draws every square with draw_cover()."],
+    check: (o, c) => !pgzWhy(c, "en", [MINES_CLICK, MINES_RIGHT, PGZ_GLOBAL, MINES_TICK].concat(MINES_CLASS.en, [MINES_SAFE.en, MINES_LEVELS, MINES_NEW], MINES_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [MINES_CLICK, MINES_RIGHT, PGZ_GLOBAL, MINES_TICK].concat(MINES_CLASS.en, [MINES_SAFE.en, MINES_LEVELS, MINES_NEW], MINES_COMPUTER.en)),
+    tests: (c) => minesKeyTests("en")(c).concat(minesLevelTests("en")(c).slice(2, 3))
+  }
+}
+]);
+
+
 /* ---------- Snake: the build levels of the "Snake" project ----------
    Eleven parts, one per slot of the path (see PART_SLOTS): a cover in 00; in the terminal, the head in two
    variables (01), the rules with if (02), the body as a list of positions in a game loop (03) and the functions (04);
@@ -27174,11 +30247,12 @@ const PREVIEWS = {
       if (open.has(key)) {
         pvRect(c, px, py, C - 1, C - 1, "#c9d2dc");
         const n = M.n(x, y);
-        if (n) { c.fillStyle = NC[n]; c.font = "bold 9px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(String(n), px + C / 2 - 0.5, py + C / 2); }
+        if (n) { c.fillStyle = NC[n]; c.font = "bold 9px Arial, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(String(n), px + 20 / 3, py + 7); }
       } else {
         pvRect(c, px, py, C - 1, C - 1, "#4f5d6e");
         pvRect(c, px, py, C - 1, 1.5, "#6b7a8c");
-        if (key === flag) { pvRect(c, px + 5, py + 3, 1.3, 8, "#dbe3f1"); c.fillStyle = "#e53935"; c.beginPath(); c.moveTo(px + 6.3, py + 3); c.lineTo(px + 11, py + 5); c.lineTo(px + 6.3, py + 7); c.fill(); }
+        /* the flag is made of two rectangles, as Pygame Zero draws it: the game shows the same one, three times bigger */
+        if (key === flag) { pvRect(c, px + 5, py + 3, 4 / 3, 8, "#dbe3f1"); pvRect(c, px + 19 / 3, py + 3, 14 / 3, 4, "#e53935"); }
       }
     }
   },
@@ -27839,7 +30913,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "36bf94accd", APP_BUILT = "2026-11-10T13:23Z";
+const APP_VERSION = "511921859d", APP_BUILT = "2026-11-10T14:12Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
