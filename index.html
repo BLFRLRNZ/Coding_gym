@@ -7949,7 +7949,7 @@ const PROJECTS = [
       learn: ["liste di liste", "contare i vicini", "aprire le caselle vuote", "clic e bandierine"] },
     en: { name: "Minesweeper", tag: "Uncover the squares without setting off the mines: the numbers say how many are around.",
       learn: ["lists of lists", "counting neighbours", "opening empty squares", "clicks and flags"] } },
-  { id: "tetris", kind: "game", ready: false, diff: 3, where: "window", color: "#6a3fa0",
+  { id: "tetris", kind: "game", ready: true, diff: 3, where: "window", color: "#6a3fa0",
     it: { name: "Tetris", tag: "Pezzi che cadono, da girare e incastrare: ogni riga completa sparisce. Il più impegnativo.",
       learn: ["liste di liste", "rotazioni", "il tempo che scorre", "righe complete"] },
     en: { name: "Tetris", tag: "Falling pieces to turn and fit together: every full row disappears. The most demanding one.",
@@ -8161,28 +8161,28 @@ const PROJECT_PARTS = {
       ["The square is an object", "A Square class that knows if it's a mine, if it's uncovered, if it has a flag and how many mines are around it."],
       ["The full game", "Three levels with the keys 1, 2 and 3, the first click always safe and the winning screen."],
       ["On your computer", "With pip install pgzero your Minesweeper runs on your computer too, with the same code."]] },
-  tetris: {
-    it: [["Il pozzo", "Il pozzo vuoto con un pezzo che cade, disegnati con print, più i comandi."],
-      ["Il pezzo si sposta", "Colonna e riga del pezzo in variabili; con % la rotazione torna a 0 dopo la terza."],
+  tetris: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
+    it: [["Il pozzo", "Il pozzo con una T che cade, disegnato con print come il primo Tetris del 1984, le regole e un conto."],
+      ["Il pezzo si sposta", "Colonna e riga del pezzo in variabili; con % la rotazione torna a 0 dopo la terza, e abs conta le frecce."],
       ["Bordi e fondo", "Con if il pezzo non esce dai bordi e si ferma quando tocca il fondo."],
       ["Pezzi e righe", "Il pozzo è una lista di liste, i pezzi sono liste di quadretti: cadono in un ciclo e le righe piene spariscono."],
-      ["Funzioni per i pezzi", "Controllare se un pezzo entra, fissarlo, ruotarlo e togliere le righe piene diventano funzioni."],
+      ["Funzioni per i pezzi", "Controllare se un pezzo entra, fermarlo e togliere le righe piene diventano funzioni, e una nuova lo fa girare."],
       ["Nella finestra", "I pezzi cadono da soli in una finestra; con le frecce li sposti, li giri e li fai scendere."],
-      ["Il prossimo pezzo", "Il pezzo successivo è scelto a caso fra i sette, e lo vedi in anteprima."],
-      ["Forme, colori e punti", "Un dizionario con le forme e i colori, un altro con i punti per 1, 2, 3 o 4 righe."],
+      ["Il prossimo pezzo", "Il pezzo successivo è scelto a caso fra i sette e lo vedi in anteprima; lo Spazio fa cadere il pezzo fino in fondo."],
+      ["Forme, colori e punti", "Due dizionari per le forme e i colori, un altro con i punti per 1, 2, 3 o 4 righe, e il record."],
       ["Il pezzo è un oggetto", "Una classe Pezzo con i quadretti, la posizione e i metodi per muoversi e ruotare."],
-      ["I livelli", "Ogni 10 righe si sale di livello e i pezzi cadono più in fretta; game over e nuova partita."],
+      ["I livelli", "Ogni 10 righe si sale di livello e i pezzi cadono più in fretta; le righe piene lampeggiano prima di sparire."],
       ["Sul tuo computer", "Con pip install pgzero il tuo Tetris gira anche sul computer, con lo stesso codice."]],
-    en: [["The well", "The empty well with a falling piece, drawn with print, plus the commands."],
-      ["The piece moves", "The piece's column and row in variables; with % the rotation goes back to 0 after the third."],
+    en: [["The well", "The well with a falling T, drawn with print like the first Tetris of 1984, the rules and a sum."],
+      ["The piece moves", "The piece's column and row in variables; with % the rotation goes back to 0 after the third, and abs counts the arrows."],
       ["Edges and bottom", "With if the piece doesn't leave the edges and stops when it reaches the bottom."],
       ["Pieces and rows", "The well is a list of lists, pieces are lists of squares: they fall in a loop and full rows disappear."],
-      ["Functions for the pieces", "Checking if a piece fits, fixing it, rotating it and removing full rows become functions."],
+      ["Functions for the pieces", "Checking if a piece fits, locking it and removing full rows become functions, and a new one turns it."],
       ["In a window", "Pieces fall by themselves in a window; with the arrows you move them, turn them and drop them."],
-      ["The next piece", "The next piece is picked at random among the seven, and you see it in a preview."],
-      ["Shapes, colours and points", "A dictionary with the shapes and colours, another with the points for 1, 2, 3 or 4 rows."],
+      ["The next piece", "The next piece is picked at random among the seven and you see it in a preview; Space drops the piece to the bottom."],
+      ["Shapes, colours and points", "Two dictionaries for the shapes and colours, another with the points for 1, 2, 3 or 4 rows, and the record."],
       ["The piece is an object", "A Piece class with its squares, its position and the methods to move and rotate."],
-      ["Levels", "Every 10 rows you level up and pieces fall faster; game over and a new game."],
+      ["Levels", "Every 10 rows you level up and pieces fall faster; full rows flash before they disappear."],
       ["On your computer", "With pip install pgzero your Tetris runs on your computer too, with the same code."]] }
 };
 
@@ -28709,6 +28709,3022 @@ pgzrun.go()`,
 ]);
 
 
+/* ---------- Tetris: the build levels of the "Tetris" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the well and a falling piece drawn with print, as the
+   first Tetris of 1984 drew them, in 00; in the terminal, where the piece is after some moves, its rotation with %
+   and the arrows pressed with abs (01), the edges and the bottom with if (02), the well as a list of lists and the
+   game a turn at a time, with the full rows that disappear (03), the functions and the rotation (04); then the
+   window, with the preview's well, colours and squares, the pieces that fall by themselves with the clock (04); the
+   next piece picked at random, the drop with Space and a new game (05), the shapes, colours and points in
+   dictionaries, with the record (05); the piece as an object, then the levels that make the pieces fall faster
+   and the full rows that flash white, as in the preview (06); the window's title, a pause and Esc, ready to run on
+   your own computer (07). Each part starts from the learner's code of the part before. */
+
+/* The cover: frame, title, a well of at least 4 rows between <! and !>, with its bottom of = and a piece of at
+   least 4 [] squares, a number worked out by Python */
+function tetCoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1), well = mid.map((l) => l.trim()).filter((l) => /^<!.*!>$/.test(l));
+  if (!mid.some((l) => /t\s*e\s*t\s*r\s*i\s*s/i.test(l))) return it ? "In mezzo ci vuole il titolo del gioco: TETRIS." : "The game's title has to be in the middle: TETRIS.";
+  if (well.length < 4) return it ? "Il pozzo deve avere almeno 4 righe chiuse ai lati da <! e !>, come <! . . . . . .!>." : "The well needs at least 4 rows closed at the sides by <! and !>, like <! . . . . . .!>.";
+  if (!well.some((l) => /^<!={3,}!>$/.test(l))) return it ? "Manca il fondo del pozzo: una riga con solo = tra <! e !>, come <!============!>." : "The well's bottom is missing: a row with only = between <! and !>, like <!============!>.";
+  if (well.reduce((n, l) => n + (l.match(/\[\]/g) || []).length, 0) < 4) return it ? "Nel pozzo ci vuole un pezzo che cade: almeno 4 quadretti fatti con [], come [][][] con sotto un altro []." : "The well needs a falling piece: at least 4 squares made with [], like [][][] with another [] under it.";
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(2 + 2)." : "A number worked out by Python is missing, like print(2 + 2).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const TET = {
+  it: {
+    where: (c, r) => `Il pezzo è nella colonna ${c}, riga ${r}.`, rot: (r, f) => `Rotazione: ${r} (giri completi: ${f}).`,
+    arrows: (n) => `Frecce premute per spostarlo: ${n}.`, off: "Il quadrato è fuori dal pozzo.", noLeft: "Non va a sinistra: c'è il bordo.",
+    left: (c) => `Va a sinistra, nella colonna ${c}.`, noRight: "Non va a destra: c'è il bordo.", right: (c) => `Va a destra, nella colonna ${c}.`,
+    stay: (c) => `Resta nella colonna ${c}.`, bottom: "Tocca il fondo: si ferma qui.", down: (r) => `Scende nella riga ${r}.`,
+    lines: (n) => `Righe: ${n}`, bye: "Ciao!", full: "Il pozzo è pieno: partita finita."
+  },
+  en: {
+    where: (c, r) => `The piece is in column ${c}, row ${r}.`, rot: (r, f) => `Rotation: ${r} (full turns: ${f}).`,
+    arrows: (n) => `Arrows pressed to move it: ${n}.`, off: "The square is out of the well.", noLeft: "It can't go left: there's the edge.",
+    left: (c) => `It goes left, to column ${c}.`, noRight: "It can't go right: there's the edge.", right: (c) => `It goes right, to column ${c}.`,
+    stay: (c) => `It stays in column ${c}.`, bottom: "It touches the bottom: it stops here.", down: (r) => `It goes down to row ${r}.`,
+    lines: (n) => `Lines: ${n}`, bye: "Bye!", full: "The well is full: game over."
+  }
+};
+/* the three pieces of the terminal: the bar, the square and the T, in this order, round and round */
+const TET_PIECES = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]]];
+/* a quarter turn clockwise in the piece's own box: every [x, y] becomes [tall - 1 - y, x] */
+const tetRot = (p) => { let h = 0; for (const [, y] of p) if (y >= h) h = y + 1; return p.map(([x, y]) => [h - 1 - y, x]); };
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number), "skip" (numbers too big to follow, left to the hidden tests) */
+function tetRun(lang, part, ins) {
+  const T = TET[lang], lines = [], res = (end) => ({ lines, end });
+  const num = (k) => (k >= ins.length ? "more" : !isIntText(ins[k]) ? "crash" : Math.abs(toInt(ins[k])) > 1e6 ? "skip" : null);
+  if (part === 1) {
+    for (const k of [0, 1, 2]) { const b = num(k); if (b) return res(b); }
+    const [a, b, g] = ins.slice(0, 3).map(toInt);
+    lines.push(T.where(1 + a, b), T.rot(((g % 4) + 4) % 4, Math.floor(g / 4)), T.arrows(Math.abs(a)));
+    return res(ins.length === 3 ? "done" : "extra");
+  }
+  if (part === 2) {
+    for (const k of [0, 1]) { const b = num(k); if (b) return res(b); }
+    if (ins.length < 3) return res("more");
+    const [c, r] = ins.slice(0, 2).map(toInt), m = ins[2];
+    if (c < 0 || c > 4 || r < 0 || r > 6) lines.push(T.off);
+    else lines.push(m === "a" ? (c === 0 ? T.noLeft : T.left(c - 1)) : m === "d" ? (c === 4 ? T.noRight : T.right(c + 1)) : T.stay(c), r === 6 ? T.bottom : T.down(r + 1));
+    return res(ins.length === 3 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game in the 6 × 8 well, a turn for every answer; in part 4 w turns the piece */
+  const well = [];
+  for (let r = 0; r < 8; r++) well.push([0, 0, 0, 0, 0, 0]);
+  const fits = (p, c0, r0) => p.every(([x, y]) => { const c = c0 + x, r = r0 + y; return c >= 0 && c < 6 && r < 8 && well[r][c] === 0; });
+  let n = 0, piece = TET_PIECES[0], col = 1, row = 0, count = 0, end = "", i = 0;
+  for (;;) {
+    for (let r = 0; r < 8; r++) {
+      let s = "<!";
+      for (let c = 0; c < 6; c++) s += piece.some(([x, y]) => x === c - col && y === r - row) || well[r][c] === 1 ? "[]" : " .";
+      lines.push(s + "!>");
+    }
+    lines.push("<!============!>", T.lines(count));
+    if (end) { lines.push(end); break; }
+    if (i >= ins.length) return res("more");
+    const m = ins[i++];
+    if (m === "q") { lines.push(T.bye); break; }
+    if (m === "a" && fits(piece, col - 1, row)) col--;
+    else if (m === "d" && fits(piece, col + 1, row)) col++;
+    else if (part >= 4 && m === "w" && fits(tetRot(piece), col, row)) piece = tetRot(piece);
+    if (fits(piece, col, row + 1)) row++;
+    else {
+      for (const [x, y] of piece) well[row + y][col + x] = 1;
+      for (let r = 0; r < 8; r++) if (!well[r].includes(0)) { for (let k = r; k > 0; k--) well[k] = well[k - 1]; well[0] = [0, 0, 0, 0, 0, 0]; count++; }
+      n = (n + 1) % 3; piece = TET_PIECES[n]; col = 1; row = 0;
+      if (!fits(piece, col, row)) end = T.full;
+    }
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const tetExpect = (lang, part, ins) => { const r = tetRun(lang, part, ins || []); return r.end === "done" ? norm(r.lines.join("\n")) : r.end === "skip" ? "" : null; };
+const tetCheck = (lang, part, needs) => (o, c, x) => {
+  const want = tetExpect(lang, part, x.inputs);
+  return needs.every((re) => re.test(c)) && (want === "" || o === want);
+};
+/* Hidden tests: whole games with other answers */
+const tetTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = tetExpect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.map((s) => s === "" ? "invio" : s).join(", ")} doveva finire con ${end}` : `with the answers ${ins.map((s) => s === "" ? "Enter" : s).join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+const tetEnter = (n) => Array(n).fill("");
+/* part 3: a few turns, a row cleared, a well that fills up with Enter only, the edges and keys that aren't a or d */
+const TET_SAMPLE3 = ["a", "", "q"];
+const TET_ROW3 = ["a"].concat(tetEnter(7), ["d", "d", "d"], tetEnter(4), ["q"]);
+const TET_FULL = tetEnter(22);
+const TET_GAMES3 = [TET_SAMPLE3, TET_ROW3, TET_FULL, ["a", "a", "a", "d", "d", "d", "d", "q"], ["w", "x", "s", "A", "D", "q"], ["q"]];
+/* part 4: two rows with the turns, a turn stopped by the bottom, the full well, then the functions one by one */
+const TET_SAMPLE4 = ["w", "d", "", "q"];
+const TET_WIN4 = ["a"].concat(tetEnter(7), ["d", "d", "d"], tetEnter(4), ["w", "w", "a"], tetEnter(4), ["w", "d", "d", "", "", "q"]);
+const TET_GAMES4 = [TET_SAMPLE4, TET_WIN4, tetEnter(7).concat(["w", "", "w", "d", "q"]), TET_FULL, ["q"]];
+const TET_WELL8 = "_p = []\nfor _r in range(8):\n    _p.append([0, 0, 0, 0, 0, 0])\n";
+const tetFnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["entra", "fissa", "ruota", "togli_righe"] : ["fits", "lock", "rotate", "clear_lines"], quit = { inputs: ["q"] };
+  return tetTests(lang, 4, TET_GAMES4)(c).concat([
+    tcase(c + `\n${TET_WELL8}_p[3][2] = 1\nprint(${F[0]}(_p, [[0, 0], [1, 0]], 4, 7), ${F[0]}(_p, [[0, 0], [1, 0]], 5, 7), ${F[0]}(_p, [[0, 0]], 0, 8), ${F[0]}(_p, [[0, 0], [0, 1]], 2, 2), ${F[0]}(_p, [[0, 0]], -1, 0), ${F[0]}(_p, [[0, 0], [0, 1]], 2, 4))`,
+      (o) => lastLines(o, 1) === "True False False False False True",
+      it ? "entra doveva dire True solo quando tutti i quadretti del pezzo, spostati di colonna e riga, sono nel pozzo (colonne da 0 a 5, righe fino alla 7) e su caselle vuote"
+        : "fits had to say True only when all the piece's squares, moved by column and row, are inside the well (columns 0 to 5, rows up to 7) and on empty squares", quit),
+    tcase(c + `\n${TET_WELL8}${F[1]}(_p, [[0, 0], [1, 0], [1, 1]], 2, 5)\nprint(_p[5], _p[6])`,
+      (o) => lastLines(o, 1) === "[0, 0, 1, 1, 0, 0] [0, 0, 0, 1, 0, 0]",
+      it ? "fissa doveva mettere 1 nel pozzo dove sono i quadretti del pezzo, spostati di colonna e riga" : "lock had to put 1 in the well where the piece's squares are, moved by column and row", quit),
+    tcase(c + `\nprint(${F[2]}([[0, 0], [1, 0], [2, 0], [3, 0]]), ${F[2]}([[0, 0], [1, 0], [2, 0], [1, 1]]), ${F[2]}(${F[2]}([[0, 0], [1, 0], [2, 0], [1, 1]])))`,
+      (o) => lastLines(o, 1) === "[[0, 0], [0, 1], [0, 2], [0, 3]] [[1, 0], [1, 1], [1, 2], [0, 1]] [[2, 1], [1, 1], [0, 1], [1, 0]]",
+      it ? "ruota doveva restituire un pezzo nuovo in cui ogni quadretto [x, y] diventa [alto - 1 - y, x], dove alto è quante righe occupa il pezzo: la barra diventa dritta e la T si gira di un quarto di giro alla volta"
+        : "rotate had to give back a new piece where every square [x, y] becomes [tall - 1 - y, x], where tall is how many rows the piece takes: the bar stands up and the T turns a quarter turn at a time", quit),
+    tcase(c + `\n${TET_WELL8}_p[4] = [0, 1, 0, 0, 0, 0]\n_p[5] = [1, 1, 1, 1, 1, 1]\n_p[6] = [1, 0, 0, 0, 0, 0]\n_p[7] = [1, 1, 1, 1, 1, 1]\nprint(${F[3]}(_p), _p[0], _p[6], _p[7])`,
+      (o) => lastLines(o, 1) === "2 [0, 0, 0, 0, 0, 0] [0, 1, 0, 0, 0, 0] [1, 0, 0, 0, 0, 0]",
+      it ? "togli_righe doveva togliere le righe piene, far scendere quelle sopra, mettere in cima righe vuote e restituire quante ne ha tolte"
+        : "clear_lines had to take away the full rows, move the ones above down, put empty rows at the top and give back how many it took away", quit)
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview, three times bigger: background "#150f24", the well's
+   frame "#2b2140" at (189, 6) of 222 × 348, inside "#0b0716" at (195, 12) of 210 × 336, 10 columns and 16 rows of
+   squares of 18 × 18 every 21 pixels from (196, 13), the pieces I "#4dd0e1", O "#ffd54f", T "#ba68c8", L "#ffb74d",
+   S "#81c784" as in the preview, J "#64b5f6" and Z "#e57373". */
+/* the names in the learner's program, as the tasks give them */
+const TET_N = {
+  it: { well: "pozzo", piece: "pezzo", col: "colonna", row: "riga", kind: "tipo", lines: "righe", state: "stato", S: ["gioco", "finita"],
+    next: "prossimo", colours: "COLORI", shapes: "FORME", pts: "PUNTI", points: "punti", rec: "record", rot: "ruota", cls: "Pezzo",
+    P: ["tipo", "quadretti", "colonna", "riga", "muovi", "ruota", "cadi", "fissa"], level: "livello", flash: "lampo", pause: "pausa",
+    T: ["Righe", "Punti", "Record", "Livello", "Prossimo"], M: ["Partita finita!", "Partita finita! Spazio per rigiocare", "Pausa: P per continuare"],
+    H: ["Frecce: muovi", "Su: gira", "Spazio: in fondo", "P: pausa   Esc: esci"] },
+  en: { well: "well", piece: "piece", col: "column", row: "row", kind: "kind", lines: "lines", state: "state", S: ["playing", "over"],
+    next: "next_kind", colours: "COLOURS", shapes: "SHAPES", pts: "POINTS", points: "points", rec: "best", rot: "rotate", cls: "Piece",
+    P: ["kind", "squares", "column", "row", "move", "rotate", "drop", "lock"], level: "level", flash: "flash", pause: "paused",
+    T: ["Lines", "Points", "Record", "Level", "Next"], M: ["Game over!", "Game over! Space to play again", "Paused: P to go on"],
+    H: ["Arrows: move", "Up: turn", "Space: drop", "P: pause   Esc: quit"] }
+};
+const tetHas = (s) => "'" + s.replace(/'/g, "\\'") + "' in _t.texts()";
+/* the squares of one colour inside the well (the next piece's box is further right), in order */
+const tetSq = (col) => `sorted(_q for _q in _t.rects('${col}') if _q[0] < 411)`;
+/* loaded dice: random.randint gives in turn 2, 5, 0, 1, 6, 3 and 4, round and round; random.choice gives in turn the
+   letters of seq */
+const TET_RIG_INT = "import random\n_rq = [0]\ndef _ri(a, b):\n    _rq[0] += 1\n    return [2, 5, 0, 1, 6, 3, 4][(_rq[0] - 1) % 7]\nrandom.randint = _ri\n";
+const TET_RIG = (seq) => `import random\n_rq = [0]\ndef _rc(_s):\n    _rq[0] += 1\n    return "${seq}"[(_rq[0] - 1) % ${seq.length}]\nrandom.choice = _rc\n`;
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const tetNeed = (re, msg) => [re, msg, msg];
+const TET_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: i pezzi si muovono con le frecce, in on_key_down.", "In the window there's no more input: the pieces move with the arrows, in on_key_down."];
+const TET_CLOCK = [/\bclock\.schedule_interval\s*\(\s*\w+\s*,/, "I pezzi cadono da soli: consegna la funzione che li fa scendere a clock.schedule_interval, senza parentesi.", "The pieces fall by themselves: hand the function that moves them down to clock.schedule_interval, without brackets."];
+const TET_KEYS = [/^(?=[\s\S]*\bkeys\.LEFT\b)(?=[\s\S]*\bkeys\.RIGHT\b)(?=[\s\S]*\bkeys\.UP\b)(?=[\s\S]*\bkeys\.DOWN\b)/, "Le frecce si riconoscono in on_key_down: keys.LEFT e keys.RIGHT spostano il pezzo, keys.UP lo gira e keys.DOWN lo fa scendere.", "The arrows are recognised in on_key_down: keys.LEFT and keys.RIGHT move the piece, keys.UP turns it and keys.DOWN moves it down."];
+const TET_RECT = [/\bRect\s*\(/, "Ogni quadretto si disegna con un Rect, come il pozzo e la sua cornice.", "Every square is drawn with a Rect, like the well and its frame."];
+const TET_FUNCS = {
+  it: [tetNeed(/\bdef\s+entra\s*\(/, "Tieni la funzione entra della parte 4: serve a ogni mossa, per sapere se il pezzo ci sta."),
+    tetNeed(/\bdef\s+ruota\s*\(/, "Tieni la funzione ruota della parte 4: con la freccia su il pezzo gira."),
+    tetNeed(/\bdef\s+togli_righe\s*\(/, "Tieni la funzione togli_righe della parte 4: le righe piene devono sparire.")],
+  en: [tetNeed(/\bdef\s+fits\s*\(/, "Keep the function fits from part 4: every move needs it, to know whether the piece fits."),
+    tetNeed(/\bdef\s+rotate\s*\(/, "Keep the function rotate from part 4: with the up arrow the piece turns."),
+    tetNeed(/\bdef\s+clear_lines\s*\(/, "Keep the function clear_lines from part 4: the full rows have to disappear.")]
+};
+const TET_RANDOM = [/\brandom\.randint\s*\(/, "Il prossimo pezzo si sceglie a caso con random.randint(0, 6).", "The next piece is picked at random with random.randint(0, 6)."];
+const TET_SPACE = [/\bkeys\.SPACE\b/, "Lo Spazio fa cadere il pezzo fino in fondo, e a partita finita ne comincia una nuova: keys.SPACE, in on_key_down.", "Space drops the piece to the bottom, and when the game is over it starts a new one: keys.SPACE, in on_key_down."];
+const TET_DICTS = [/^(?=[\s\S]*\{\s*"I"\s*:\s*\[)(?=[\s\S]*\{\s*"I"\s*:\s*")(?=[\s\S]*\{\s*1\s*:\s*\d)/, "Forme, colori e punti stanno in tre dizionari: {\"I\": [[0, 0], ...], ...}, {\"I\": \"#4dd0e1\", ...} e {1: 40, ...}.", "Shapes, colours and points go in three dictionaries: {\"I\": [[0, 0], ...], ...}, {\"I\": \"#4dd0e1\", ...} and {1: 40, ...}."];
+const TET_CHOICE = [/\brandom\.choice\s*\(/, "Ora il prossimo pezzo è una lettera, pescata con random.choice(\"IOTLSJZ\").", "Now the next piece is a letter, picked with random.choice(\"IOTLSJZ\")."];
+const TET_CLASS = {
+  it: [tetNeed(/\bclass\s+Pezzo\b/, "Il pezzo diventa un oggetto: class Pezzo:, con __init__ e i suoi metodi."),
+    tetNeed(/\bdef\s+muovi\s*\(\s*self/, "Manca il metodo muovi(self, dc, dr), che sposta il pezzo se ci sta."), tetNeed(/\bdef\s+ruota\s*\(\s*self/, "Manca il metodo ruota(self)."),
+    tetNeed(/\bdef\s+cadi\s*\(\s*self/, "Manca il metodo cadi(self), che porta il pezzo fino in fondo."), tetNeed(/\bdef\s+fissa\s*\(\s*self/, "Manca il metodo fissa(self)."),
+    tetNeed(/\bdef\s+disegna\s*\(\s*self/, "Manca il metodo disegna(self).")],
+  en: [tetNeed(/\bclass\s+Piece\b/, "The piece becomes an object: class Piece:, with __init__ and its methods."),
+    tetNeed(/\bdef\s+move\s*\(\s*self/, "The method move(self, dc, dr) is missing: it moves the piece if it fits."), tetNeed(/\bdef\s+rotate\s*\(\s*self/, "The method rotate(self) is missing."),
+    tetNeed(/\bdef\s+drop\s*\(\s*self/, "The method drop(self) is missing: it takes the piece to the bottom."), tetNeed(/\bdef\s+lock\s*\(\s*self/, "The method lock(self) is missing."),
+    tetNeed(/\bdef\s+show\s*\(\s*self/, "The method show(self) is missing.")]
+};
+const TET_LEVEL = {
+  it: [tetNeed(/\blivello\b/, "Il livello si conta nella variabile livello."), tetNeed(/\bclock\.unschedule\s*\(/, "Per far cadere i pezzi più in fretta togli la caduta di prima con clock.unschedule, poi rimettila con un intervallo più corto."),
+    tetNeed(/\bclock\.schedule\s*\(/, "Il lampo dura un momento: le righe piene spariscono dopo 0.3 secondi, con clock.schedule.")],
+  en: [tetNeed(/\blevel\b/, "The level is counted in the variable level."), tetNeed(/\bclock\.unschedule\s*\(/, "To make the pieces fall faster take the old fall away with clock.unschedule, then put it back with a shorter interval."),
+    tetNeed(/\bclock\.schedule\s*\(/, "The flash lasts a moment: the full rows disappear after 0.3 seconds, with clock.schedule.")]
+};
+const TET_COMPUTER = {
+  it: [tetNeed(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    tetNeed(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), tetNeed(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    tetNeed(/\bkeys\.P\b/, "La pausa va e viene con il tasto P: keys.P.")],
+  en: [tetNeed(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    tetNeed(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), tetNeed(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    tetNeed(/\bkeys\.P\b/, "The pause comes and goes with the P key: keys.P.")]
+};
+const tetWin5 = (lang) => [TET_NOINPUT, PGZ_GLOBAL, TET_CLOCK, TET_KEYS, TET_RECT].concat(TET_FUNCS[lang]);
+const tetWin6 = (lang) => tetWin5(lang).concat([TET_RANDOM, TET_SPACE]);
+const tetWin7 = (lang) => tetWin5(lang).concat([TET_SPACE, TET_DICTS, TET_CHOICE]);
+
+/* Hidden tests of the window parts: the game played without a screen */
+/* part 5: the preview's well and the first piece, the fall every half second, the arrows, a turn the edge stops and
+   the down arrow, a piece locked at the bottom and the next one, a full row, a well that fills up */
+const tetWinTests = (lang) => (c) => {
+  const it = lang === "it", N = TET_N[lang];
+  return [
+    gtcase(c, `_t.step()\nprint(_t.background(), _t.rects('#2b2140'), _t.rects('#0b0716'), ${tetSq('#4dd0e1')}, ${tetHas(N.T[0] + ": 0")}, _t.size)`,
+      (o) => o === "#150f24 [(189, 6, 222, 348)] [(195, 12, 210, 336)] [(259, 13, 18, 18), (280, 13, 18, 18), (301, 13, 18, 18), (322, 13, 18, 18)] True (600, 360)",
+      it ? "all'inizio lo sfondo è #150f24, la cornice #2b2140 è in (189, 6) larga 222 e alta 348, il pozzo #0b0716 in (195, 12) di 210 × 336, la prima barra #4dd0e1 è nella colonna 3 della riga 0, con i quadretti di 18 × 18 ogni 21 pixel da (196, 13), e c'è scritto Righe: 0; la finestra è 600 × 360"
+        : "at the start the background is #150f24, the #2b2140 frame is at (189, 6), 222 wide and 348 high, the #0b0716 well at (195, 12) of 210 × 336, the first #4dd0e1 bar is in column 3 of row 0, with squares of 18 × 18 every 21 pixels from (196, 13), and it says Lines: 0; the window is 600 × 360"),
+    gtcase(c, `_t.step(30)\n_a = ${N.row}\n_t.step(60)\nprint(_a, ${N.row}, ${tetSq('#4dd0e1')}[0])`,
+      (o) => o === "1 3 (259, 76, 18, 18)",
+      it ? "il pezzo scende da solo di una riga ogni mezzo secondo: dopo mezzo secondo è nella riga 1, dopo un secondo e mezzo nella 3" : "the piece goes down a row by itself every half second: after half a second it's in row 1, after a second and a half in row 3"),
+    gtcase(c, `for _i in range(5):\n    _t.tap('left')\n_a = ${N.col}\nfor _i in range(10):\n    _t.tap('right')\n_b = ${N.col}\n_t.tap('up')\nprint(_a, _b, ${N.piece}, ${tetSq('#4dd0e1')}[:2])`,
+      (o) => o === "0 6 [[0, 0], [0, 1], [0, 2], [0, 3]] [(322, 34, 18, 18), (322, 55, 18, 18)]",
+      it ? "le frecce spostano il pezzo di una colonna, ma non fuori dal pozzo: la barra va dalla colonna 0 alla 6; la freccia su la gira, e diventa [[0, 0], [0, 1], [0, 2], [0, 3]]"
+        : "the arrows move the piece one column, but not out of the well: the bar goes from column 0 to 6; the up arrow turns it, and it becomes [[0, 0], [0, 1], [0, 2], [0, 3]]"),
+    gtcase(c, `${N.piece} = [[0, 0], [0, 1], [0, 2], [0, 3]]\n${N.col} = 9\n_t.tap('up')\n_a = ${N.piece}\n_r = ${N.row}\n_t.tap('down')\nprint(_a, ${N.row} - _r)`,
+      (o) => o === "[[0, 0], [0, 1], [0, 2], [0, 3]] 1",
+      it ? "la barra dritta nella colonna 9 non si gira, perché girata uscirebbe dal pozzo; la freccia giù la fa scendere subito di una riga" : "the standing bar in column 9 doesn't turn, because turned it would go out of the well; the down arrow moves it down a row at once"),
+    gtcase(c, `${N.row} = 15\n_t.tap('down')\nprint([_v.lower() for _v in ${N.well}[15]], ${N.kind}, ${N.col}, ${N.row}, ${tetSq('#ffd54f')}, ${tetSq('#4dd0e1')})`,
+      (o) => o === "['', '', '', '#4dd0e1', '#4dd0e1', '#4dd0e1', '#4dd0e1', '', '', ''] 1 3 0 [(259, 13, 18, 18), (259, 34, 18, 18), (280, 13, 18, 18), (280, 34, 18, 18)] [(259, 328, 18, 18), (280, 328, 18, 18), (301, 328, 18, 18), (322, 328, 18, 18)]",
+      it ? "quando il pezzo non può più scendere resta nel pozzo con il suo colore, e in cima, nella colonna 3, arriva il pezzo dopo: il quadrato #ffd54f" : "when the piece can't go down any more it stays in the well with its colour, and at the top, in column 3, the next piece comes: the #ffd54f square"),
+    gtcase(c, `${N.well}[15] = ['#e57373', '#e57373', '#e57373', '', '', '', '', '#e57373', '#e57373', '#e57373']\n${N.well}[14][0] = '#81c784'\n${N.row} = 15\n_t.tap('down')\nprint(${N.lines}, ${N.well}[15][:2], ${N.well}[0] == [''] * 10, ${tetHas(N.T[0] + ": 1")}, len(_t.rects('#e57373')))`,
+      (o) => o === "1 ['#81c784', ''] True True 0",
+      it ? "quando la barra completa la riga in fondo, la riga sparisce, quelle sopra scendono, in cima ne arriva una vuota e c'è scritto Righe: 1" : "when the bar completes the bottom row, the row disappears, the ones above go down, an empty one comes at the top and it says Lines: 1"),
+    gtcase(c, `${N.well}[1][3] = '#e57373'\n${N.row} = 15\n_t.tap('down')\n_a = [${N.state}, ${tetHas(N.M[0])}]\n_r = ${N.row}\n_c = ${N.col}\n_t.step(60)\n_t.tap('left')\nprint(_a, ${N.row} == _r, ${N.col} == _c)`,
+      (o) => o === `['${N.S[1]}', True] True True`,
+      it ? `se il pezzo nuovo non ci sta, lo stato diventa finita, c'è scritto ${N.M[0]} e tutto si ferma, anche le frecce` : `if the new piece doesn't fit, the state becomes over, it says ${N.M[0]} and everything stops, the arrows too`)
+  ];
+};
+/* part 6: the next piece picked at random and shown in its box, the drop with Space, a new game with Space */
+const tetNextTests = (lang) => (c) => {
+  const it = lang === "it", N = TET_N[lang];
+  return [
+    gtcase(TET_RIG_INT + c, `_t.step()\nprint(${N.kind}, ${N.next}, sorted(_t.rects('#ba68c8')), sorted(_t.rects('#64b5f6')), (462, 48, 96, 96) in _t.rects('#2b2140'), (468, 54, 84, 84) in _t.rects('#0b0716'), ${tetHas(N.T[4])})`,
+      (o) => o === "2 5 [(259, 13, 18, 18), (280, 13, 18, 18), (280, 34, 18, 18), (301, 13, 18, 18)] [(469, 97, 18, 18), (490, 55, 18, 18), (490, 76, 18, 18), (490, 97, 18, 18)] True True True",
+      it ? "con i dadi truccati random.randint dà 2 e poi 5: il primo pezzo è la T e il prossimo la J, disegnata nel riquadro a destra (cornice #2b2140 in (462, 48) di 96 × 96, dentro #0b0716) come se fosse nella colonna 13 e nella riga 2, sotto la scritta Prossimo"
+        : "with the loaded dice random.randint gives 2 and then 5: the first piece is the T and the next one the J, drawn in the box on the right (#2b2140 frame at (462, 48) of 96 × 96, #0b0716 inside) as if it were in column 13 and row 2, under the text Next"),
+    gtcase(TET_RIG_INT + c, `_t.step()\n_t.tap('space')\nprint([_v.lower() for _v in ${N.well}[14][3:6]], ${N.well}[15][4].lower(), ${N.kind}, ${N.next}, ${N.col}, ${N.row})`,
+      (o) => o === "['#ba68c8', '#ba68c8', '#ba68c8'] #ba68c8 5 0 3 0",
+      it ? "lo Spazio fa cadere il pezzo fino in fondo e lo ferma subito; poi arriva il prossimo, la J, e random.randint sceglie quello dopo" : "Space drops the piece to the bottom and locks it at once; then the next one comes, the J, and random.randint picks the one after"),
+    gtcase(TET_RIG_INT + c, `_t.step()\n${N.well}[2] = ['#e57373'] * 9 + ['']\n_t.tap('down')\n_a = [${N.state}, ${tetHas(N.M[1])}]\n_t.tap('left')\n_t.tap('space')\nprint(_a, ${N.state}, ${N.lines}, ${N.well}[2] == [''] * 10, ${N.kind}, ${N.next})`,
+      (o) => o === `['${N.S[1]}', True] ${N.S[0]} 0 True 1 6`,
+      it ? `a partita finita c'è scritto ${N.M[1]}, e lo Spazio ne comincia una nuova, con il pozzo vuoto, le righe a 0 e due pezzi nuovi pescati a caso` : `when the game is over it says ${N.M[1]}, and Space starts a new one, with the well empty, the lines at 0 and two new pieces picked at random`)
+  ];
+};
+/* part 7: the dictionaries, the points of four rows and of one, the record after a new game */
+const tetPointsTests = (lang, obj) => (c) => {
+  const it = lang === "it", N = TET_N[lang], P = N.P;
+  const tetris = `_t.step()\nfor _r in range(12, 16):\n    ${N.well}[_r] = ['#e57373'] * 9 + ['']\n` + (obj ? `${N.piece}.${P[5]}()\n${N.piece}.${P[2]} = 9\n` : `${N.piece} = ${N.rot}(${N.piece})\n${N.col} = 9\n`) +
+    `_t.tap('space')\n_a = [${N.lines}, ${N.points}, ${N.rec}]\n${N.well}[15] = ['#e57373'] * 3 + [''] * 4 + ['#e57373'] * 3\n_t.tap('space')\n`;
+  return [
+    gtcase(c, `print([${N.colours}[_k].lower() for _k in 'IOTLSJZ'], ${N.shapes}['T'], ${N.shapes}['J'], ${N.pts})`,
+      (o) => o === "['#4dd0e1', '#ffd54f', '#ba68c8', '#ffb74d', '#81c784', '#64b5f6', '#e57373'] [[0, 0], [1, 0], [2, 0], [1, 1]] [[1, 0], [1, 1], [1, 2], [0, 2]] {1: 40, 2: 100, 3: 300, 4: 1200}",
+      it ? "COLORI e FORME hanno come chiave la lettera di ogni pezzo, I, O, T, L, S, J e Z, e PUNTI dà 40 punti per una riga, 100 per due, 300 per tre e 1200 per quattro"
+        : "COLOURS and SHAPES have each piece's letter as the key, I, O, T, L, S, J and Z, and POINTS gives 40 points for one row, 100 for two, 300 for three and 1200 for four"),
+    gtcase(TET_RIG("I") + c, tetris + `print(_a, ${N.lines}, ${N.points}, ${N.rec}, ${tetHas(N.T[1] + ": 1240")}, ${tetHas(N.T[2] + ": 1240")})`,
+      (o) => o === "[4, 1200, 1200] 5 1240 1240 True True",
+      it ? "la barra dritta che completa quattro righe insieme vale 1200 punti, poi una riga sola 40: in alto a sinistra c'è scritto Punti: 1240, e il record sale con i punti"
+        : "the standing bar that completes four rows together is worth 1200 points, then a single row 40: at the top left it says Points: 1240, and the record goes up with the points"),
+    gtcase(TET_RIG("I") + c, tetris + `${N.well}[1][3] = '#e57373'\n_t.tap('space')\n_b = ${N.state}\n_t.tap('space')\nprint(_b, ${N.state}, ${N.points}, ${N.rec}, ${tetHas(N.T[2] + ": 1240")}, ${tetHas(N.T[1] + ": 0")})`,
+      (o) => o === `${N.S[1]} ${N.S[0]} 0 1240 True True`,
+      it ? "una partita nuova riparte da 0 punti, ma il record resta 1240" : "a new game starts again from 0 points, but the record stays 1240")
+  ];
+};
+/* part 8: the Pezzo class on its own, then the game with a Pezzo object */
+const tetClassTests = (lang) => (c) => {
+  const it = lang === "it", N = TET_N[lang], P = N.P, K = N.cls;
+  return [
+    gtcase(c, `_p = ${K}('T')\n_a = [_p.${P[0]}, _p.${P[1]}, _p.${P[2]}, _p.${P[3]}]\n_b = [_p.${P[4]}(-1, 0), _p.${P[2]}, _p.${P[4]}(-5, 0), _p.${P[2]}, _p.${P[4]}(0, 1), _p.${P[3]}]\n_p.${P[5]}()\n_c = _p.${P[1]}\n_p.${P[6]}()\n_d = _p.${P[3]}\n_p.${P[7]}()\nprint(_a, _b, _c, _d, [${N.well}[13][3].lower(), ${N.well}[14][2].lower(), ${N.well}[14][3].lower(), ${N.well}[15][3].lower()])`,
+      (o) => o === "['T', [[0, 0], [1, 0], [2, 0], [1, 1]], 3, 0] [True, 2, False, 2, True, 1] [[1, 0], [1, 1], [1, 2], [0, 1]] 13 ['#ba68c8', '#ba68c8', '#ba68c8', '#ba68c8']",
+      it ? "Pezzo('T') nasce nella colonna 3 della riga 0 con i quadretti della T; muovi lo sposta e restituisce True solo se ci sta; ruota lo gira di un quarto di giro; cadi lo porta fino in fondo; fissa lo lascia nel pozzo con il suo colore"
+        : "Piece('T') starts in column 3 of row 0 with the T's squares; move moves it and gives back True only if it fits; rotate turns it a quarter turn; drop takes it to the bottom; lock leaves it in the well with its colour"),
+    gtcase(TET_RIG("TJ") + c, `_t.step()\n_a = [type(${N.piece}).__name__, ${N.piece}.${P[0]}, ${N.next}]\n_t.tap('left')\n_t.tap('up')\n_b = [${N.piece}.${P[2]}, ${N.piece}.${P[1]}]\n_t.tap('space')\nprint(_a, _b, ${N.piece}.${P[0]}, [_v.lower() for _v in ${N.well}[15][2:4]])`,
+      (o) => o === `['${K}', 'T', 'J'] [2, [[1, 0], [1, 1], [1, 2], [0, 1]]] J ['', '#ba68c8']`,
+      it ? "il pezzo del gioco è un oggetto Pezzo, che le frecce spostano e girano e lo Spazio fa cadere" : "the game's piece is a Piece object, which the arrows move and turn and Space drops")
+  ];
+};
+/* part 9: the full rows that flash, the levels that make the pieces fall faster, a new game that starts again from
+   level 1 */
+const TET_GAP = (N) => `${N.well}[15] = ['#e57373'] * 3 + [''] * 4 + ['#e57373'] * 3\n`;
+const TET_FALLS = (N) => `_ch = []\n_r = ${N.piece}.${N.P[3]}\nfor _i in range(100):\n    _t.step()\n    if ${N.piece}.${N.P[3]} != _r:\n        _ch.append(_i)\n        _r = ${N.piece}.${N.P[3]}\n_d = [_ch[_k + 1] - _ch[_k] for _k in range(len(_ch) - 1)][:2]\n`;
+const tetLevelTests = (lang) => (c) => {
+  const it = lang === "it", N = TET_N[lang];
+  const up = `_t.step()\n${N.lines} = 9\n` + TET_GAP(N) + "_t.tap('space')\n_t.step(18)\n";
+  return [
+    gtcase(TET_RIG("I") + c, "_t.step()\n" + TET_GAP(N) + `_t.tap('space')\n_a = [${N.flash}, len(_t.rects('#ffffff')), ${N.lines}]\n_t.step(18)\nprint(_a, ${N.flash}, ${N.lines}, len(_t.rects('#ffffff')), ${N.well}[15] == [''] * 10, ${N.piece}.${N.P[3]})`,
+      (o) => o === "[[15], 10, 0] [] 1 0 True 0",
+      it ? "quando una riga è piena, per 0.3 secondi i suoi quadretti diventano bianchi, #ffffff, e lampo è la lista delle righe piene; poi la riga sparisce e arriva il pezzo nuovo"
+        : "when a row is full, for 0.3 seconds its squares become white, #ffffff, and flash is the list of the full rows; then the row disappears and the new piece comes"),
+    gtcase(TET_RIG("I") + c, up + `_a = [${N.lines}, ${N.level}, ${N.points}, ${tetHas(N.T[3] + ": 2")}]\n` + TET_FALLS(N) + TET_GAP(N) + "_t.tap('space')\n_t.step(18)\n" + `print(_a, _d, ${N.points})`,
+      (o) => o === "[10, 2, 40, True] [27, 27] 120",
+      it ? "alla decima riga si sale al livello 2: i pezzi cadono ogni 0.45 secondi invece di 0.5, e i punti di una riga valgono il doppio, 80"
+        : "at the tenth row you go up to level 2: the pieces fall every 0.45 seconds instead of 0.5, and the points of a row are worth double, 80"),
+    gtcase(TET_RIG("I") + c, up + `${N.well}[1][3] = '#e57373'\n_t.tap('space')\n_a = [${N.state}, ${N.level}]\n_t.tap('space')\n` + TET_FALLS(N) + `print(_a, ${N.level}, _d)`,
+      (o) => o === `['${N.S[1]}', 2] 1 [30, 30]`,
+      it ? "una partita nuova riparte dal livello 1, con i pezzi che cadono di nuovo ogni mezzo secondo" : "a new game starts again from level 1, with the pieces falling every half second again")
+  ];
+};
+/* part 10: the window's title, the pause, Esc, the keys written in the game */
+const tetKeyTests = (lang) => (c) => {
+  const it = lang === "it", N = TET_N[lang], p = N.piece, P = N.P;
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(TET_RIG("I") + c, `_t.step()\n_t.tap('p')\n_r = ${p}.${P[3]}\n_c = ${p}.${P[2]}\n_t.step(60)\n_t.tap('left')\n_t.tap('space')\n_a = [${N.pause}, ${p}.${P[3]} == _r, ${p}.${P[2]} == _c, ${tetHas(N.M[2])}]\n_t.tap('p')\n_t.step(40)\nprint(_a, ${p}.${P[3]} > _r)`,
+      (o) => o === "[True, True, True, True] True",
+      it ? `con P il gioco va in pausa: il pezzo non cade, le frecce e lo Spazio non fanno niente e c'è scritto ${N.M[2]}; con P di nuovo si riprende` : `with P the game pauses: the piece doesn't fall, the arrows and Space do nothing and it says ${N.M[2]}; with P again it goes on`),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True", it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()"),
+    gtcase(c, `_t.step()\nprint([${N.H.map(tetHas).join(", ")}])`, (o) => o === "[True, True, True, True]",
+      it ? `a sinistra, in basso, ci sono i tasti: ${N.H.join(", ")}` : `on the left, at the bottom, there are the keys: ${N.H.join(", ")}`)
+  ];
+};
+addProjectBuilds("tetris", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_pozzo.py", "build_well.py"],
+  it: {
+    title: "Costruisci: il pozzo di Tetris",
+    theory: [
+`<p>Da qui comincia il tuo progetto, <b>Tetris</b>: dall'alto cadono dei pezzi fatti di quattro quadretti, e tu li sposti e li giri mentre scendono, per incastrarli in fondo al <b>pozzo</b>. Quando una riga del pozzo è piena da un bordo all'altro sparisce, e quello che c'è sopra scende; se invece i pezzi arrivano fino in cima, la partita è finita. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>: una cornice sopra e sotto, il titolo, il pozzo disegnato con <code>print</code>, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">========================
+         TETRIS
+========================
+&lt;! . . . . . .!&gt;
+&lt;! .[][][] . .!&gt;
+&lt;! . .[] . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;![] . . . .[]!&gt;
+&lt;![][] .[][][]!&gt;
+&lt;!============!&gt;
+Sposta e gira i pezzi che cadono:
+ogni riga piena sparisce.
+Quadretti in ogni pezzo:
+4
+========================</pre>
+<p>Il primo Tetris, scritto nel 1984 da Aleksej Pažitnov su un computer che sapeva mostrare solo lettere e simboli, si disegnava proprio con questi caratteri: ogni quadretto è fatto di due, <code>[]</code>, ogni casella vuota è <code> .</code>, e i lati del pozzo sono <code>&lt;!</code> e <code>!&gt;</code>. Il pozzo è largo 6 caselle e alto 8, e sotto ha un fondo di <code>=</code>; in alto c'è una T che cade, in fondo i quadretti dei pezzi già arrivati.</p>`],
+    task: `Scrivi la copertina di Tetris: la prima e l'ultima riga fatte solo di simboli, il titolo <code>TETRIS</code>, il pozzo (almeno 4 righe tra <code>&lt;!</code> e <code>!&gt;</code>, il fondo fatto di <code>=</code> e un pezzo di 4 quadretti <code>[]</code>), le regole e un numero calcolato da Python, come <code>2 + 2</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Tetris, di Ada
+print("========================")
+print("         TETRIS")
+print("========================")
+print("<! . . . . . .!>")
+print("<! .[][][] . .!>")
+print("<! . .[] . . .!>")
+print("<! . . . . . .!>")
+print("<! . . . . . .!>")
+print("<! . . . . . .!>")
+print("<![] . . . .[]!>")
+print("<![][] .[][][]!>")
+print("<!============!>")
+print("Sposta e gira i pezzi che cadono:")
+print("ogni riga piena sparisce.")
+print("Quadretti in ogni pezzo:")
+print(2 + 2)
+print("========================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? In quali righe del pozzo vanno i quadretti del pezzo che cade?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con il titolo, di nuovo i simboli, nove print per il pozzo (otto righe tra <! e !> e il fondo), due o tre con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !tetCoverWhy(o, c, "it"),
+    why: (o, c) => tetCoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the Tetris well",
+    theory: [
+`<p>Your project starts here, <b>Tetris</b>: pieces made of four squares fall from the top, and you move them and turn them as they come down, to fit them together at the bottom of the <b>well</b>. When a row of the well is full from one edge to the other it disappears, and what's above comes down; if instead the pieces reach the top, the game is over. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>: a frame above and below, the title, the well drawn with <code>print</code>, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">========================
+         TETRIS
+========================
+&lt;! . . . . . .!&gt;
+&lt;! .[][][] . .!&gt;
+&lt;! . .[] . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;![] . . . .[]!&gt;
+&lt;![][] .[][][]!&gt;
+&lt;!============!&gt;
+Move and turn the falling pieces:
+every full row disappears.
+Squares in every piece:
+4
+========================</pre>
+<p>The first Tetris, written in 1984 by Alexey Pajitnov on a computer that could only show letters and symbols, was drawn with exactly these characters: every square is made of two, <code>[]</code>, every empty square is <code> .</code>, and the well's sides are <code>&lt;!</code> and <code>!&gt;</code>. The well is 6 squares wide and 8 high, with a bottom of <code>=</code> under it; at the top there's a falling T, at the bottom the squares of the pieces already landed.</p>`],
+    task: `Write the Tetris cover: the first and last lines made only of symbols, the title <code>TETRIS</code>, the well (at least 4 rows between <code>&lt;!</code> and <code>!&gt;</code>, the bottom made of <code>=</code> and a piece of 4 <code>[]</code> squares), the rules and a number worked out by Python, like <code>2 + 2</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Tetris, by Ada
+print("========================")
+print("         TETRIS")
+print("========================")
+print("<! . . . . . .!>")
+print("<! .[][][] . .!>")
+print("<! . .[] . . .!>")
+print("<! . . . . . .!>")
+print("<! . . . . . .!>")
+print("<! . . . . . .!>")
+print("<![] . . . .[]!>")
+print("<![][] .[][][]!>")
+print("<!============!>")
+print("Move and turn the falling pieces:")
+print("every full row disappears.")
+print("Squares in every piece:")
+print(2 + 2)
+print("========================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? On which rows of the well do the falling piece's squares go?",
+      "First line: a comment with #. Then a print of symbols, one with the title, the symbols again, nine prints for the well (eight rows between <! and !> and the bottom), two or three with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !tetCoverWhy(o, c, "en"),
+    why: (o, c) => tetCoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: ["abs"], sample: ["2", "5", "6"], file: ["costruisci_tetris_1.py", "build_tetris_1.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 1",
+    theory: [
+`<p>Parte 1: <b>il pezzo si sposta</b>. Nel pozzo ogni casella ha una colonna, da 0 a 5 da sinistra a destra, e una riga, da 0 a 7 dall'alto in basso: in cima c'è la riga 0, e più si scende più il numero cresce. Il pezzo nuovo compare in alto, nella colonna 1 della riga 0: con le frecce lo sposti a destra o a sinistra, e intanto lui scende. Se lo sposti di <code>passi</code> colonne (con un numero negativo va a sinistra) e scende di <code>discesa</code> righe, arriva nella colonna <code>colonna + passi</code> e nella riga <code>riga + discesa</code>.</p>
+<p>E poi lo puoi <b>girare</b>, un quarto di giro alla volta: dopo quattro quarti di giro è di nuovo com'era. La sua <b>rotazione</b> conta i quarti di giro: 0, 1, 2, 3, e dopo la terza di nuovo 0. È proprio il resto della divisione per 4, con <code>%</code>: girato 6 volte, il pezzo ha la rotazione <code>6 % 4</code>, cioè 2, e ha fatto <code>6 // 4</code>, cioè 1, giro completo.</p>
+<p>Le frecce che premi per spostarlo sono tante quante le colonne, ma se il pezzo va a sinistra <code>passi</code> è negativo, e non puoi premere -2 frecce. Qui serve <code>abs</code>, il <b>valore assoluto</b>: restituisce il numero senza il segno meno, se c'è. <code>abs(-2)</code> fa 2, <code>abs(3)</code> fa 3 e <code>abs(0)</code> fa 0.</p>
+<pre class="term-sample">Di quante colonne lo sposti (meno per la sinistra)? 2
+Di quante righe scende? 5
+Quante volte lo giri? 6
+Il pezzo è nella colonna 3, riga 5.
+Rotazione: 2 (giri completi: 1).
+Frecce premute per spostarlo: 2.</pre>`],
+    task: `Il pezzo parte da <code>colonna = 1</code>, <code>riga = 0</code> e <code>rotazione = 0</code>. Chiedi di quante colonne lo sposti, di quante righe scende e quante volte lo giri, poi scrivi dove arriva, la sua rotazione con <code>%</code> e i giri completi con <code>//</code>, e quante frecce hai premuto, con <code>abs</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altri numeri, a destra e a sinistra.`,
+    starter: `# Tetris, parte 1: il pezzo si sposta\ncolonna = 1\nriga = 0\nrotazione = 0\n\n`,
+    solution: `# Tetris, parte 1: il pezzo si sposta
+colonna = 1
+riga = 0
+rotazione = 0
+
+passi = int(input("Di quante colonne lo sposti (meno per la sinistra)? "))
+discesa = int(input("Di quante righe scende? "))
+giri = int(input("Quante volte lo giri? "))
+colonna = colonna + passi
+riga = riga + discesa
+rotazione = (rotazione + giri) % 4
+print(f"Il pezzo è nella colonna {colonna}, riga {riga}.")
+print(f"Rotazione: {rotazione} (giri completi: {giri // 4}).")
+print(f"Frecce premute per spostarlo: {abs(passi)}.")`,
+    hints: ["Come cambia la colonna quando il pezzo va a sinistra? Perché la rotazione ha bisogno di %, e le frecce di abs?",
+      "Tre input dentro int(). La colonna diventa la colonna più i passi, la riga la riga più la discesa, la rotazione il resto della divisione per 4 della rotazione più i giri. Poi tre print con la f: dove arriva il pezzo, la rotazione con i giri divisi con // per 4, e abs dei passi."],
+    check: tetCheck("it", 1, [/\babs\s*\(/, /%/, /\/\//]), expect: (x) => tetExpect("it", 1, x.inputs),
+    tests: tetTests("it", 1, [["-1", "3", "4"], ["4", "7", "2"], ["0", "0", "0"], ["-1", "2", "9"], ["3", "6", "3"], ["1", "1", "13"]])
+  },
+  en: {
+    title: "Build: Tetris, part 1",
+    theory: [
+`<p>Part 1: <b>the piece moves</b>. In the well every square has a column, from 0 to 5 from left to right, and a row, from 0 to 7 from top to bottom: row 0 is at the top, and the further down you go the bigger the number. The new piece appears at the top, in column 1 of row 0: with the arrows you move it right or left, and meanwhile it goes down. If you move it <code>steps</code> columns (with a negative number it goes left) and it goes down <code>down</code> rows, it gets to column <code>column + steps</code> and row <code>row + down</code>.</p>
+<p>And then you can <b>turn</b> it, a quarter turn at a time: after four quarter turns it's as it was again. Its <b>rotation</b> counts the quarter turns: 0, 1, 2, 3, and after the third 0 again. It's exactly the remainder of the division by 4, with <code>%</code>: turned 6 times, the piece has rotation <code>6 % 4</code>, that is 2, and it's made <code>6 // 4</code>, that is 1, full turn.</p>
+<p>The arrows you press to move it are as many as the columns, but if the piece goes left <code>steps</code> is negative, and you can't press -2 arrows. This is where you need <code>abs</code>, the <b>absolute value</b>: it gives back the number without the minus sign, if there is one. <code>abs(-2)</code> gives 2, <code>abs(3)</code> gives 3 and <code>abs(0)</code> gives 0.</p>
+<pre class="term-sample">How many columns do you move it (minus for left)? 2
+How many rows does it go down? 5
+How many times do you turn it? 6
+The piece is in column 3, row 5.
+Rotation: 2 (full turns: 1).
+Arrows pressed to move it: 2.</pre>`],
+    task: `The piece starts from <code>column = 1</code>, <code>row = 0</code> and <code>rotation = 0</code>. Ask how many columns you move it, how many rows it goes down and how many times you turn it, then write where it gets to, its rotation with <code>%</code> and the full turns with <code>//</code>, and how many arrows you pressed, with <code>abs</code>. The lines must be exactly as in the example. I'll also try other numbers, to the right and to the left.`,
+    starter: `# Tetris, part 1: the piece moves\ncolumn = 1\nrow = 0\nrotation = 0\n\n`,
+    solution: `# Tetris, part 1: the piece moves
+column = 1
+row = 0
+rotation = 0
+
+steps = int(input("How many columns do you move it (minus for left)? "))
+down = int(input("How many rows does it go down? "))
+turns = int(input("How many times do you turn it? "))
+column = column + steps
+row = row + down
+rotation = (rotation + turns) % 4
+print(f"The piece is in column {column}, row {row}.")
+print(f"Rotation: {rotation} (full turns: {turns // 4}).")
+print(f"Arrows pressed to move it: {abs(steps)}.")`,
+    hints: ["How does the column change when the piece goes left? Why does the rotation need %, and the arrows abs?",
+      "Three inputs inside int(). The column becomes the column plus the steps, the row the row plus down, the rotation the remainder of the division by 4 of the rotation plus the turns. Then three prints with the f: where the piece gets to, the rotation with the turns divided with // by 4, and abs of the steps."],
+    check: tetCheck("en", 1, [/\babs\s*\(/, /%/, /\/\//]), expect: (x) => tetExpect("en", 1, x.inputs),
+    tests: tetTests("en", 1, [["-1", "3", "4"], ["4", "7", "2"], ["0", "0", "0"], ["-1", "2", "9"], ["3", "6", "3"], ["1", "1", "13"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["4", "6", "d"], file: ["costruisci_tetris_2.py", "build_tetris_2.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 2",
+    theory: [
+`<p>Parte 2: <b>bordi e fondo</b>. Il pezzo che cade non può uscire dal pozzo, e ci pensano gli <code>if</code>. Per cominciare prendi il pezzo più semplice, il quadrato, largo 2 caselle e alto 2: la sua colonna e la sua riga sono quelle del suo quadretto in alto a sinistra. La colonna può andare da 0 a 4, perché nella colonna 4 il quadrato occupa la 4 e la 5, l'ultima; per lo stesso motivo la riga va da 0 a 6.</p>
+<p>Il programma chiede la colonna e la riga del quadrato e la mossa, e risponde così, per esempio per un quadrato nella colonna 2 e nella riga 3:</p>
+<ul><li>se la colonna non è tra 0 e 4, o la riga non è tra 0 e 6, il quadrato è fuori: <code>Il quadrato è fuori dal pozzo.</code>, e basta;</li>
+<li>se no, prima la mossa: con <code>a</code> va a sinistra, <code>Va a sinistra, nella colonna 1.</code>, ma se è già nella colonna 0 <code>Non va a sinistra: c'è il bordo.</code>; con <code>d</code> va a destra, <code>Va a destra, nella colonna 3.</code>, ma dalla colonna 4 <code>Non va a destra: c'è il bordo.</code>; con qualunque altra cosa, anche solo invio, resta dov'è: <code>Resta nella colonna 2.</code>;</li>
+<li>poi la caduta: se è nella riga 6 tocca il fondo, <code>Tocca il fondo: si ferma qui.</code>, se no scende nella riga dopo la sua: <code>Scende nella riga 4.</code>.</li></ul>
+<p>Sono due scelte una dopo l'altra, la mossa e la caduta, e tutte e due stanno dentro l'<code>else</code> del primo controllo. Le colonne e le righe nelle risposte le scrive una f-string.</p>
+<pre class="term-sample">Colonna del quadrato (0-4)? 4
+Riga del quadrato (0-6)? 6
+Mossa (a, d o invio)? d
+Non va a destra: c'è il bordo.
+Tocca il fondo: si ferma qui.</pre>`],
+    task: `Fai crescere il programma: togli i conti di prima e chiedi la colonna e la riga del quadrato e la mossa. Poi rispondi con gli <code>if</code> qui sopra, nell'ordine. Proverò tutti i casi: fuori dal pozzo, i due bordi, le mosse a sinistra, a destra e ferme, il fondo e la caduta.`,
+    solution: `# Tetris, parte 2: bordi e fondo
+colonna = int(input("Colonna del quadrato (0-4)? "))
+riga = int(input("Riga del quadrato (0-6)? "))
+mossa = input("Mossa (a, d o invio)? ")
+if colonna < 0 or colonna > 4 or riga < 0 or riga > 6:
+    print("Il quadrato è fuori dal pozzo.")
+else:
+    if mossa == "a":
+        if colonna == 0:
+            print("Non va a sinistra: c'è il bordo.")
+        else:
+            colonna -= 1
+            print(f"Va a sinistra, nella colonna {colonna}.")
+    elif mossa == "d":
+        if colonna == 4:
+            print("Non va a destra: c'è il bordo.")
+        else:
+            colonna += 1
+            print(f"Va a destra, nella colonna {colonna}.")
+    else:
+        print(f"Resta nella colonna {colonna}.")
+    if riga == 6:
+        print("Tocca il fondo: si ferma qui.")
+    else:
+        print(f"Scende nella riga {riga + 1}.")`,
+    hints: ["Quale controllo va fatto per primo? Perché la mossa e la caduta sono due scelte separate?",
+      "Due input dentro int() e uno per la mossa. Un if con quattro confronti uniti da or per il fuori pozzo; nell'else, un if per a con dentro il controllo del bordo, un elif per d con il suo bordo e un else; poi, sempre nell'else, un if per la riga 6 e un altro else."],
+    check: tetCheck("it", 2, [/\bif\b/, /\belif\b/, /\belse\b/]), expect: (x) => tetExpect("it", 2, x.inputs),
+    tests: tetTests("it", 2, [["-1", "3", "a"], ["5", "2", ""], ["2", "-1", "d"], ["2", "7", "a"], ["0", "3", "a"], ["3", "3", "a"], ["4", "0", "d"], ["1", "5", "d"], ["2", "6", ""], ["0", "6", "x"], ["4", "6", "a"], ["2", "2", "A"]])
+  },
+  en: {
+    title: "Build: Tetris, part 2",
+    theory: [
+`<p>Part 2: <b>edges and bottom</b>. The falling piece can't leave the well, and the <code>if</code>s take care of that. To start with take the simplest piece, the square, 2 squares wide and 2 high: its column and its row are those of its top left square. The column can go from 0 to 4, because in column 4 the square takes up 4 and 5, the last one; for the same reason the row goes from 0 to 6.</p>
+<p>The program asks for the square's column and row and the move, and answers like this, for example for a square in column 2 and row 3:</p>
+<ul><li>if the column isn't between 0 and 4, or the row isn't between 0 and 6, the square is out: <code>The square is out of the well.</code>, and that's all;</li>
+<li>otherwise, first the move: with <code>a</code> it goes left, <code>It goes left, to column 1.</code>, but if it's already in column 0 <code>It can't go left: there's the edge.</code>; with <code>d</code> it goes right, <code>It goes right, to column 3.</code>, but from column 4 <code>It can't go right: there's the edge.</code>; with anything else, even just Enter, it stays where it is: <code>It stays in column 2.</code>;</li>
+<li>then the fall: if it's in row 6 it touches the bottom, <code>It touches the bottom: it stops here.</code>, otherwise it goes down to the row after its own: <code>It goes down to row 4.</code>.</li></ul>
+<p>They're two choices one after the other, the move and the fall, and both go inside the <code>else</code> of the first check. An f-string writes the columns and rows in the answers.</p>
+<pre class="term-sample">Square's column (0-4)? 4
+Square's row (0-6)? 6
+Move (a, d or Enter)? d
+It can't go right: there's the edge.
+It touches the bottom: it stops here.</pre>`],
+    task: `Grow the program: take away the sums from before and ask for the square's column and row and the move. Then answer with the <code>if</code>s above, in order. I'll try every case: out of the well, both edges, the moves left, right and staying, the bottom and the fall.`,
+    solution: `# Tetris, part 2: edges and bottom
+column = int(input("Square's column (0-4)? "))
+row = int(input("Square's row (0-6)? "))
+move = input("Move (a, d or Enter)? ")
+if column < 0 or column > 4 or row < 0 or row > 6:
+    print("The square is out of the well.")
+else:
+    if move == "a":
+        if column == 0:
+            print("It can't go left: there's the edge.")
+        else:
+            column -= 1
+            print(f"It goes left, to column {column}.")
+    elif move == "d":
+        if column == 4:
+            print("It can't go right: there's the edge.")
+        else:
+            column += 1
+            print(f"It goes right, to column {column}.")
+    else:
+        print(f"It stays in column {column}.")
+    if row == 6:
+        print("It touches the bottom: it stops here.")
+    else:
+        print(f"It goes down to row {row + 1}.")`,
+    hints: ["Which check has to come first? Why are the move and the fall two separate choices?",
+      "Two inputs inside int() and one for the move. An if with four comparisons joined by or for out of the well; in the else, an if for a with the edge check inside, an elif for d with its edge and an else; then, still in the else, an if for row 6 and another else."],
+    check: tetCheck("en", 2, [/\bif\b/, /\belif\b/, /\belse\b/]), expect: (x) => tetExpect("en", 2, x.inputs),
+    tests: tetTests("en", 2, [["-1", "3", "a"], ["5", "2", ""], ["2", "-1", "d"], ["2", "7", "a"], ["0", "3", "a"], ["3", "3", "a"], ["4", "0", "d"], ["1", "5", "d"], ["2", "6", ""], ["0", "6", "x"], ["4", "6", "a"], ["2", "2", "A"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: TET_SAMPLE3, file: ["costruisci_tetris_3.py", "build_tetris_3.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 3",
+    theory: [
+`<p>Parte 3: si gioca davvero. Il <b>pozzo</b> è una lista di 8 righe, e ogni riga è una lista di 6 numeri, uno per casella: 0 se la casella è vuota, 1 se c'è un quadretto. È una lista di liste, e <code>pozzo[r][c]</code> è la casella nella riga <code>r</code> e nella colonna <code>c</code>. Lo costruisci con un <code>for</code> che fa 8 volte <code>append</code> di una riga vuota, <code>[0, 0, 0, 0, 0, 0]</code>.</p>
+<p>Anche ogni <b>pezzo</b> è una lista: la lista dei suoi 4 quadretti, e ogni quadretto è <code>[x, y]</code>, di quante colonne e di quante righe è lontano dall'angolo in alto a sinistra del pezzo. La barra è <code>[[0, 0], [1, 0], [2, 0], [3, 0]]</code>, il quadrato <code>[[0, 0], [1, 0], [0, 1], [1, 1]]</code> e la T <code>[[0, 0], [1, 0], [2, 0], [1, 1]]</code>: stanno nella lista <code>pezzi</code> e arrivano in quest'ordine, uno dopo l'altro, e dopo la T di nuovo la barra. Il pezzo che cade è <code>pezzo</code>, con l'angolo nella colonna <code>colonna</code> e nella riga <code>riga</code>: il suo quadretto <code>q</code> è nella colonna <code>colonna + q[0]</code> e nella riga <code>riga + q[1]</code>.</p>
+<p>Il gioco è un ciclo, e ogni giro è un <b>turno</b>. Prima stampa il pozzo, 8 righe tra <code>&lt;!</code> e <code>!&gt;</code>: in ogni casella <code>[]</code> se c'è un quadretto del pozzo o del pezzo che cade, e <code> .</code> se è vuota. Per sapere se nella casella della colonna <code>c</code> e della riga <code>r</code> c'è un quadretto del pezzo basta chiedere <code>[c - colonna, r - riga] in pezzo</code>. Sotto, il fondo <code>&lt;!============!&gt;</code> e quante righe hai fatto. Poi chiede la mossa: <code>a</code> sposta il pezzo di una colonna a sinistra, <code>d</code> a destra, se ci sta; con un altro tasto, o con invio, resta dov'è; e <code>q</code> chiude il gioco con <code>Ciao!</code>.</p>
+<pre class="term-sample">&lt;! .[][][][] .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Righe: 0
+Mossa (a d, invio per scendere, q per uscire)? a
+&lt;! . . . . . .!&gt;
+&lt;![][][][] . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Righe: 0
+Mossa (a d, invio per scendere, q per uscire)?
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;![][][][] . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Righe: 0
+Mossa (a d, invio per scendere, q per uscire)?</pre>
+<p>Il pezzo ci <b>sta</b> se ogni suo quadretto è dentro il pozzo e su una casella vuota: lo controlli con un <code>for</code> sui quadretti e una variabile, <code>entra</code>, che parte vera e diventa falsa appena un quadretto esce o trova un 1. Dopo la mossa il pezzo prova a scendere di una riga: se ci sta, <code>riga += 1</code>; se no si <b>ferma</b>, cioè i suoi quadretti diventano 1 nel pozzo. Poi le <b>righe piene</b>, quelle senza 0, cioè con <code>0 not in pozzo[r]</code>, spariscono: ogni riga sopra scende di una, con un <code>for</code> che va all'indietro, <code>range(r, 0, -1)</code>, e <code>pozzo[k] = pozzo[k - 1]</code>, e in cima arriva una riga vuota. Infine arriva il pezzo dopo, con <code>n = (n + 1) % len(pezzi)</code>, di nuovo nella colonna 1 della riga 0: se lì non ci sta, il pozzo è pieno, <code>Il pozzo è pieno: partita finita.</code>. Il messaggio della fine lo tieni in <code>fine</code>, vuota finché si gioca: a ogni turno, dopo il pozzo, se <code>fine</code> non è vuota la stampi ed esci dal ciclo.</p>`],
+    task: `Trasforma il programma nel gioco: il pozzo di 8 righe da 6 in una lista di liste, i tre pezzi nella lista <code>pezzi</code>, il pezzo che cade nella colonna 1 della riga 0, e un ciclo <code>while</code> che a ogni turno stampa il pozzo, chiede la mossa, sposta il pezzo, lo fa scendere o lo ferma, toglie le righe piene e manda il pezzo dopo, con le regole qui sopra, nell'ordine. Proverò tante partite: qualche turno, una riga fatta, un pozzo che si riempie, i bordi e tasti che non sono a o d.`,
+    solution: `# Tetris, parte 3: pezzi e righe
+larghezza = 6
+altezza = 8
+pozzo = []
+for r in range(altezza):
+    pozzo.append([0, 0, 0, 0, 0, 0])
+pezzi = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]]]
+n = 0
+pezzo = pezzi[0]
+colonna = 1
+riga = 0
+righe = 0
+fine = ""
+
+while True:
+    for r in range(altezza):
+        testo = "<!"
+        for c in range(larghezza):
+            if [c - colonna, r - riga] in pezzo or pozzo[r][c] == 1:
+                testo = testo + "[]"
+            else:
+                testo = testo + " ."
+        print(testo + "!>")
+    print("<!============!>")
+    print(f"Righe: {righe}")
+    if fine != "":
+        print(fine)
+        break
+    mossa = input("Mossa (a d, invio per scendere, q per uscire)? ")
+    if mossa == "q":
+        print("Ciao!")
+        break
+    nuova = colonna
+    if mossa == "a":
+        nuova = colonna - 1
+    elif mossa == "d":
+        nuova = colonna + 1
+    entra = True
+    for q in pezzo:
+        c = nuova + q[0]
+        if c < 0 or c >= larghezza or pozzo[riga + q[1]][c] == 1:
+            entra = False
+    if entra:
+        colonna = nuova
+    entra = True
+    for q in pezzo:
+        r = riga + 1 + q[1]
+        if r >= altezza or pozzo[r][colonna + q[0]] == 1:
+            entra = False
+    if entra:
+        riga += 1
+    else:
+        for q in pezzo:
+            pozzo[riga + q[1]][colonna + q[0]] = 1
+        for r in range(altezza):
+            if 0 not in pozzo[r]:
+                for k in range(r, 0, -1):
+                    pozzo[k] = pozzo[k - 1]
+                pozzo[0] = [0, 0, 0, 0, 0, 0]
+                righe += 1
+        n = (n + 1) % len(pezzi)
+        pezzo = pezzi[n]
+        colonna = 1
+        riga = 0
+        for q in pezzo:
+            if pozzo[q[1]][colonna + q[0]] == 1:
+                fine = "Il pozzo è pieno: partita finita."`,
+    hints: ["Cosa si ripete a ogni turno, e in che ordine? Come capisci se il pezzo ci sta, dopo la mossa e quando prova a scendere?",
+      "Prima del ciclo il pozzo con un for, pezzi, n, pezzo, colonna, riga, righe e fine. Nel while True: due for che stampano il pozzo, il fondo, le righe fatte e il controllo di fine; l'input e q; la colonna nuova con a e d e un for che controlla se ci sta; un altro for per la riga sotto; se non ci sta, un for che lo ferma, un for sulle righe con dentro il for all'indietro, il pezzo dopo con % e il controllo del pozzo pieno."],
+    check: tetCheck("it", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/]), expect: (x) => tetExpect("it", 3, x.inputs),
+    tests: tetTests("it", 3, TET_GAMES3)
+  },
+  en: {
+    title: "Build: Tetris, part 3",
+    theory: [
+`<p>Part 3: now you really play. The <b>well</b> is a list of 8 rows, and every row is a list of 6 numbers, one per square: 0 if the square is empty, 1 if there's a block. It's a list of lists, and <code>well[r][c]</code> is the square in row <code>r</code> and column <code>c</code>. You build it with a <code>for</code> that does 8 times <code>append</code> of an empty row, <code>[0, 0, 0, 0, 0, 0]</code>.</p>
+<p>Every <b>piece</b> is a list too: the list of its 4 squares, and every square is <code>[x, y]</code>, how many columns and how many rows it is from the piece's top left corner. The bar is <code>[[0, 0], [1, 0], [2, 0], [3, 0]]</code>, the square <code>[[0, 0], [1, 0], [0, 1], [1, 1]]</code> and the T <code>[[0, 0], [1, 0], [2, 0], [1, 1]]</code>: they're in the list <code>pieces</code> and they come in this order, one after the other, and after the T the bar again. The falling piece is <code>piece</code>, with its corner in column <code>column</code> and row <code>row</code>: its square <code>q</code> is in column <code>column + q[0]</code> and row <code>row + q[1]</code>.</p>
+<p>The game is a loop, and every turn of it is a <b>turn</b> of the game. First it prints the well, 8 rows between <code>&lt;!</code> and <code>!&gt;</code>: in every square <code>[]</code> if there's a block of the well or of the falling piece, and <code> .</code> if it's empty. To know whether there's a block of the piece in the square in column <code>c</code> and row <code>r</code> just ask <code>[c - column, r - row] in piece</code>. Below, the bottom <code>&lt;!============!&gt;</code> and how many lines you've made. Then it asks for the move: <code>a</code> moves the piece one column left, <code>d</code> right, if it fits; with another key, or with Enter, it stays where it is; and <code>q</code> closes the game with <code>Bye!</code>.</p>
+<pre class="term-sample">&lt;! .[][][][] .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Lines: 0
+Move (a d, Enter to go down, q to quit)? a
+&lt;! . . . . . .!&gt;
+&lt;![][][][] . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Lines: 0
+Move (a d, Enter to go down, q to quit)?
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;![][][][] . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;! . . . . . .!&gt;
+&lt;!============!&gt;
+Lines: 0
+Move (a d, Enter to go down, q to quit)?</pre>
+<p>The piece <b>fits</b> if every square of it is inside the well and on an empty square: you check it with a <code>for</code> over the squares and a variable, <code>fits</code>, that starts true and becomes false as soon as a square goes out or finds a 1. After the move the piece tries to go down a row: if it fits, <code>row += 1</code>; otherwise it <b>locks</b>, that is its squares become 1 in the well. Then the <b>full rows</b>, the ones without a 0, that is with <code>0 not in well[r]</code>, disappear: every row above comes down one, with a <code>for</code> that goes backwards, <code>range(r, 0, -1)</code>, and <code>well[k] = well[k - 1]</code>, and an empty row comes in at the top. Last the next piece comes, with <code>n = (n + 1) % len(pieces)</code>, again in column 1 of row 0: if it doesn't fit there, the well is full, <code>The well is full: game over.</code>. You keep the end message in <code>outcome</code>, empty while you play: at every turn, after the well, if <code>outcome</code> isn't empty print it and leave the loop.</p>`],
+    task: `Turn the program into the game: the well of 8 rows of 6 in a list of lists, the three pieces in the list <code>pieces</code>, the falling piece in column 1 of row 0, and a <code>while</code> loop that at every turn prints the well, asks for the move, moves the piece, takes it down or locks it, takes away the full rows and sends the next piece, with the rules above, in order. I'll try lots of games: a few turns, a line made, a well that fills up, the edges and keys that aren't a or d.`,
+    solution: `# Tetris, part 3: pieces and rows
+width = 6
+height = 8
+well = []
+for r in range(height):
+    well.append([0, 0, 0, 0, 0, 0])
+pieces = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]]]
+n = 0
+piece = pieces[0]
+column = 1
+row = 0
+lines = 0
+outcome = ""
+
+while True:
+    for r in range(height):
+        text = "<!"
+        for c in range(width):
+            if [c - column, r - row] in piece or well[r][c] == 1:
+                text = text + "[]"
+            else:
+                text = text + " ."
+        print(text + "!>")
+    print("<!============!>")
+    print(f"Lines: {lines}")
+    if outcome != "":
+        print(outcome)
+        break
+    move = input("Move (a d, Enter to go down, q to quit)? ")
+    if move == "q":
+        print("Bye!")
+        break
+    new_column = column
+    if move == "a":
+        new_column = column - 1
+    elif move == "d":
+        new_column = column + 1
+    fits = True
+    for q in piece:
+        c = new_column + q[0]
+        if c < 0 or c >= width or well[row + q[1]][c] == 1:
+            fits = False
+    if fits:
+        column = new_column
+    fits = True
+    for q in piece:
+        r = row + 1 + q[1]
+        if r >= height or well[r][column + q[0]] == 1:
+            fits = False
+    if fits:
+        row += 1
+    else:
+        for q in piece:
+            well[row + q[1]][column + q[0]] = 1
+        for r in range(height):
+            if 0 not in well[r]:
+                for k in range(r, 0, -1):
+                    well[k] = well[k - 1]
+                well[0] = [0, 0, 0, 0, 0, 0]
+                lines += 1
+        n = (n + 1) % len(pieces)
+        piece = pieces[n]
+        column = 1
+        row = 0
+        for q in piece:
+            if well[q[1]][column + q[0]] == 1:
+                outcome = "The well is full: game over."`,
+    hints: ["What repeats at every turn, and in what order? How do you work out whether the piece fits, after the move and when it tries to go down?",
+      "Before the loop the well with a for, pieces, n, piece, column, row, lines and outcome. In the while True: two for loops that print the well, the bottom, the lines made and the check of outcome; the input and q; the new column with a and d and a for that checks whether it fits; another for for the row below; if it doesn't fit, a for that locks it, a for over the rows with the backwards for inside, the next piece with % and the check of the full well."],
+    check: tetCheck("en", 3, [/\bwhile\b/, /\bfor\b[\s\S]*\bfor\b/]), expect: (x) => tetExpect("en", 3, x.inputs),
+    tests: tetTests("en", 3, TET_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: TET_SAMPLE4, file: ["costruisci_tetris_4.py", "build_tetris_4.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico, e il controllo che dice se il pezzo ci sta è scritto tre volte. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>entra(pozzo, pezzo, colonna, riga)</code> restituisce <code>True</code> se il pezzo, con l'angolo in quella colonna e in quella riga, ci sta, e <code>False</code> se un suo quadretto esce dal pozzo o trova un 1: appena ne trovi uno così puoi restituire <code>False</code> subito, e solo dopo il <code>for</code> <code>True</code>;</li>
+<li><code>fissa(pozzo, pezzo, colonna, riga)</code> mette 1 nel pozzo dove sono i quadretti del pezzo;</li>
+<li><code>togli_righe(pozzo)</code> toglie le righe piene, come prima, e restituisce quante ne ha tolte;</li>
+<li><code>ruota(pezzo)</code> è nuova: restituisce il pezzo girato di un quarto di giro, in senso orario.</li></ul>
+<p>Per girare un pezzo ogni quadretto <code>[x, y]</code> diventa <code>[alto - 1 - y, x]</code>, dove <code>alto</code> è quante righe occupa il pezzo: la <code>y</code> più grande, più uno. La barra, alta 1, diventa <code>[[0, 0], [0, 1], [0, 2], [0, 3]]</code>, in piedi, e girata ancora torna sdraiata. Prova a disegnare la T su un foglio a quadretti e a girarla: funziona sempre. <code>ruota</code> non cambia il pezzo che riceve: ne costruisce uno nuovo con <code>append</code> e lo restituisce.</p>
+<p>Nel ciclo, ora, la mossa è corta: con <code>a</code> la colonna diminuisce se <code>entra</code> dice che il pezzo ci sta nella colonna prima, con <code>d</code> aumenta se ci sta in quella dopo, e con <code>w</code> il pezzo diventa <code>ruota(pezzo)</code>, se il pezzo girato ci sta. Poi, se ci sta nella riga sotto, scende; se no lo fermi con <code>fissa</code>, aggiungi a <code>righe</code> quello che restituisce <code>togli_righe</code> e mandi il pezzo dopo, e se il pezzo dopo non entra il pozzo è pieno. La domanda della mossa diventa <code>Mossa (a d, w per girare, invio per scendere, q per uscire)? </code>.</p>`],
+    task: `Metti il controllo in <code>entra(pozzo, pezzo, colonna, riga)</code>, il pezzo che si ferma in <code>fissa(pozzo, pezzo, colonna, riga)</code> e le righe piene in <code>togli_righe(pozzo)</code>, come qui sopra, e usale nel ciclo. Poi scrivi <code>ruota(pezzo)</code> e fai girare il pezzo con <code>w</code>. Il resto di quello che il gioco scrive resta uguale. Proverò le funzioni una per una e partite con il pezzo che gira.`,
+    solution: `# Tetris, parte 4: funzioni per i pezzi
+def entra(pozzo, pezzo, colonna, riga):
+    for q in pezzo:
+        c = colonna + q[0]
+        r = riga + q[1]
+        if c < 0 or c >= 6 or r >= 8 or pozzo[r][c] == 1:
+            return False
+    return True
+
+
+def fissa(pozzo, pezzo, colonna, riga):
+    for q in pezzo:
+        pozzo[riga + q[1]][colonna + q[0]] = 1
+
+
+def ruota(pezzo):
+    alto = 0
+    for q in pezzo:
+        if q[1] >= alto:
+            alto = q[1] + 1
+    girato = []
+    for q in pezzo:
+        girato.append([alto - 1 - q[1], q[0]])
+    return girato
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(8):
+        if 0 not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [0, 0, 0, 0, 0, 0]
+            tolte += 1
+    return tolte
+
+
+pozzo = []
+for r in range(8):
+    pozzo.append([0, 0, 0, 0, 0, 0])
+pezzi = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]]]
+n = 0
+pezzo = pezzi[0]
+colonna = 1
+riga = 0
+righe = 0
+fine = ""
+
+while True:
+    for r in range(8):
+        testo = "<!"
+        for c in range(6):
+            if [c - colonna, r - riga] in pezzo or pozzo[r][c] == 1:
+                testo = testo + "[]"
+            else:
+                testo = testo + " ."
+        print(testo + "!>")
+    print("<!============!>")
+    print(f"Righe: {righe}")
+    if fine != "":
+        print(fine)
+        break
+    mossa = input("Mossa (a d, w per girare, invio per scendere, q per uscire)? ")
+    if mossa == "q":
+        print("Ciao!")
+        break
+    if mossa == "a" and entra(pozzo, pezzo, colonna - 1, riga):
+        colonna -= 1
+    elif mossa == "d" and entra(pozzo, pezzo, colonna + 1, riga):
+        colonna += 1
+    elif mossa == "w" and entra(pozzo, ruota(pezzo), colonna, riga):
+        pezzo = ruota(pezzo)
+    if entra(pozzo, pezzo, colonna, riga + 1):
+        riga += 1
+    else:
+        fissa(pozzo, pezzo, colonna, riga)
+        righe += togli_righe(pozzo)
+        n = (n + 1) % len(pezzi)
+        pezzo = pezzi[n]
+        colonna = 1
+        riga = 0
+        if not entra(pozzo, pezzo, colonna, riga):
+            fine = "Il pozzo è pieno: partita finita."`,
+    hints: ["Cosa restituisce entra, e come lo usi in un if? Come trovi alto prima di girare i quadretti?",
+      "entra ha un for con un if che restituisce False, e dopo il for restituisce True. fissa ha un for che mette 1. togli_righe conta le righe tolte e alla fine le restituisce. ruota ha un for che trova alto e un altro che riempie la lista girato con append. Nel ciclo tre condizioni con and, per a, d e w, poi un if con entra e la riga sotto."],
+    check: tetCheck("it", 4, [/def\s+entra\s*\(/, /def\s+fissa\s*\(/, /def\s+ruota\s*\(/, /def\s+togli_righe\s*\(/, /\breturn\b/]),
+    expect: (x) => tetExpect("it", 4, x.inputs),
+    tests: tetFnTests("it")
+  },
+  en: {
+    title: "Build: Tetris, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block, and the check that says whether the piece fits is written three times. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>fits(well, piece, column, row)</code> gives back <code>True</code> if the piece, with its corner in that column and that row, fits, and <code>False</code> if one of its squares goes out of the well or finds a 1: as soon as you find one like that you can give back <code>False</code> straight away, and only after the <code>for</code> <code>True</code>;</li>
+<li><code>lock(well, piece, column, row)</code> puts 1 in the well where the piece's squares are;</li>
+<li><code>clear_lines(well)</code> takes away the full rows, as before, and gives back how many it took away;</li>
+<li><code>rotate(piece)</code> is new: it gives back the piece turned a quarter turn, clockwise.</li></ul>
+<p>To turn a piece every square <code>[x, y]</code> becomes <code>[tall - 1 - y, x]</code>, where <code>tall</code> is how many rows the piece takes up: the biggest <code>y</code>, plus one. The bar, 1 tall, becomes <code>[[0, 0], [0, 1], [0, 2], [0, 3]]</code>, standing up, and turned again it lies down again. Try drawing the T on squared paper and turning it: it always works. <code>rotate</code> doesn't change the piece it gets: it builds a new one with <code>append</code> and gives it back.</p>
+<p>In the loop, now, the move is short: with <code>a</code> the column goes down if <code>fits</code> says the piece fits in the column before, with <code>d</code> it goes up if it fits in the one after, and with <code>w</code> the piece becomes <code>rotate(piece)</code>, if the turned piece fits. Then, if it fits in the row below, it goes down; otherwise you lock it with <code>lock</code>, add to <code>lines</code> what <code>clear_lines</code> gives back and send the next piece, and if the next piece doesn't fit the well is full. The move's question becomes <code>Move (a d, w to turn, Enter to go down, q to quit)? </code>.</p>`],
+    task: `Put the check in <code>fits(well, piece, column, row)</code>, the piece that locks in <code>lock(well, piece, column, row)</code> and the full rows in <code>clear_lines(well)</code>, as above, and use them in the loop. Then write <code>rotate(piece)</code> and make the piece turn with <code>w</code>. The rest of what the game writes stays the same. I'll test the functions one by one and games with the piece turning.`,
+    solution: `# Tetris, part 4: functions for the pieces
+def fits(well, piece, column, row):
+    for q in piece:
+        c = column + q[0]
+        r = row + q[1]
+        if c < 0 or c >= 6 or r >= 8 or well[r][c] == 1:
+            return False
+    return True
+
+
+def lock(well, piece, column, row):
+    for q in piece:
+        well[row + q[1]][column + q[0]] = 1
+
+
+def rotate(piece):
+    tall = 0
+    for q in piece:
+        if q[1] >= tall:
+            tall = q[1] + 1
+    turned = []
+    for q in piece:
+        turned.append([tall - 1 - q[1], q[0]])
+    return turned
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(8):
+        if 0 not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [0, 0, 0, 0, 0, 0]
+            cleared += 1
+    return cleared
+
+
+well = []
+for r in range(8):
+    well.append([0, 0, 0, 0, 0, 0])
+pieces = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]]]
+n = 0
+piece = pieces[0]
+column = 1
+row = 0
+lines = 0
+outcome = ""
+
+while True:
+    for r in range(8):
+        text = "<!"
+        for c in range(6):
+            if [c - column, r - row] in piece or well[r][c] == 1:
+                text = text + "[]"
+            else:
+                text = text + " ."
+        print(text + "!>")
+    print("<!============!>")
+    print(f"Lines: {lines}")
+    if outcome != "":
+        print(outcome)
+        break
+    move = input("Move (a d, w to turn, Enter to go down, q to quit)? ")
+    if move == "q":
+        print("Bye!")
+        break
+    if move == "a" and fits(well, piece, column - 1, row):
+        column -= 1
+    elif move == "d" and fits(well, piece, column + 1, row):
+        column += 1
+    elif move == "w" and fits(well, rotate(piece), column, row):
+        piece = rotate(piece)
+    if fits(well, piece, column, row + 1):
+        row += 1
+    else:
+        lock(well, piece, column, row)
+        lines += clear_lines(well)
+        n = (n + 1) % len(pieces)
+        piece = pieces[n]
+        column = 1
+        row = 0
+        if not fits(well, piece, column, row):
+            outcome = "The well is full: game over."`,
+    hints: ["What does fits give back, and how do you use it in an if? How do you find tall before turning the squares?",
+      "fits has a for with an if that gives back False, and after the for it gives back True. lock has a for that puts 1. clear_lines counts the rows taken away and gives them back at the end. rotate has a for that finds tall and another that fills the list turned with append. In the loop three conditions with and, for a, d and w, then an if with fits and the row below."],
+    check: tetCheck("en", 4, [/def\s+fits\s*\(/, /def\s+lock\s*\(/, /def\s+rotate\s*\(/, /def\s+clear_lines\s*\(/, /\breturn\b/]),
+    expect: (x) => tetExpect("en", 4, x.inputs),
+    tests: tetFnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_tetris_5.py", "build_tetris_5.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 5",
+    theory: [
+`<p>Parte 5: Tetris esce dal terminale ed entra in una <b>finestra</b>, larga 600 e alta 360, e si gioca <b>in tempo reale</b>: il pezzo non aspetta le tue mosse, scende da solo, e tu intanto lo sposti e lo giri con le frecce. È tutto come nell'anteprima, tre volte più grande, e ora i pezzi sono tutti e sette.</p>
+<p>Il pozzo è largo 10 caselle e alto 16, e ogni casella è un quadrato di 21 pixel. Lo sfondo è <code>"#150f24"</code>; la cornice del pozzo è un rettangolo <code>"#2b2140"</code> in <code>(189, 6)</code>, largo 222 e alto 348, e dentro il pozzo vero e proprio è <code>"#0b0716"</code>, in <code>(195, 12)</code>, di 210 × 336. Ogni quadretto è un Rect di 18 × 18, e quello nella colonna c e nella riga r ha l'angolo in <code>(196 + c * 21, 13 + r * 21)</code>: così tra due quadretti restano 3 pixel di buio. Disegnarlo è il compito di una funzione nuova, <code>quadretto(c, r, colore)</code>.</p>
+<p>Nel pozzo, al posto di 0 e 1, ora c'è il colore: una casella vuota è <code>""</code>, un testo vuoto, e una piena ha il colore del pezzo che ci si è fermato. Una riga vuota è <code>[""] * 10</code>, una lista di 10 testi vuoti: il <code>*</code> ripete la lista. I sette pezzi stanno nella lista <code>PEZZI</code>, e i loro colori, quelli dell'anteprima, nella lista <code>COLORI</code>, nello stesso ordine: la barra I <code>"#4dd0e1"</code> <code>[[0, 0], [1, 0], [2, 0], [3, 0]]</code>, il quadrato O <code>"#ffd54f"</code> <code>[[0, 0], [1, 0], [0, 1], [1, 1]]</code>, la T <code>"#ba68c8"</code> <code>[[0, 0], [1, 0], [2, 0], [1, 1]]</code>, la L <code>"#ffb74d"</code> <code>[[0, 0], [0, 1], [0, 2], [1, 2]]</code>, la S <code>"#81c784"</code> <code>[[1, 0], [2, 0], [0, 1], [1, 1]]</code>, la J <code>"#64b5f6"</code> <code>[[1, 0], [1, 1], [1, 2], [0, 2]]</code> e la Z <code>"#e57373"</code> <code>[[0, 0], [1, 0], [1, 1], [2, 1]]</code>. Il pezzo che cade è <code>PEZZI[tipo]</code>, e <code>tipo</code>, che parte da 0, cresce di 1 a ogni pezzo nuovo, con <code>% 7</code>; ogni pezzo nuovo parte dalla colonna 3 della riga 0.</p>
+<p>Le funzioni della parte 4 restano quasi uguali: <code>entra</code> ora guarda 10 colonne e 16 righe e le caselle diverse da <code>""</code>, <code>fissa</code> riceve anche il colore da mettere nel pozzo, e <code>togli_righe</code> cerca le righe senza <code>""</code>. Il pezzo cade da solo grazie all'orologio: <code>clock.schedule_interval(scendi, 0.5)</code> chiama <code>scendi()</code> ogni mezzo secondo, e <code>scendi</code> fa quello che nel terminale faceva il turno: se il pezzo ci sta nella riga sotto scende, se no lo ferma, toglie le righe piene, le conta in <code>righe</code> e chiama <code>nuovo_pezzo()</code>. Se il pezzo nuovo non ci sta, <code>stato</code>, che parte da <code>"gioco"</code>, diventa <code>"finita"</code>, e da lì <code>scendi</code> e i tasti non fanno più niente.</p>
+<p>Le frecce vanno in <code>on_key_down(key)</code>: <code>keys.LEFT</code> e <code>keys.RIGHT</code> spostano il pezzo di una colonna, se ci sta; <code>keys.UP</code> lo gira, se il pezzo girato ci sta; <code>keys.DOWN</code> chiama subito <code>scendi()</code>. In alto a sinistra, in <code>(24, 16)</code>, grande 28 e in <code>"#dbe3f1"</code>, c'è scritto <code>Righe: 0</code>; a partita finita una striscia <code>"#2b2140"</code> attraversa la finestra, in <code>(0, 150)</code>, larga 600 e alta 60, e al suo centro, con <code>center=(300, 180)</code>, grande 48 e in <code>"#ffd54f"</code>, c'è scritto <code>Partita finita!</code>.</p>`],
+    task: `Porta Tetris nella finestra come qui sopra: il pozzo e la cornice nei colori dell'anteprima, i sette pezzi che arrivano uno dopo l'altro e cadono da soli ogni mezzo secondo, con <code>clock.schedule_interval</code>, le frecce che li spostano, li girano e li fanno scendere, le righe piene che spariscono e la scritta della fine. Quando chiudi la finestra, proverò il pozzo, la caduta, le frecce, il pezzo che si ferma, una riga piena e un pozzo che si riempie.`,
+    solution: `# Tetris, parte 5: nella finestra
+import pgzrun
+
+WIDTH = 600
+HEIGHT = 360
+PEZZI = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]],
+         [[0, 0], [0, 1], [0, 2], [1, 2]], [[1, 0], [2, 0], [0, 1], [1, 1]], [[1, 0], [1, 1], [1, 2], [0, 2]],
+         [[0, 0], [1, 0], [1, 1], [2, 1]]]
+COLORI = ["#4dd0e1", "#ffd54f", "#ba68c8", "#ffb74d", "#81c784", "#64b5f6", "#e57373"]
+pozzo = []
+for r in range(16):
+    pozzo.append([""] * 10)
+tipo = 0
+pezzo = PEZZI[0]
+colonna = 3
+riga = 0
+righe = 0
+stato = "gioco"
+
+
+def entra(pozzo, pezzo, colonna, riga):
+    for q in pezzo:
+        c = colonna + q[0]
+        r = riga + q[1]
+        if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+            return False
+    return True
+
+
+def fissa(pozzo, pezzo, colonna, riga, colore):
+    for q in pezzo:
+        pozzo[riga + q[1]][colonna + q[0]] = colore
+
+
+def ruota(pezzo):
+    alto = 0
+    for q in pezzo:
+        if q[1] >= alto:
+            alto = q[1] + 1
+    girato = []
+    for q in pezzo:
+        girato.append([alto - 1 - q[1], q[0]])
+    return girato
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    for q in pezzo:
+        quadretto(colonna + q[0], riga + q[1], COLORI[tipo])
+    screen.draw.text(f"Righe: {righe}", (24, 24), fontsize=28, color="#dbe3f1")
+    if stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita!", center=(300, 180), fontsize=48, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global tipo, pezzo, colonna, riga, stato
+    tipo = (tipo + 1) % 7
+    pezzo = PEZZI[tipo]
+    colonna = 3
+    riga = 0
+    if not entra(pozzo, pezzo, colonna, riga):
+        stato = "finita"
+
+
+def scendi():
+    global riga, righe
+    if stato != "gioco":
+        return
+    if entra(pozzo, pezzo, colonna, riga + 1):
+        riga += 1
+    else:
+        fissa(pozzo, pezzo, colonna, riga, COLORI[tipo])
+        righe += togli_righe(pozzo)
+        nuovo_pezzo()
+
+
+def on_key_down(key):
+    global colonna, pezzo
+    if stato != "gioco":
+        return
+    if key == keys.LEFT and entra(pozzo, pezzo, colonna - 1, riga):
+        colonna -= 1
+    elif key == keys.RIGHT and entra(pozzo, pezzo, colonna + 1, riga):
+        colonna += 1
+    elif key == keys.UP and entra(pozzo, ruota(pezzo), colonna, riga):
+        pezzo = ruota(pezzo)
+    elif key == keys.DOWN:
+        scendi()
+
+
+clock.schedule_interval(scendi, 0.5)
+pgzrun.go()`,
+    hints: ["Cosa deve succedere ogni mezzo secondo, e cosa a ogni tasto? Perché la freccia giù può chiamare scendi?",
+      "In cima import pgzrun, WIDTH e HEIGHT, PEZZI, COLORI, il pozzo con un for, tipo, pezzo, colonna, riga, righe e stato. Le funzioni della parte 4 con i numeri nuovi, più quadretto. In draw() lo sfondo, la cornice, il pozzo, due for sulle caselle, un for sul pezzo e le scritte. nuovo_pezzo e scendi con global; on_key_down con le quattro frecce; in fondo l'orologio e pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin5("it")),
+    why: (o, c) => pgzWhy(c, "it", tetWin5("it")),
+    tests: tetWinTests("it")
+  },
+  en: {
+    title: "Build: Tetris, part 5",
+    theory: [
+`<p>Part 5: Tetris leaves the terminal and goes into a <b>window</b>, 600 wide and 360 high, and it's played <b>in real time</b>: the piece doesn't wait for your moves, it comes down by itself, and meanwhile you move it and turn it with the arrows. It's all as in the preview, three times bigger, and now there are all seven pieces.</p>
+<p>The well is 10 squares wide and 16 high, and every square of it is 21 pixels across. The background is <code>"#150f24"</code>; the well's frame is a <code>"#2b2140"</code> rectangle at <code>(189, 6)</code>, 222 wide and 348 high, and inside it the well itself is <code>"#0b0716"</code>, at <code>(195, 12)</code>, of 210 × 336. Every block is an 18 × 18 Rect, and the one in column c and row r has its corner at <code>(196 + c * 21, 13 + r * 21)</code>: so between two blocks there are 3 pixels of dark. Drawing it is the job of a new function, <code>square(c, r, colour)</code>.</p>
+<p>In the well, instead of 0 and 1, there's now the colour: an empty square is <code>""</code>, an empty text, and a full one has the colour of the piece that locked there. An empty row is <code>[""] * 10</code>, a list of 10 empty texts: the <code>*</code> repeats the list. The seven pieces are in the list <code>PIECES</code>, and their colours, the preview's, in the list <code>COLOURS</code>, in the same order: the bar I <code>"#4dd0e1"</code> <code>[[0, 0], [1, 0], [2, 0], [3, 0]]</code>, the square O <code>"#ffd54f"</code> <code>[[0, 0], [1, 0], [0, 1], [1, 1]]</code>, the T <code>"#ba68c8"</code> <code>[[0, 0], [1, 0], [2, 0], [1, 1]]</code>, the L <code>"#ffb74d"</code> <code>[[0, 0], [0, 1], [0, 2], [1, 2]]</code>, the S <code>"#81c784"</code> <code>[[1, 0], [2, 0], [0, 1], [1, 1]]</code>, the J <code>"#64b5f6"</code> <code>[[1, 0], [1, 1], [1, 2], [0, 2]]</code> and the Z <code>"#e57373"</code> <code>[[0, 0], [1, 0], [1, 1], [2, 1]]</code>. The falling piece is <code>PIECES[kind]</code>, and <code>kind</code>, which starts from 0, goes up by 1 at every new piece, with <code>% 7</code>; every new piece starts from column 3 of row 0.</p>
+<p>The functions of part 4 stay almost the same: <code>fits</code> now looks at 10 columns and 16 rows and at the squares different from <code>""</code>, <code>lock</code> also gets the colour to put in the well, and <code>clear_lines</code> looks for the rows without <code>""</code>. The piece falls by itself thanks to the clock: <code>clock.schedule_interval(fall, 0.5)</code> calls <code>fall()</code> every half second, and <code>fall</code> does what the turn did in the terminal: if the piece fits in the row below it goes down, otherwise it locks it, takes away the full rows, counts them in <code>lines</code> and calls <code>new_piece()</code>. If the new piece doesn't fit, <code>state</code>, which starts from <code>"playing"</code>, becomes <code>"over"</code>, and from then on <code>fall</code> and the keys don't do anything any more.</p>
+<p>The arrows go in <code>on_key_down(key)</code>: <code>keys.LEFT</code> and <code>keys.RIGHT</code> move the piece one column, if it fits; <code>keys.UP</code> turns it, if the turned piece fits; <code>keys.DOWN</code> calls <code>fall()</code> at once. At the top left, at <code>(24, 16)</code>, size 28 and in <code>"#dbe3f1"</code>, it says <code>Lines: 0</code>; when the game is over a <code>"#2b2140"</code> band crosses the window, at <code>(0, 150)</code>, 600 wide and 60 high, and in its middle, with <code>center=(300, 180)</code>, size 48 and in <code>"#ffd54f"</code>, it says <code>Game over!</code>.</p>`],
+    task: `Take Tetris into the window as above: the well and the frame in the preview's colours, the seven pieces coming one after the other and falling by themselves every half second, with <code>clock.schedule_interval</code>, the arrows that move them, turn them and take them down, the full rows that disappear and the end text. When you close the window, I'll test the well, the fall, the arrows, the piece that locks, a full row and a well that fills up.`,
+    solution: `# Tetris, part 5: in a window
+import pgzrun
+
+WIDTH = 600
+HEIGHT = 360
+PIECES = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]],
+         [[0, 0], [0, 1], [0, 2], [1, 2]], [[1, 0], [2, 0], [0, 1], [1, 1]], [[1, 0], [1, 1], [1, 2], [0, 2]],
+         [[0, 0], [1, 0], [1, 1], [2, 1]]]
+COLOURS = ["#4dd0e1", "#ffd54f", "#ba68c8", "#ffb74d", "#81c784", "#64b5f6", "#e57373"]
+well = []
+for r in range(16):
+    well.append([""] * 10)
+kind = 0
+piece = PIECES[0]
+column = 3
+row = 0
+lines = 0
+state = "playing"
+
+
+def fits(well, piece, column, row):
+    for q in piece:
+        c = column + q[0]
+        r = row + q[1]
+        if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+            return False
+    return True
+
+
+def lock(well, piece, column, row, colour):
+    for q in piece:
+        well[row + q[1]][column + q[0]] = colour
+
+
+def rotate(piece):
+    tall = 0
+    for q in piece:
+        if q[1] >= tall:
+            tall = q[1] + 1
+    turned = []
+    for q in piece:
+        turned.append([tall - 1 - q[1], q[0]])
+    return turned
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if well[r][c] != "":
+                square(c, r, well[r][c])
+    for q in piece:
+        square(column + q[0], row + q[1], COLOURS[kind])
+    screen.draw.text(f"Lines: {lines}", (24, 24), fontsize=28, color="#dbe3f1")
+    if state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over!", center=(300, 180), fontsize=48, color="#ffd54f")
+
+
+def new_piece():
+    global kind, piece, column, row, state
+    kind = (kind + 1) % 7
+    piece = PIECES[kind]
+    column = 3
+    row = 0
+    if not fits(well, piece, column, row):
+        state = "over"
+
+
+def fall():
+    global row, lines
+    if state != "playing":
+        return
+    if fits(well, piece, column, row + 1):
+        row += 1
+    else:
+        lock(well, piece, column, row, COLOURS[kind])
+        lines += clear_lines(well)
+        new_piece()
+
+
+def on_key_down(key):
+    global column, piece
+    if state != "playing":
+        return
+    if key == keys.LEFT and fits(well, piece, column - 1, row):
+        column -= 1
+    elif key == keys.RIGHT and fits(well, piece, column + 1, row):
+        column += 1
+    elif key == keys.UP and fits(well, rotate(piece), column, row):
+        piece = rotate(piece)
+    elif key == keys.DOWN:
+        fall()
+
+
+clock.schedule_interval(fall, 0.5)
+pgzrun.go()`,
+    hints: ["What has to happen every half second, and what at every key? Why can the down arrow call fall?",
+      "At the top import pgzrun, WIDTH and HEIGHT, PIECES, COLOURS, the well with a for, kind, piece, column, row, lines and state. The functions of part 4 with the new numbers, plus square. In draw() the background, the frame, the well, two for loops over the squares, a for over the piece and the texts. new_piece and fall with global; on_key_down with the four arrows; at the bottom the clock and pgzrun.go()."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin5("en")),
+    why: (o, c) => pgzWhy(c, "en", tetWin5("en")),
+    tests: tetWinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_tetris_6.py", "build_tetris_6.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 6",
+    theory: [
+`<p>Parte 6: <b>il prossimo pezzo</b>. In un vero Tetris i pezzi non arrivano in ordine: ogni volta li sceglie il caso. <code>prossimo</code> è il numero del pezzo che arriverà dopo quello che cade, pescato con <code>random.randint(0, 6)</code>: quando serve un pezzo nuovo, <code>nuovo_pezzo()</code> prende <code>tipo = prossimo</code>, e subito ne pesca un altro per <code>prossimo</code>. Così vedi in anticipo cosa ti aspetta, e puoi prepararti.</p>
+<p>Il prossimo pezzo si vede a destra: sotto la scritta <code>Prossimo</code>, in <code>(462, 16)</code>, grande 28, c'è un riquadro fatto come il pozzo, una cornice <code>"#2b2140"</code> in <code>(462, 48)</code> di 96 × 96 e dentro il buio <code>"#0b0716"</code> in <code>(468, 54)</code> di 84 × 84. Il pezzo lo disegni con la stessa funzione <code>quadretto</code>, come se fosse fuori dal pozzo, nella colonna 13 e nella riga 2: il suo quadretto <code>q</code> va in <code>quadretto(13 + q[0], 2 + q[1], ...)</code>, con il colore del prossimo pezzo.</p>
+<p>Lo <b>Spazio</b> fa cadere il pezzo fino in fondo in un colpo: finché ci sta nella riga sotto, <code>riga += 1</code>, con un <code>while</code>, e poi <code>scendi()</code> lo ferma subito. E a partita finita lo Spazio ne comincia una nuova: tutto quello che prepara una partita va in <code>nuova_partita()</code>, il pozzo vuoto, il primo <code>prossimo</code>, le righe a 0, lo stato <code>"gioco"</code> e il primo pezzo, con <code>nuovo_pezzo()</code>. La chiami prima di <code>pgzrun.go()</code>, e poi con lo Spazio a partita finita; la scritta della fine diventa <code>Partita finita! Spazio per rigiocare</code>, grande 36.</p>`],
+    task: `Pesca il prossimo pezzo con <code>random.randint(0, 6)</code> e disegnalo nel riquadro a destra, fai cadere il pezzo fino in fondo con lo Spazio e scrivi <code>nuova_partita()</code>, per ricominciare con lo Spazio a partita finita. Quando chiudi la finestra, proverò con dei dadi truccati il prossimo pezzo, lo Spazio e una partita nuova.`,
+    solution: `# Tetris, parte 6: il prossimo pezzo
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+PEZZI = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]],
+         [[0, 0], [0, 1], [0, 2], [1, 2]], [[1, 0], [2, 0], [0, 1], [1, 1]], [[1, 0], [1, 1], [1, 2], [0, 2]],
+         [[0, 0], [1, 0], [1, 1], [2, 1]]]
+COLORI = ["#4dd0e1", "#ffd54f", "#ba68c8", "#ffb74d", "#81c784", "#64b5f6", "#e57373"]
+
+
+def nuova_partita():
+    global pozzo, prossimo, righe, stato
+    pozzo = []
+    for r in range(16):
+        pozzo.append([""] * 10)
+    prossimo = random.randint(0, 6)
+    righe = 0
+    stato = "gioco"
+    nuovo_pezzo()
+
+
+def entra(pozzo, pezzo, colonna, riga):
+    for q in pezzo:
+        c = colonna + q[0]
+        r = riga + q[1]
+        if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+            return False
+    return True
+
+
+def fissa(pozzo, pezzo, colonna, riga, colore):
+    for q in pezzo:
+        pozzo[riga + q[1]][colonna + q[0]] = colore
+
+
+def ruota(pezzo):
+    alto = 0
+    for q in pezzo:
+        if q[1] >= alto:
+            alto = q[1] + 1
+    girato = []
+    for q in pezzo:
+        girato.append([alto - 1 - q[1], q[0]])
+    return girato
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    for q in pezzo:
+        quadretto(colonna + q[0], riga + q[1], COLORI[tipo])
+    screen.draw.text(f"Righe: {righe}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Prossimo", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in PEZZI[prossimo]:
+        quadretto(13 + q[0], 2 + q[1], COLORI[prossimo])
+    if stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita! Spazio per rigiocare", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global tipo, prossimo, pezzo, colonna, riga, stato
+    tipo = prossimo
+    prossimo = random.randint(0, 6)
+    pezzo = PEZZI[tipo]
+    colonna = 3
+    riga = 0
+    if not entra(pozzo, pezzo, colonna, riga):
+        stato = "finita"
+
+
+def scendi():
+    global riga, righe
+    if stato != "gioco":
+        return
+    if entra(pozzo, pezzo, colonna, riga + 1):
+        riga += 1
+    else:
+        fissa(pozzo, pezzo, colonna, riga, COLORI[tipo])
+        righe += togli_righe(pozzo)
+        nuovo_pezzo()
+
+
+def on_key_down(key):
+    global colonna, riga, pezzo
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if key == keys.LEFT and entra(pozzo, pezzo, colonna - 1, riga):
+        colonna -= 1
+    elif key == keys.RIGHT and entra(pozzo, pezzo, colonna + 1, riga):
+        colonna += 1
+    elif key == keys.UP and entra(pozzo, ruota(pezzo), colonna, riga):
+        pezzo = ruota(pezzo)
+    elif key == keys.DOWN:
+        scendi()
+    elif key == keys.SPACE:
+        while entra(pozzo, pezzo, colonna, riga + 1):
+            riga += 1
+        scendi()
+
+
+nuova_partita()
+clock.schedule_interval(scendi, 0.5)
+pgzrun.go()`,
+    hints: ["Quando si pesca il prossimo pezzo, e quando diventa quello che cade? Cosa fa lo Spazio mentre giochi, e cosa a partita finita?",
+      "nuova_partita, con global, prepara il pozzo, prossimo con randint, le righe e lo stato, e chiama nuovo_pezzo. nuovo_pezzo prende tipo da prossimo e ne pesca un altro. In draw() la scritta, il riquadro e un for sui quadretti del prossimo pezzo. In on_key_down, a partita finita lo Spazio chiama nuova_partita; durante il gioco un while con entra, poi scendi()."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin6("it")),
+    why: (o, c) => pgzWhy(c, "it", tetWin6("it")),
+    tests: (c) => tetNextTests("it")(c).concat(tetWinTests("it")(RIG("0") + c).slice(1, 4), tetWinTests("it")(RIG("0") + c).slice(5, 6))
+  },
+  en: {
+    title: "Build: Tetris, part 6",
+    theory: [
+`<p>Part 6: <b>the next piece</b>. In a real Tetris the pieces don't come in order: every time chance picks them. <code>next_kind</code> is the number of the piece that will come after the falling one, picked with <code>random.randint(0, 6)</code>: when a new piece is needed, <code>new_piece()</code> takes <code>kind = next_kind</code>, and straight away picks another one for <code>next_kind</code>. So you see in advance what's waiting for you, and you can get ready.</p>
+<p>The next piece is shown on the right: under the text <code>Next</code>, at <code>(462, 16)</code>, size 28, there's a box made like the well, a <code>"#2b2140"</code> frame at <code>(462, 48)</code> of 96 × 96 and inside the dark <code>"#0b0716"</code> at <code>(468, 54)</code> of 84 × 84. You draw the piece with the same function <code>square</code>, as if it were outside the well, in column 13 and row 2: its square <code>q</code> goes in <code>square(13 + q[0], 2 + q[1], ...)</code>, with the next piece's colour.</p>
+<p><b>Space</b> drops the piece to the bottom in one go: as long as it fits in the row below, <code>row += 1</code>, with a <code>while</code>, and then <code>fall()</code> locks it at once. And when the game is over Space starts a new one: everything that sets up a game goes in <code>new_game()</code>, the empty well, the first <code>next_kind</code>, the lines at 0, the state <code>"playing"</code> and the first piece, with <code>new_piece()</code>. You call it before <code>pgzrun.go()</code>, and then with Space when the game is over; the end text becomes <code>Game over! Space to play again</code>, size 36.</p>`],
+    task: `Pick the next piece with <code>random.randint(0, 6)</code> and draw it in the box on the right, drop the piece to the bottom with Space and write <code>new_game()</code>, to start again with Space when the game is over. When you close the window, I'll test with loaded dice the next piece, Space and a new game.`,
+    solution: `# Tetris, part 6: the next piece
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+PIECES = [[[0, 0], [1, 0], [2, 0], [3, 0]], [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]],
+         [[0, 0], [0, 1], [0, 2], [1, 2]], [[1, 0], [2, 0], [0, 1], [1, 1]], [[1, 0], [1, 1], [1, 2], [0, 2]],
+         [[0, 0], [1, 0], [1, 1], [2, 1]]]
+COLOURS = ["#4dd0e1", "#ffd54f", "#ba68c8", "#ffb74d", "#81c784", "#64b5f6", "#e57373"]
+
+
+def new_game():
+    global well, next_kind, lines, state
+    well = []
+    for r in range(16):
+        well.append([""] * 10)
+    next_kind = random.randint(0, 6)
+    lines = 0
+    state = "playing"
+    new_piece()
+
+
+def fits(well, piece, column, row):
+    for q in piece:
+        c = column + q[0]
+        r = row + q[1]
+        if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+            return False
+    return True
+
+
+def lock(well, piece, column, row, colour):
+    for q in piece:
+        well[row + q[1]][column + q[0]] = colour
+
+
+def rotate(piece):
+    tall = 0
+    for q in piece:
+        if q[1] >= tall:
+            tall = q[1] + 1
+    turned = []
+    for q in piece:
+        turned.append([tall - 1 - q[1], q[0]])
+    return turned
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if well[r][c] != "":
+                square(c, r, well[r][c])
+    for q in piece:
+        square(column + q[0], row + q[1], COLOURS[kind])
+    screen.draw.text(f"Lines: {lines}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Next", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in PIECES[next_kind]:
+        square(13 + q[0], 2 + q[1], COLOURS[next_kind])
+    if state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over! Space to play again", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def new_piece():
+    global kind, next_kind, piece, column, row, state
+    kind = next_kind
+    next_kind = random.randint(0, 6)
+    piece = PIECES[kind]
+    column = 3
+    row = 0
+    if not fits(well, piece, column, row):
+        state = "over"
+
+
+def fall():
+    global row, lines
+    if state != "playing":
+        return
+    if fits(well, piece, column, row + 1):
+        row += 1
+    else:
+        lock(well, piece, column, row, COLOURS[kind])
+        lines += clear_lines(well)
+        new_piece()
+
+
+def on_key_down(key):
+    global column, row, piece
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if key == keys.LEFT and fits(well, piece, column - 1, row):
+        column -= 1
+    elif key == keys.RIGHT and fits(well, piece, column + 1, row):
+        column += 1
+    elif key == keys.UP and fits(well, rotate(piece), column, row):
+        piece = rotate(piece)
+    elif key == keys.DOWN:
+        fall()
+    elif key == keys.SPACE:
+        while fits(well, piece, column, row + 1):
+            row += 1
+        fall()
+
+
+new_game()
+clock.schedule_interval(fall, 0.5)
+pgzrun.go()`,
+    hints: ["When is the next piece picked, and when does it become the falling one? What does Space do while you play, and what when the game is over?",
+      "new_game, with global, sets up the well, next_kind with randint, the lines and the state, and calls new_piece. new_piece takes kind from next_kind and picks another one. In draw() the text, the box and a for over the next piece's squares. In on_key_down, when the game is over Space calls new_game; while playing a while with fits, then fall()."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin6("en")),
+    why: (o, c) => pgzWhy(c, "en", tetWin6("en")),
+    tests: (c) => tetNextTests("en")(c).concat(tetWinTests("en")(RIG("0") + c).slice(1, 4), tetWinTests("en")(RIG("0") + c).slice(5, 6))
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_tetris_7.py", "build_tetris_7.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 7",
+    theory: [
+`<p>Parte 7: <b>forme, colori e punti</b>. Le liste <code>PEZZI</code> e <code>COLORI</code> diventano due dizionari, con la lettera del pezzo come chiave: <code>FORME = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": ...}</code> e <code>COLORI = {"I": "#4dd0e1", "O": "#ffd54f", ...}</code>, per I, O, T, L, S, J e Z. Così <code>tipo</code> e <code>prossimo</code> diventano lettere, e si pescano con <code>random.choice("IOTLSJZ")</code>: <code>choice</code> funziona anche con un testo, e ne sceglie una lettera. Il pezzo che cade è <code>FORME[tipo]</code>, e il suo colore <code>COLORI[tipo]</code>.</p>
+<p>E arrivano i <b>punti</b>. Più righe fai sparire insieme, più valgono: <code>PUNTI = {1: 40, 2: 100, 3: 300, 4: 1200}</code>, con il numero di righe come chiave. Quattro righe insieme si possono fare solo con la barra in piedi, e hanno un nome: si chiamano proprio <i>tetris</i>. In <code>scendi</code>, quando il pezzo si ferma, <code>togli_righe</code> dice quante righe ha tolto: le aggiungi a <code>righe</code> e, se sono più di 0, aggiungi ai <code>punti</code> quelli che dà <code>PUNTI</code>. Il <b>record</b> è il punteggio più alto, e vale per tutte le partite: <code>record</code> parte da 0, fuori da <code>nuova_partita()</code>, e appena i punti lo superano diventa uguale ai punti. A sinistra, grandi 28 e in <code>"#dbe3f1"</code>: <code>Punti: 0</code> in <code>(24, 16)</code>, <code>Righe: 0</code> in <code>(24, 48)</code> e <code>Record: 0</code> in <code>(24, 80)</code>.</p>`],
+    task: `Metti forme e colori nei dizionari <code>FORME</code> e <code>COLORI</code>, con le lettere come chiavi, pesca le lettere con <code>random.choice</code>, conta i <code>punti</code> con il dizionario <code>PUNTI</code> e tieni il <code>record</code>, anche tra una partita e l'altra; scrivi punti, righe e record a sinistra. Quando chiudi la finestra, proverò i dizionari, i punti di quattro righe e di una, e il record dopo una partita nuova.`,
+    solution: `# Tetris, parte 7: forme, colori e punti
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+FORME = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLORI = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+PUNTI = {1: 40, 2: 100, 3: 300, 4: 1200}
+record = 0
+
+
+def nuova_partita():
+    global pozzo, prossimo, righe, punti, stato
+    pozzo = []
+    for r in range(16):
+        pozzo.append([""] * 10)
+    prossimo = random.choice("IOTLSJZ")
+    righe = 0
+    punti = 0
+    stato = "gioco"
+    nuovo_pezzo()
+
+
+def entra(pozzo, pezzo, colonna, riga):
+    for q in pezzo:
+        c = colonna + q[0]
+        r = riga + q[1]
+        if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+            return False
+    return True
+
+
+def fissa(pozzo, pezzo, colonna, riga, colore):
+    for q in pezzo:
+        pozzo[riga + q[1]][colonna + q[0]] = colore
+
+
+def ruota(pezzo):
+    alto = 0
+    for q in pezzo:
+        if q[1] >= alto:
+            alto = q[1] + 1
+    girato = []
+    for q in pezzo:
+        girato.append([alto - 1 - q[1], q[0]])
+    return girato
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    for q in pezzo:
+        quadretto(colonna + q[0], riga + q[1], COLORI[tipo])
+    screen.draw.text(f"Punti: {punti}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Righe: {righe}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Prossimo", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in FORME[prossimo]:
+        quadretto(13 + q[0], 2 + q[1], COLORI[prossimo])
+    if stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita! Spazio per rigiocare", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global tipo, prossimo, pezzo, colonna, riga, stato
+    tipo = prossimo
+    prossimo = random.choice("IOTLSJZ")
+    pezzo = FORME[tipo]
+    colonna = 3
+    riga = 0
+    if not entra(pozzo, pezzo, colonna, riga):
+        stato = "finita"
+
+
+def scendi():
+    global riga, righe, punti, record
+    if stato != "gioco":
+        return
+    if entra(pozzo, pezzo, colonna, riga + 1):
+        riga += 1
+    else:
+        fissa(pozzo, pezzo, colonna, riga, COLORI[tipo])
+        tolte = togli_righe(pozzo)
+        righe += tolte
+        if tolte > 0:
+            punti += PUNTI[tolte]
+        if punti > record:
+            record = punti
+        nuovo_pezzo()
+
+
+def on_key_down(key):
+    global colonna, riga, pezzo
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if key == keys.LEFT and entra(pozzo, pezzo, colonna - 1, riga):
+        colonna -= 1
+    elif key == keys.RIGHT and entra(pozzo, pezzo, colonna + 1, riga):
+        colonna += 1
+    elif key == keys.UP and entra(pozzo, ruota(pezzo), colonna, riga):
+        pezzo = ruota(pezzo)
+    elif key == keys.DOWN:
+        scendi()
+    elif key == keys.SPACE:
+        while entra(pozzo, pezzo, colonna, riga + 1):
+            riga += 1
+        scendi()
+
+
+nuova_partita()
+clock.schedule_interval(scendi, 0.5)
+pgzrun.go()`,
+    hints: ["Perché il record va fuori da nuova_partita()? Cosa usi come chiave di PUNTI quando togli delle righe?",
+      "FORME e COLORI con sette coppie lettera: valore, PUNTI con quattro. tipo e prossimo diventano lettere pescate con choice dal testo delle sette lettere. In scendi le righe tolte in una variabile, sommate alle righe; un if che aggiunge i punti; un if per il record, con global. In draw() tre scritte."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin7("it")),
+    why: (o, c) => pgzWhy(c, "it", tetWin7("it")),
+    tests: (c) => tetPointsTests("it")(c).concat(tetWinTests("it")(TET_RIG("I") + c).slice(1, 4))
+  },
+  en: {
+    title: "Build: Tetris, part 7",
+    theory: [
+`<p>Part 7: <b>shapes, colours and points</b>. The lists <code>PIECES</code> and <code>COLOURS</code> become two dictionaries, with the piece's letter as the key: <code>SHAPES = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": ...}</code> and <code>COLOURS = {"I": "#4dd0e1", "O": "#ffd54f", ...}</code>, for I, O, T, L, S, J and Z. So <code>kind</code> and <code>next_kind</code> become letters, and they're picked with <code>random.choice("IOTLSJZ")</code>: <code>choice</code> works with a text too, and picks one of its letters. The falling piece is <code>SHAPES[kind]</code>, and its colour <code>COLOURS[kind]</code>.</p>
+<p>And here come the <b>points</b>. The more rows you clear together, the more they're worth: <code>POINTS = {1: 40, 2: 100, 3: 300, 4: 1200}</code>, with the number of rows as the key. Four rows together can only be made with the standing bar, and they have a name: they're called a <i>tetris</i>. In <code>fall</code>, when the piece locks, <code>clear_lines</code> says how many rows it took away: add them to <code>lines</code> and, if they're more than 0, add to the <code>points</code> what <code>POINTS</code> gives. The <b>record</b> is the highest score, and it counts for all the games: <code>best</code> starts from 0, outside <code>new_game()</code>, and as soon as the points go past it, it becomes equal to the points. On the left, size 28 and in <code>"#dbe3f1"</code>: <code>Points: 0</code> at <code>(24, 16)</code>, <code>Lines: 0</code> at <code>(24, 48)</code> and <code>Record: 0</code> at <code>(24, 80)</code>.</p>`],
+    task: `Put the shapes and colours in the dictionaries <code>SHAPES</code> and <code>COLOURS</code>, with the letters as keys, pick the letters with <code>random.choice</code>, count the <code>points</code> with the dictionary <code>POINTS</code> and keep the record in <code>best</code>, even from one game to the next; write the points, the lines and the record on the left. When you close the window, I'll test the dictionaries, the points of four rows and of one, and the record after a new game.`,
+    solution: `# Tetris, part 7: shapes, colours and points
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+SHAPES = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLOURS = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+POINTS = {1: 40, 2: 100, 3: 300, 4: 1200}
+best = 0
+
+
+def new_game():
+    global well, next_kind, lines, points, state
+    well = []
+    for r in range(16):
+        well.append([""] * 10)
+    next_kind = random.choice("IOTLSJZ")
+    lines = 0
+    points = 0
+    state = "playing"
+    new_piece()
+
+
+def fits(well, piece, column, row):
+    for q in piece:
+        c = column + q[0]
+        r = row + q[1]
+        if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+            return False
+    return True
+
+
+def lock(well, piece, column, row, colour):
+    for q in piece:
+        well[row + q[1]][column + q[0]] = colour
+
+
+def rotate(piece):
+    tall = 0
+    for q in piece:
+        if q[1] >= tall:
+            tall = q[1] + 1
+    turned = []
+    for q in piece:
+        turned.append([tall - 1 - q[1], q[0]])
+    return turned
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if well[r][c] != "":
+                square(c, r, well[r][c])
+    for q in piece:
+        square(column + q[0], row + q[1], COLOURS[kind])
+    screen.draw.text(f"Points: {points}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Lines: {lines}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Next", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in SHAPES[next_kind]:
+        square(13 + q[0], 2 + q[1], COLOURS[next_kind])
+    if state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over! Space to play again", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def new_piece():
+    global kind, next_kind, piece, column, row, state
+    kind = next_kind
+    next_kind = random.choice("IOTLSJZ")
+    piece = SHAPES[kind]
+    column = 3
+    row = 0
+    if not fits(well, piece, column, row):
+        state = "over"
+
+
+def fall():
+    global row, lines, points, best
+    if state != "playing":
+        return
+    if fits(well, piece, column, row + 1):
+        row += 1
+    else:
+        lock(well, piece, column, row, COLOURS[kind])
+        cleared = clear_lines(well)
+        lines += cleared
+        if cleared > 0:
+            points += POINTS[cleared]
+        if points > best:
+            best = points
+        new_piece()
+
+
+def on_key_down(key):
+    global column, row, piece
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if key == keys.LEFT and fits(well, piece, column - 1, row):
+        column -= 1
+    elif key == keys.RIGHT and fits(well, piece, column + 1, row):
+        column += 1
+    elif key == keys.UP and fits(well, rotate(piece), column, row):
+        piece = rotate(piece)
+    elif key == keys.DOWN:
+        fall()
+    elif key == keys.SPACE:
+        while fits(well, piece, column, row + 1):
+            row += 1
+        fall()
+
+
+new_game()
+clock.schedule_interval(fall, 0.5)
+pgzrun.go()`,
+    hints: ["Why does the record go outside new_game()? What do you use as the key of POINTS when you clear some rows?",
+      "SHAPES and COLOURS with seven letter: value pairs, POINTS with four. kind and next_kind become letters picked with choice from the text of the seven letters. In fall the rows cleared in a variable, added to the lines; an if that adds the points; an if for the record, with global. In draw() three texts."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin7("en")),
+    why: (o, c) => pgzWhy(c, "en", tetWin7("en")),
+    tests: (c) => tetPointsTests("en")(c).concat(tetWinTests("en")(TET_RIG("I") + c).slice(1, 4))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_tetris_8.py", "build_tetris_8.py"],
+  it: {
+    title: "Costruisci: Tetris, parte 8",
+    theory: [
+`<p>Parte 8: il pezzo diventa un <b>oggetto</b>. La classe <code>Pezzo</code> tiene insieme quello che il gioco sa del pezzo che cade: <code>tipo</code>, la sua lettera, <code>quadretti</code>, la sua forma, e <code>colonna</code> e <code>riga</code>, dov'è. <code>__init__(self, tipo)</code> riceve la lettera e crea il pezzo con la forma <code>FORME[tipo]</code>, nella colonna 3 della riga 0. I suoi metodi:</p>
+<ul><li><code>entra(self, quadretti, colonna, riga)</code> è la vecchia funzione: dice se quei quadretti, in quella colonna e in quella riga, ci stanno nel pozzo;</li>
+<li><code>muovi(self, dc, dr)</code> sposta il pezzo di <code>dc</code> colonne e <code>dr</code> righe, se ci sta, e restituisce <code>True</code>; se non ci sta lo lascia dov'è e restituisce <code>False</code>;</li>
+<li><code>ruota(self)</code> gira il pezzo di un quarto di giro, se il pezzo girato ci sta;</li>
+<li><code>cadi(self)</code> lo porta fino in fondo, con il <code>while</code> dello Spazio;</li>
+<li><code>fissa(self)</code> lo lascia nel pozzo con il suo colore, e <code>disegna(self)</code> lo disegna.</li></ul>
+<p>Le variabili <code>tipo</code>, <code>colonna</code> e <code>riga</code> spariscono: c'è un oggetto solo, <code>pezzo</code>, che <code>nuovo_pezzo()</code> crea con <code>Pezzo(prossimo)</code>. Il resto del gioco parla con lui: la freccia sinistra è <code>pezzo.muovi(-1, 0)</code>, la destra <code>pezzo.muovi(1, 0)</code>, la freccia su <code>pezzo.ruota()</code> e lo Spazio <code>pezzo.cadi()</code>; e <code>scendi</code> diventa corta: se <code>pezzo.muovi(0, 1)</code> restituisce <code>False</code>, il pezzo si ferma. Le funzioni <code>entra</code>, <code>fissa</code> e <code>ruota</code> di prima diventano metodi; <code>togli_righe</code> resta una funzione, perché riguarda il pozzo e non il pezzo. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Pezzo</code> con <code>__init__</code>, <code>entra</code>, <code>muovi</code>, <code>ruota</code>, <code>cadi</code>, <code>fissa</code> e <code>disegna</code>, come qui sopra, e usa nel gioco un oggetto <code>pezzo</code> al posto delle variabili del pezzo. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con i punti e il record.`,
+    solution: `# Tetris, parte 8: il pezzo è un oggetto
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+FORME = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLORI = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+PUNTI = {1: 40, 2: 100, 3: 300, 4: 1200}
+record = 0
+
+
+class Pezzo:
+    def __init__(self, tipo):
+        self.tipo = tipo
+        self.quadretti = FORME[tipo]
+        self.colonna = 3
+        self.riga = 0
+
+    def entra(self, quadretti, colonna, riga):
+        for q in quadretti:
+            c = colonna + q[0]
+            r = riga + q[1]
+            if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+                return False
+        return True
+
+    def muovi(self, dc, dr):
+        if self.entra(self.quadretti, self.colonna + dc, self.riga + dr):
+            self.colonna += dc
+            self.riga += dr
+            return True
+        return False
+
+    def ruota(self):
+        alto = 0
+        for q in self.quadretti:
+            if q[1] >= alto:
+                alto = q[1] + 1
+        girato = []
+        for q in self.quadretti:
+            girato.append([alto - 1 - q[1], q[0]])
+        if self.entra(girato, self.colonna, self.riga):
+            self.quadretti = girato
+
+    def cadi(self):
+        while self.entra(self.quadretti, self.colonna, self.riga + 1):
+            self.riga += 1
+
+    def fissa(self):
+        for q in self.quadretti:
+            pozzo[self.riga + q[1]][self.colonna + q[0]] = COLORI[self.tipo]
+
+    def disegna(self):
+        for q in self.quadretti:
+            quadretto(self.colonna + q[0], self.riga + q[1], COLORI[self.tipo])
+
+
+def nuova_partita():
+    global pozzo, prossimo, righe, punti, stato
+    pozzo = []
+    for r in range(16):
+        pozzo.append([""] * 10)
+    prossimo = random.choice("IOTLSJZ")
+    righe = 0
+    punti = 0
+    stato = "gioco"
+    nuovo_pezzo()
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    pezzo.disegna()
+    screen.draw.text(f"Punti: {punti}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Righe: {righe}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Prossimo", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in FORME[prossimo]:
+        quadretto(13 + q[0], 2 + q[1], COLORI[prossimo])
+    if stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita! Spazio per rigiocare", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global pezzo, prossimo, stato
+    pezzo = Pezzo(prossimo)
+    prossimo = random.choice("IOTLSJZ")
+    if not pezzo.entra(pezzo.quadretti, pezzo.colonna, pezzo.riga):
+        stato = "finita"
+
+
+def scendi():
+    global righe, punti, record
+    if stato != "gioco":
+        return
+    if not pezzo.muovi(0, 1):
+        pezzo.fissa()
+        tolte = togli_righe(pozzo)
+        righe += tolte
+        if tolte > 0:
+            punti += PUNTI[tolte]
+        if punti > record:
+            record = punti
+        nuovo_pezzo()
+
+
+def on_key_down(key):
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if key == keys.LEFT:
+        pezzo.muovi(-1, 0)
+    elif key == keys.RIGHT:
+        pezzo.muovi(1, 0)
+    elif key == keys.UP:
+        pezzo.ruota()
+    elif key == keys.DOWN:
+        scendi()
+    elif key == keys.SPACE:
+        pezzo.cadi()
+        scendi()
+
+
+nuova_partita()
+clock.schedule_interval(scendi, 0.5)
+pgzrun.go()`,
+    hints: ["Quali informazioni deve tenere il pezzo? Cosa restituisce muovi, e come lo usa scendi?",
+      "In __init__ quattro attributi con self. muovi chiama self.entra con la colonna e la riga nuove, e se ci sta le cambia. ruota calcola i quadretti girati e li tiene se ci stanno. cadi ha un while. In nuovo_pezzo il pezzo nuovo nasce da Pezzo, e nel resto del gioco scrivi pezzo. davanti agli attributi e ai metodi."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it)),
+    tests: (c) => tetClassTests("it")(c).concat(tetPointsTests("it", true)(c).slice(1))
+  },
+  en: {
+    title: "Build: Tetris, part 8",
+    theory: [
+`<p>Part 8: the piece becomes an <b>object</b>. The class <code>Piece</code> keeps together what the game knows about the falling piece: <code>kind</code>, its letter, <code>squares</code>, its shape, and <code>column</code> and <code>row</code>, where it is. <code>__init__(self, kind)</code> gets the letter and makes the piece with the shape <code>SHAPES[kind]</code>, in column 3 of row 0. Its methods:</p>
+<ul><li><code>fits(self, squares, column, row)</code> is the old function: it says whether those squares, in that column and that row, fit in the well;</li>
+<li><code>move(self, dc, dr)</code> moves the piece <code>dc</code> columns and <code>dr</code> rows, if it fits, and gives back <code>True</code>; if it doesn't fit it leaves it where it is and gives back <code>False</code>;</li>
+<li><code>rotate(self)</code> turns the piece a quarter turn, if the turned piece fits;</li>
+<li><code>drop(self)</code> takes it to the bottom, with Space's <code>while</code>;</li>
+<li><code>lock(self)</code> leaves it in the well with its colour, and <code>show(self)</code> draws it.</li></ul>
+<p>The variables <code>kind</code>, <code>column</code> and <code>row</code> go away: there's just one object, <code>piece</code>, which <code>new_piece()</code> makes with <code>Piece(next_kind)</code>. The rest of the game talks to it: the left arrow is <code>piece.move(-1, 0)</code>, the right one <code>piece.move(1, 0)</code>, the up arrow <code>piece.rotate()</code> and Space <code>piece.drop()</code>; and <code>fall</code> gets short: if <code>piece.move(0, 1)</code> gives back <code>False</code>, the piece locks. The functions <code>fits</code>, <code>lock</code> and <code>rotate</code> from before become methods; <code>clear_lines</code> stays a function, because it's about the well and not the piece. The game stays the same.</p>`],
+    task: `Write the class <code>Piece</code> with <code>__init__</code>, <code>fits</code>, <code>move</code>, <code>rotate</code>, <code>drop</code>, <code>lock</code> and <code>show</code>, as above, and use a <code>piece</code> object in the game instead of the piece's variables. When you close the window, I'll test the class on its own and then the game, with the points and the record.`,
+    solution: `# Tetris, part 8: the piece is an object
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+SHAPES = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLOURS = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+POINTS = {1: 40, 2: 100, 3: 300, 4: 1200}
+best = 0
+
+
+class Piece:
+    def __init__(self, kind):
+        self.kind = kind
+        self.squares = SHAPES[kind]
+        self.column = 3
+        self.row = 0
+
+    def fits(self, squares, column, row):
+        for q in squares:
+            c = column + q[0]
+            r = row + q[1]
+            if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+                return False
+        return True
+
+    def move(self, dc, dr):
+        if self.fits(self.squares, self.column + dc, self.row + dr):
+            self.column += dc
+            self.row += dr
+            return True
+        return False
+
+    def rotate(self):
+        tall = 0
+        for q in self.squares:
+            if q[1] >= tall:
+                tall = q[1] + 1
+        turned = []
+        for q in self.squares:
+            turned.append([tall - 1 - q[1], q[0]])
+        if self.fits(turned, self.column, self.row):
+            self.squares = turned
+
+    def drop(self):
+        while self.fits(self.squares, self.column, self.row + 1):
+            self.row += 1
+
+    def lock(self):
+        for q in self.squares:
+            well[self.row + q[1]][self.column + q[0]] = COLOURS[self.kind]
+
+    def show(self):
+        for q in self.squares:
+            square(self.column + q[0], self.row + q[1], COLOURS[self.kind])
+
+
+def new_game():
+    global well, next_kind, lines, points, state
+    well = []
+    for r in range(16):
+        well.append([""] * 10)
+    next_kind = random.choice("IOTLSJZ")
+    lines = 0
+    points = 0
+    state = "playing"
+    new_piece()
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if well[r][c] != "":
+                square(c, r, well[r][c])
+    piece.show()
+    screen.draw.text(f"Points: {points}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Lines: {lines}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Next", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in SHAPES[next_kind]:
+        square(13 + q[0], 2 + q[1], COLOURS[next_kind])
+    if state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over! Space to play again", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def new_piece():
+    global piece, next_kind, state
+    piece = Piece(next_kind)
+    next_kind = random.choice("IOTLSJZ")
+    if not piece.fits(piece.squares, piece.column, piece.row):
+        state = "over"
+
+
+def fall():
+    global lines, points, best
+    if state != "playing":
+        return
+    if not piece.move(0, 1):
+        piece.lock()
+        cleared = clear_lines(well)
+        lines += cleared
+        if cleared > 0:
+            points += POINTS[cleared]
+        if points > best:
+            best = points
+        new_piece()
+
+
+def on_key_down(key):
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if key == keys.LEFT:
+        piece.move(-1, 0)
+    elif key == keys.RIGHT:
+        piece.move(1, 0)
+    elif key == keys.UP:
+        piece.rotate()
+    elif key == keys.DOWN:
+        fall()
+    elif key == keys.SPACE:
+        piece.drop()
+        fall()
+
+
+new_game()
+clock.schedule_interval(fall, 0.5)
+pgzrun.go()`,
+    hints: ["What information does the piece need to keep? What does move give back, and how does fall use it?",
+      "In __init__ four attributes with self. move calls self.fits with the new column and row, and if it fits it changes them. rotate works out the turned squares and keeps them if they fit. drop has a while. In new_piece the new piece is made from Piece, and in the rest of the game write piece. in front of the attributes and the methods."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en)),
+    tests: (c) => tetClassTests("en")(c).concat(tetPointsTests("en", true)(c).slice(1))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_tetris.py", "final_challenge_tetris.py"],
+  it: {
+    title: "Costruisci: Tetris completo",
+    theory: [
+`<p>Parte 9, la sfida finale: <b>i livelli</b>. Più righe fai, più il gioco si fa veloce: ogni 10 righe si sale di un livello, e il livello è <code>righe // 10 + 1</code>, con la divisione intera. Al livello 1 i pezzi cadono ogni mezzo secondo, e a ogni livello 0.05 secondi più in fretta, fino a 0.1: l'intervallo è <code>max(0.1, 0.55 - 0.05 * livello)</code>. Per cambiarlo, quando sali di livello, togli dall'orologio la caduta di prima con <code>clock.unschedule(scendi)</code> e la rimetti con <code>clock.schedule_interval</code> e l'intervallo nuovo. Anche i punti crescono con il livello: le righe fatte valgono <code>PUNTI[tolte] * livello</code>, con il livello di prima di salire.</p>
+<p>E le righe piene, prima di sparire, <b>lampeggiano</b> di bianco, come nell'anteprima. Quando un pezzo si ferma, la lista <code>lampo</code> raccoglie le righe piene, con <code>[r for r in range(16) if "" not in pozzo[r]]</code>. Se è vuota arriva subito il pezzo nuovo; se no, <code>clock.schedule(dopo_il_lampo, 0.3)</code> chiama una volta sola, fra 0.3 secondi, <code>dopo_il_lampo()</code>, che toglie le righe, conta righe e punti, aggiorna il record e il livello, svuota <code>lampo</code> e chiama <code>nuovo_pezzo()</code>. Intanto <code>draw()</code> disegna bianche, <code>"#ffffff"</code>, tutte le caselle delle righe in <code>lampo</code>, e non disegna il pezzo; <code>scendi</code> e i tasti non fanno niente finché <code>lampo</code> non è vuota.</p>
+<p><code>nuova_partita()</code> rimette <code>livello</code> a 1 e <code>lampo</code> vuota, e fa ripartire l'orologio da capo, con <code>clock.unschedule(scendi)</code> e poi <code>clock.schedule_interval(scendi, 0.5)</code>: così non serve più chiamarlo in fondo al programma. A sinistra, sotto il record, c'è scritto <code>Livello: 1</code>, in <code>(24, 112)</code>.</p>`],
+    task: `Aggiungi i livelli e il lampo, come qui sopra: <code>livello</code> che sale ogni 10 righe, i pezzi che cadono più in fretta con <code>clock.unschedule</code> e <code>clock.schedule_interval</code>, i punti moltiplicati per il livello, le righe piene bianche per 0.3 secondi con <code>clock.schedule</code>, e la partita nuova che riparte dal livello 1. Quando chiudi la finestra, proverò il lampo, il passaggio al livello 2 e una partita nuova.`,
+    solution: `# Tetris, parte 9: i livelli
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+FORME = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLORI = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+PUNTI = {1: 40, 2: 100, 3: 300, 4: 1200}
+record = 0
+
+
+class Pezzo:
+    def __init__(self, tipo):
+        self.tipo = tipo
+        self.quadretti = FORME[tipo]
+        self.colonna = 3
+        self.riga = 0
+
+    def entra(self, quadretti, colonna, riga):
+        for q in quadretti:
+            c = colonna + q[0]
+            r = riga + q[1]
+            if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+                return False
+        return True
+
+    def muovi(self, dc, dr):
+        if self.entra(self.quadretti, self.colonna + dc, self.riga + dr):
+            self.colonna += dc
+            self.riga += dr
+            return True
+        return False
+
+    def ruota(self):
+        alto = 0
+        for q in self.quadretti:
+            if q[1] >= alto:
+                alto = q[1] + 1
+        girato = []
+        for q in self.quadretti:
+            girato.append([alto - 1 - q[1], q[0]])
+        if self.entra(girato, self.colonna, self.riga):
+            self.quadretti = girato
+
+    def cadi(self):
+        while self.entra(self.quadretti, self.colonna, self.riga + 1):
+            self.riga += 1
+
+    def fissa(self):
+        for q in self.quadretti:
+            pozzo[self.riga + q[1]][self.colonna + q[0]] = COLORI[self.tipo]
+
+    def disegna(self):
+        for q in self.quadretti:
+            quadretto(self.colonna + q[0], self.riga + q[1], COLORI[self.tipo])
+
+
+def nuova_partita():
+    global pozzo, prossimo, righe, punti, livello, lampo, stato
+    pozzo = []
+    for r in range(16):
+        pozzo.append([""] * 10)
+    prossimo = random.choice("IOTLSJZ")
+    righe = 0
+    punti = 0
+    livello = 1
+    lampo = []
+    stato = "gioco"
+    clock.unschedule(scendi)
+    clock.schedule_interval(scendi, 0.5)
+    nuovo_pezzo()
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if r in lampo:
+                quadretto(c, r, "#ffffff")
+            elif pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    if len(lampo) == 0:
+        pezzo.disegna()
+    screen.draw.text(f"Punti: {punti}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Righe: {righe}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Livello: {livello}", (24, 112), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Prossimo", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in FORME[prossimo]:
+        quadretto(13 + q[0], 2 + q[1], COLORI[prossimo])
+    if stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita! Spazio per rigiocare", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global pezzo, prossimo, stato
+    pezzo = Pezzo(prossimo)
+    prossimo = random.choice("IOTLSJZ")
+    if not pezzo.entra(pezzo.quadretti, pezzo.colonna, pezzo.riga):
+        stato = "finita"
+
+
+def scendi():
+    global lampo
+    if stato != "gioco" or len(lampo) > 0:
+        return
+    if not pezzo.muovi(0, 1):
+        pezzo.fissa()
+        lampo = [r for r in range(16) if "" not in pozzo[r]]
+        if len(lampo) > 0:
+            clock.schedule(dopo_il_lampo, 0.3)
+        else:
+            nuovo_pezzo()
+
+
+def dopo_il_lampo():
+    global righe, punti, record, livello, lampo
+    tolte = togli_righe(pozzo)
+    righe += tolte
+    punti += PUNTI[tolte] * livello
+    if punti > record:
+        record = punti
+    if righe // 10 + 1 > livello:
+        livello = righe // 10 + 1
+        clock.unschedule(scendi)
+        clock.schedule_interval(scendi, max(0.1, 0.55 - 0.05 * livello))
+    lampo = []
+    nuovo_pezzo()
+
+
+def on_key_down(key):
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if len(lampo) > 0:
+        return
+    if key == keys.LEFT:
+        pezzo.muovi(-1, 0)
+    elif key == keys.RIGHT:
+        pezzo.muovi(1, 0)
+    elif key == keys.UP:
+        pezzo.ruota()
+    elif key == keys.DOWN:
+        scendi()
+    elif key == keys.SPACE:
+        pezzo.cadi()
+        scendi()
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa deve aspettare mentre le righe lampeggiano? Quando cambia l'intervallo dell'orologio?",
+      "In scendi, dopo fissa, lampo con le righe piene e un if: clock.schedule o nuovo_pezzo. dopo_il_lampo, con global, chiama togli_righe, somma le righe e i punti per il livello, aggiorna il record, ha un if per il livello nuovo che rimette l'orologio, poi svuota lampo e chiama nuovo_pezzo. In draw() un if per le righe in lampo."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it, TET_LEVEL.it)),
+    why: (o, c) => pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it, TET_LEVEL.it)),
+    tests: (c) => tetLevelTests("it")(c).concat(tetClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Tetris",
+    theory: [
+`<p>Part 9, the final challenge: <b>levels</b>. The more lines you make, the faster the game gets: every 10 lines you go up a level, and the level is <code>lines // 10 + 1</code>, with whole-number division. At level 1 the pieces fall every half second, and at every level 0.05 seconds faster, down to 0.1: the interval is <code>max(0.1, 0.55 - 0.05 * level)</code>. To change it, when you go up a level, take the old fall off the clock with <code>clock.unschedule(fall)</code> and put it back with <code>clock.schedule_interval</code> and the new interval. The points grow with the level too: the lines made are worth <code>POINTS[cleared] * level</code>, with the level from before going up.</p>
+<p>And the full rows, before they disappear, <b>flash</b> white, as in the preview. When a piece locks, the list <code>flash</code> collects the full rows, with <code>[r for r in range(16) if "" not in well[r]]</code>. If it's empty the new piece comes straight away; otherwise, <code>clock.schedule(after_flash, 0.3)</code> calls just once, in 0.3 seconds, <code>after_flash()</code>, which takes the rows away, counts the lines and the points, updates the record and the level, empties <code>flash</code> and calls <code>new_piece()</code>. Meanwhile <code>draw()</code> draws all the squares of the rows in <code>flash</code> white, <code>"#ffffff"</code>, and doesn't draw the piece; <code>fall</code> and the keys do nothing until <code>flash</code> is empty.</p>
+<p><code>new_game()</code> puts <code>level</code> back to 1 and <code>flash</code> empty, and starts the clock again from scratch, with <code>clock.unschedule(fall)</code> and then <code>clock.schedule_interval(fall, 0.5)</code>: so there's no need to call it at the bottom of the program any more. On the left, under the record, it says <code>Level: 1</code>, at <code>(24, 112)</code>.</p>`],
+    task: `Add the levels and the flash, as above: <code>level</code> going up every 10 lines, the pieces falling faster with <code>clock.unschedule</code> and <code>clock.schedule_interval</code>, the points multiplied by the level, the full rows white for 0.3 seconds with <code>clock.schedule</code>, and the new game starting again from level 1. When you close the window, I'll test the flash, going up to level 2 and a new game.`,
+    solution: `# Tetris, part 9: levels
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+SHAPES = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLOURS = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+POINTS = {1: 40, 2: 100, 3: 300, 4: 1200}
+best = 0
+
+
+class Piece:
+    def __init__(self, kind):
+        self.kind = kind
+        self.squares = SHAPES[kind]
+        self.column = 3
+        self.row = 0
+
+    def fits(self, squares, column, row):
+        for q in squares:
+            c = column + q[0]
+            r = row + q[1]
+            if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+                return False
+        return True
+
+    def move(self, dc, dr):
+        if self.fits(self.squares, self.column + dc, self.row + dr):
+            self.column += dc
+            self.row += dr
+            return True
+        return False
+
+    def rotate(self):
+        tall = 0
+        for q in self.squares:
+            if q[1] >= tall:
+                tall = q[1] + 1
+        turned = []
+        for q in self.squares:
+            turned.append([tall - 1 - q[1], q[0]])
+        if self.fits(turned, self.column, self.row):
+            self.squares = turned
+
+    def drop(self):
+        while self.fits(self.squares, self.column, self.row + 1):
+            self.row += 1
+
+    def lock(self):
+        for q in self.squares:
+            well[self.row + q[1]][self.column + q[0]] = COLOURS[self.kind]
+
+    def show(self):
+        for q in self.squares:
+            square(self.column + q[0], self.row + q[1], COLOURS[self.kind])
+
+
+def new_game():
+    global well, next_kind, lines, points, level, flash, state
+    well = []
+    for r in range(16):
+        well.append([""] * 10)
+    next_kind = random.choice("IOTLSJZ")
+    lines = 0
+    points = 0
+    level = 1
+    flash = []
+    state = "playing"
+    clock.unschedule(fall)
+    clock.schedule_interval(fall, 0.5)
+    new_piece()
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if r in flash:
+                square(c, r, "#ffffff")
+            elif well[r][c] != "":
+                square(c, r, well[r][c])
+    if len(flash) == 0:
+        piece.show()
+    screen.draw.text(f"Points: {points}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Lines: {lines}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Level: {level}", (24, 112), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Next", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in SHAPES[next_kind]:
+        square(13 + q[0], 2 + q[1], COLOURS[next_kind])
+    if state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over! Space to play again", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def new_piece():
+    global piece, next_kind, state
+    piece = Piece(next_kind)
+    next_kind = random.choice("IOTLSJZ")
+    if not piece.fits(piece.squares, piece.column, piece.row):
+        state = "over"
+
+
+def fall():
+    global flash
+    if state != "playing" or len(flash) > 0:
+        return
+    if not piece.move(0, 1):
+        piece.lock()
+        flash = [r for r in range(16) if "" not in well[r]]
+        if len(flash) > 0:
+            clock.schedule(after_flash, 0.3)
+        else:
+            new_piece()
+
+
+def after_flash():
+    global lines, points, best, level, flash
+    cleared = clear_lines(well)
+    lines += cleared
+    points += POINTS[cleared] * level
+    if points > best:
+        best = points
+    if lines // 10 + 1 > level:
+        level = lines // 10 + 1
+        clock.unschedule(fall)
+        clock.schedule_interval(fall, max(0.1, 0.55 - 0.05 * level))
+    flash = []
+    new_piece()
+
+
+def on_key_down(key):
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if len(flash) > 0:
+        return
+    if key == keys.LEFT:
+        piece.move(-1, 0)
+    elif key == keys.RIGHT:
+        piece.move(1, 0)
+    elif key == keys.UP:
+        piece.rotate()
+    elif key == keys.DOWN:
+        fall()
+    elif key == keys.SPACE:
+        piece.drop()
+        fall()
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What has to wait while the rows flash? When does the clock's interval change?",
+      "In fall, after lock, flash with the full rows and an if: clock.schedule or new_piece. after_flash, with global, calls clear_lines, adds the lines and the points times the level, updates the record, has an if for the new level that puts the clock back, then empties flash and calls new_piece. In draw() an if for the rows in flash."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en, TET_LEVEL.en)),
+    why: (o, c) => pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en, TET_LEVEL.en)),
+    tests: (c) => tetLevelTests("en")(c).concat(tetClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: Tetris sul tuo computer",
+    theory: [
+`<p>Parte 10: Tetris è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>tetris.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python tetris.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in <b>pausa</b> e fa ripartire, con una variabile vera o falsa, <code>pausa</code>: in pausa <code>scendi</code> esce subito, così il pezzo non cade, gli altri tasti non fanno niente e nella striscia in mezzo c'è scritto <code>Pausa: P per continuare</code>. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, in <code>on_key_down</code>. E a sinistra, in basso, grandi 20, scrivi i tasti: <code>Frecce: muovi</code> in <code>(24, 254)</code>, <code>Su: gira</code> in <code>(24, 278)</code>, <code>Spazio: in fondo</code> in <code>(24, 302)</code> e <code>P: pausa   Esc: esci</code> in <code>(24, 326)</code>.</p>`],
+    task: `Prepara Tetris per il computer: un titolo per la finestra con <code>TITLE</code>, la pausa con P (il pezzo fermo e gli altri tasti che non contano, con la scritta <code>Pausa: P per continuare</code>), Esc per uscire con <code>exit()</code> e i tasti scritti a sinistra. Proverò il titolo, la pausa, l'uscita e i tasti scritti. Poi, se vuoi, segui i tre passi qui sopra e gioca a Tetris sul tuo computer.`,
+    solution: `# Tetris, parte 10: pronto per il computer
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+TITLE = "Tetris di Ada"
+FORME = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLORI = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+PUNTI = {1: 40, 2: 100, 3: 300, 4: 1200}
+record = 0
+pausa = False
+
+
+class Pezzo:
+    def __init__(self, tipo):
+        self.tipo = tipo
+        self.quadretti = FORME[tipo]
+        self.colonna = 3
+        self.riga = 0
+
+    def entra(self, quadretti, colonna, riga):
+        for q in quadretti:
+            c = colonna + q[0]
+            r = riga + q[1]
+            if c < 0 or c >= 10 or r >= 16 or pozzo[r][c] != "":
+                return False
+        return True
+
+    def muovi(self, dc, dr):
+        if self.entra(self.quadretti, self.colonna + dc, self.riga + dr):
+            self.colonna += dc
+            self.riga += dr
+            return True
+        return False
+
+    def ruota(self):
+        alto = 0
+        for q in self.quadretti:
+            if q[1] >= alto:
+                alto = q[1] + 1
+        girato = []
+        for q in self.quadretti:
+            girato.append([alto - 1 - q[1], q[0]])
+        if self.entra(girato, self.colonna, self.riga):
+            self.quadretti = girato
+
+    def cadi(self):
+        while self.entra(self.quadretti, self.colonna, self.riga + 1):
+            self.riga += 1
+
+    def fissa(self):
+        for q in self.quadretti:
+            pozzo[self.riga + q[1]][self.colonna + q[0]] = COLORI[self.tipo]
+
+    def disegna(self):
+        for q in self.quadretti:
+            quadretto(self.colonna + q[0], self.riga + q[1], COLORI[self.tipo])
+
+
+def nuova_partita():
+    global pozzo, prossimo, righe, punti, livello, lampo, stato
+    pozzo = []
+    for r in range(16):
+        pozzo.append([""] * 10)
+    prossimo = random.choice("IOTLSJZ")
+    righe = 0
+    punti = 0
+    livello = 1
+    lampo = []
+    stato = "gioco"
+    clock.unschedule(scendi)
+    clock.schedule_interval(scendi, 0.5)
+    nuovo_pezzo()
+
+
+def togli_righe(pozzo):
+    tolte = 0
+    for r in range(16):
+        if "" not in pozzo[r]:
+            for k in range(r, 0, -1):
+                pozzo[k] = pozzo[k - 1]
+            pozzo[0] = [""] * 10
+            tolte += 1
+    return tolte
+
+
+def quadretto(c, r, colore):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colore)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if r in lampo:
+                quadretto(c, r, "#ffffff")
+            elif pozzo[r][c] != "":
+                quadretto(c, r, pozzo[r][c])
+    if len(lampo) == 0:
+        pezzo.disegna()
+    screen.draw.text(f"Punti: {punti}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Righe: {righe}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {record}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Livello: {livello}", (24, 112), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Prossimo", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in FORME[prossimo]:
+        quadretto(13 + q[0], 2 + q[1], COLORI[prossimo])
+    screen.draw.text("Frecce: muovi", (24, 254), fontsize=20, color="#dbe3f1")
+    screen.draw.text("Su: gira", (24, 278), fontsize=20, color="#dbe3f1")
+    screen.draw.text("Spazio: in fondo", (24, 302), fontsize=20, color="#dbe3f1")
+    screen.draw.text("P: pausa   Esc: esci", (24, 326), fontsize=20, color="#dbe3f1")
+    if pausa:
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Pausa: P per continuare", center=(300, 180), fontsize=36, color="#ffd54f")
+    elif stato == "finita":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Partita finita! Spazio per rigiocare", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def nuovo_pezzo():
+    global pezzo, prossimo, stato
+    pezzo = Pezzo(prossimo)
+    prossimo = random.choice("IOTLSJZ")
+    if not pezzo.entra(pezzo.quadretti, pezzo.colonna, pezzo.riga):
+        stato = "finita"
+
+
+def scendi():
+    global lampo
+    if stato != "gioco" or len(lampo) > 0 or pausa:
+        return
+    if not pezzo.muovi(0, 1):
+        pezzo.fissa()
+        lampo = [r for r in range(16) if "" not in pozzo[r]]
+        if len(lampo) > 0:
+            clock.schedule(dopo_il_lampo, 0.3)
+        else:
+            nuovo_pezzo()
+
+
+def dopo_il_lampo():
+    global righe, punti, record, livello, lampo
+    tolte = togli_righe(pozzo)
+    righe += tolte
+    punti += PUNTI[tolte] * livello
+    if punti > record:
+        record = punti
+    if righe // 10 + 1 > livello:
+        livello = righe // 10 + 1
+        clock.unschedule(scendi)
+        clock.schedule_interval(scendi, max(0.1, 0.55 - 0.05 * livello))
+    lampo = []
+    nuovo_pezzo()
+
+
+def on_key_down(key):
+    global pausa
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        pausa = not pausa
+        return
+    if pausa:
+        return
+    if stato != "gioco":
+        if key == keys.SPACE:
+            nuova_partita()
+        return
+    if len(lampo) > 0:
+        return
+    if key == keys.LEFT:
+        pezzo.muovi(-1, 0)
+    elif key == keys.RIGHT:
+        pezzo.muovi(1, 0)
+    elif key == keys.UP:
+        pezzo.ruota()
+    elif key == keys.DOWN:
+        scendi()
+    elif key == keys.SPACE:
+        pezzo.cadi()
+        scendi()
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Cosa deve smettere di funzionare durante la pausa? Perché Esc va controllato prima di tutto il resto?",
+      "In cima TITLE, e pausa falsa. In on_key_down, per primo Esc con exit(); poi P rovescia pausa con not ed esce; durante la pausa anche gli altri tasti escono subito. scendi esce subito anche in pausa, e draw() in pausa scrive la scritta della pausa al posto di quella della fine."],
+    check: (o, c) => !pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it, TET_LEVEL.it, TET_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", tetWin7("it").concat(TET_CLASS.it, TET_LEVEL.it, TET_COMPUTER.it)),
+    tests: (c) => tetKeyTests("it")(c).concat(tetLevelTests("it")(c).slice(1, 2))
+  },
+  en: {
+    title: "Build: Tetris on your computer",
+    theory: [
+`<p>Part 10: Tetris is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>tetris.py</code>, and in the terminal, from the same folder, type <code>python tetris.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key <b>pauses</b> and goes on again, with a true or false variable, <code>paused</code>: in the pause <code>fall</code> leaves straight away, so the piece doesn't fall, the other keys do nothing and in the band in the middle it says <code>Paused: P to go on</code>. Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, in <code>on_key_down</code>. And on the left, at the bottom, size 20, write the keys: <code>Arrows: move</code> at <code>(24, 254)</code>, <code>Up: turn</code> at <code>(24, 278)</code>, <code>Space: drop</code> at <code>(24, 302)</code> and <code>P: pause   Esc: quit</code> at <code>(24, 326)</code>.</p>`],
+    task: `Get Tetris ready for your computer: a title for the window with <code>TITLE</code>, the pause with P (the piece stopped and the other keys not counting, with the text <code>Paused: P to go on</code>), Esc to quit with <code>exit()</code> and the keys written on the left. I'll test the title, the pause, quitting and the keys written. Then, if you like, follow the three steps above and play Tetris on your computer.`,
+    solution: `# Tetris, part 10: ready for your computer
+import pgzrun
+import random
+
+WIDTH = 600
+HEIGHT = 360
+TITLE = "Tetris by Ada"
+SHAPES = {"I": [[0, 0], [1, 0], [2, 0], [3, 0]], "O": [[0, 0], [1, 0], [0, 1], [1, 1]], "T": [[0, 0], [1, 0], [2, 0], [1, 1]],
+         "L": [[0, 0], [0, 1], [0, 2], [1, 2]], "S": [[1, 0], [2, 0], [0, 1], [1, 1]], "J": [[1, 0], [1, 1], [1, 2], [0, 2]],
+         "Z": [[0, 0], [1, 0], [1, 1], [2, 1]]}
+COLOURS = {"I": "#4dd0e1", "O": "#ffd54f", "T": "#ba68c8", "L": "#ffb74d", "S": "#81c784", "J": "#64b5f6", "Z": "#e57373"}
+POINTS = {1: 40, 2: 100, 3: 300, 4: 1200}
+best = 0
+paused = False
+
+
+class Piece:
+    def __init__(self, kind):
+        self.kind = kind
+        self.squares = SHAPES[kind]
+        self.column = 3
+        self.row = 0
+
+    def fits(self, squares, column, row):
+        for q in squares:
+            c = column + q[0]
+            r = row + q[1]
+            if c < 0 or c >= 10 or r >= 16 or well[r][c] != "":
+                return False
+        return True
+
+    def move(self, dc, dr):
+        if self.fits(self.squares, self.column + dc, self.row + dr):
+            self.column += dc
+            self.row += dr
+            return True
+        return False
+
+    def rotate(self):
+        tall = 0
+        for q in self.squares:
+            if q[1] >= tall:
+                tall = q[1] + 1
+        turned = []
+        for q in self.squares:
+            turned.append([tall - 1 - q[1], q[0]])
+        if self.fits(turned, self.column, self.row):
+            self.squares = turned
+
+    def drop(self):
+        while self.fits(self.squares, self.column, self.row + 1):
+            self.row += 1
+
+    def lock(self):
+        for q in self.squares:
+            well[self.row + q[1]][self.column + q[0]] = COLOURS[self.kind]
+
+    def show(self):
+        for q in self.squares:
+            square(self.column + q[0], self.row + q[1], COLOURS[self.kind])
+
+
+def new_game():
+    global well, next_kind, lines, points, level, flash, state
+    well = []
+    for r in range(16):
+        well.append([""] * 10)
+    next_kind = random.choice("IOTLSJZ")
+    lines = 0
+    points = 0
+    level = 1
+    flash = []
+    state = "playing"
+    clock.unschedule(fall)
+    clock.schedule_interval(fall, 0.5)
+    new_piece()
+
+
+def clear_lines(well):
+    cleared = 0
+    for r in range(16):
+        if "" not in well[r]:
+            for k in range(r, 0, -1):
+                well[k] = well[k - 1]
+            well[0] = [""] * 10
+            cleared += 1
+    return cleared
+
+
+def square(c, r, colour):
+    screen.draw.filled_rect(Rect((196 + c * 21, 13 + r * 21), (18, 18)), colour)
+
+
+def draw():
+    screen.fill("#150f24")
+    screen.draw.filled_rect(Rect((189, 6), (222, 348)), "#2b2140")
+    screen.draw.filled_rect(Rect((195, 12), (210, 336)), "#0b0716")
+    for r in range(16):
+        for c in range(10):
+            if r in flash:
+                square(c, r, "#ffffff")
+            elif well[r][c] != "":
+                square(c, r, well[r][c])
+    if len(flash) == 0:
+        piece.show()
+    screen.draw.text(f"Points: {points}", (24, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Lines: {lines}", (24, 48), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Record: {best}", (24, 80), fontsize=28, color="#dbe3f1")
+    screen.draw.text(f"Level: {level}", (24, 112), fontsize=28, color="#dbe3f1")
+    screen.draw.text("Next", (462, 16), fontsize=28, color="#dbe3f1")
+    screen.draw.filled_rect(Rect((462, 48), (96, 96)), "#2b2140")
+    screen.draw.filled_rect(Rect((468, 54), (84, 84)), "#0b0716")
+    for q in SHAPES[next_kind]:
+        square(13 + q[0], 2 + q[1], COLOURS[next_kind])
+    screen.draw.text("Arrows: move", (24, 254), fontsize=20, color="#dbe3f1")
+    screen.draw.text("Up: turn", (24, 278), fontsize=20, color="#dbe3f1")
+    screen.draw.text("Space: drop", (24, 302), fontsize=20, color="#dbe3f1")
+    screen.draw.text("P: pause   Esc: quit", (24, 326), fontsize=20, color="#dbe3f1")
+    if paused:
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Paused: P to go on", center=(300, 180), fontsize=36, color="#ffd54f")
+    elif state == "over":
+        screen.draw.filled_rect(Rect((0, 150), (600, 60)), "#2b2140")
+        screen.draw.text("Game over! Space to play again", center=(300, 180), fontsize=36, color="#ffd54f")
+
+
+def new_piece():
+    global piece, next_kind, state
+    piece = Piece(next_kind)
+    next_kind = random.choice("IOTLSJZ")
+    if not piece.fits(piece.squares, piece.column, piece.row):
+        state = "over"
+
+
+def fall():
+    global flash
+    if state != "playing" or len(flash) > 0 or paused:
+        return
+    if not piece.move(0, 1):
+        piece.lock()
+        flash = [r for r in range(16) if "" not in well[r]]
+        if len(flash) > 0:
+            clock.schedule(after_flash, 0.3)
+        else:
+            new_piece()
+
+
+def after_flash():
+    global lines, points, best, level, flash
+    cleared = clear_lines(well)
+    lines += cleared
+    points += POINTS[cleared] * level
+    if points > best:
+        best = points
+    if lines // 10 + 1 > level:
+        level = lines // 10 + 1
+        clock.unschedule(fall)
+        clock.schedule_interval(fall, max(0.1, 0.55 - 0.05 * level))
+    flash = []
+    new_piece()
+
+
+def on_key_down(key):
+    global paused
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        paused = not paused
+        return
+    if paused:
+        return
+    if state != "playing":
+        if key == keys.SPACE:
+            new_game()
+        return
+    if len(flash) > 0:
+        return
+    if key == keys.LEFT:
+        piece.move(-1, 0)
+    elif key == keys.RIGHT:
+        piece.move(1, 0)
+    elif key == keys.UP:
+        piece.rotate()
+    elif key == keys.DOWN:
+        fall()
+    elif key == keys.SPACE:
+        piece.drop()
+        fall()
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["What should stop working during the pause? Why should Esc be checked before everything else?",
+      "At the top TITLE, and paused false. In on_key_down, first Esc with exit(); then P flips paused with not and leaves; during the pause the other keys leave straight away too. fall leaves straight away in the pause as well, and draw() in the pause writes the pause text instead of the end one."],
+    check: (o, c) => !pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en, TET_LEVEL.en, TET_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", tetWin7("en").concat(TET_CLASS.en, TET_LEVEL.en, TET_COMPUTER.en)),
+    tests: (c) => tetKeyTests("en")(c).concat(tetLevelTests("en")(c).slice(1, 2))
+  }
+}
+]);
+
+
 /* ================= Content (no DOM access in this block) ================= */
 
 /* Guided tour that runs inside the terminal. check(r, lang) returns true (passed), false (show hint) or null (keep waiting). */
@@ -31491,9 +34507,19 @@ async function playGame(res, fromEditor, src) {
     if (g.redraw) { g.redraw = false; g.events.push({ t: "redraw" }); }
     if (wait !== 0 && !g.events.length && (wait < 0 || now < wakeAt)) continue;
     due = Math.max(due + 1000 / GAME_FPS, now - 1000 / GAME_FPS);
-    const dt = Math.min(Math.max(now - last, 0) / 1000, wait === 0 ? 0.1 : 1);
+    let dt = Math.min(Math.max(now - last, 0) / 1000, wait === 0 ? 0.1 : 1);
     last = now;
     g.sent = performance.now();
+    /* a game without update() sleeps between its clock calls: when a key or a click wakes it, its clock first catches up
+       with the time gone by, then the event is handled at the moment it came, so what it schedules (cards covered again
+       after a second, rows that flash) counts from now and is seen */
+    if (wait !== 0 && g.events.length && dt > 0) {
+      r = await workerCall({ t: "frame", dt, events: [] }, GAME_STUCK_MS);
+      if (r.cmds && r.cmds.length) { gamePaint(ctx, r.cmds, W, H); g.painted = true; }
+      if (r.out && g.out.length < GAME_OUT_KEPT) g.out += r.out;
+      if (r.status !== "ok") { g.sent = 0; gameFlushOut(g); break; }
+      dt = 0;
+    }
     r = await workerCall({ t: "frame", dt, events: g.events.splice(0) }, GAME_STUCK_MS);
     g.sent = 0;
     if (r.cmds && r.cmds.length) { gamePaint(ctx, r.cmds, W, H); g.painted = true; }
@@ -33639,7 +36665,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "1990955d56", APP_BUILT = "2026-11-10T15:20Z";
+const APP_VERSION = "52c5a0aca0", APP_BUILT = "2026-11-10T19:51Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
