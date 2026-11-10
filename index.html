@@ -7919,7 +7919,7 @@ const PROJECTS = [
       learn: ["liste di liste", "coordinate", "if per i muri", "tasti e finestra"] },
     en: { name: "Maze", tag: "Find the way to the exit: first with commands typed in the terminal, then with the arrows in a window.",
       learn: ["lists of lists", "coordinates", "if for the walls", "keys and window"] } },
-  { id: "memory", kind: "game", ready: false, diff: 1, where: "window", color: "#b5476b",
+  { id: "memory", kind: "game", ready: true, diff: 1, where: "window", color: "#b5476b",
     it: { name: "Memory", tag: "Gira due carte alla volta e ricorda dove sono: trova tutte le coppie con meno mosse possibili.",
       learn: ["liste", "mescolare a caso", "clic del mouse", "tempo e record"] },
     en: { name: "Memory", tag: "Turn two cards at a time and remember where they are: find all the pairs in as few moves as you can.",
@@ -8023,29 +8023,29 @@ const PROJECT_PARTS = {
       ["The explorer", "The player becomes an object with position, moves and coins."],
       ["The ghosts", "Ghosts going back and forth: a team of objects to dodge, with lives."],
       ["On your computer", "The window's title, a pause with P and Esc to quit; then, with pip install pgzero, your maze runs on your computer too."]] },
-  memory: {
+  memory: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["Il tavolo", "Le 12 carte coperte disegnate con print, con i numeri delle posizioni e le regole."],
       ["Dove sta la carta", "Chiedi due posizioni e calcola riga e colonna di ognuna con // e %."],
       ["Coppia o no", "Con if confronti le due carte: coppia, carte diverse o posizioni non valide."],
       ["La partita", "Le carte in una lista, un ciclo che dura finché trovi tutte le coppie, e il conto delle mosse."],
-      ["Funzioni per il tavolo", "Stampare il tavolo, controllare una coppia e capire se è finita diventano funzioni."],
-      ["Nella finestra", "Le carte si disegnano in una finestra, si girano con un clic e si ricoprono dopo un secondo."],
-      ["Mescolate", "Le carte si mescolano a caso a ogni partita."],
+      ["Funzioni per il tavolo", "Stampare il tavolo, controllare una coppia e capire se è finita diventano funzioni, e le risposte valgono anche con spazi e maiuscole."],
+      ["Nella finestra", "Le carte dell'anteprima in una finestra: si girano con un clic e, se sono diverse, si ricoprono dopo un secondo."],
+      ["Mescolate", "Le carte si mescolano a caso a ogni partita, e con un clic ne comincia un'altra."],
       ["Record e tempo", "Il tempo di gioco e un dizionario con il record di mosse per ogni grandezza del tavolo."],
       ["La carta è un oggetto", "Una classe Carta con il simbolo e i metodi per girarla e confrontarla."],
-      ["Tavoli più grandi", "Livelli con più carte, una squadra di oggetti Carta e una nuova partita quando vuoi."],
-      ["Sul tuo computer", "Con pip install pgzero il tuo Memory gira anche sul computer, con lo stesso codice."]],
+      ["Tavoli più grandi", "Un tavolo da 16 carte con due simboli nuovi, un record per ogni tavolo e una partita nuova quando vuoi."],
+      ["Sul tuo computer", "Il titolo della finestra, la pausa con P che copre le carte ed Esc per uscire; poi, con pip install pgzero, il Memory gira sul computer."]],
     en: [["The table", "The 12 face-down cards drawn with print, with their position numbers and the rules."],
       ["Where the card is", "Ask for two positions and work out the row and column of each with // and %."],
       ["Pair or not", "With if compare the two cards: a pair, different cards or invalid positions."],
       ["The game", "The cards in a list, a loop that lasts until you find all the pairs, and the count of moves."],
-      ["Functions for the table", "Printing the table, checking a pair and seeing if it's over become functions."],
-      ["In a window", "The cards are drawn in a window, turn over with a click and turn back after a second."],
-      ["Shuffled", "The cards are shuffled at random every game."],
+      ["Functions for the table", "Printing the table, checking a pair and seeing if it's over become functions, and answers work with spaces and capitals too."],
+      ["In a window", "The preview's cards in a window: they turn over with a click and, if they differ, turn back after a second."],
+      ["Shuffled", "The cards are shuffled at random every game, and a click starts another."],
       ["Records and time", "The playing time and a dictionary with the record of moves for each table size."],
       ["The card is an object", "A Card class with its symbol and the methods to turn it and compare it."],
-      ["Bigger tables", "Levels with more cards, a team of Card objects and a new game whenever you like."],
-      ["On your computer", "With pip install pgzero your Memory runs on your computer too, with the same code."]] },
+      ["Bigger tables", "A table of 16 cards with two new symbols, a record for each table and a new game whenever you like."],
+      ["On your computer", "The window's title, a pause with P that covers the cards and Esc to quit; then, with pip install pgzero, Memory runs on your computer."]] },
   snake: { built: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10"],
     it: [["Il campo", "Il campo con i bordi, il serpente e la mela, disegnati con print, più i comandi."],
       ["La testa si muove", "La testa sta in due variabili: chiedi quanti passi fare, con % la fai rientrare dall'altro lato e con abs conti i passi fino alla mela."],
@@ -17596,6 +17596,2743 @@ pgzrun.go()`,
 ]);
 
 
+/* ---------- Memory: the build levels of the "Memory" project ----------
+   Eleven parts, one per slot of the path (see PART_SLOTS): the cover with the 12 face-down cards in 00; in the
+   terminal, where a card is with // and % (01), a pair or not with if (02), the cards in a list and the game in a loop
+   (03) and the functions (04); then the window, with the preview's cards turned by a click and covered again after a
+   second (04); the cards shuffled (05), the time and the records in a dictionary (05); the card as an object, then two
+   tables and a new game whenever you like (06); the window's title, a pause and Esc, ready to run on your own computer
+   (07). Each part starts from the learner's code of the part before. */
+
+/* The cover: frame, title, the 12 cards in rows with their numbers from 1 to 12, a number worked out by Python */
+function memCoverWhy(o, c, lang) {
+  const it = lang === "it", r = o.split("\n").filter((l) => l.trim());
+  const frame = (s) => s.trim().length >= 3 && /^[^A-Za-z0-9À-ÿ\s]+$/.test(s.trim());
+  const firstCode = (c.trim().split("\n")[0] || "").trim();
+  if (r.length < 6) return it ? "La copertina deve avere almeno 6 righe." : "The cover needs at least 6 lines.";
+  if (!frame(r[0]) || !frame(r[r.length - 1])) return it ? "La prima e l'ultima riga devono essere fatte solo di simboli, almeno 3." : "The first and last lines must be made only of symbols, at least 3.";
+  const mid = r.slice(1, -1);
+  if (!mid.some((l) => /m\s*e\s*m\s*o\s*r\s*y/i.test(l))) return it ? "In mezzo ci vuole il titolo del gioco: MEMORY." : "The game's title has to be in the middle: MEMORY.";
+  const rows = mid.map((l) => l.match(/\[[^\]]*\]/g) || []).filter((cards) => cards.length >= 4);
+  if (rows.length < 3) return it ? "Il tavolo deve avere almeno 3 righe di 4 carte, ognuna tra parentesi quadre, come [ 1]." : "The table needs at least 3 rows of 4 cards, each in square brackets, like [ 1].";
+  const nums = new Set(rows.flat().map((card) => card.replace(/\D/g, "")).filter(Boolean).map(Number));
+  for (let k = 1; k <= 12; k++) if (!nums.has(k)) return it ? `Sulle carte ci vogliono i numeri delle posizioni, da 1 a 12: manca il ${k}.` : `The cards need their position numbers, from 1 to 12: ${k} is missing.`;
+  if (!/print\s*\(\s*[\d.]+\s*(\*\*|\/\/|[-+*/%])\s*[\d.]+/.test(c)) return it ? "Manca un numero calcolato da Python, come print(4 + 4 + 4)." : "A number worked out by Python is missing, like print(4 + 4 + 4).";
+  if (!/^#/.test(firstCode)) return it ? "Il programma deve cominciare con un commento con il nome del gioco e il tuo." : "The program must start with a comment with the game's name and yours.";
+  return null;
+}
+
+/* The terminal parts: what the program prints, from the answers given (the questions themselves aren't printed) */
+const MEM = {
+  it: {
+    table: (n) => `Con ${n} carte ci sono ${Math.floor(n / 2)} coppie e ${Math.floor(n / 4)} righe da 4.`,
+    where: (p) => `La carta ${p} è nella riga ${Math.floor((p - 1) / 4) + 1}, colonna ${(((p - 1) % 4) + 4) % 4 + 1}.`,
+    range: (n) => `Le carte vanno da 1 a ${n}.`, same: "Devi girare due carte diverse.",
+    pair2: (a, b) => `Coppia! Le carte ${a} e ${b} restano scoperte.`, differ2: (s1, s2) => `${s1} e ${s2} sono diverse: le carte si ricoprono.`,
+    moves: (m) => `Mosse: ${m}`, all: (m) => `Hai trovato tutte le coppie in ${m} mosse!`, bye: "Ciao!", already: "Quella carta è già scoperta.",
+    shown: (a, b, x, y) => `Carta ${a}: ${x}   carta ${b}: ${y}`, pair: "Coppia!", differ: "Diverse: si ricoprono."
+  },
+  en: {
+    table: (n) => `With ${n} cards there are ${Math.floor(n / 2)} pairs and ${Math.floor(n / 4)} rows of 4.`,
+    where: (p) => `Card ${p} is in row ${Math.floor((p - 1) / 4) + 1}, column ${(((p - 1) % 4) + 4) % 4 + 1}.`,
+    range: (n) => `The cards go from 1 to ${n}.`, same: "You have to turn two different cards.",
+    pair2: (a, b) => `A pair! Cards ${a} and ${b} stay face up.`, differ2: (s1, s2) => `${s1} and ${s2} are different: the cards turn back over.`,
+    moves: (m) => `Moves: ${m}`, all: (m) => `You found all the pairs in ${m} moves!`, bye: "Bye!", already: "That card is already face up.",
+    shown: (a, b, x, y) => `Card ${a}: ${x}   card ${b}: ${y}`, pair: "A pair!", differ: "Different: they turn back over."
+  }
+};
+/* The cards of the chooser's preview, in their places */
+const MEM_CARDS = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"];
+/* end: "done", "more" (it would ask for more), "extra" (more answers than questions), "crash" (int() of something
+   that isn't a number), "skip" (numbers too big to follow, left to the hidden tests) */
+function memRun(lang, part, ins) {
+  const T = MEM[lang], lines = [], res = (end) => ({ lines, end });
+  const num = (k) => (k >= ins.length ? "more" : !isIntText(ins[k]) ? "crash" : Math.abs(toInt(ins[k])) > 1e12 ? "skip" : null);
+  if (part === 1) {
+    const bad = num(0);
+    if (bad) return res(bad);
+    lines.push(T.table(toInt(ins[0])));
+    for (const k of [1, 2]) { const b = num(k); if (b) return res(b); }
+    lines.push(T.where(toInt(ins[1])), T.where(toInt(ins[2])));
+    return res(ins.length === 3 ? "done" : "extra");
+  }
+  if (part === 2) {
+    for (const k of [0, 1]) { const b = num(k); if (b) return res(b); }
+    const a = toInt(ins[0]), b = toInt(ins[1]);
+    if (a < 1 || a > 12 || b < 1 || b > 12) { lines.push(T.range(12)); return res(ins.length === 2 ? "done" : "extra"); }
+    if (a === b) { lines.push(T.same); return res(ins.length === 2 ? "done" : "extra"); }
+    if (ins.length < 4) return res("more");
+    lines.push(ins[2] === ins[3] ? T.pair2(a, b) : T.differ2(ins[2], ins[3]));
+    return res(ins.length === 4 ? "done" : "extra");
+  }
+  /* parts 3 and 4: the game with the preview's cards; from part 4 the answers can have spaces around and Q counts as q */
+  const found = [];
+  let moves = 0, i = 0;
+  for (;;) {
+    for (let r = 0; r < 3; r++) {
+      let row = "";
+      for (let c = 0; c < 4; c++) { const k = r * 4 + c, t = found.includes(k) ? MEM_CARDS[k] : String(k + 1); row += "[" + t.padStart(2) + "] "; }
+      lines.push(row.trimEnd());
+    }
+    lines.push(T.moves(moves));
+    if (found.length === 12) { lines.push(T.all(moves)); break; }
+    if (i >= ins.length) return res("more");
+    const ch = part >= 4 ? ins[i++].trim().toLowerCase() : ins[i++];
+    if (ch === "q") { lines.push(T.bye); break; }
+    if (!isIntText(ch)) return res("crash");
+    if (i >= ins.length) return res("more");
+    if (!isIntText(ins[i])) return res("crash");
+    const a = toInt(ch) - 1, b = toInt(ins[i++]) - 1;
+    if (a < 0 || a > 11 || b < 0 || b > 11) lines.push(T.range(12));
+    else if (a === b) lines.push(T.same);
+    else if (found.includes(a) || found.includes(b)) lines.push(T.already);
+    else {
+      moves++;
+      lines.push(T.shown(a + 1, b + 1, MEM_CARDS[a], MEM_CARDS[b]));
+      if (MEM_CARDS[a] === MEM_CARDS[b]) { lines.push(T.pair); found.push(a, b); } else lines.push(T.differ);
+    }
+  }
+  return res(i === ins.length ? "done" : "extra");
+}
+const memExpect = (lang, part, ins) => { const r = memRun(lang, part, ins || []); return r.end === "done" ? norm(r.lines.join("\n")) : r.end === "skip" ? "" : null; };
+const memCheck = (lang, part, needs) => (o, c, x) => {
+  const want = memExpect(lang, part, x.inputs);
+  return needs.every((re) => re.test(c)) && (want === "" || o === want);
+};
+/* Hidden tests: whole games with other answers */
+const memTests = (lang, part, games) => (c) => games.map((ins) => {
+  const want = memExpect(lang, part, ins), end = want.split("\n").pop();
+  return tcase(c, (o) => o === want,
+    lang === "it" ? `con le risposte ${ins.join(", ")} doveva finire con ${end}` : `with the answers ${ins.join(", ")} it had to end with ${end}`, { inputs: ins });
+});
+/* part 3: a game with a pair, a miss and a card already face up, then the hidden games */
+const MEM_SAMPLE3 = ["1", "6", "2", "3", "2", "8", "8", "4", "q"];
+const MEM_WIN = ["1", "6", "2", "8", "3", "9", "4", "11", "5", "10", "7", "12"];
+const MEM_GAMES3 = [MEM_SAMPLE3, MEM_WIN, ["0", "5", "4", "4", "13", "2", "q"], ["1", "2", "1", "6", "2", "3", "2", "8", "3", "4", "3", "9", "4", "5", "4", "11", "5", "10", "7", "12"], ["q"]];
+/* part 4: games with spaces and capitals, then the functions one by one */
+const memFnTests = (lang) => (c) => {
+  const it = lang === "it", F = it ? ["stampa", "errore", "coppia", "finita"] : ["print_table", "mistake", "is_pair", "finished"], T = MEM[lang], quit = { inputs: ["q"] };
+  return memTests(lang, 4, [[" 1 ", "6 ", "Q"], [" 2", " 8", "3 ", "9", " q "], MEM_WIN, ["1", "6", "6", "2", "Q"]])(c).concat([
+    tcase(c + `\nprint(${F[1]}(-1, 3, []))\nprint(${F[1]}(2, 2, []))\nprint(${F[1]}(0, 5, [5, 7]))\nprint(${F[1]}(0, 1, []) == "")`,
+      (o) => lastLines(o, 4) === [T.range(12), T.same, T.already, "True"].join("\n"),
+      it ? "errore doveva restituire il messaggio giusto per una carta che non c'è, per due carte uguali e per una carta già scoperta, e un testo vuoto se va tutto bene"
+        : "mistake had to give back the right message for a card that doesn't exist, for the same card twice and for a card already face up, and an empty text if all is well", quit),
+    tcase(c + `\nprint(${F[2]}(["A", "B", "A"], 0, 2), ${F[2]}(["A", "B", "A"], 0, 1), ${F[3]}(["A", "A"], [0, 1]), ${F[3]}(["A", "A", "B", "B"], [0, 1]))`,
+      (o) => lastLines(o, 1) === "True False True False",
+      it ? "coppia doveva dire True solo se le due carte hanno lo stesso simbolo, e finita True solo quando tutte le carte sono trovate" : "is_pair had to say True only if the two cards have the same symbol, and finished True only when all the cards are found", quit),
+    tcase(c + `\n${F[0]}(["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"], [0, 5, 11])`,
+      (o) => lastLines(o, 3) === "[ A] [ 2] [ 3] [ 4]\n[ 5] [ A] [ 7] [ 8]\n[ 9] [10] [11] [ F]",
+      it ? "stampa doveva stampare le 3 righe di 4 carte, con il simbolo per le carte trovate e il numero per le altre" : "print_table had to print the 3 rows of 4 cards, with the symbol for the cards found and the number for the others", quit)
+  ]);
+};
+
+/* The window parts, in the colours of the chooser's preview: background "#24101b", the cards face down "#b5476b" with a
+   "#c87590" frame, face up "#f5efe6", found "#3b2a33"; cards of 102 × 96 every 123 pixels across and 111 down, from
+   (24, 100): the centre of card i is at (75 + 123 * (i % 4), 148 + 111 * (i // 4)). */
+const MEM_AT = "def _at(_i):\n    return (75 + 123 * (_i % 4), 148 + 111 * (_i // 4))\n";
+const MEM_TEXT = "' '.join(_t.texts())";
+/* pairs of cards clicked one after the other; after two different cards wait for them to turn back (wait 1.1) */
+const MEM_PAIRS = (pairs, wait) => "for _p in " + JSON.stringify(pairs) + ":\n    _t.click(_at(_p[0]))\n    _t.click(_at(_p[1]))\n    _t.wait(" + (wait || 0.1) + ")\n";
+/* the preview's game: the six pairs in their places */
+const MEM_PREVIEW_PAIRS = [[0, 5], [1, 7], [2, 8], [3, 10], [4, 9], [6, 11]];
+/* loaded dice: random.choice takes the first (or the last) of what it's given: the shuffled deck comes out in order
+   (or back to front) */
+const MEM_RIG = (pick) => "import random\nrandom.choice = lambda seq: seq[" + (pick === "last" ? "-1" : "0") + "]\n";
+const MEM_IN_ORDER = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]];
+/* the names in the learner's program, as the tasks give them */
+const MEM_N = {
+  it: { cards: "carte", found: "trovate", turned: "girate", moves: "mosse", rec: "record", pairs: "coppie", size: "quante", cls: "Carta",
+    M: ["simbolo", "x", "y", "girata", "trovata", "colpita", "gira", "copri", "uguale"], T: ["Mosse", "Coppie", "Tempo", "Record"] },
+  en: { cards: "cards", found: "found", turned: "turned", moves: "moves", rec: "best", pairs: "pairs", size: "size", cls: "Card",
+    M: ["symbol", "x", "y", "face_up", "matched", "hit", "turn", "cover", "same_as"], T: ["Moves", "Pairs", "Time", "Record"] }
+};
+/* What the window parts need besides import, draw() and pgzrun.go() (see pgzWhy) */
+const memNeed = (re, msg) => [re, msg, msg];
+const MEM_NOINPUT = [/^(?![\s\S]*\binput\s*\()/, "Nella finestra non si usa più input: le carte si girano con i clic, in on_mouse_down.", "In the window there's no more input: the cards turn over with clicks, in on_mouse_down."];
+const MEM_CLICK = [/^def\s+on_mouse_down\s*\(\s*pos\s*\)/m, "I clic vanno in def on_mouse_down(pos):, che Pygame Zero chiama a ogni clic, o tocco sul telefono.", "The clicks go in def on_mouse_down(pos):, which Pygame Zero calls at every click, or tap on a phone."];
+const MEM_RECT = [/\bRect\s*\(/, "Le carte sono rettangoli: si disegnano con screen.draw.filled_rect e un Rect.", "The cards are rectangles: they're drawn with screen.draw.filled_rect and a Rect."];
+const MEM_LATER = [/\bclock\.schedule\s*\(\s*\w+\s*,/, "Le carte diverse si ricoprono dopo un secondo: consegna la funzione che le copre a clock.schedule, senza parentesi.", "Different cards turn back over after a second: hand the function that covers them to clock.schedule, without brackets."];
+const MEM_SHUFFLE = [/^(?=[\s\S]*\brandom\.choice\s*\()(?=[\s\S]*(\.(remove|pop)\s*\(|\bdel\s))/, "Per mescolare prendi una carta a caso con random.choice, la togli dalle rimaste, per esempio con remove, e la metti in fila nella lista nuova.", "To shuffle take a random card with random.choice, take it out of the ones left, for example with remove, and line it up in the new list."];
+const MEM_DICT = [/\{\s*\}|\{\s*\d+\s*:/, "I record stanno in un dizionario, con il numero di carte come chiave: all'inizio è vuoto, {}.", "The records go in a dictionary, with the number of cards as the key: at the start it's empty, {}."];
+const MEM_TICK = [/\bclock\.schedule_interval\s*\(\s*\w+\s*,/, "Il tempo cresce da solo: consegna la funzione che conta i secondi a clock.schedule_interval, senza parentesi.", "The time grows by itself: hand the function that counts the seconds to clock.schedule_interval, without brackets."];
+const MEM_CLASS = {
+  it: [memNeed(/\bclass\s+Carta\b/, "La carta diventa un oggetto: class Carta:, con __init__ e i suoi metodi."),
+    memNeed(/\bdef\s+colpita\s*\(\s*self/, "Manca il metodo colpita(self, pos), che dice se il clic è caduto sulla carta."),
+    memNeed(/\bdef\s+gira\s*\(\s*self/, "Manca il metodo gira(self)."), memNeed(/\bdef\s+copri\s*\(\s*self/, "Manca il metodo copri(self)."),
+    memNeed(/\bdef\s+uguale\s*\(\s*self/, "Manca il metodo uguale(self, altra), che confronta i simboli."), memNeed(/\bdef\s+disegna\s*\(\s*self/, "Manca il metodo disegna(self).")],
+  en: [memNeed(/\bclass\s+Card\b/, "The card becomes an object: class Card:, with __init__ and its methods."),
+    memNeed(/\bdef\s+hit\s*\(\s*self/, "The method hit(self, pos) is missing: it says whether the click landed on the card."),
+    memNeed(/\bdef\s+turn\s*\(\s*self/, "The method turn(self) is missing."), memNeed(/\bdef\s+cover\s*\(\s*self/, "The method cover(self) is missing."),
+    memNeed(/\bdef\s+same_as\s*\(\s*self/, "The method same_as(self, other) is missing: it compares the symbols."), memNeed(/\bdef\s+show\s*\(\s*self/, "The method show(self) is missing.")]
+};
+const MEM_LEVELS = [/^def\s+on_key_down\s*\(/m, "I tasti 1, 2 e N vanno in def on_key_down(key):.", "The keys 1, 2 and N go in def on_key_down(key):."];
+const MEM_NUMKEYS = [/\bkeys\.K_1\b[\s\S]*\bkeys\.K_2\b|\bkeys\.K_2\b[\s\S]*\bkeys\.K_1\b/, "Il tasto 1 è keys.K_1 e il tasto 2 è keys.K_2.", "The 1 key is keys.K_1 and the 2 key is keys.K_2."];
+const MEM_NEW = [/\bkeys\.N\b/, "Con il tasto N comincia una partita nuova: keys.N.", "The N key starts a new game: keys.N."];
+const MEM_COMPUTER = {
+  it: [memNeed(/^TITLE\s*=/m, "In cima dai un nome alla finestra con TITLE, come fanno WIDTH e HEIGHT con la misura."),
+    memNeed(/\bkeys\.ESCAPE\b/, "Esc si riconosce con keys.ESCAPE, in on_key_down."), memNeed(/\bexit\s*\(\s*\)/, "Con Esc il gioco si chiude con exit()."),
+    memNeed(/\bkeys\.P\b/, "La pausa va e viene con il tasto P: keys.P.")],
+  en: [memNeed(/^TITLE\s*=/m, "At the top give the window a name with TITLE, as WIDTH and HEIGHT do with its size."),
+    memNeed(/\bkeys\.ESCAPE\b/, "Esc is recognised with keys.ESCAPE, in on_key_down."), memNeed(/\bexit\s*\(\s*\)/, "With Esc the game closes with exit()."),
+    memNeed(/\bkeys\.P\b/, "The pause comes and goes with the P key: keys.P.")]
+};
+
+/* Hidden tests of the window parts: the game played without a screen */
+/* part 5: the preview's table, a click turns a card, two different cards turn back after a second, pairs stay */
+const memWinTests = (lang) => (c) => {
+  const it = lang === "it", N = MEM_N[lang];
+  return [
+    gtcase(c, "_t.step()\nprint(_t.background(), len(_t.rects('#b5476b')), len(_t.rects('#c87590')), (24, 100, 102, 96) in _t.rects('#b5476b'), (270, 322, 102, 96) in _t.rects('#b5476b'), _t.size, '" + N.T[0] + ": 0' in " + MEM_TEXT + ")",
+      (o) => o === "#24101b 24 12 True True (519, 442) True",
+      it ? "all'inizio lo sfondo è #24101b e le 12 carte coperte #b5476b, larghe 102 e alte 96, sono in 3 righe da (24, 100), ogni 123 pixel in orizzontale e 111 in verticale, ognuna con la cornice #c87590 e dentro di nuovo #b5476b; la finestra è 519 × 442 e c'è scritto Mosse: 0"
+        : "at the start the background is #24101b and the 12 #b5476b face-down cards, 102 wide and 96 high, are in 3 rows from (24, 100), every 123 pixels across and 111 down, each with the #c87590 frame and #b5476b again inside; the window is 519 × 442 and it says Moves: 0"),
+    gtcase(c, MEM_AT + "_t.step()\n_t.click(_at(0))\n_a = [(24, 100, 102, 96) in _t.rects('#f5efe6'), _t.circles('#ef5350')]\n_t.click(_at(1))\n_t.click(_at(2))\n_b = [_t.rects('#42a5f5'), len(_t.rects('#f5efe6')), '" + N.T[0] + ": 1' in " + MEM_TEXT + "]\n_t.wait(1.1)\nprint(_a, _b, len(_t.rects('#f5efe6')), len(_t.rects('#b5476b')))",
+      (o) => o === "[True, [(75, 148, 24)]] [[(177, 127, 42, 42)], 2, True] 0 24",
+      it ? "un clic gira la carta: diventa #f5efe6 con il suo simbolo (la carta 1 ha il cerchio #ef5350 di raggio 24, la 2 il quadrato #42a5f5 da 42); con due carte diverse le mosse diventano 1, un terzo clic non gira niente, e dopo un secondo le due carte sono di nuovo coperte"
+        : "a click turns the card: it becomes #f5efe6 with its symbol (card 1 has the #ef5350 circle with radius 24, card 2 the #42a5f5 square of 42); with two different cards the moves become 1, a third click turns nothing, and after a second the two cards are face down again"),
+    gtcase(c, MEM_AT + "_t.step()\n_t.click(_at(0))\n_t.click(_at(5))\n_t.wait(1.1)\nprint(sorted(_r[:2] for _r in _t.rects('#3b2a33')), sorted(" + N.found + "), '" + N.T[1] + ": 1' in " + MEM_TEXT + ")",
+      (o) => o === "[(24, 100), (147, 211)] [0, 5] True",
+      it ? "le carte 1 e 6 hanno lo stesso simbolo: restano scoperte e diventano #3b2a33, finiscono nella lista trovate e c'è scritto Coppie: 1 su 6" : "cards 1 and 6 have the same symbol: they stay face up and become #3b2a33, go into the list found and it says Pairs: 1 of 6"),
+    gtcase(c, MEM_AT + "_t.step()\n" + MEM_PAIRS(MEM_PREVIEW_PAIRS) + "print(sorted(set(_r[2] for _r in _t.circles('#ef5350'))), sorted(set(_r[2:] for _r in _t.rects('#42a5f5'))), sorted(set(_r[2] for _r in _t.circles('#ffca28'))), sorted(set(_r[2:] for _r in _t.rects('#66bb6a'))), len(_t.circles('#ab47bc')), sorted(set(_r[2] for _r in _t.circles('#ab47bc'))), sorted(set(_r[2:] for _r in _t.rects('#ff7043'))), sorted(set(_r[2] for _r in _t.circles('#3b2a33'))), " + N.moves + ")",
+      (o) => o === "[24] [(42, 42)] [26] [(18, 54), (54, 18)] 8 [11] [(48, 48)] [12] 6",
+      it ? "i sei simboli sono quelli dell'anteprima: cerchio rosso (raggio 24), quadrato blu (42), anello giallo (raggio 26, con il buco di raggio 12 del colore della carta), croce verde (54 × 18 e 18 × 54), quattro pallini viola (raggio 11) e cornice arancione (48, con il buco da 24); trovate tutte le coppie in 6 mosse"
+        : "the six symbols are the preview's: red circle (radius 24), blue square (42), yellow ring (radius 26, with a hole of radius 12 the colour of the card), green cross (54 × 18 and 18 × 54), four purple dots (radius 11) and orange frame (48, with a hole of 24); all the pairs found in 6 moves"),
+    gtcase(c, MEM_AT + "_t.step()\n_t.click((24 + 102 + 8, 148))\n_t.click((75, 100 + 96 + 6))\n_t.click((10, 10))\n_t.click((75, 430))\nprint(len(_t.rects('#f5efe6')), " + N.turned + ")",
+      (o) => o === "0 []", it ? "un clic tra due carte o fuori dal tavolo non gira niente" : "a click between two cards or outside the table turns nothing")
+  ];
+};
+/* part 6: the deck shuffled with random.choice, and another game */
+const memShuffleTests = (lang) => (c) => {
+  const it = lang === "it", N = MEM_N[lang];
+  return [
+    gtcase(MEM_RIG("first") + c, "_t.step()\nprint(" + N.cards + ")", (o) => o === "['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F']",
+      it ? "con random.choice che prende sempre la prima carta rimasta, il mazzo mescolato viene in ordine: A, A, B, B..." : "with random.choice always taking the first card left, the shuffled deck comes out in order: A, A, B, B..."),
+    gtcase(MEM_RIG("last") + c, "_t.step()\nprint(" + N.cards + ")", (o) => o === "['F', 'F', 'E', 'E', 'D', 'D', 'C', 'C', 'B', 'B', 'A', 'A']",
+      it ? "con random.choice che prende l'ultima carta rimasta il mazzo viene al contrario: ogni carta scelta va tolta dalle rimaste e messa in fila" : "with random.choice taking the last card left the deck comes out backwards: every card picked is taken out of the ones left and lined up"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n" + MEM_PAIRS(MEM_IN_ORDER) + "_a = [len(" + N.found + "), " + N.moves + "]\n_t.click(_at(3))\nprint(_a, " + N.found + ", " + N.moves + ", " + N.turned + ", len(" + N.cards + "))",
+      (o) => o === "[12, 6] [] 0 [] 12", it ? "quando hai trovato tutte le coppie, un clic comincia una partita nuova: niente trovate, mosse a 0, e nessuna carta girata dal clic" : "when you've found all the pairs, a click starts a new game: nothing found, moves at 0, and no card turned by the click")
+  ];
+};
+/* part 7: the time, and the record of moves for the table of 12 */
+const memRecordTests = (lang, pairsVar) => (c) => {
+  const it = lang === "it", N = MEM_N[lang];
+  const done = pairsVar ? pairsVar + " == 6" : "len(" + N.found + ") == 12";
+  return [
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_a = " + MEM_TEXT + "\n_t.wait(2.05)\n_b = '" + N.T[2] + ": 2 s' in " + MEM_TEXT + "\n" + MEM_PAIRS(MEM_IN_ORDER) + "_t.wait(2.5)\nprint(\"" + N.T[3] + ": -\" in _a, _b, " + done + ", '" + N.T[3] + ": 6' in " + MEM_TEXT + ", '" + N.T[2] + ": 2 s' in " + MEM_TEXT + ")",
+      (o) => o === "True True True True True",
+      it ? "all'inizio c'è scritto Record: -; il tempo cresce di un secondo alla volta (dopo 2 secondi Tempo: 2 s) e si ferma quando hai trovato tutte le coppie; finita la partita il record è 6"
+        : "at the start it says Record: -; the time grows a second at a time (after 2 seconds Time: 2 s) and stops when you've found all the pairs; after the game the record is 6"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n" + MEM_PAIRS([[0, 2], [0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]], 1.1) + "_a = str(_t.var('" + N.rec + "'))\n_t.wait(1.1)\n_t.click(_at(0))\n" + MEM_PAIRS(MEM_IN_ORDER) + "_b = str(_t.var('" + N.rec + "'))\n_t.click(_at(0))\n" + MEM_PAIRS([[0, 3], [0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]], 1.1) + "print(_a, _b, _t.var('" + N.rec + "'), " + N.moves + ")",
+      (o) => o === "{12: 7} {12: 6} {12: 6} 7",
+      it ? "il dizionario record tiene per 12 carte le mosse più basse: 7, poi 6 con una partita migliore, e resta 6 dopo una partita da 7" : "the best dictionary keeps for 12 cards the lowest moves: 7, then 6 with a better game, and it stays 6 after a game of 7")
+  ];
+};
+/* part 8: the Card class on its own, then the game made of Card objects */
+const memClassTests = (lang) => (c) => {
+  const it = lang === "it", N = MEM_N[lang], M = N.M, K = N.cls;
+  return [
+    gtcase(c, `_c = ${K}("B", 6)\n_a = [_c.${M[1]}, _c.${M[2]}, _c.${M[3]}, _c.${M[4]}, _c.${M[5]}((271, 211)), _c.${M[5]}((372, 211)), _c.${M[5]}((271, 307))]\n_c.${M[6]}()\n_b = _c.${M[3]}\n_c.${M[7]}()\nprint(_a, _b, _c.${M[3]}, _c.${M[8]}(${K}("B", 0)), _c.${M[8]}(${K}("C", 0)))`,
+      (o) => o === "[270, 211, False, False, True, False, False] True False True False",
+      it ? "Carta(\"B\", 6) sta in (270, 211), coperta e non trovata; colpita è True per un punto dentro e False sul bordo destro o in fondo; gira e copri cambiano girata; uguale confronta i simboli"
+        : "Card(\"B\", 6) is at (270, 211), face down and not matched; hit is True for a point inside and False on the right or bottom edge; turn and cover change face_up; same_as compares the symbols"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_a = [len(" + N.cards + "), type(" + N.cards + "[5]).__name__, " + N.cards + "[5]." + M[0] + ", " + N.cards + "[5]." + M[1] + ", " + N.cards + "[5]." + M[2] + "]\n_t.click(_at(0))\n_t.click(_at(1))\n_t.click(_at(2))\n_t.click(_at(4))\n_t.wait(1.1)\nprint(_a, " + N.cards + "[0]." + M[4] + ", " + N.cards + "[2]." + M[3] + ", " + N.pairs + ", " + N.moves + ")",
+      (o) => o === `[12, '${K}', 'C', 147, 211] True False 1 2`,
+      it ? "le carte sono 12 oggetti Carta, nei posti giusti; una coppia resta trovata, due carte diverse si ricoprono, e coppie e mosse si contano" : "the cards are 12 Card objects, in the right places; a pair stays matched, two different cards turn back over, and pairs and moves are counted")
+  ];
+};
+/* part 9: two tables, the new symbols, the records for each size, N */
+const memLevelTests = (lang) => (c) => {
+  const it = lang === "it", N = MEM_N[lang], M = N.M;
+  const pairs16 = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11], [12, 13], [14, 15]];
+  return [
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_t.tap('k_2')\nprint(" + N.size + ", [_k." + M[0] + " for _k in " + N.cards + "], " + N.cards + "[12]." + M[1] + ", " + N.cards + "[12]." + M[2] + ", _t.size, '" + N.T[1] + ": 0' in " + MEM_TEXT + ")",
+      (o) => o === "16 ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'] 24 433 (519, 585) True",
+      it ? "con il tasto 2 arriva il tavolo da 16 carte, con le coppie da A a H e la quarta riga da y = 433; la finestra è alta 585" : "with the 2 key the table of 16 cards arrives, with the pairs from A to H and the fourth row from y = 433; the window is 585 high"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_t.tap('k_2')\n" + MEM_PAIRS(pairs16) + "print(sorted(set(_r[2:] for _r in _t.rects('#ec407a'))), len(_t.rects('#ec407a')), sorted(set(_r[2:] for _r in _t.rects('#26c6da'))), len(_t.rects('#26c6da')), _t.var('" + N.rec + "'))",
+      (o) => o === "[(54, 14)] 4 [(22, 22)] 4 {16: 8}",
+      it ? "i simboli nuovi: G sono due barre rosa #ec407a da 54 × 14, H due quadrati azzurri #26c6da da 22; e il record di 16 carte è 8" : "the new symbols: G is two pink #ec407a bars of 54 × 14, H two light blue #26c6da squares of 22; and the record for 16 cards is 8"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_t.tap('k_2')\n" + MEM_PAIRS(pairs16) + "_t.tap('k_1')\n_a = [" + N.size + ", len(" + N.cards + ")]\n" + MEM_PAIRS(MEM_IN_ORDER) + "_t.click(_at(0))\n_t.tap('n')\nprint(_a, _t.var('" + N.rec + "'), " + N.moves + ", " + N.size + ", " + N.cards + "[0]." + M[3] + ")",
+      (o) => o === "[12, 12] {16: 8, 12: 6} 0 12 False",
+      it ? "con il tasto 1 si torna a 12 carte, e il dizionario tiene un record per ogni tavolo; N comincia una partita nuova dello stesso tavolo, anche a metà" : "with the 1 key you go back to 12 cards, and the dictionary keeps a record for each table; N starts a new game on the same table, even halfway through")
+  ];
+};
+/* part 10: the window's title, the pause, Esc */
+const memKeyTests = (lang) => (c) => {
+  const it = lang === "it", N = MEM_N[lang];
+  return [
+    gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
+      it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
+    gtcase(MEM_RIG("first") + c, MEM_AT + "_t.step()\n_t.click(_at(0))\n_t.tap('p')\n_t.wait(2.1)\n_t.click(_at(1))\n_a = [len(_t.rects('#f5efe6')), '" + N.T[2] + ": 0 s' in " + MEM_TEXT + ", " + N.moves + "]\n_t.tap('p')\nprint(_a, len(_t.rects('#f5efe6')))",
+      (o) => o === "[0, True, 0] 1",
+      it ? "con P il gioco va in pausa: le carte si vedono tutte coperte, il tempo si ferma e i clic non contano; con P di nuovo si riprende e la carta girata ricompare" : "with P the game pauses: the cards all look face down, the time stops and clicks don't count; with P again it goes on and the turned card shows again"),
+    gtcase(c, "_t.step()\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True", it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
+  ];
+};
+addProjectBuilds("memory", [
+{
+  id: "build0", build: true, part: 0, teaches: [], file: ["costruisci_tavolo.py", "build_table.py"],
+  it: {
+    title: "Costruisci: il tavolo del Memory",
+    theory: [
+`<p>Da qui comincia il tuo progetto, il <b>Memory</b>: sul tavolo ci sono delle carte coperte, a coppie uguali. A ogni mossa ne giri due: se sono uguali restano scoperte, se no tornano coperte, e tu devi ricordarti dove stavano. Si vince trovando tutte le coppie, con meno mosse possibili. Lo farai crescere un pezzo alla volta, in tutte le cartelle, con quello che impari. Il primo pezzo è la <b>copertina</b>, con il <b>tavolo</b>: una cornice sopra e sotto, il titolo, le 12 carte coperte disegnate con <code>print</code>, ognuna con il numero del suo posto, le regole e un numero calcolato da Python. Per esempio:</p>
+<pre class="term-sample">====================
+     M E M O R Y
+====================
+[ 1] [ 2] [ 3] [ 4]
+[ 5] [ 6] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Gira due carte alla volta:
+se sono uguali restano scoperte.
+Carte sul tavolo:
+12
+====================</pre>
+<p>Le carte disegnale come vuoi, ma ognuna tra parentesi quadre e con il suo numero: 3 righe da 4, dal posto 1 al posto 12. I numeri di una cifra hanno uno spazio davanti, così le carte stanno in colonna.</p>`],
+    task: `Scrivi la copertina del Memory: la prima e l'ultima riga fatte solo di simboli, il titolo <code>MEMORY</code>, il tavolo (3 righe di 4 carte tra parentesi quadre, con i numeri da 1 a 12), le regole e un numero calcolato da Python, come <code>4 + 4 + 4</code>. In cima metti un commento con il nome del gioco e il tuo.`,
+    starter: ``,
+    solution: `# Memory, di Ada
+print("====================")
+print("     M E M O R Y")
+print("====================")
+print("[ 1] [ 2] [ 3] [ 4]")
+print("[ 5] [ 6] [ 7] [ 8]")
+print("[ 9] [10] [11] [12]")
+print("Gira due carte alla volta:")
+print("se sono uguali restano scoperte.")
+print("Carte sul tavolo:")
+print(4 + 4 + 4)
+print("====================")`,
+    hints: ["Quante righe ha la copertina, dalla cornice in alto a quella in basso? Quante righe ha il tavolo, e quante carte in ogni riga?",
+      "Prima riga: un commento con #. Poi un print di simboli, uno con il titolo, tre print con quattro carte ciascuno e i loro numeri, uno o due con le regole, un print con un calcolo senza virgolette e di nuovo il print di simboli."],
+    check: (o, c) => !memCoverWhy(o, c, "it"),
+    why: (o, c) => memCoverWhy(o, c, "it")
+  },
+  en: {
+    title: "Build: the Memory table",
+    theory: [
+`<p>Your project starts here, <b>Memory</b>: on the table there are face-down cards, in matching pairs. At every move you turn two: if they match they stay face up, if not they turn back over, and you have to remember where they were. You win by finding all the pairs, in as few moves as you can. You'll grow it a piece at a time, in every folder, with what you learn. The first piece is the <b>cover</b>, with the <b>table</b>: a frame above and below, the title, the 12 face-down cards drawn with <code>print</code>, each with the number of its place, the rules and a number worked out by Python. For example:</p>
+<pre class="term-sample">====================
+     M E M O R Y
+====================
+[ 1] [ 2] [ 3] [ 4]
+[ 5] [ 6] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Turn two cards at a time:
+if they match they stay face up.
+Cards on the table:
+12
+====================</pre>
+<p>Draw the cards as you like, but each in square brackets and with its number: 3 rows of 4, from place 1 to place 12. One-digit numbers have a space in front, so the cards line up in columns.</p>`],
+    task: `Write the Memory cover: the first and last lines made only of symbols, the title <code>MEMORY</code>, the table (3 rows of 4 cards in square brackets, with the numbers from 1 to 12), the rules and a number worked out by Python, like <code>4 + 4 + 4</code>. At the top, put a comment with the game's name and yours.`,
+    starter: ``,
+    solution: `# Memory, by Ada
+print("====================")
+print("     M E M O R Y")
+print("====================")
+print("[ 1] [ 2] [ 3] [ 4]")
+print("[ 5] [ 6] [ 7] [ 8]")
+print("[ 9] [10] [11] [12]")
+print("Turn two cards at a time:")
+print("if they match they stay face up.")
+print("Cards on the table:")
+print(4 + 4 + 4)
+print("====================")`,
+    hints: ["How many lines does the cover have, from the frame at the top to the one at the bottom? How many rows does the table have, and how many cards in each row?",
+      "First line: a comment with #. Then a print of symbols, one with the title, three prints with four cards each and their numbers, one or two with the rules, a print with a calculation without quotes and the print of symbols again."],
+    check: (o, c) => !memCoverWhy(o, c, "en"),
+    why: (o, c) => memCoverWhy(o, c, "en")
+  }
+},
+{
+  id: "build1", build: true, part: 1, teaches: [], sample: ["12", "6", "11"], file: ["costruisci_memory_1.py", "build_memory_1.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 1",
+    theory: [
+`<p>Parte 1: <b>dove sta una carta</b>. Le carte stanno in righe da 4, e ognuna ha un numero, il suo posto: nella prima riga i posti da 1 a 4, nella seconda da 5 a 8, nella terza da 9 a 12. Dal numero si calcolano la riga e la colonna.</p>
+<p>Conviene contare da 0: il posto 1 diventa 0, il posto 6 diventa 5. Allora la divisione intera, <code>//</code>, dice quante righe intere ci sono prima: <code>(6 - 1) // 4</code> fa 1, quindi la carta 6 è nella seconda riga, la 1 + 1. E il resto, <code>%</code>, dice quanti posti avanzano in quella riga: <code>(6 - 1) % 4</code> fa 1, quindi è nella seconda colonna. Con le stesse divisioni sai anche quante coppie e quante righe fa un tavolo: 12 carte fanno <code>12 // 2</code> coppie e <code>12 // 4</code> righe.</p>
+<pre class="term-sample">Quante carte ci sono sul tavolo? 12
+Con 12 carte ci sono 6 coppie e 3 righe da 4.
+Prima carta (1-12)? 6
+Seconda carta (1-12)? 11
+La carta 6 è nella riga 2, colonna 2.
+La carta 11 è nella riga 3, colonna 3.</pre>`],
+    task: `Chiedi quante carte ci sono sul tavolo e scrivi quante coppie e quante righe da 4 fanno, con <code>//</code>. Poi chiedi due carte, con il numero del loro posto, e per ognuna scrivi in che riga e in che colonna sta, con <code>//</code> e <code>%</code>. Le righe devono essere proprio come nell'esempio. Proverò anche con altri tavoli e altre carte.`,
+    starter: `# Memory, parte 1: dove sta la carta\ncolonne = 4\n\n`,
+    solution: `# Memory, parte 1: dove sta la carta
+colonne = 4
+
+carte = int(input("Quante carte ci sono sul tavolo? "))
+print(f"Con {carte} carte ci sono {carte // 2} coppie e {carte // colonne} righe da {colonne}.")
+prima = int(input(f"Prima carta (1-{carte})? "))
+seconda = int(input(f"Seconda carta (1-{carte})? "))
+print(f"La carta {prima} è nella riga {(prima - 1) // colonne + 1}, colonna {(prima - 1) % colonne + 1}.")
+print(f"La carta {seconda} è nella riga {(seconda - 1) // colonne + 1}, colonna {(seconda - 1) % colonne + 1}.")`,
+    hints: ["Perché conviene togliere 1 al numero della carta prima di dividere? Cosa dice la divisione intera, e cosa il resto?",
+      "Tre input dentro int(). Il primo print divide le carte con // per 2 e per colonne. Poi per ogni carta un print: la riga è il numero meno 1 diviso con // per colonne, più 1; la colonna è il numero meno 1 con % colonne, più 1."],
+    check: memCheck("it", 1, [/\/\//, /%/]), expect: (x) => memExpect("it", 1, x.inputs),
+    tests: memTests("it", 1, [["12", "1", "12"], ["16", "4", "13"], ["12", "5", "8"], ["20", "17", "7"], ["8", "3", "6"]])
+  },
+  en: {
+    title: "Build: Memory, part 1",
+    theory: [
+`<p>Part 1: <b>where a card is</b>. The cards are in rows of 4, and each has a number, its place: in the first row the places from 1 to 4, in the second from 5 to 8, in the third from 9 to 12. From the number you work out the row and the column.</p>
+<p>It's easier to count from 0: place 1 becomes 0, place 6 becomes 5. Then whole-number division, <code>//</code>, says how many whole rows come before: <code>(6 - 1) // 4</code> gives 1, so card 6 is in the second row, 1 + 1. And the remainder, <code>%</code>, says how many places are left over in that row: <code>(6 - 1) % 4</code> gives 1, so it's in the second column. With the same divisions you also know how many pairs and how many rows a table makes: 12 cards make <code>12 // 2</code> pairs and <code>12 // 4</code> rows.</p>
+<pre class="term-sample">How many cards are on the table? 12
+With 12 cards there are 6 pairs and 3 rows of 4.
+First card (1-12)? 6
+Second card (1-12)? 11
+Card 6 is in row 2, column 2.
+Card 11 is in row 3, column 3.</pre>`],
+    task: `Ask how many cards are on the table and write how many pairs and how many rows of 4 they make, with <code>//</code>. Then ask for two cards, with the number of their place, and for each one write which row and which column it's in, with <code>//</code> and <code>%</code>. The lines must be exactly as in the example. I'll also try other tables and other cards.`,
+    starter: `# Memory, part 1: where the card is\ncolumns = 4\n\n`,
+    solution: `# Memory, part 1: where the card is
+columns = 4
+
+cards = int(input("How many cards are on the table? "))
+print(f"With {cards} cards there are {cards // 2} pairs and {cards // columns} rows of {columns}.")
+first = int(input(f"First card (1-{cards})? "))
+second = int(input(f"Second card (1-{cards})? "))
+print(f"Card {first} is in row {(first - 1) // columns + 1}, column {(first - 1) % columns + 1}.")
+print(f"Card {second} is in row {(second - 1) // columns + 1}, column {(second - 1) % columns + 1}.")`,
+    hints: ["Why is it easier to take 1 away from the card's number before dividing? What does whole-number division say, and what the remainder?",
+      "Three inputs inside int(). The first print divides the cards with // by 2 and by columns. Then for each card a print: the row is the number minus 1 divided with // by columns, plus 1; the column is the number minus 1 with % columns, plus 1."],
+    check: memCheck("en", 1, [/\/\//, /%/]), expect: (x) => memExpect("en", 1, x.inputs),
+    tests: memTests("en", 1, [["12", "1", "12"], ["16", "4", "13"], ["12", "5", "8"], ["20", "17", "7"], ["8", "3", "6"]])
+  }
+},
+{
+  id: "build2", build: true, part: 2, from: "build1", teaches: [], sample: ["3", "8", "B", "B"], file: ["costruisci_memory_2.py", "build_memory_2.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 2",
+    theory: [
+`<p>Parte 2: le <b>regole</b> di una mossa. Giri due carte, ma prima controlli che si possano girare: se una delle due non è tra 1 e 12 quella carta non c'è, e se sono lo stesso posto non sono due carte. Solo se va tutto bene il programma chiede cosa c'è sotto le due carte, come se le girassi davvero, e decide: con due simboli uguali hai fatto una coppia, se no le carte si ricoprono.</p>
+<pre class="term-sample">Prima carta (1-12)? 3
+Seconda carta (1-12)? 8
+Cosa c'è sotto la carta 3? B
+Cosa c'è sotto la carta 8? B
+Coppia! Le carte 3 e 8 restano scoperte.</pre>
+<p>Le altre righe: <code>Le carte vanno da 1 a 12.</code>, <code>Devi girare due carte diverse.</code> e, con due simboli diversi, <code>A e C sono diverse: le carte si ricoprono.</code></p>`],
+    task: `Fai crescere il programma: le carte sono sempre 12, in <code>carte</code>, e togli le domande e le righe di prima. Chiedi le due carte e controlla con una catena di <code>if</code>, nell'ordine: posti che non ci sono, la stessa carta due volte, e solo se va tutto bene chiedi i due simboli e scrivi se è una coppia. Proverò tutti i casi: carte fuori dal tavolo, la stessa carta, coppie e carte diverse.`,
+    solution: `# Memory, parte 2: coppia o no
+carte = 12
+
+prima = int(input(f"Prima carta (1-{carte})? "))
+seconda = int(input(f"Seconda carta (1-{carte})? "))
+if prima < 1 or prima > carte or seconda < 1 or seconda > carte:
+    print(f"Le carte vanno da 1 a {carte}.")
+elif prima == seconda:
+    print("Devi girare due carte diverse.")
+else:
+    simbolo1 = input(f"Cosa c'è sotto la carta {prima}? ")
+    simbolo2 = input(f"Cosa c'è sotto la carta {seconda}? ")
+    if simbolo1 == simbolo2:
+        print(f"Coppia! Le carte {prima} e {seconda} restano scoperte.")
+    else:
+        print(f"{simbolo1} e {simbolo2} sono diverse: le carte si ricoprono.")`,
+    hints: ["Quando non serve chiedere i simboli? Come scrivi «fuori dal tavolo» per due carte insieme, con or?",
+      "Due input dentro int(). Un if con quattro confronti uniti da or per i posti fuori da 1-12, un elif per la stessa carta, e un else in cui chiedi i due simboli e con un altro if scegli tra coppia e carte diverse."],
+    check: memCheck("it", 2, [/\bif\b/, /\belse\b/]), expect: (x) => memExpect("it", 2, x.inputs),
+    tests: memTests("it", 2, [["0", "5"], ["4", "13"], ["7", "7"], ["3", "8", "B", "B"], ["1", "2", "A", "B"], ["12", "1", "F", "A"], ["-1", "3"]])
+  },
+  en: {
+    title: "Build: Memory, part 2",
+    theory: [
+`<p>Part 2: the <b>rules</b> of a move. You turn two cards, but first you check they can be turned: if either isn't between 1 and 12 that card doesn't exist, and if they're the same place they aren't two cards. Only if all is well does the program ask what's under the two cards, as if you really turned them, and decide: with two equal symbols you've made a pair, otherwise the cards turn back over.</p>
+<pre class="term-sample">First card (1-12)? 3
+Second card (1-12)? 8
+What's under card 3? B
+What's under card 8? B
+A pair! Cards 3 and 8 stay face up.</pre>
+<p>The other lines: <code>The cards go from 1 to 12.</code>, <code>You have to turn two different cards.</code> and, with two different symbols, <code>A and C are different: the cards turn back over.</code></p>`],
+    task: `Grow the program: the cards are always 12, in <code>cards</code>, and take away the questions and the lines from before. Ask for the two cards and check with a chain of <code>if</code>, in this order: places that don't exist, the same card twice, and only if all is well ask for the two symbols and write whether it's a pair. I'll try every case: cards off the table, the same card, pairs and different cards.`,
+    solution: `# Memory, part 2: pair or not
+cards = 12
+
+first = int(input(f"First card (1-{cards})? "))
+second = int(input(f"Second card (1-{cards})? "))
+if first < 1 or first > cards or second < 1 or second > cards:
+    print(f"The cards go from 1 to {cards}.")
+elif first == second:
+    print("You have to turn two different cards.")
+else:
+    symbol1 = input(f"What's under card {first}? ")
+    symbol2 = input(f"What's under card {second}? ")
+    if symbol1 == symbol2:
+        print(f"A pair! Cards {first} and {second} stay face up.")
+    else:
+        print(f"{symbol1} and {symbol2} are different: the cards turn back over.")`,
+    hints: ["When is there no need to ask for the symbols? How do you write «off the table» for two cards together, with or?",
+      "Two inputs inside int(). An if with four comparisons joined by or for the places outside 1-12, an elif for the same card, and an else where you ask for the two symbols and with another if pick between a pair and different cards."],
+    check: memCheck("en", 2, [/\bif\b/, /\belse\b/]), expect: (x) => memExpect("en", 2, x.inputs),
+    tests: memTests("en", 2, [["0", "5"], ["4", "13"], ["7", "7"], ["3", "8", "B", "B"], ["1", "2", "A", "B"], ["12", "1", "F", "A"], ["-1", "3"]])
+  }
+},
+{
+  id: "build3", build: true, part: 3, from: "build2", teaches: [], sample: MEM_SAMPLE3, file: ["costruisci_memory_3.py", "build_memory_3.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 3",
+    theory: [
+`<p>Parte 3: si gioca davvero. Le carte stanno in una <b>lista</b>, nell'ordine dei loro posti, con un simbolo ciascuna; sono le stesse dell'anteprima: <code>carte = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]</code>.</p>
+<p>Il posto 1 è <code>carte[0]</code>: nella lista si conta da 0, quindi al numero scritto dal giocatore togli 1. Le carte trovate finiscono in un'altra lista, <code>trovate</code>, che all'inizio è vuota: per sapere se una carta è già scoperta basta chiedere <code>i in trovate</code>.</p>
+<p>Il gioco diventa un ciclo. A ogni giro il programma stampa il tavolo, 3 righe da 4 carte, ognuna tra parentesi quadre: il simbolo se è trovata, se no il suo numero, con uno spazio davanti se ha una cifra sola. Sotto scrive le mosse e chiede la prima carta (o <code>q</code> per smettere) e la seconda.</p>
+<pre class="term-sample">[ 1] [ 2] [ 3] [ 4]
+[ 5] [ 6] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Mosse: 0
+Prima carta (1-12, q per uscire)? 1
+Seconda carta (1-12)? 6
+Carta 1: A   carta 6: A
+Coppia!
+[ A] [ 2] [ 3] [ 4]
+[ 5] [ A] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Mosse: 1
+Prima carta (1-12, q per uscire)?</pre>
+<p>Le regole, nell'ordine. Con q scrivi <code>Ciao!</code> ed esci dal ciclo. Con un posto che non c'è scrivi <code>Le carte vanno da 1 a 12.</code>, con la stessa carta due volte <code>Devi girare due carte diverse.</code> e con una carta già trovata <code>Quella carta è già scoperta.</code>: in questi casi la mossa non conta. Se no la mossa conta: scrivi le due carte, come <code>Carta 2: B   carta 3: C</code>, e poi <code>Coppia!</code>, e le due carte vanno in trovate, oppure <code>Diverse: si ricoprono.</code>. Quando le trovate sono 12 il programma stampa il tavolo un'ultima volta e <code>Hai trovato tutte le coppie in 6 mosse!</code>, con le tue mosse.</p>`],
+    task: `Trasforma il programma nel gioco vero: la lista delle carte qui sopra, la lista <code>trovate</code> vuota, le mosse a 0, un ciclo <code>while</code> che a ogni giro stampa il tavolo e le mosse e chiede le due carte, e le regole qui sopra, nell'ordine. Proverò tante partite: coppie, carte diverse, posti sbagliati, carte già scoperte, q e una partita fino alla fine.`,
+    solution: `# Memory, parte 3: la partita
+carte = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+trovate = []
+mosse = 0
+
+while True:
+    for r in range(3):
+        riga = ""
+        for c in range(4):
+            i = r * 4 + c
+            if i in trovate:
+                testo = carte[i]
+            else:
+                testo = str(i + 1)
+            if len(testo) < 2:
+                testo = " " + testo
+            riga = riga + "[" + testo + "] "
+        print(riga)
+    print(f"Mosse: {mosse}")
+    if len(trovate) == 12:
+        print(f"Hai trovato tutte le coppie in {mosse} mosse!")
+        break
+    scelta = input("Prima carta (1-12, q per uscire)? ")
+    if scelta == "q":
+        print("Ciao!")
+        break
+    prima = int(scelta) - 1
+    seconda = int(input("Seconda carta (1-12)? ")) - 1
+    if prima < 0 or prima > 11 or seconda < 0 or seconda > 11:
+        print("Le carte vanno da 1 a 12.")
+    elif prima == seconda:
+        print("Devi girare due carte diverse.")
+    elif prima in trovate or seconda in trovate:
+        print("Quella carta è già scoperta.")
+    else:
+        mosse += 1
+        print(f"Carta {prima + 1}: {carte[prima]}   carta {seconda + 1}: {carte[seconda]}")
+        if carte[prima] == carte[seconda]:
+            print("Coppia!")
+            trovate.append(prima)
+            trovate.append(seconda)
+        else:
+            print("Diverse: si ricoprono.")`,
+    hints: ["Cosa si ripete a ogni giro? Come trasformi il numero scritto dal giocatore nel posto della lista, e come sai se una carta è già trovata?",
+      "Prima del ciclo le due liste e le mosse. Nel while True: due for, sulle righe e sulle colonne, che costruiscono ogni riga con il simbolo o il numero, poi le mosse; se le trovate sono 12, il messaggio finale e break. Poi l'input, e con q break; i due numeri meno 1; un if con i tre controlli e, nell'else, la mossa che conta, la riga con le due carte e un if per la coppia, che aggiunge tutte e due le carte a trovate."],
+    check: memCheck("it", 3, [/\bwhile\b/, /\bin\s+\w+/]), expect: (x) => memExpect("it", 3, x.inputs),
+    tests: memTests("it", 3, MEM_GAMES3)
+  },
+  en: {
+    title: "Build: Memory, part 3",
+    theory: [
+`<p>Part 3: now you really play. The cards are in a <b>list</b>, in the order of their places, each with a symbol; they're the same as in the preview: <code>cards = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]</code>.</p>
+<p>Place 1 is <code>cards[0]</code>: in the list you count from 0, so take 1 away from the number the player writes. The cards found go into another list, <code>found</code>, empty at the start: to know whether a card is already face up just ask <code>i in found</code>.</p>
+<p>The game becomes a loop. At every turn the program prints the table, 3 rows of 4 cards, each in square brackets: the symbol if it's found, otherwise its number, with a space in front if it has one digit. Below it writes the moves and asks for the first card (or <code>q</code> to stop) and the second.</p>
+<pre class="term-sample">[ 1] [ 2] [ 3] [ 4]
+[ 5] [ 6] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Moves: 0
+First card (1-12, q to quit)? 1
+Second card (1-12)? 6
+Card 1: A   card 6: A
+A pair!
+[ A] [ 2] [ 3] [ 4]
+[ 5] [ A] [ 7] [ 8]
+[ 9] [10] [11] [12]
+Moves: 1
+First card (1-12, q to quit)?</pre>
+<p>The rules, in order. With q write <code>Bye!</code> and leave the loop. With a place that doesn't exist write <code>The cards go from 1 to 12.</code>, with the same card twice <code>You have to turn two different cards.</code> and with a card already found <code>That card is already face up.</code>: in these cases the move doesn't count. Otherwise the move counts: write the two cards, like <code>Card 2: B   card 3: C</code>, and then <code>A pair!</code>, and the two cards go into found, or <code>Different: they turn back over.</code>. When the cards found are 12 the program prints the table one last time and <code>You found all the pairs in 6 moves!</code>, with your moves.</p>`],
+    task: `Turn the program into the real game: the list of cards above, the empty list <code>found</code>, the moves at 0, a <code>while</code> loop that at every turn prints the table and the moves and asks for the two cards, and the rules above, in order. I'll try lots of games: pairs, different cards, wrong places, cards already face up, q and a game all the way to the end.`,
+    solution: `# Memory, part 3: the game
+cards = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+found = []
+moves = 0
+
+while True:
+    for r in range(3):
+        row = ""
+        for c in range(4):
+            i = r * 4 + c
+            if i in found:
+                text = cards[i]
+            else:
+                text = str(i + 1)
+            if len(text) < 2:
+                text = " " + text
+            row = row + "[" + text + "] "
+        print(row)
+    print(f"Moves: {moves}")
+    if len(found) == 12:
+        print(f"You found all the pairs in {moves} moves!")
+        break
+    choice = input("First card (1-12, q to quit)? ")
+    if choice == "q":
+        print("Bye!")
+        break
+    first = int(choice) - 1
+    second = int(input("Second card (1-12)? ")) - 1
+    if first < 0 or first > 11 or second < 0 or second > 11:
+        print("The cards go from 1 to 12.")
+    elif first == second:
+        print("You have to turn two different cards.")
+    elif first in found or second in found:
+        print("That card is already face up.")
+    else:
+        moves += 1
+        print(f"Card {first + 1}: {cards[first]}   card {second + 1}: {cards[second]}")
+        if cards[first] == cards[second]:
+            print("A pair!")
+            found.append(first)
+            found.append(second)
+        else:
+            print("Different: they turn back over.")`,
+    hints: ["What repeats at every turn? How do you turn the number the player writes into the place in the list, and how do you know whether a card is already found?",
+      "Before the loop the two lists and the moves. In the while True: two for loops, over the rows and the columns, that build each row with the symbol or the number, then the moves; if the cards found are 12, the final message and break. Then the input, and with q break; the two numbers minus 1; an if with the three checks and, in the else, the move that counts, the line with the two cards and an if for the pair, which adds both cards to found."],
+    check: memCheck("en", 3, [/\bwhile\b/, /\bin\s+\w+/]), expect: (x) => memExpect("en", 3, x.inputs),
+    tests: memTests("en", 3, MEM_GAMES3)
+  }
+},
+{
+  id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: [" 1 ", "6 ", "2", "3", "Q"], file: ["costruisci_memory_4.py", "build_memory_4.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 4",
+    theory: [
+`<p>Parte 4: il gioco funziona, ma è un blocco unico. Lo dividi in <b>funzioni</b>, ognuna con un compito e un nome che lo dice:</p>
+<ul><li><code>stampa(carte, trovate)</code> stampa le 3 righe del tavolo;</li>
+<li><code>errore(prima, seconda, trovate)</code> controlla due posti, già contati da 0, e restituisce il messaggio dell'errore, <code>"Le carte vanno da 1 a 12."</code>, <code>"Devi girare due carte diverse."</code> o <code>"Quella carta è già scoperta."</code>, oppure un testo vuoto, <code>""</code>, se la mossa va bene;</li>
+<li><code>coppia(carte, prima, seconda)</code> restituisce <code>True</code> se le due carte hanno lo stesso simbolo;</li>
+<li><code>finita(carte, trovate)</code> restituisce <code>True</code> quando le carte trovate sono tutte.</li></ul>
+<p>Il ciclo resta, ma diventa corto: chiama le funzioni e decide cosa fare con quello che restituiscono. E rendi il gioco più gentile: con <code>strip</code> le risposte possono avere degli spazi intorno, e con <code>lower</code> anche <code>Q</code> fa uscire.</p>`],
+    task: `Metti la stampa del tavolo in <code>stampa(carte, trovate)</code>, i controlli in <code>errore(prima, seconda, trovate)</code>, il confronto in <code>coppia(carte, prima, seconda)</code> e la fine in <code>finita(carte, trovate)</code>, come qui sopra, e usale nel ciclo. Pulisci le risposte con <code>strip</code>, e la prima anche con <code>lower</code>. Quello che il gioco scrive resta uguale. Proverò le funzioni una per una e partite con spazi e maiuscole.`,
+    solution: `# Memory, parte 4: funzioni per il tavolo
+def stampa(carte, trovate):
+    for r in range(3):
+        riga = ""
+        for c in range(4):
+            i = r * 4 + c
+            if i in trovate:
+                testo = carte[i]
+            else:
+                testo = str(i + 1)
+            if len(testo) < 2:
+                testo = " " + testo
+            riga = riga + "[" + testo + "] "
+        print(riga)
+
+
+def errore(prima, seconda, trovate):
+    if prima < 0 or prima > 11 or seconda < 0 or seconda > 11:
+        return "Le carte vanno da 1 a 12."
+    if prima == seconda:
+        return "Devi girare due carte diverse."
+    if prima in trovate or seconda in trovate:
+        return "Quella carta è già scoperta."
+    return ""
+
+
+def coppia(carte, prima, seconda):
+    return carte[prima] == carte[seconda]
+
+
+def finita(carte, trovate):
+    return len(trovate) == len(carte)
+
+
+carte = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+trovate = []
+mosse = 0
+
+while True:
+    stampa(carte, trovate)
+    print(f"Mosse: {mosse}")
+    if finita(carte, trovate):
+        print(f"Hai trovato tutte le coppie in {mosse} mosse!")
+        break
+    scelta = input("Prima carta (1-12, q per uscire)? ").strip().lower()
+    if scelta == "q":
+        print("Ciao!")
+        break
+    prima = int(scelta) - 1
+    seconda = int(input("Seconda carta (1-12)? ").strip()) - 1
+    if errore(prima, seconda, trovate) != "":
+        print(errore(prima, seconda, trovate))
+    else:
+        mosse += 1
+        print(f"Carta {prima + 1}: {carte[prima]}   carta {seconda + 1}: {carte[seconda]}")
+        if coppia(carte, prima, seconda):
+            print("Coppia!")
+            trovate.append(prima)
+            trovate.append(seconda)
+        else:
+            print("Diverse: si ricoprono.")`,
+    hints: ["Cosa restituisce errore quando la mossa va bene, e come lo riconosci nel ciclo? Quali pezzi del ciclo diventano funzioni?",
+      "Sposta i due for della stampa in stampa. In errore tre if che restituiscono i messaggi, e alla fine il return del testo vuoto. coppia e finita sono un return con un confronto ciascuna. Nel ciclo, se errore non dà il testo vuoto stampi quello che dà, se no fai la mossa."],
+    check: memCheck("it", 4, [/def\s+stampa\s*\(/, /def\s+errore\s*\(/, /def\s+coppia\s*\(/, /def\s+finita\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => memExpect("it", 4, x.inputs),
+    tests: memFnTests("it")
+  },
+  en: {
+    title: "Build: Memory, part 4",
+    theory: [
+`<p>Part 4: the game works, but it's one big block. You split it into <b>functions</b>, each with one job and a name that says it:</p>
+<ul><li><code>print_table(cards, found)</code> prints the table's 3 rows;</li>
+<li><code>mistake(first, second, found)</code> checks two places, already counted from 0, and gives back the mistake's message, <code>"The cards go from 1 to 12."</code>, <code>"You have to turn two different cards."</code> or <code>"That card is already face up."</code>, or an empty text, <code>""</code>, if the move is fine;</li>
+<li><code>is_pair(cards, first, second)</code> gives back <code>True</code> if the two cards have the same symbol;</li>
+<li><code>finished(cards, found)</code> gives back <code>True</code> when all the cards are found.</li></ul>
+<p>The loop stays, but it gets short: it calls the functions and decides what to do with what they give back. And make the game kinder: with <code>strip</code> the answers can have spaces around them, and with <code>lower</code> <code>Q</code> quits too.</p>`],
+    task: `Put the printing of the table in <code>print_table(cards, found)</code>, the checks in <code>mistake(first, second, found)</code>, the comparison in <code>is_pair(cards, first, second)</code> and the end in <code>finished(cards, found)</code>, as above, and use them in the loop. Clean the answers with <code>strip</code>, and the first one with <code>lower</code> too. What the game writes stays the same. I'll test the functions one by one and games with spaces and capitals.`,
+    solution: `# Memory, part 4: functions for the table
+def print_table(cards, found):
+    for r in range(3):
+        row = ""
+        for c in range(4):
+            i = r * 4 + c
+            if i in found:
+                text = cards[i]
+            else:
+                text = str(i + 1)
+            if len(text) < 2:
+                text = " " + text
+            row = row + "[" + text + "] "
+        print(row)
+
+
+def mistake(first, second, found):
+    if first < 0 or first > 11 or second < 0 or second > 11:
+        return "The cards go from 1 to 12."
+    if first == second:
+        return "You have to turn two different cards."
+    if first in found or second in found:
+        return "That card is already face up."
+    return ""
+
+
+def is_pair(cards, first, second):
+    return cards[first] == cards[second]
+
+
+def finished(cards, found):
+    return len(found) == len(cards)
+
+
+cards = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+found = []
+moves = 0
+
+while True:
+    print_table(cards, found)
+    print(f"Moves: {moves}")
+    if finished(cards, found):
+        print(f"You found all the pairs in {moves} moves!")
+        break
+    choice = input("First card (1-12, q to quit)? ").strip().lower()
+    if choice == "q":
+        print("Bye!")
+        break
+    first = int(choice) - 1
+    second = int(input("Second card (1-12)? ").strip()) - 1
+    if mistake(first, second, found) != "":
+        print(mistake(first, second, found))
+    else:
+        moves += 1
+        print(f"Card {first + 1}: {cards[first]}   card {second + 1}: {cards[second]}")
+        if is_pair(cards, first, second):
+            print("A pair!")
+            found.append(first)
+            found.append(second)
+        else:
+            print("Different: they turn back over.")`,
+    hints: ["What does mistake give back when the move is fine, and how do you recognise it in the loop? Which pieces of the loop become functions?",
+      "Move the two for loops of the printing into print_table. In mistake three ifs that give back the messages, and at the end the return of the empty text. is_pair and finished are a return with one comparison each. In the loop, if mistake doesn't give the empty text print what it gives, otherwise make the move."],
+    check: memCheck("en", 4, [/def\s+print_table\s*\(/, /def\s+mistake\s*\(/, /def\s+is_pair\s*\(/, /def\s+finished\s*\(/, /\.lower\s*\(/, /\.strip\s*\(/]),
+    expect: (x) => memExpect("en", 4, x.inputs),
+    tests: memFnTests("en")
+  }
+},
+{
+  id: "build4", build: true, part: 5, from: "build4a", needs: "full", teaches: [], file: ["costruisci_memory_5.py", "build_memory_5.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 5",
+    theory: [
+`<p>Parte 5: il Memory esce dal terminale ed entra in una <b>finestra</b>, con le carte dell'anteprima. Ogni carta è un rettangolo largo 102 pixel e alto 96, <code>LARGA</code> e <code>ALTA</code>; da una carta alla vicina ci sono 123 pixel in orizzontale e 111 in verticale, <code>PASSO_X</code> e <code>PASSO_Y</code>, così tra le carte resta uno spazio. Il tavolo comincia in <code>(X0, Y0)</code>, cioè (24, 100), e sopra resta una striscia per le scritte. La carta al posto i, contato da 0, ha l'angolo in <code>(X0 + (i % 4) * PASSO_X, Y0 + (i // 4) * PASSO_Y)</code>: con <code>%</code> e <code>//</code>, come nella parte 1. La finestra è larga <code>2 * X0 + 3 * PASSO_X + LARGA</code> e alta <code>Y0 + 2 * PASSO_Y + ALTA + 24</code>.</p>
+<p>Cosa tieni del tuo codice: la lista delle carte, <code>trovate</code> e le mosse. Cosa togli: il ciclo con <code>input</code> e la stampa.</p>
+<p>I colori sono quelli dell'anteprima, scritti come nelle pagine web: un <code>#</code> e sei cifre esadecimali, due per il rosso, due per il verde e due per il blu. Lo sfondo è <code>"#24101b"</code>. Una carta coperta è <code>"#b5476b"</code>, con una cornice <code>"#c87590"</code> spessa 3 pixel: la disegni con un rettangolo <code>"#c87590"</code> 9 pixel più in dentro e sopra un altro <code>"#b5476b"</code> 12 pixel più in dentro. Una carta girata è <code>"#f5efe6"</code>, una trovata <code>"#3b2a33"</code>, e sopra c'è il suo simbolo.</p>
+<p>I simboli li disegna una funzione, <code>disegna_simbolo(simbolo, x, y, fondo)</code>, con <code>(x, y)</code> il centro della carta e <code>fondo</code> il colore della carta. Sono fatti solo di cerchi e rettangoli, perché sono le figure che Pygame Zero sa disegnare anche sul computer:</p>
+<ul><li><code>"A"</code>: un cerchio <code>"#ef5350"</code> di raggio 24;</li>
+<li><code>"B"</code>: un quadrato <code>"#42a5f5"</code> di lato 42;</li>
+<li><code>"C"</code>: un anello, cioè un cerchio <code>"#ffca28"</code> di raggio 26 e sopra un cerchio di raggio 12 del colore <code>fondo</code>;</li>
+<li><code>"D"</code>: una croce <code>"#66bb6a"</code>, due rettangoli di 54 × 18 e 18 × 54;</li>
+<li><code>"E"</code>: quattro pallini <code>"#ab47bc"</code> di raggio 11, 13 pixel a destra o a sinistra e 13 sopra o sotto il centro;</li>
+<li><code>"F"</code>: una cornice, cioè un quadrato <code>"#ff7043"</code> di lato 48 e sopra uno di lato 24 del colore <code>fondo</code>.</li></ul>
+<p>Le mosse arrivano dai <b>clic</b>: Pygame Zero chiama <code>on_mouse_down(pos)</code> a ogni clic, o tocco sul telefono. La colonna è <code>(pos[0] - X0) // PASSO_X</code> e la riga <code>(pos[1] - Y0) // PASSO_Y</code>; ma se quello che avanza è almeno <code>LARGA</code>, o almeno <code>ALTA</code>, il clic è caduto nello spazio tra due carte e non conta, come un clic fuori dal tavolo. Un clic gira la carta: il suo posto va nella lista <code>girate</code>. Quando le girate sono due la mossa conta: se i simboli sono uguali le due carte vanno in <code>trovate</code>; se no restano girate per un secondo, e poi si ricoprono. Per aspettare usi <code>clock.schedule(copri, 1)</code>, che chiama la funzione <code>copri</code> una volta sola, dopo un secondo, e <code>copri</code> svuota <code>girate</code>. Intanto una variabile <code>attesa</code> è vera, e i clic non contano.</p>
+<p>In alto, in <code>(X0, 16)</code>, c'è scritto <code>Mosse: 0</code>, e a destra, con <code>topright=(WIDTH - X0, 16)</code>, <code>Coppie: 0 su 6</code>; quando le hai trovate tutte, sotto compare <code>Tutte le coppie in 6 mosse!</code>.</p>`],
+    task: `Porta il Memory nella finestra come qui sopra: le 12 carte da 102 × 96 in 3 righe, ogni 123 pixel in orizzontale e 111 in verticale da (24, 100), i colori dell'anteprima, i sei simboli con <code>disegna_simbolo</code>, il clic che gira una carta, le coppie che restano e le carte diverse che si ricoprono dopo un secondo con <code>clock.schedule</code>, e le mosse e le coppie scritte in alto. Quando chiudi la finestra, proverò a girare le carte, a fare coppie, a cliccare tra le carte e a finire la partita.`,
+    solution: `# Memory, parte 5: nella finestra
+import pgzrun
+
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 2 * PASSO_Y + ALTA + 24
+carte = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+trovate = []
+girate = []
+mosse = 0
+attesa = False
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * PASSO_X
+        y = Y0 + (i // 4) * PASSO_Y
+        if i in trovate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#3b2a33")
+        elif i in girate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Coppie: {len(trovate) // 2} su 6", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(trovate) == 12:
+        screen.draw.text(f"Tutte le coppie in {mosse} mosse!", (X0, 58), fontsize=28, color="#ffca28")
+
+
+def copri():
+    global girate, attesa
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, mosse, attesa
+    if attesa:
+        return
+    c = (pos[0] - X0) // PASSO_X
+    r = (pos[1] - Y0) // PASSO_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * PASSO_X >= LARGA or pos[1] - Y0 - r * PASSO_Y >= ALTA:
+        return
+    i = r * 4 + c
+    if i in trovate or i in girate:
+        return
+    girate.append(i)
+    if len(girate) == 2:
+        mosse += 1
+        if carte[girate[0]] == carte[girate[1]]:
+            trovate.append(girate[0])
+            trovate.append(girate[1])
+            girate = []
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+pgzrun.go()`,
+    hints: ["Cosa deve ricordare il gioco tra un clic e l'altro? Quando finisce una mossa, e cosa succede se le due carte sono diverse?",
+      "In cima import pgzrun, le misure, WIDTH e HEIGHT, le carte, le liste trovate e girate, le mosse e attesa. In draw() lo sfondo e un for sui 12 posti: il rettangolo nel colore giusto e il simbolo, o la cornice se è coperta; poi le scritte. In on_mouse_down, con global, esci se attesa è vera; trovi riga e colonna, controlli che il clic sia dentro una carta che si può girare e la metti in girate; con due girate conti la mossa e, se sono uguali, le sposti in trovate, se no attesa diventa vera e clock.schedule chiama copri dopo un secondo."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER]),
+    why: (o, c) => pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER]),
+    tests: memWinTests("it")
+  },
+  en: {
+    title: "Build: Memory, part 5",
+    theory: [
+`<p>Part 5: Memory leaves the terminal and goes into a <b>window</b>, with the preview's cards. Every card is a rectangle 102 pixels wide and 96 high, <code>CARD_W</code> and <code>CARD_H</code>; from a card to its neighbour there are 123 pixels across and 111 down, <code>STEP_X</code> and <code>STEP_Y</code>, so a gap stays between the cards. The table starts at <code>(X0, Y0)</code>, that is (24, 100), and above it there's a strip for the texts. The card in place i, counted from 0, has its corner at <code>(X0 + (i % 4) * STEP_X, Y0 + (i // 4) * STEP_Y)</code>: with <code>%</code> and <code>//</code>, as in part 1. The window is <code>2 * X0 + 3 * STEP_X + CARD_W</code> wide and <code>Y0 + 2 * STEP_Y + CARD_H + 24</code> high.</p>
+<p>What you keep of your code: the list of cards, <code>found</code> and the moves. What you take away: the loop with <code>input</code> and the printing.</p>
+<p>The colours are the preview's, written as on web pages: a <code>#</code> and six hexadecimal digits, two for red, two for green and two for blue. The background is <code>"#24101b"</code>. A face-down card is <code>"#b5476b"</code>, with a <code>"#c87590"</code> frame 3 pixels thick: you draw it with a <code>"#c87590"</code> rectangle 9 pixels further in and on top another <code>"#b5476b"</code> one 12 pixels further in. A turned card is <code>"#f5efe6"</code>, a found one <code>"#3b2a33"</code>, and its symbol is on top.</p>
+<p>A function draws the symbols, <code>draw_symbol(symbol, x, y, backdrop)</code>, with <code>(x, y)</code> the centre of the card and <code>backdrop</code> the card's colour. They're made only of circles and rectangles, because those are the shapes Pygame Zero can draw on a computer too:</p>
+<ul><li><code>"A"</code>: a <code>"#ef5350"</code> circle with radius 24;</li>
+<li><code>"B"</code>: a <code>"#42a5f5"</code> square with side 42;</li>
+<li><code>"C"</code>: a ring, that is a <code>"#ffca28"</code> circle with radius 26 and on top a circle with radius 12 in the <code>backdrop</code> colour;</li>
+<li><code>"D"</code>: a <code>"#66bb6a"</code> cross, two rectangles of 54 × 18 and 18 × 54;</li>
+<li><code>"E"</code>: four <code>"#ab47bc"</code> dots with radius 11, 13 pixels right or left and 13 above or below the centre;</li>
+<li><code>"F"</code>: a frame, that is a <code>"#ff7043"</code> square with side 48 and on top one with side 24 in the <code>backdrop</code> colour.</li></ul>
+<p>The moves come from <b>clicks</b>: Pygame Zero calls <code>on_mouse_down(pos)</code> at every click, or tap on a phone. The column is <code>(pos[0] - X0) // STEP_X</code> and the row <code>(pos[1] - Y0) // STEP_Y</code>; but if what's left over is at least <code>CARD_W</code>, or at least <code>CARD_H</code>, the click landed in the gap between two cards and doesn't count, like a click off the table. A click turns the card: its place goes into the list <code>turned</code>. When two are turned the move counts: if the symbols are equal the two cards go into <code>found</code>; otherwise they stay turned for a second, and then turn back over. To wait you use <code>clock.schedule(cover, 1)</code>, which calls the function <code>cover</code> just once, after a second, and <code>cover</code> empties <code>turned</code>. Meanwhile a variable <code>waiting</code> is true, and clicks don't count.</p>
+<p>At the top, at <code>(X0, 16)</code>, it says <code>Moves: 0</code>, and on the right, with <code>topright=(WIDTH - X0, 16)</code>, <code>Pairs: 0 of 6</code>; when you've found them all, below it <code>All the pairs in 6 moves!</code> appears.</p>`],
+    task: `Take Memory into the window as above: the 12 cards of 102 × 96 in 3 rows, every 123 pixels across and 111 down from (24, 100), the preview's colours, the six symbols with <code>draw_symbol</code>, the click that turns a card, pairs that stay and different cards that turn back after a second with <code>clock.schedule</code>, and the moves and the pairs written at the top. When you close the window, I'll try turning cards, making pairs, clicking between the cards and finishing the game.`,
+    solution: `# Memory, part 5: in a window
+import pgzrun
+
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 2 * STEP_Y + CARD_H + 24
+cards = ["A", "B", "C", "D", "E", "A", "F", "B", "C", "E", "D", "F"]
+found = []
+turned = []
+moves = 0
+waiting = False
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * STEP_X
+        y = Y0 + (i // 4) * STEP_Y
+        if i in found:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#3b2a33")
+        elif i in turned:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Pairs: {len(found) // 2} of 6", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(found) == 12:
+        screen.draw.text(f"All the pairs in {moves} moves!", (X0, 58), fontsize=28, color="#ffca28")
+
+
+def cover():
+    global turned, waiting
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, moves, waiting
+    if waiting:
+        return
+    c = (pos[0] - X0) // STEP_X
+    r = (pos[1] - Y0) // STEP_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * STEP_X >= CARD_W or pos[1] - Y0 - r * STEP_Y >= CARD_H:
+        return
+    i = r * 4 + c
+    if i in found or i in turned:
+        return
+    turned.append(i)
+    if len(turned) == 2:
+        moves += 1
+        if cards[turned[0]] == cards[turned[1]]:
+            found.append(turned[0])
+            found.append(turned[1])
+            turned = []
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+pgzrun.go()`,
+    hints: ["What does the game need to remember between one click and the next? When does a move end, and what happens if the two cards are different?",
+      "At the top import pgzrun, the sizes, WIDTH and HEIGHT, the cards, the lists found and turned, the moves and waiting. In draw() the background and a for over the 12 places: the rectangle in the right colour and the symbol, or the frame if it's face down; then the texts. In on_mouse_down, with global, leave if waiting is true; find the row and the column, check the click is inside a card that can be turned and put it in turned; with two turned count the move and, if they're equal, move them into found, otherwise waiting becomes true and clock.schedule calls cover after a second."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER]),
+    why: (o, c) => pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER]),
+    tests: memWinTests("en")
+  }
+},
+{
+  id: "build5a", build: true, part: 6, from: "build4", needs: "full", teaches: [], file: ["costruisci_memory_6.py", "build_memory_6.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 6",
+    theory: [
+`<p>Parte 6: a ogni partita le carte si <b>mescolano</b>, se no impareresti a memoria dove sono. Il mazzo, <code>MAZZO</code>, ha le sei coppie in ordine: <code>["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]</code>.</p>
+<p>La funzione <code>mescola(mazzo)</code> lo mescola come faresti con le mani. Prima copia le carte in una lista <code>resto</code>, così il mazzo non cambia; poi, finché nel resto ci sono carte, ne prende una a caso con <code>random.choice(resto)</code>, la toglie dal resto con <code>remove</code> e la mette in fondo alla lista <code>mescolate</code>. Alla fine restituisce le carte mescolate: le stesse 12, in un ordine a caso.</p>
+<p><code>nuova_partita()</code> mette sul tavolo un mazzo mescolato e rimette tutto come all'inizio: niente trovate, niente girate, mosse a 0. La chiami una prima volta prima di <code>pgzrun.go()</code>, e poi quando hai trovato tutte le coppie: allora un clic comincia una partita nuova, e non gira carte. A partita finita, sotto le mosse, scrivi <code>Tutte le coppie! Clicca per giocare ancora.</code></p>`],
+    task: `Scrivi <code>mescola(mazzo)</code>, che prende le carte a caso una alla volta con <code>random.choice</code>, le toglie con <code>remove</code> e restituisce la lista mescolata, e <code>nuova_partita()</code>, che mescola il mazzo e azzera tutto. A partita finita, un clic ne comincia un'altra. Quando chiudi la finestra, proverò con dei dadi truccati come si mescola il mazzo e se si gioca una seconda partita.`,
+    solution: `# Memory, parte 6: carte mescolate
+import pgzrun
+import random
+
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 2 * PASSO_Y + ALTA + 24
+MAZZO = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+carte = []
+trovate = []
+girate = []
+mosse = 0
+attesa = False
+
+
+def mescola(mazzo):
+    resto = []
+    for carta in mazzo:
+        resto.append(carta)
+    mescolate = []
+    while len(resto) > 0:
+        carta = random.choice(resto)
+        resto.remove(carta)
+        mescolate.append(carta)
+    return mescolate
+
+
+def nuova_partita():
+    global carte, trovate, girate, mosse
+    carte = mescola(MAZZO)
+    trovate = []
+    girate = []
+    mosse = 0
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * PASSO_X
+        y = Y0 + (i // 4) * PASSO_Y
+        if i in trovate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#3b2a33")
+        elif i in girate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Coppie: {len(trovate) // 2} su 6", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(trovate) == 12:
+        screen.draw.text("Tutte le coppie! Clicca per giocare ancora.", (X0, 58), fontsize=28, color="#ffca28")
+
+
+def copri():
+    global girate, attesa
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, mosse, attesa
+    if attesa:
+        return
+    if len(trovate) == 12:
+        nuova_partita()
+        return
+    c = (pos[0] - X0) // PASSO_X
+    r = (pos[1] - Y0) // PASSO_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * PASSO_X >= LARGA or pos[1] - Y0 - r * PASSO_Y >= ALTA:
+        return
+    i = r * 4 + c
+    if i in trovate or i in girate:
+        return
+    girate.append(i)
+    if len(girate) == 2:
+        mosse += 1
+        if carte[girate[0]] == carte[girate[1]]:
+            trovate.append(girate[0])
+            trovate.append(girate[1])
+            girate = []
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+nuova_partita()
+pgzrun.go()`,
+    hints: ["Perché copi il mazzo prima di mescolarlo? Cosa succede a una carta dopo che l'hai scelta?",
+      "In mescola un for che copia le carte in resto, una lista vuota per le mescolate e un while finché resto non è vuota: random.choice, remove e append; poi il return. nuova_partita, con global, mette carte, trovate, girate e mosse come all'inizio. In on_mouse_down, se le trovate sono 12, chiami nuova_partita e basta."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE]),
+    why: (o, c) => pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE]),
+    tests: memShuffleTests("it")
+  },
+  en: {
+    title: "Build: Memory, part 6",
+    theory: [
+`<p>Part 6: at every game the cards get <b>shuffled</b>, otherwise you'd learn by heart where they are. The deck, <code>DECK</code>, has the six pairs in order: <code>["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]</code>.</p>
+<p>The function <code>shuffle_deck(deck)</code> shuffles it as you would with your hands. First it copies the cards into a list <code>rest</code>, so the deck doesn't change; then, while there are cards in the rest, it takes one at random with <code>random.choice(rest)</code>, takes it out of the rest with <code>remove</code> and puts it at the end of the list <code>shuffled</code>. At the end it gives back the shuffled cards: the same 12, in a random order.</p>
+<p><code>new_game()</code> puts a shuffled deck on the table and puts everything back as at the start: nothing found, nothing turned, moves at 0. You call it a first time before <code>pgzrun.go()</code>, and then when you've found all the pairs: then a click starts a new game, and doesn't turn any card. When the game is over, under the moves, write <code>All the pairs! Click to play again.</code></p>`],
+    task: `Write <code>shuffle_deck(deck)</code>, which takes the cards at random one at a time with <code>random.choice</code>, takes them out with <code>remove</code> and gives back the shuffled list, and <code>new_game()</code>, which shuffles the deck and resets everything. When the game is over, a click starts another. When you close the window, I'll check with loaded dice how the deck gets shuffled and whether a second game can be played.`,
+    solution: `# Memory, part 6: shuffled cards
+import pgzrun
+import random
+
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 2 * STEP_Y + CARD_H + 24
+DECK = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+cards = []
+found = []
+turned = []
+moves = 0
+waiting = False
+
+
+def shuffle_deck(deck):
+    rest = []
+    for card in deck:
+        rest.append(card)
+    shuffled = []
+    while len(rest) > 0:
+        card = random.choice(rest)
+        rest.remove(card)
+        shuffled.append(card)
+    return shuffled
+
+
+def new_game():
+    global cards, found, turned, moves
+    cards = shuffle_deck(DECK)
+    found = []
+    turned = []
+    moves = 0
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * STEP_X
+        y = Y0 + (i // 4) * STEP_Y
+        if i in found:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#3b2a33")
+        elif i in turned:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Pairs: {len(found) // 2} of 6", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(found) == 12:
+        screen.draw.text("All the pairs! Click to play again.", (X0, 58), fontsize=28, color="#ffca28")
+
+
+def cover():
+    global turned, waiting
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, moves, waiting
+    if waiting:
+        return
+    if len(found) == 12:
+        new_game()
+        return
+    c = (pos[0] - X0) // STEP_X
+    r = (pos[1] - Y0) // STEP_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * STEP_X >= CARD_W or pos[1] - Y0 - r * STEP_Y >= CARD_H:
+        return
+    i = r * 4 + c
+    if i in found or i in turned:
+        return
+    turned.append(i)
+    if len(turned) == 2:
+        moves += 1
+        if cards[turned[0]] == cards[turned[1]]:
+            found.append(turned[0])
+            found.append(turned[1])
+            turned = []
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+new_game()
+pgzrun.go()`,
+    hints: ["Why do you copy the deck before shuffling it? What happens to a card after you've picked it?",
+      "In shuffle_deck a for that copies the cards into rest, an empty list for the shuffled ones and a while until rest is empty: random.choice, remove and append; then the return. new_game, with global, puts cards, found, turned and moves back as at the start. In on_mouse_down, if the cards found are 12, call new_game and that's it."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE]),
+    why: (o, c) => pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE]),
+    tests: memShuffleTests("en")
+  }
+},
+{
+  id: "build5", build: true, part: 7, from: "build5a", needs: "full", teaches: [], file: ["costruisci_memory_7.py", "build_memory_7.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 7",
+    theory: [
+`<p>Parte 7: il <b>tempo</b> e il <b>record</b>. Il tempo si conta in secondi: <code>clock.schedule_interval(un_secondo, 1)</code> chiama la funzione <code>un_secondo</code> ogni secondo, per sempre, e lei fa crescere <code>secondi</code> di 1, ma solo finché la partita non è finita. <code>nuova_partita()</code> rimette <code>secondi</code> a 0.</p>
+<p>Il record è il numero di mosse più basso, e dipende da quante carte ci sono sul tavolo: con più carte servono più mosse. Per questo sta in un dizionario, <code>record</code>, che all'inizio è vuoto, <code>{}</code>, con il numero delle carte come chiave: per ora le carte sono sempre 12, ma nella parte 9 arriveranno tavoli più grandi. Quando trovi l'ultima coppia, se 12 non è ancora nel dizionario, o se hai fatto meno mosse del record, il record diventa il tuo: <code>record[12] = mosse</code>.</p>
+<p>In alto, a sinistra le mosse, in mezzo <code>Record: 6</code>, con <code>midtop=(WIDTH // 2, 16)</code>, e a destra <code>Tempo: 0 s</code>. Il record lo prendi con <code>record.get(12, "-")</code>: se ancora non c'è, al suo posto viene un trattino. Sotto, mentre giochi, <code>Coppie: 0 su 6</code>, e a partita finita la scritta di prima.</p>`],
+    task: `Conta i secondi con <code>clock.schedule_interval</code> e una funzione che li fa crescere finché la partita non è finita; tieni nel dizionario <code>record</code> le mosse migliori per 12 carte, e aggiornalo quando trovi l'ultima coppia; scrivi in alto mosse, record e tempo. Quando chiudi la finestra, proverò il tempo che passa e si ferma, e tre partite di fila per il record.`,
+    solution: `# Memory, parte 7: record e tempo
+import pgzrun
+import random
+
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 2 * PASSO_Y + ALTA + 24
+MAZZO = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+carte = []
+trovate = []
+girate = []
+mosse = 0
+secondi = 0
+attesa = False
+record = {}
+
+
+def mescola(mazzo):
+    resto = []
+    for carta in mazzo:
+        resto.append(carta)
+    mescolate = []
+    while len(resto) > 0:
+        carta = random.choice(resto)
+        resto.remove(carta)
+        mescolate.append(carta)
+    return mescolate
+
+
+def nuova_partita():
+    global carte, trovate, girate, mosse, secondi
+    carte = mescola(MAZZO)
+    trovate = []
+    girate = []
+    mosse = 0
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if len(trovate) < 12:
+        secondi += 1
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * PASSO_X
+        y = Y0 + (i // 4) * PASSO_Y
+        if i in trovate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#3b2a33")
+        elif i in girate:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(carte[i], x + LARGA // 2, y + ALTA // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (LARGA, ALTA)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(12, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(trovate) == 12:
+        screen.draw.text("Tutte le coppie! Clicca per giocare ancora.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Coppie: {len(trovate) // 2} su 6", (X0, 58), fontsize=28)
+
+
+def copri():
+    global girate, attesa
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, mosse, attesa
+    if attesa:
+        return
+    if len(trovate) == 12:
+        nuova_partita()
+        return
+    c = (pos[0] - X0) // PASSO_X
+    r = (pos[1] - Y0) // PASSO_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * PASSO_X >= LARGA or pos[1] - Y0 - r * PASSO_Y >= ALTA:
+        return
+    i = r * 4 + c
+    if i in trovate or i in girate:
+        return
+    girate.append(i)
+    if len(girate) == 2:
+        mosse += 1
+        if carte[girate[0]] == carte[girate[1]]:
+            trovate.append(girate[0])
+            trovate.append(girate[1])
+            girate = []
+            if len(trovate) == 12 and (12 not in record or mosse < record[12]):
+                record[12] = mosse
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Quando deve smettere di crescere il tempo? In quale momento esatto controlli il record?",
+      "un_secondo, con global, aggiunge 1 se le trovate sono meno di 12, e clock.schedule_interval la chiama ogni secondo: scrivilo una volta sola, prima di pgzrun.go(). record parte vuoto. Dopo una coppia, se le trovate sono 12 e 12 non è nel record, oppure le mosse sono meno del record per 12, lo sostituisci. In draw() tre scritte in alto, con get per il record."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK]),
+    why: (o, c) => pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK]),
+    tests: (c) => memRecordTests("it")(c).concat(memShuffleTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: Memory, part 7",
+    theory: [
+`<p>Part 7: the <b>time</b> and the <b>record</b>. The time is counted in seconds: <code>clock.schedule_interval(one_second, 1)</code> calls the function <code>one_second</code> every second, for ever, and it makes <code>seconds</code> grow by 1, but only while the game isn't over. <code>new_game()</code> puts <code>seconds</code> back to 0.</p>
+<p>The record is the lowest number of moves, and it depends on how many cards are on the table: with more cards you need more moves. That's why it's in a dictionary, <code>best</code>, which is empty at the start, <code>{}</code>, with the number of cards as the key: for now there are always 12 cards, but in part 9 bigger tables will come. When you find the last pair, if 12 isn't in the dictionary yet, or if you made fewer moves than the record, the record becomes yours: <code>best[12] = moves</code>.</p>
+<p>At the top, the moves on the left, <code>Record: 6</code> in the middle, with <code>midtop=(WIDTH // 2, 16)</code>, and <code>Time: 0 s</code> on the right. You take the record with <code>best.get(12, "-")</code>: if there isn't one yet, a dash comes instead. Below, while you play, <code>Pairs: 0 of 6</code>, and when the game is over the text from before.</p>`],
+    task: `Count the seconds with <code>clock.schedule_interval</code> and a function that makes them grow while the game isn't over; keep in the dictionary <code>best</code> the best moves for 12 cards, and update it when you find the last pair; write the moves, the record and the time at the top. When you close the window, I'll test the time passing and stopping, and three games in a row for the record.`,
+    solution: `# Memory, part 7: records and time
+import pgzrun
+import random
+
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 2 * STEP_Y + CARD_H + 24
+DECK = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+cards = []
+found = []
+turned = []
+moves = 0
+seconds = 0
+waiting = False
+best = {}
+
+
+def shuffle_deck(deck):
+    rest = []
+    for card in deck:
+        rest.append(card)
+    shuffled = []
+    while len(rest) > 0:
+        card = random.choice(rest)
+        rest.remove(card)
+        shuffled.append(card)
+    return shuffled
+
+
+def new_game():
+    global cards, found, turned, moves, seconds
+    cards = shuffle_deck(DECK)
+    found = []
+    turned = []
+    moves = 0
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if len(found) < 12:
+        seconds += 1
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+
+
+def draw():
+    screen.fill("#24101b")
+    for i in range(12):
+        x = X0 + (i % 4) * STEP_X
+        y = Y0 + (i // 4) * STEP_Y
+        if i in found:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#3b2a33")
+        elif i in turned:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(cards[i], x + CARD_W // 2, y + CARD_H // 2, "#f5efe6")
+        else:
+            screen.draw.filled_rect(Rect((x, y), (CARD_W, CARD_H)), "#b5476b")
+            screen.draw.filled_rect(Rect((x + 9, y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+            screen.draw.filled_rect(Rect((x + 12, y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(12, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if len(found) == 12:
+        screen.draw.text("All the pairs! Click to play again.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Pairs: {len(found) // 2} of 6", (X0, 58), fontsize=28)
+
+
+def cover():
+    global turned, waiting
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, moves, waiting
+    if waiting:
+        return
+    if len(found) == 12:
+        new_game()
+        return
+    c = (pos[0] - X0) // STEP_X
+    r = (pos[1] - Y0) // STEP_Y
+    if c < 0 or c > 3 or r < 0 or r > 2:
+        return
+    if pos[0] - X0 - c * STEP_X >= CARD_W or pos[1] - Y0 - r * STEP_Y >= CARD_H:
+        return
+    i = r * 4 + c
+    if i in found or i in turned:
+        return
+    turned.append(i)
+    if len(turned) == 2:
+        moves += 1
+        if cards[turned[0]] == cards[turned[1]]:
+            found.append(turned[0])
+            found.append(turned[1])
+            turned = []
+            if len(found) == 12 and (12 not in best or moves < best[12]):
+                best[12] = moves
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["When should the time stop growing? At which exact moment do you check the record?",
+      "one_second, with global, adds 1 if the cards found are fewer than 12, and clock.schedule_interval calls it every second: write that just once, before pgzrun.go(). best starts empty. After a pair, if the cards found are 12 and 12 isn't in best, or the moves are fewer than the record for 12, you replace it. In draw() three texts at the top, with get for the record."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK]),
+    why: (o, c) => pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK]),
+    tests: (c) => memRecordTests("en")(c).concat(memShuffleTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build6a", build: true, part: 8, from: "build5", needs: "full", teaches: [], file: ["costruisci_memory_8.py", "build_memory_8.py"],
+  it: {
+    title: "Costruisci: il Memory, parte 8",
+    theory: [
+`<p>Parte 8: la carta diventa un <b>oggetto</b>. La classe <code>Carta</code> tiene insieme quello che il gioco sa di una carta: il <code>simbolo</code>, l'angolo <code>x</code> e <code>y</code>, calcolato dal posto come prima, e due attributi veri o falsi, <code>girata</code> e <code>trovata</code>. <code>__init__(self, simbolo, i)</code> riceve il simbolo e il posto i, contato da 0, e la mette coperta. I suoi metodi:</p>
+<ul><li><code>colpita(self, pos)</code> restituisce <code>True</code> se il punto <code>pos</code> è dentro la carta: tra <code>x</code> e <code>x + LARGA</code> e tra <code>y</code> e <code>y + ALTA</code>, senza il bordo destro e quello in fondo;</li>
+<li><code>gira(self)</code> e <code>copri(self)</code> la girano e la ricoprono;</li>
+<li><code>uguale(self, altra)</code> restituisce <code>True</code> se <code>altra</code> ha lo stesso simbolo;</li>
+<li><code>disegna(self)</code> la disegna girata, trovata o coperta, e per il retro con la cornice chiama <code>dorso(self)</code>.</li></ul>
+<p>Il tavolo diventa una squadra di 12 oggetti: <code>nuova_partita()</code> mescola il mazzo e crea una <code>Carta</code> per ogni posto. <code>draw()</code> chiede a ogni carta di disegnarsi; <code>on_mouse_down</code> cerca la carta colpita, la gira e la mette in <code>girate</code>, che ora tiene carte e non posti. Le coppie le conti in <code>coppie</code>: con 6 la partita è finita. Il gioco resta uguale.</p>`],
+    task: `Scrivi la classe <code>Carta</code> con <code>__init__</code>, <code>colpita</code>, <code>gira</code>, <code>copri</code>, <code>uguale</code>, <code>disegna</code> e <code>dorso</code>, come qui sopra, e fai del tavolo una lista di 12 oggetti <code>Carta</code>, con le coppie contate in <code>coppie</code>. Quando chiudi la finestra, proverò la classe da sola e poi il gioco, con il tempo e il record.`,
+    solution: `# Memory, parte 8: la carta è un oggetto
+import pgzrun
+import random
+
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 2 * PASSO_Y + ALTA + 24
+MAZZO = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+carte = []
+girate = []
+coppie = 0
+mosse = 0
+secondi = 0
+attesa = False
+record = {}
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+
+
+class Carta:
+    def __init__(self, simbolo, i):
+        self.simbolo = simbolo
+        self.x = X0 + (i % 4) * PASSO_X
+        self.y = Y0 + (i // 4) * PASSO_Y
+        self.girata = False
+        self.trovata = False
+
+    def colpita(self, pos):
+        dentro_x = self.x <= pos[0] and pos[0] < self.x + LARGA
+        dentro_y = self.y <= pos[1] and pos[1] < self.y + ALTA
+        return dentro_x and dentro_y
+
+    def gira(self):
+        self.girata = True
+
+    def copri(self):
+        self.girata = False
+
+    def uguale(self, altra):
+        return self.simbolo == altra.simbolo
+
+    def disegna(self):
+        if self.trovata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#3b2a33")
+        elif self.girata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#f5efe6")
+        else:
+            self.dorso()
+
+    def dorso(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+
+
+def mescola(mazzo):
+    resto = []
+    for carta in mazzo:
+        resto.append(carta)
+    mescolate = []
+    while len(resto) > 0:
+        carta = random.choice(resto)
+        resto.remove(carta)
+        mescolate.append(carta)
+    return mescolate
+
+
+def nuova_partita():
+    global carte, girate, coppie, mosse, secondi
+    simboli = mescola(MAZZO)
+    carte = []
+    for i in range(12):
+        carte.append(Carta(simboli[i], i))
+    girate = []
+    coppie = 0
+    mosse = 0
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if coppie < 6:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for carta in carte:
+        carta.disegna()
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(12, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if coppie == 6:
+        screen.draw.text("Tutte le coppie! Clicca per giocare ancora.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Coppie: {coppie} su 6", (X0, 58), fontsize=28)
+
+
+def copri():
+    global girate, attesa
+    for carta in girate:
+        carta.copri()
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, coppie, mosse, attesa
+    if attesa:
+        return
+    if coppie == 6:
+        nuova_partita()
+        return
+    for carta in carte:
+        if carta.colpita(pos) and not carta.girata and not carta.trovata:
+            carta.gira()
+            girate.append(carta)
+    if len(girate) == 2:
+        mosse += 1
+        if girate[0].uguale(girate[1]):
+            girate[0].trovata = True
+            girate[1].trovata = True
+            girate = []
+            coppie += 1
+            if coppie == 6 and (12 not in record or mosse < record[12]):
+                record[12] = mosse
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Quali informazioni deve tenere ogni carta? Come fa una carta a sapere se un clic l'ha colpita?",
+      "In __init__ cinque attributi con self; x e y con % e // come prima. colpita restituisce due confronti per la x e due per la y, uniti da and. gira e copri cambiano girata, uguale confronta i simboli, disegna sceglie il colore come faceva draw(). In on_mouse_down un for sulle carte: quella colpita, non girata e non trovata, la giri e la metti in girate; con due girate le confronti con uguale."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.it)),
+    why: (o, c) => pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.it)),
+    tests: (c) => memClassTests("it")(c).concat(memRecordTests("it", "coppie")(c))
+  },
+  en: {
+    title: "Build: Memory, part 8",
+    theory: [
+`<p>Part 8: the card becomes an <b>object</b>. The class <code>Card</code> keeps together what the game knows about a card: the <code>symbol</code>, the corner <code>x</code> and <code>y</code>, worked out from the place as before, and two true or false attributes, <code>face_up</code> and <code>matched</code>. <code>__init__(self, symbol, i)</code> gets the symbol and the place i, counted from 0, and puts it face down. Its methods:</p>
+<ul><li><code>hit(self, pos)</code> gives back <code>True</code> if the point <code>pos</code> is inside the card: between <code>x</code> and <code>x + CARD_W</code> and between <code>y</code> and <code>y + CARD_H</code>, without the right edge and the bottom one;</li>
+<li><code>turn(self)</code> and <code>cover(self)</code> turn it over and cover it again;</li>
+<li><code>same_as(self, other)</code> gives back <code>True</code> if <code>other</code> has the same symbol;</li>
+<li><code>show(self)</code> draws it turned, matched or face down, and for the back with the frame it calls <code>show_back(self)</code>.</li></ul>
+<p>The table becomes a team of 12 objects: <code>new_game()</code> shuffles the deck and makes a <code>Card</code> for every place. <code>draw()</code> asks every card to draw itself; <code>on_mouse_down</code> looks for the card hit, turns it and puts it in <code>turned</code>, which now holds cards, not places. You count the pairs in <code>pairs</code>: with 6 the game is over. The game stays the same.</p>`],
+    task: `Write the class <code>Card</code> with <code>__init__</code>, <code>hit</code>, <code>turn</code>, <code>cover</code>, <code>same_as</code>, <code>show</code> and <code>show_back</code>, as above, and make the table a list of 12 <code>Card</code> objects, with the pairs counted in <code>pairs</code>. When you close the window, I'll test the class on its own and then the game, with the time and the record.`,
+    solution: `# Memory, part 8: the card is an object
+import pgzrun
+import random
+
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 2 * STEP_Y + CARD_H + 24
+DECK = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E", "F", "F"]
+cards = []
+turned = []
+pairs = 0
+moves = 0
+seconds = 0
+waiting = False
+best = {}
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    else:
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+
+
+class Card:
+    def __init__(self, symbol, i):
+        self.symbol = symbol
+        self.x = X0 + (i % 4) * STEP_X
+        self.y = Y0 + (i // 4) * STEP_Y
+        self.face_up = False
+        self.matched = False
+
+    def hit(self, pos):
+        inside_x = self.x <= pos[0] and pos[0] < self.x + CARD_W
+        inside_y = self.y <= pos[1] and pos[1] < self.y + CARD_H
+        return inside_x and inside_y
+
+    def turn(self):
+        self.face_up = True
+
+    def cover(self):
+        self.face_up = False
+
+    def same_as(self, other):
+        return self.symbol == other.symbol
+
+    def show(self):
+        if self.matched:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#3b2a33")
+        elif self.face_up:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#f5efe6")
+        else:
+            self.show_back()
+
+    def show_back(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+
+
+def shuffle_deck(deck):
+    rest = []
+    for card in deck:
+        rest.append(card)
+    shuffled = []
+    while len(rest) > 0:
+        card = random.choice(rest)
+        rest.remove(card)
+        shuffled.append(card)
+    return shuffled
+
+
+def new_game():
+    global cards, turned, pairs, moves, seconds
+    symbols = shuffle_deck(DECK)
+    cards = []
+    for i in range(12):
+        cards.append(Card(symbols[i], i))
+    turned = []
+    pairs = 0
+    moves = 0
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if pairs < 6:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for card in cards:
+        card.show()
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(12, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if pairs == 6:
+        screen.draw.text("All the pairs! Click to play again.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Pairs: {pairs} of 6", (X0, 58), fontsize=28)
+
+
+def cover():
+    global turned, waiting
+    for card in turned:
+        card.cover()
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, pairs, moves, waiting
+    if waiting:
+        return
+    if pairs == 6:
+        new_game()
+        return
+    for card in cards:
+        if card.hit(pos) and not card.face_up and not card.matched:
+            card.turn()
+            turned.append(card)
+    if len(turned) == 2:
+        moves += 1
+        if turned[0].same_as(turned[1]):
+            turned[0].matched = True
+            turned[1].matched = True
+            turned = []
+            pairs += 1
+            if pairs == 6 and (12 not in best or moves < best[12]):
+                best[12] = moves
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["What information does every card need to keep? How can a card know whether a click hit it?",
+      "In __init__ five attributes with self; x and y with % and // as before. hit gives back two comparisons for x and two for y, joined by and. turn and cover change face_up, same_as compares the symbols, show picks the colour as draw() used to. In on_mouse_down a for over the cards: the one hit, not turned and not matched, you turn and put in turned; with two turned compare them with same_as."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.en)),
+    why: (o, c) => pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.en)),
+    tests: (c) => memClassTests("en")(c).concat(memRecordTests("en", "pairs")(c))
+  }
+},
+{
+  id: "final", build: true, part: 9, from: "build6a", needs: "full", teaches: [], file: ["sfida_finale_memory.py", "final_challenge_memory.py"],
+  it: {
+    title: "Costruisci: il Memory completo",
+    theory: [
+`<p>Parte 9, la sfida finale: <b>tavoli più grandi</b>. Oltre al tavolo da 12 carte c'è quello da 16, con 4 righe e due simboli nuovi: <code>"G"</code>, due barre rosa <code>"#ec407a"</code> di 54 × 14, la prima con l'angolo 27 pixel a sinistra e 20 sopra il centro e la seconda 6 sotto il centro; e <code>"H"</code>, due quadrati azzurri <code>"#26c6da"</code> di lato 22, uno in alto a sinistra del centro e uno in basso a destra. I simboli stanno nella lista <code>SIMBOLI</code>, da <code>"A"</code> a <code>"H"</code>, e <code>quante</code> dice quante carte ci sono sul tavolo: <code>nuova_partita()</code> fa il mazzo con le prime <code>quante // 2</code> lettere, ognuna due volte, lo mescola e crea una carta per ogni posto. Le coppie da trovare sono <code>quante // 2</code>.</p>
+<p>Il tavolo si sceglie con i tasti, in <code>on_key_down</code>: 1, cioè <code>keys.K_1</code>, per 12 carte, 2, <code>keys.K_2</code>, per 16, e N, <code>keys.N</code>, per una partita nuova sullo stesso tavolo, anche a metà. La finestra diventa alta abbastanza per 4 righe, <code>HEIGHT = Y0 + 3 * PASSO_Y + ALTA + 56</code>, e in fondo, con <code>midbottom=(WIDTH // 2, HEIGHT - 16)</code>, scrivi i tasti: <code>1: 12 carte    2: 16 carte    N: nuova partita</code>. E il dizionario dei record ora serve davvero: <code>record[quante]</code> tiene il record di ogni tavolo.</p>`],
+    task: `Aggiungi i simboli G e H, la lista <code>SIMBOLI</code> e la variabile <code>quante</code>, e fai il mazzo in <code>nuova_partita()</code> con le prime <code>quante // 2</code> lettere; i tasti 1 e 2 scelgono il tavolo e N comincia una partita nuova; il record va in <code>record[quante]</code>. Quando chiudi la finestra, proverò il tavolo da 16, i simboli nuovi, i record dei due tavoli e N.`,
+    solution: `# Memory, parte 9: tavoli più grandi
+import pgzrun
+import random
+
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 3 * PASSO_Y + ALTA + 56
+SIMBOLI = ["A", "B", "C", "D", "E", "F", "G", "H"]
+quante = 12
+carte = []
+girate = []
+coppie = 0
+mosse = 0
+secondi = 0
+attesa = False
+record = {}
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    elif simbolo == "F":
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+    elif simbolo == "G":
+        screen.draw.filled_rect(Rect((x - 27, y - 20), (54, 14)), "#ec407a")
+        screen.draw.filled_rect(Rect((x - 27, y + 6), (54, 14)), "#ec407a")
+    else:
+        screen.draw.filled_rect(Rect((x - 22, y - 22), (22, 22)), "#26c6da")
+        screen.draw.filled_rect(Rect((x, y), (22, 22)), "#26c6da")
+
+
+class Carta:
+    def __init__(self, simbolo, i):
+        self.simbolo = simbolo
+        self.x = X0 + (i % 4) * PASSO_X
+        self.y = Y0 + (i // 4) * PASSO_Y
+        self.girata = False
+        self.trovata = False
+
+    def colpita(self, pos):
+        dentro_x = self.x <= pos[0] and pos[0] < self.x + LARGA
+        dentro_y = self.y <= pos[1] and pos[1] < self.y + ALTA
+        return dentro_x and dentro_y
+
+    def gira(self):
+        self.girata = True
+
+    def copri(self):
+        self.girata = False
+
+    def uguale(self, altra):
+        return self.simbolo == altra.simbolo
+
+    def disegna(self):
+        if self.trovata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#3b2a33")
+        elif self.girata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#f5efe6")
+        else:
+            self.dorso()
+
+    def dorso(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+
+
+def mescola(mazzo):
+    resto = []
+    for carta in mazzo:
+        resto.append(carta)
+    mescolate = []
+    while len(resto) > 0:
+        carta = random.choice(resto)
+        resto.remove(carta)
+        mescolate.append(carta)
+    return mescolate
+
+
+def nuova_partita():
+    global carte, girate, coppie, mosse, secondi
+    mazzo = []
+    for k in range(quante // 2):
+        mazzo.append(SIMBOLI[k])
+        mazzo.append(SIMBOLI[k])
+    simboli = mescola(mazzo)
+    carte = []
+    for i in range(quante):
+        carte.append(Carta(simboli[i], i))
+    girate = []
+    coppie = 0
+    mosse = 0
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if coppie < quante // 2:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for carta in carte:
+        carta.disegna()
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if coppie == quante // 2:
+        screen.draw.text("Tutte le coppie! Clicca per giocare ancora.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Coppie: {coppie} su {quante // 2}", (X0, 58), fontsize=28)
+    screen.draw.text("1: 12 carte    2: 16 carte    N: nuova partita", midbottom=(WIDTH // 2, HEIGHT - 16), fontsize=26)
+
+
+def copri():
+    global girate, attesa
+    for carta in girate:
+        carta.copri()
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, coppie, mosse, attesa
+    if attesa:
+        return
+    if coppie == quante // 2:
+        nuova_partita()
+        return
+    for carta in carte:
+        if carta.colpita(pos) and not carta.girata and not carta.trovata:
+            carta.gira()
+            girate.append(carta)
+    if len(girate) == 2:
+        mosse += 1
+        if girate[0].uguale(girate[1]):
+            girate[0].trovata = True
+            girate[1].trovata = True
+            girate = []
+            coppie += 1
+            if coppie == quante // 2 and (quante not in record or mosse < record[quante]):
+                record[quante] = mosse
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+def on_key_down(key):
+    global quante
+    if key == keys.K_1:
+        quante = 12
+    elif key == keys.K_2:
+        quante = 16
+    elif key != keys.N:
+        return
+    nuova_partita()
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Cosa cambia tra il tavolo da 12 e quello da 16, e cosa invece resta uguale? Da dove prendi le lettere del mazzo?",
+      "In nuova_partita un for su range(quante // 2) che aggiunge al mazzo SIMBOLI[k] due volte, poi mescola e un for su range(quante). Dove c'era 6 o 12 ora usi quante // 2 o quante. on_key_down, con global, cambia quante con 1 o 2 e chiama nuova_partita, anche con N; con gli altri tasti esce subito."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.it, [MEM_LEVELS, MEM_NUMKEYS, MEM_NEW])),
+    why: (o, c) => pgzWhy(c, "it", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.it, [MEM_LEVELS, MEM_NUMKEYS, MEM_NEW])),
+    tests: (c) => memLevelTests("it")(c).concat(memClassTests("it")(c).slice(0, 1))
+  },
+  en: {
+    title: "Build: the full Memory",
+    theory: [
+`<p>Part 9, the final challenge: <b>bigger tables</b>. Besides the table of 12 cards there's one of 16, with 4 rows and two new symbols: <code>"G"</code>, two pink <code>"#ec407a"</code> bars of 54 × 14, the first with its corner 27 pixels left of and 20 above the centre and the second 6 below the centre; and <code>"H"</code>, two light blue <code>"#26c6da"</code> squares with side 22, one up and to the left of the centre and one down and to the right. The symbols are in the list <code>SYMBOLS</code>, from <code>"A"</code> to <code>"H"</code>, and <code>size</code> says how many cards are on the table: <code>new_game()</code> makes the deck with the first <code>size // 2</code> letters, each one twice, shuffles it and makes a card for every place. The pairs to find are <code>size // 2</code>.</p>
+<p>You pick the table with the keys, in <code>on_key_down</code>: 1, that is <code>keys.K_1</code>, for 12 cards, 2, <code>keys.K_2</code>, for 16, and N, <code>keys.N</code>, for a new game on the same table, even halfway through. The window gets tall enough for 4 rows, <code>HEIGHT = Y0 + 3 * STEP_Y + CARD_H + 56</code>, and at the bottom, with <code>midbottom=(WIDTH // 2, HEIGHT - 16)</code>, write the keys: <code>1: 12 cards    2: 16 cards    N: new game</code>. And the records dictionary is really needed now: <code>best[size]</code> keeps the record for each table.</p>`],
+    task: `Add the symbols G and H, the list <code>SYMBOLS</code> and the variable <code>size</code>, and make the deck in <code>new_game()</code> with the first <code>size // 2</code> letters; the keys 1 and 2 pick the table and N starts a new game; the record goes in <code>best[size]</code>. When you close the window, I'll test the table of 16, the new symbols, the records of both tables and N.`,
+    solution: `# Memory, part 9: bigger tables
+import pgzrun
+import random
+
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 3 * STEP_Y + CARD_H + 56
+SYMBOLS = ["A", "B", "C", "D", "E", "F", "G", "H"]
+size = 12
+cards = []
+turned = []
+pairs = 0
+moves = 0
+seconds = 0
+waiting = False
+best = {}
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    elif symbol == "F":
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+    elif symbol == "G":
+        screen.draw.filled_rect(Rect((x - 27, y - 20), (54, 14)), "#ec407a")
+        screen.draw.filled_rect(Rect((x - 27, y + 6), (54, 14)), "#ec407a")
+    else:
+        screen.draw.filled_rect(Rect((x - 22, y - 22), (22, 22)), "#26c6da")
+        screen.draw.filled_rect(Rect((x, y), (22, 22)), "#26c6da")
+
+
+class Card:
+    def __init__(self, symbol, i):
+        self.symbol = symbol
+        self.x = X0 + (i % 4) * STEP_X
+        self.y = Y0 + (i // 4) * STEP_Y
+        self.face_up = False
+        self.matched = False
+
+    def hit(self, pos):
+        inside_x = self.x <= pos[0] and pos[0] < self.x + CARD_W
+        inside_y = self.y <= pos[1] and pos[1] < self.y + CARD_H
+        return inside_x and inside_y
+
+    def turn(self):
+        self.face_up = True
+
+    def cover(self):
+        self.face_up = False
+
+    def same_as(self, other):
+        return self.symbol == other.symbol
+
+    def show(self):
+        if self.matched:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#3b2a33")
+        elif self.face_up:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#f5efe6")
+        else:
+            self.show_back()
+
+    def show_back(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+
+
+def shuffle_deck(deck):
+    rest = []
+    for card in deck:
+        rest.append(card)
+    shuffled = []
+    while len(rest) > 0:
+        card = random.choice(rest)
+        rest.remove(card)
+        shuffled.append(card)
+    return shuffled
+
+
+def new_game():
+    global cards, turned, pairs, moves, seconds
+    deck = []
+    for k in range(size // 2):
+        deck.append(SYMBOLS[k])
+        deck.append(SYMBOLS[k])
+    symbols = shuffle_deck(deck)
+    cards = []
+    for i in range(size):
+        cards.append(Card(symbols[i], i))
+    turned = []
+    pairs = 0
+    moves = 0
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if pairs < size // 2:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for card in cards:
+        card.show()
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(size, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if pairs == size // 2:
+        screen.draw.text("All the pairs! Click to play again.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Pairs: {pairs} of {size // 2}", (X0, 58), fontsize=28)
+    screen.draw.text("1: 12 cards    2: 16 cards    N: new game", midbottom=(WIDTH // 2, HEIGHT - 16), fontsize=26)
+
+
+def cover():
+    global turned, waiting
+    for card in turned:
+        card.cover()
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, pairs, moves, waiting
+    if waiting:
+        return
+    if pairs == size // 2:
+        new_game()
+        return
+    for card in cards:
+        if card.hit(pos) and not card.face_up and not card.matched:
+            card.turn()
+            turned.append(card)
+    if len(turned) == 2:
+        moves += 1
+        if turned[0].same_as(turned[1]):
+            turned[0].matched = True
+            turned[1].matched = True
+            turned = []
+            pairs += 1
+            if pairs == size // 2 and (size not in best or moves < best[size]):
+                best[size] = moves
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+def on_key_down(key):
+    global size
+    if key == keys.K_1:
+        size = 12
+    elif key == keys.K_2:
+        size = 16
+    elif key != keys.N:
+        return
+    new_game()
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["What changes between the table of 12 and the one of 16, and what stays the same? Where do you take the deck's letters from?",
+      "In new_game a for over range(size // 2) that adds SYMBOLS[k] to the deck twice, then shuffle and a for over range(size). Where there was 6 or 12 you now use size // 2 or size. on_key_down, with global, changes size with 1 or 2 and calls new_game, with N too; with other keys it leaves straight away."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.en, [MEM_LEVELS, MEM_NUMKEYS, MEM_NEW])),
+    why: (o, c) => pgzWhy(c, "en", [MEM_NOINPUT, MEM_CLICK, PGZ_GLOBAL, MEM_RECT, MEM_LATER, MEM_SHUFFLE, MEM_DICT, MEM_TICK].concat(MEM_CLASS.en, [MEM_LEVELS, MEM_NUMKEYS, MEM_NEW])),
+    tests: (c) => memLevelTests("en")(c).concat(memClassTests("en")(c).slice(0, 1))
+  }
+},
+{
+  id: "build7", build: true, part: 10, from: "final", needs: "full", teaches: [], file: ["costruisci_sul_computer.py", "build_for_your_computer.py"],
+  it: {
+    title: "Costruisci: il Memory sul tuo computer",
+    theory: [
+`<p>Parte 10: il Memory è finito, ed è ora di portarlo <b>sul tuo computer</b>. Il codice è lo stesso, cambia solo dove gira:</p>
+<ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
+<li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
+<li>salva il programma in un file, per esempio <code>memory.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python memory.py</code>.</li></ol>
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in <b>pausa</b> e fa ripartire, con una variabile vera o falsa, <code>pausa</code>: in pausa il tempo si ferma, i clic non contano e le carte si vedono tutte coperte, con <code>dorso()</code>, così non si può sbirciare; sotto le mosse c'è scritto <code>Pausa: P per continuare</code>. Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, in <code>on_key_down</code>. E in fondo la riga dei tasti diventa <code>1, 2: tavolo    N: nuova    P: pausa    Esc: esci</code>.</p>`],
+    task: `Prepara il Memory per il computer: un titolo per la finestra con <code>TITLE</code>, la pausa con P (il tempo fermo, i clic che non contano e le carte coperte, con la scritta <code>Pausa: P per continuare</code>), Esc per uscire con <code>exit()</code> e la riga dei tasti in fondo. Proverò il titolo, la pausa e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca a Memory sul tuo computer.`,
+    solution: `# Memory, parte 10: pronto per il computer
+import pgzrun
+import random
+
+TITLE = "Memory di Ada"
+LARGA = 102
+ALTA = 96
+PASSO_X = 123
+PASSO_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * PASSO_X + LARGA
+HEIGHT = Y0 + 3 * PASSO_Y + ALTA + 56
+SIMBOLI = ["A", "B", "C", "D", "E", "F", "G", "H"]
+quante = 12
+carte = []
+girate = []
+coppie = 0
+mosse = 0
+secondi = 0
+attesa = False
+pausa = False
+record = {}
+
+
+def disegna_simbolo(simbolo, x, y, fondo):
+    if simbolo == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif simbolo == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif simbolo == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, fondo)
+    elif simbolo == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif simbolo == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    elif simbolo == "F":
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), fondo)
+    elif simbolo == "G":
+        screen.draw.filled_rect(Rect((x - 27, y - 20), (54, 14)), "#ec407a")
+        screen.draw.filled_rect(Rect((x - 27, y + 6), (54, 14)), "#ec407a")
+    else:
+        screen.draw.filled_rect(Rect((x - 22, y - 22), (22, 22)), "#26c6da")
+        screen.draw.filled_rect(Rect((x, y), (22, 22)), "#26c6da")
+
+
+class Carta:
+    def __init__(self, simbolo, i):
+        self.simbolo = simbolo
+        self.x = X0 + (i % 4) * PASSO_X
+        self.y = Y0 + (i // 4) * PASSO_Y
+        self.girata = False
+        self.trovata = False
+
+    def colpita(self, pos):
+        dentro_x = self.x <= pos[0] and pos[0] < self.x + LARGA
+        dentro_y = self.y <= pos[1] and pos[1] < self.y + ALTA
+        return dentro_x and dentro_y
+
+    def gira(self):
+        self.girata = True
+
+    def copri(self):
+        self.girata = False
+
+    def uguale(self, altra):
+        return self.simbolo == altra.simbolo
+
+    def disegna(self):
+        if self.trovata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#3b2a33")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#3b2a33")
+        elif self.girata:
+            screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#f5efe6")
+            disegna_simbolo(self.simbolo, self.x + LARGA // 2, self.y + ALTA // 2, "#f5efe6")
+        else:
+            self.dorso()
+
+    def dorso(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (LARGA, ALTA)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (LARGA - 18, ALTA - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (LARGA - 24, ALTA - 24)), "#b5476b")
+
+
+def mescola(mazzo):
+    resto = []
+    for carta in mazzo:
+        resto.append(carta)
+    mescolate = []
+    while len(resto) > 0:
+        carta = random.choice(resto)
+        resto.remove(carta)
+        mescolate.append(carta)
+    return mescolate
+
+
+def nuova_partita():
+    global carte, girate, coppie, mosse, secondi
+    mazzo = []
+    for k in range(quante // 2):
+        mazzo.append(SIMBOLI[k])
+        mazzo.append(SIMBOLI[k])
+    simboli = mescola(mazzo)
+    carte = []
+    for i in range(quante):
+        carte.append(Carta(simboli[i], i))
+    girate = []
+    coppie = 0
+    mosse = 0
+    secondi = 0
+
+
+def un_secondo():
+    global secondi
+    if coppie < quante // 2 and not pausa:
+        secondi += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for carta in carte:
+        if pausa:
+            carta.dorso()
+        else:
+            carta.disegna()
+    screen.draw.text(f"Mosse: {mosse}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {record.get(quante, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Tempo: {secondi} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if pausa:
+        screen.draw.text("Pausa: P per continuare", (X0, 58), fontsize=28, color="#ffca28")
+    elif coppie == quante // 2:
+        screen.draw.text("Tutte le coppie! Clicca per giocare ancora.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Coppie: {coppie} su {quante // 2}", (X0, 58), fontsize=28)
+    screen.draw.text("1, 2: tavolo    N: nuova    P: pausa    Esc: esci", midbottom=(WIDTH // 2, HEIGHT - 16), fontsize=26)
+
+
+def copri():
+    global girate, attesa
+    for carta in girate:
+        carta.copri()
+    girate = []
+    attesa = False
+
+
+def on_mouse_down(pos):
+    global girate, coppie, mosse, attesa
+    if attesa or pausa:
+        return
+    if coppie == quante // 2:
+        nuova_partita()
+        return
+    for carta in carte:
+        if carta.colpita(pos) and not carta.girata and not carta.trovata:
+            carta.gira()
+            girate.append(carta)
+    if len(girate) == 2:
+        mosse += 1
+        if girate[0].uguale(girate[1]):
+            girate[0].trovata = True
+            girate[1].trovata = True
+            girate = []
+            coppie += 1
+            if coppie == quante // 2 and (quante not in record or mosse < record[quante]):
+                record[quante] = mosse
+        else:
+            attesa = True
+            clock.schedule(copri, 1)
+
+
+def on_key_down(key):
+    global quante, pausa
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        pausa = not pausa
+        return
+    if pausa:
+        return
+    if key == keys.K_1:
+        quante = 12
+    elif key == keys.K_2:
+        quante = 16
+    elif key != keys.N:
+        return
+    nuova_partita()
+
+
+nuova_partita()
+clock.schedule_interval(un_secondo, 1)
+pgzrun.go()`,
+    hints: ["Cosa deve smettere di funzionare durante la pausa? Perché Esc va controllato prima di tutto il resto?",
+      "In cima TITLE, e pausa falsa. In on_key_down, per primo Esc con exit(); poi P rovescia pausa con not, e durante la pausa gli altri tasti escono subito. un_secondo conta solo se non c'è la pausa, on_mouse_down esce subito in pausa, e draw() in pausa disegna ogni carta con dorso()."],
+    check: (o, c) => !pgzWhy(c, "it", [MEM_CLICK, PGZ_GLOBAL, MEM_LATER, MEM_TICK].concat(MEM_CLASS.it, [MEM_LEVELS, MEM_NEW], MEM_COMPUTER.it)),
+    why: (o, c) => pgzWhy(c, "it", [MEM_CLICK, PGZ_GLOBAL, MEM_LATER, MEM_TICK].concat(MEM_CLASS.it, [MEM_LEVELS, MEM_NEW], MEM_COMPUTER.it)),
+    tests: (c) => memKeyTests("it")(c).concat(memLevelTests("it")(c).slice(2, 3))
+  },
+  en: {
+    title: "Build: Memory on your computer",
+    theory: [
+`<p>Part 10: Memory is finished, and it's time to take it <b>to your computer</b>. The code is the same, only where it runs changes:</p>
+<ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
+<li>in the computer's terminal type <code>pip install pgzero</code>: it's Pygame Zero's library, which Arcode already has;</li>
+<li>save the program in a file, for example <code>memory.py</code>, and in the terminal, from the same folder, type <code>python memory.py</code>.</li></ol>
+<p>On a computer, though, there are no buttons that Arcode puts over the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key <b>pauses</b> and goes on again, with a true or false variable, <code>paused</code>: in the pause the time stops, clicks don't count and the cards all look face down, with <code>show_back()</code>, so nobody can peek; under the moves it says <code>Paused: P to go on</code>. Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, in <code>on_key_down</code>. And at the bottom the line with the keys becomes <code>1, 2: table    N: new    P: pause    Esc: quit</code>.</p>`],
+    task: `Get Memory ready for your computer: a title for the window with <code>TITLE</code>, the pause with P (the time stopped, clicks not counting and the cards face down, with the text <code>Paused: P to go on</code>), Esc to quit with <code>exit()</code> and the line with the keys at the bottom. I'll test the title, the pause and quitting. Then, if you like, follow the three steps above and play Memory on your computer.`,
+    solution: `# Memory, part 10: ready for your computer
+import pgzrun
+import random
+
+TITLE = "Memory by Ada"
+CARD_W = 102
+CARD_H = 96
+STEP_X = 123
+STEP_Y = 111
+X0 = 24
+Y0 = 100
+WIDTH = 2 * X0 + 3 * STEP_X + CARD_W
+HEIGHT = Y0 + 3 * STEP_Y + CARD_H + 56
+SYMBOLS = ["A", "B", "C", "D", "E", "F", "G", "H"]
+size = 12
+cards = []
+turned = []
+pairs = 0
+moves = 0
+seconds = 0
+waiting = False
+paused = False
+best = {}
+
+
+def draw_symbol(symbol, x, y, backdrop):
+    if symbol == "A":
+        screen.draw.filled_circle((x, y), 24, "#ef5350")
+    elif symbol == "B":
+        screen.draw.filled_rect(Rect((x - 21, y - 21), (42, 42)), "#42a5f5")
+    elif symbol == "C":
+        screen.draw.filled_circle((x, y), 26, "#ffca28")
+        screen.draw.filled_circle((x, y), 12, backdrop)
+    elif symbol == "D":
+        screen.draw.filled_rect(Rect((x - 27, y - 9), (54, 18)), "#66bb6a")
+        screen.draw.filled_rect(Rect((x - 9, y - 27), (18, 54)), "#66bb6a")
+    elif symbol == "E":
+        screen.draw.filled_circle((x - 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y - 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x - 13, y + 13), 11, "#ab47bc")
+        screen.draw.filled_circle((x + 13, y + 13), 11, "#ab47bc")
+    elif symbol == "F":
+        screen.draw.filled_rect(Rect((x - 24, y - 24), (48, 48)), "#ff7043")
+        screen.draw.filled_rect(Rect((x - 12, y - 12), (24, 24)), backdrop)
+    elif symbol == "G":
+        screen.draw.filled_rect(Rect((x - 27, y - 20), (54, 14)), "#ec407a")
+        screen.draw.filled_rect(Rect((x - 27, y + 6), (54, 14)), "#ec407a")
+    else:
+        screen.draw.filled_rect(Rect((x - 22, y - 22), (22, 22)), "#26c6da")
+        screen.draw.filled_rect(Rect((x, y), (22, 22)), "#26c6da")
+
+
+class Card:
+    def __init__(self, symbol, i):
+        self.symbol = symbol
+        self.x = X0 + (i % 4) * STEP_X
+        self.y = Y0 + (i // 4) * STEP_Y
+        self.face_up = False
+        self.matched = False
+
+    def hit(self, pos):
+        inside_x = self.x <= pos[0] and pos[0] < self.x + CARD_W
+        inside_y = self.y <= pos[1] and pos[1] < self.y + CARD_H
+        return inside_x and inside_y
+
+    def turn(self):
+        self.face_up = True
+
+    def cover(self):
+        self.face_up = False
+
+    def same_as(self, other):
+        return self.symbol == other.symbol
+
+    def show(self):
+        if self.matched:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#3b2a33")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#3b2a33")
+        elif self.face_up:
+            screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#f5efe6")
+            draw_symbol(self.symbol, self.x + CARD_W // 2, self.y + CARD_H // 2, "#f5efe6")
+        else:
+            self.show_back()
+
+    def show_back(self):
+        screen.draw.filled_rect(Rect((self.x, self.y), (CARD_W, CARD_H)), "#b5476b")
+        screen.draw.filled_rect(Rect((self.x + 9, self.y + 9), (CARD_W - 18, CARD_H - 18)), "#c87590")
+        screen.draw.filled_rect(Rect((self.x + 12, self.y + 12), (CARD_W - 24, CARD_H - 24)), "#b5476b")
+
+
+def shuffle_deck(deck):
+    rest = []
+    for card in deck:
+        rest.append(card)
+    shuffled = []
+    while len(rest) > 0:
+        card = random.choice(rest)
+        rest.remove(card)
+        shuffled.append(card)
+    return shuffled
+
+
+def new_game():
+    global cards, turned, pairs, moves, seconds
+    deck = []
+    for k in range(size // 2):
+        deck.append(SYMBOLS[k])
+        deck.append(SYMBOLS[k])
+    symbols = shuffle_deck(deck)
+    cards = []
+    for i in range(size):
+        cards.append(Card(symbols[i], i))
+    turned = []
+    pairs = 0
+    moves = 0
+    seconds = 0
+
+
+def one_second():
+    global seconds
+    if pairs < size // 2 and not paused:
+        seconds += 1
+
+
+def draw():
+    screen.fill("#24101b")
+    for card in cards:
+        if paused:
+            card.show_back()
+        else:
+            card.show()
+    screen.draw.text(f"Moves: {moves}", (X0, 16), fontsize=32)
+    screen.draw.text(f"Record: {best.get(size, '-')}", midtop=(WIDTH // 2, 16), fontsize=32)
+    screen.draw.text(f"Time: {seconds} s", topright=(WIDTH - X0, 16), fontsize=32)
+    if paused:
+        screen.draw.text("Paused: P to go on", (X0, 58), fontsize=28, color="#ffca28")
+    elif pairs == size // 2:
+        screen.draw.text("All the pairs! Click to play again.", (X0, 58), fontsize=28, color="#ffca28")
+    else:
+        screen.draw.text(f"Pairs: {pairs} of {size // 2}", (X0, 58), fontsize=28)
+    screen.draw.text("1, 2: table    N: new    P: pause    Esc: quit", midbottom=(WIDTH // 2, HEIGHT - 16), fontsize=26)
+
+
+def cover():
+    global turned, waiting
+    for card in turned:
+        card.cover()
+    turned = []
+    waiting = False
+
+
+def on_mouse_down(pos):
+    global turned, pairs, moves, waiting
+    if waiting or paused:
+        return
+    if pairs == size // 2:
+        new_game()
+        return
+    for card in cards:
+        if card.hit(pos) and not card.face_up and not card.matched:
+            card.turn()
+            turned.append(card)
+    if len(turned) == 2:
+        moves += 1
+        if turned[0].same_as(turned[1]):
+            turned[0].matched = True
+            turned[1].matched = True
+            turned = []
+            pairs += 1
+            if pairs == size // 2 and (size not in best or moves < best[size]):
+                best[size] = moves
+        else:
+            waiting = True
+            clock.schedule(cover, 1)
+
+
+def on_key_down(key):
+    global size, paused
+    if key == keys.ESCAPE:
+        exit()
+    if key == keys.P:
+        paused = not paused
+        return
+    if paused:
+        return
+    if key == keys.K_1:
+        size = 12
+    elif key == keys.K_2:
+        size = 16
+    elif key != keys.N:
+        return
+    new_game()
+
+
+new_game()
+clock.schedule_interval(one_second, 1)
+pgzrun.go()`,
+    hints: ["What should stop working during the pause? Why should Esc be checked before everything else?",
+      "At the top TITLE, and paused false. In on_key_down, first Esc with exit(); then P flips paused with not, and during the pause the other keys leave straight away. one_second only counts if there's no pause, on_mouse_down leaves straight away in the pause, and draw() in the pause draws every card with show_back()."],
+    check: (o, c) => !pgzWhy(c, "en", [MEM_CLICK, PGZ_GLOBAL, MEM_LATER, MEM_TICK].concat(MEM_CLASS.en, [MEM_LEVELS, MEM_NEW], MEM_COMPUTER.en)),
+    why: (o, c) => pgzWhy(c, "en", [MEM_CLICK, PGZ_GLOBAL, MEM_LATER, MEM_TICK].concat(MEM_CLASS.en, [MEM_LEVELS, MEM_NEW], MEM_COMPUTER.en)),
+    tests: (c) => memKeyTests("en")(c).concat(memLevelTests("en")(c).slice(2, 3))
+  }
+}
+]);
+
+
 /* ---------- Snake: the build levels of the "Snake" project ----------
    Eleven parts, one per slot of the path (see PART_SLOTS): a cover in 00; in the terminal, the head in two
    variables (01), the rules with if (02), the body as a list of positions in a game loop (03) and the functions (04);
@@ -24356,18 +27093,15 @@ const PREVIEWS = {
       const x = 22 + (i % 4) * 41, y = 6 + Math.floor(i / 4) * 37, face = up.has(i) || done.has(i);
       pvRect(c, x, y, 34, 32, face ? (done.has(i) ? "#3b2a33" : "#f5efe6") : "#b5476b");
       if (!face) { c.strokeStyle = "rgba(255, 255, 255, 0.25)"; c.lineWidth = 1; c.strokeRect(x + 3.5, y + 3.5, 27, 25); continue; }
-      const cx = x + 17, cy = y + 16, col = COL[SY[i]], s = SY[i];
-      c.globalAlpha = done.has(i) ? 0.55 : 1;
-      c.fillStyle = col;
-      c.beginPath();
-      if (s === 0) c.arc(cx, cy, 8, 0, Math.PI * 2);
-      else if (s === 1) c.rect(cx - 7, cy - 7, 14, 14);
-      else if (s === 2) { c.moveTo(cx, cy - 9); c.lineTo(cx + 9, cy + 7); c.lineTo(cx - 9, cy + 7); }
-      else if (s === 3) { c.moveTo(cx, cy - 9); c.lineTo(cx + 8, cy); c.lineTo(cx, cy + 9); c.lineTo(cx - 8, cy); }
-      else if (s === 4) for (let k = 0; k < 10; k++) { const r = k % 2 ? 4 : 9, an = -Math.PI / 2 + k * Math.PI / 5; c.lineTo(cx + r * Math.cos(an), cy + r * Math.sin(an)); }
-      else { c.moveTo(cx, cy + 8); c.bezierCurveTo(cx - 12, cy - 1, cx - 5, cy - 11, cx, cy - 4); c.bezierCurveTo(cx + 5, cy - 11, cx + 12, cy - 1, cx, cy + 8); }
-      c.closePath(); c.fill();
-      c.globalAlpha = 1;
+      /* the six symbols are made of circles and squares only, as Pygame Zero draws them: the game shows the same ones,
+         three times bigger (circle, square, ring, plus, four dots, frame) */
+      const cx = x + 17, cy = y + 16, col = COL[SY[i]], s = SY[i], bg = done.has(i) ? "#3b2a33" : "#f5efe6";
+      if (s === 0) pvDot(c, cx, cy, 8, col);
+      else if (s === 1) pvRect(c, cx - 7, cy - 7, 14, 14, col);
+      else if (s === 2) { pvDot(c, cx, cy, 26 / 3, col); pvDot(c, cx, cy, 4, bg); }
+      else if (s === 3) { pvRect(c, cx - 9, cy - 3, 18, 6, col); pvRect(c, cx - 3, cy - 9, 6, 18, col); }
+      else if (s === 4) for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) pvDot(c, cx + dx * 13 / 3, cy + dy * 13 / 3, 11 / 3, col);
+      else { pvRect(c, cx - 8, cy - 8, 16, 16, col); pvRect(c, cx - 4, cy - 4, 8, 8, bg); }
     }
   },
   snake(c, t) {
@@ -25105,7 +27839,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "86a8136ddb", APP_BUILT = "2026-11-10T12:45Z";
+const APP_VERSION = "36bf94accd", APP_BUILT = "2026-11-10T13:23Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
