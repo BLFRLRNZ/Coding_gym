@@ -40444,12 +40444,15 @@ function useWorld(id) {
 useWorld("python");
 const worldOf = (id) => (SQL_LEVELS.some((l) => l.id === id) ? "sql" : "python");
 /* A world opens when its "opens" level has stars (SQL: Python's part 7), or when it already has stars of its own */
-/* Worlds opened by the hidden access (?mondo=sql in the address), to try them before they open: the app fills it */
+/* Worlds opened by the hidden access (?mondo=sql in the address), to try them before they open: the app fills it.
+   UNLOCK comes from the Lab's special commands (sblocca mondi, sblocca livelli), kept in the account: every world
+   that's ready opens, every level can be opened, and the stars stay the real ones */
 const WORLDS_OPENED = new Set();
+const UNLOCK = { worlds: false, levels: false };
 function worldOpen(id, stars) {
   const L = LANGS.find((x) => x.id === id);
   if (!L || !L.ready) return false;
-  if (!L.opens || stars[L.opens] || WORLDS_OPENED.has(id)) return true;
+  if (!L.opens || stars[L.opens] || WORLDS_OPENED.has(id) || UNLOCK.worlds) return true;
   return (COURSE[id] ? levelsOfWorld(COURSE[id]) : []).some((l) => stars[l.id]);
 }
 /* The project being built decides what's in the build levels: that project's lessons go in the slots (same ids, so
@@ -41094,6 +41097,22 @@ Object.assign(UI.en, {
   or: "or", asGuest: "Continue as guest", setIntro: "Opening animation", introOn: "On", introOff: "Off"
 });
 
+/* ================= The Lab's special commands, for trying the course ================= */
+Object.assign(UI.it, {
+  cmdWorldsOn: (w) => `Tutti i mondi pronti sono aperti: ${w}.`,
+  cmdWorldsOff: "I mondi tornano ad aprirsi con i progressi.",
+  cmdLevelsOn: "Tutti i livelli sono aperti, in ogni mondo: li apri dalla mappa senza finire quelli prima. Le stelle restano quelle vere.",
+  cmdLevelsOff: "I livelli tornano ad aprirsi uno dopo l'altro.",
+  cmdList: "Comandi speciali (da soli nell'editor, poi Esegui): sblocca mondi · sblocca livelli · sblocca tutto · blocca mondi · blocca livelli · blocca tutto"
+});
+Object.assign(UI.en, {
+  cmdWorldsOn: (w) => `Every world that's ready is open: ${w}.`,
+  cmdWorldsOff: "Worlds go back to opening with progress.",
+  cmdLevelsOn: "Every level is open, in every world: you open them from the map without finishing the ones before. The stars stay the real ones.",
+  cmdLevelsOff: "Levels go back to opening one after the other.",
+  cmdList: "Special commands (alone in the editor, then Run): unlock worlds · unlock levels · unlock all · lock worlds · lock levels · lock all"
+});
+
 /* ================= The SQL world: words, colours, explanations ================= */
 Object.assign(UI.it, {
   opensAfter: "Si apre in Python, alla parte 7 del progetto",
@@ -41403,7 +41422,8 @@ const storeKey = () => stateKeyFor(ACC.current);
 function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v && typeof v === "object" ? v : null; } catch (e) { return null; } }
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
-  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [], places: {}, dbfiles: {}, dbAt: 0 });
+  fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [], places: {}, dbfiles: {}, dbAt: 0,
+  unlock: { worlds: false, levels: false } });
 let S = DEFAULTS();
 /* The hidden access, for trying a world before it opens: ?mondo=sql (or ?world=sql) in the address opens it as long as
    the page has it, and each account starts there once (its map), then goes where it likes */
@@ -41422,6 +41442,10 @@ function sanitize() {
   if (!["worlds", "map", "lessons", "lab"].includes(S.view)) S.view = "worlds";
   for (const k of ["stars", "attempt", "code", "won", "places", "dbfiles"]) if (!S[k] || typeof S[k] !== "object" || Array.isArray(S[k])) S[k] = {};
   for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
+  /* what the Lab's special commands opened, for this account */
+  const u = S.unlock && typeof S.unlock === "object" ? S.unlock : {};
+  S.unlock = { worlds: u.worlds === true, levels: u.levels === true };
+  UNLOCK.worlds = S.unlock.worlds; UNLOCK.levels = S.unlock.levels;
   /* the world being played: one that's ready and open (SQL opens after Python's part 7) */
   if (!worldOpen(S.world, S.stars)) S.world = "python";
   if (HIDDEN_WORLD && !hiddenDone.has(ACC.current || "")) {
@@ -41504,8 +41528,9 @@ const termFocus = () => S.view === "lab" && ui.labFocus === "term";
 let skipFull = false;
 const passable = (lv) => !!S.stars[lv.id] || (skipFull && LESSON_BY_ID[lv.id].needs === "full");
 function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && passable(LEVELS[i])) i++; return i; }
-/* Levels open in order; a level already completed always stays open (new levels can appear before it) */
-const unlocked = (k) => k <= maxUnlocked() || !!S.stars[LEVELS[k].id];
+/* Levels open in order; a level already completed always stays open (new levels can appear before it); with the
+   Lab's command "sblocca livelli" they're all open */
+const unlocked = (k) => UNLOCK.levels || k <= maxUnlocked() || !!S.stars[LEVELS[k].id];
 const worldMascot = (lv) => lv.boss ? "papera" : WORLDS[lv.w].mascot;
 /* Into another world: the level reached in the one left is remembered, the other world starts where it was left */
 function enterWorld(id) {
@@ -43326,10 +43351,38 @@ function replaceEditor(text) {
   code.scrollTop = top;
   refreshEditor();
 }
+/* ---------- The Lab's special commands, for trying the course: one line alone in the editor, then Run ----------
+   "sblocca mondi" opens every world that's ready, "sblocca livelli" every level of every world, "sblocca tutto"
+   both; "blocca …" goes back to the normal path (in English: unlock / lock worlds, levels, all). They're kept in
+   the account and don't touch the stars. No program is just that line: for Python and SQL it means nothing */
+const LAB_CMD = /^\s*(sblocca|blocca|unlock|lock)\s+(mondi|livelli|tutto|worlds|levels|all)\s*$/i;
+function labCommand(src) {
+  const m = LAB_CMD.exec(src || "");
+  if (!m || running) return false;
+  const on = /^(sblocca|unlock)$/i.test(m[1]), what = m[2].toLowerCase();
+  const worlds = !/^(livelli|levels)$/.test(what), levels = !/^(mondi|worlds)$/.test(what);
+  if (worlds) { S.unlock.worlds = on; if (!on) WORLDS_OPENED.clear(); }
+  if (levels) S.unlock.levels = on;
+  UNLOCK.worlds = S.unlock.worlds; UNLOCK.levels = S.unlock.levels;
+  /* back to the normal path: a world or a level that's closed again is left for the one reached */
+  if (!worldOpen(S.world, S.stars)) enterWorld("python");
+  if (!unlocked(S.current)) { S.current = maxUnlocked(); S.curId = LEVELS[S.current].id; }
+  save();
+  newline();
+  if (term.childNodes.length) termWrite("\n");
+  termWrite("$ " + m[0].trim() + "\n", "cmd");
+  if (worlds) termWrite("✓ " + (on ? t("cmdWorldsOn", LANGS.filter((L) => worldOpen(L.id, S.stars)).map((L) => L[S.lang].name).join(", ")) : t("cmdWorldsOff")) + "\n", "pass");
+  if (levels) termWrite("✓ " + t(on ? "cmdLevelsOn" : "cmdLevelsOff") + "\n", "pass");
+  termWrite(t("cmdList") + "\n", "dim");
+  scrollTerm();
+  renderPanel();
+  return true;
+}
 function runEditor(opt) {
   if (termFocus() || noEditor()) return;
   const restart = !!(opt && opt.restart === true);
   sfxUnlock();
+  if (S.mode === "free" && labCommand(code.value)) return;
   if (S.mode === "lessons" && /___/.test(lesson().starter || "") && /\b_{3,}\b/.test(code.value)) {
     errLine = code.value.split("\n").findIndex((l) => /\b_{3,}\b/.test(l)) + 1; renderGutter();
     newline(); termWrite(t("fillBlanks") + "\n", "why");
@@ -45373,7 +45426,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "6fe5e01fbe", APP_BUILT = "2026-11-11T19:29Z";
+const APP_VERSION = "a5f213676d", APP_BUILT = "2026-11-11T23:48Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
