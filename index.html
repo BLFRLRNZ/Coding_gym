@@ -36666,6 +36666,9 @@ const CHEAT = [
   [`def draw():`, "Pygame Zero: disegna la finestra", "Pygame Zero: draws the window"],
   [`def update():`, "Pygame Zero: 60 volte al secondo", "Pygame Zero: 60 times a second"],
   [`global x`, "una funzione cambia la x di fuori", "a function changes the x outside"],
+  [`for e in pygame.event.get():`, "pygame: gli eventi arrivati (tasti, clic, la X)", "pygame: the events that came in (keys, clicks, the X)"],
+  [`clock.tick(60)`, "pygame: 60 giri al secondo; dà i millisecondi passati", "pygame: 60 times round a second; gives the milliseconds passed"],
+  [`pygame.display.flip()`, "pygame: mostra quello che hai disegnato", "pygame: shows what you drew"],
   [`from rich import print`, "print con i colori: [red]…[/red]", "print with colours: [red]…[/red]"]
 ];
 
@@ -36756,7 +36759,7 @@ const UI = {
     cmdTitle: "Comandi utili",
     cmds: [["↑  ↓", "richiama i comandi precedenti"], ["Ctrl + C", "ferma il programma"], ["Ctrl + L", "pulisce lo schermo"], ["tutorial", "avvia la guida"], ["pip install nome", "installa una libreria"], ["Riavvia", "azzera le variabili"]],
     libTitle: "Librerie",
-    libFull: "<p>Stai usando la versione completa: <code>numpy</code>, <code>pandas</code> e <code>matplotlib</code> si scaricano da sole quando le importi. Per le altre scrivi <code>pip install nome</code> nel terminale.</p>",
+    libFull: "<p>Stai usando la versione completa: <code>numpy</code>, <code>pandas</code> e <code>matplotlib</code> si scaricano da sole quando le importi. Per le altre scrivi <code>pip install nome</code> nel terminale.</p><p>Pygame Zero (<code>pgzrun</code>) e <code>pygame</code> sono già qui: un gioco scritto con l'una o con l'altra apre la sua finestra nell'app. Sul computer si installano con <code>pip install pgzero</code>, che porta con sé anche pygame.</p>",
     libBasic: `<p>Questa è la versione base: le librerie esterne non sono disponibili. Apri la versione completa su <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.</p>`,
     needsFull: `Questa lezione usa una libreria esterna e funziona solo nella versione completa: <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.`,
     noteFull: "Python vero (Pyodide) che gira sul tuo dispositivo, senza installare nulla. I progressi restano salvati in questo browser.",
@@ -36893,7 +36896,7 @@ const UI = {
     cmdTitle: "Useful commands",
     cmds: [["↑  ↓", "bring back earlier commands"], ["Ctrl + C", "stops the program"], ["Ctrl + L", "clears the screen"], ["tutorial", "starts the tour"], ["pip install name", "installs a library"], ["Restart", "clears the variables"]],
     libTitle: "Libraries",
-    libFull: "<p>You're on the full version: <code>numpy</code>, <code>pandas</code> and <code>matplotlib</code> download by themselves when you import them. For others type <code>pip install name</code> in the terminal.</p>",
+    libFull: "<p>You're on the full version: <code>numpy</code>, <code>pandas</code> and <code>matplotlib</code> download by themselves when you import them. For others type <code>pip install name</code> in the terminal.</p><p>Pygame Zero (<code>pgzrun</code>) and <code>pygame</code> are already here: a game written with either opens its window in the app. On a computer they're installed with <code>pip install pgzero</code>, which brings pygame along too.</p>",
     libBasic: `<p>This is the basic version: external libraries aren't available. Open the full version at <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.</p>`,
     needsFull: `This lesson uses an external library and only works in the full version: <a href="https://blfrlrnz.github.io/Coding_gym/" target="_blank" rel="noopener">blfrlrnz.github.io/Coding_gym</a>.`,
     noteFull: "Real Python (Pyodide) running on your device, with nothing to install. Your progress stays saved in this browser.",
@@ -37427,7 +37430,7 @@ function decodeSave(text) {
 Object.assign(UI.it, {
   tabLessons: "Mondi",
   splitAria: "Trascina per cambiare l'altezza del terminale", secGuide: "Guida",
-  guideWhich: "<p><b>Editor</b>, il riquadro con i numeri di riga: per scrivere programmi interi. Vengono salvati come file e partono tutti insieme con ▶ Esegui. Nei livelli la correzione guarda il codice dell'editor.</p><p><b>Terminale</b>, il riquadro scuro in basso: per provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>. Non salva niente, ma vede le variabili dell'ultimo programma eseguito. Trascina la maniglia tra i due per cambiare le altezze.</p>",
+  guideWhich: "<p><b>Editor</b>, il riquadro con i numeri di riga: per scrivere programmi interi. Vengono salvati come file e partono tutti insieme con ▶ Esegui. Nei livelli la correzione guarda il codice dell'editor.</p><p><b>Terminale</b>, il riquadro scuro in basso: per provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>. Non salva niente, ma vede le variabili dell'ultimo programma eseguito. Trascina la maniglia tra i due per cambiare le altezze.</p><p><b>Finestra dei giochi</b>: un programma con Pygame Zero (<code>import pgzrun</code> e in fondo <code>pgzrun.go()</code>) o con pygame (<code>import pygame</code> e il suo ciclo <code>while</code>) parte con ▶ Esegui e apre la sua finestra al posto del terminale, a tutto schermo sul telefono. Sopra ci sono Pausa, Ricomincia, Schermo intero e Chiudi; sul telefono compaiono anche i comandi, solo con i tasti che il gioco usa. Chiudi ferma sempre il gioco: in un livello diventa Chiudi e verifica, e la verifica ci gioca da sola.</p>",
   updateReady: "È disponibile una nuova versione di Arcode.", updateNow: "Aggiorna ora",
   setUpdates: "Aggiornamenti", verInfo: (d) => `Versione del ${d}`, verDev: "Versione di prova",
   updCheck: "Cerca aggiornamenti", updChecking: "Controllo…", updWorking: "Aggiorno Arcode…",
@@ -37507,7 +37510,7 @@ Object.assign(UI.it, {
 Object.assign(UI.en, {
   tabLessons: "Worlds",
   splitAria: "Drag to resize the terminal", secGuide: "Guide",
-  guideWhich: "<p><b>Editor</b>, the box with the line numbers: for writing whole programs. They're saved as files and run all at once with ▶ Run. In levels, checking looks at the editor's code.</p><p><b>Terminal</b>, the dark strip at the bottom: for trying one instruction at a time after <code>&gt;&gt;&gt;</code>. It saves nothing, but it sees the variables of the last program you ran. Drag the handle between them to change their heights.</p>",
+  guideWhich: "<p><b>Editor</b>, the box with the line numbers: for writing whole programs. They're saved as files and run all at once with ▶ Run. In levels, checking looks at the editor's code.</p><p><b>Terminal</b>, the dark strip at the bottom: for trying one instruction at a time after <code>&gt;&gt;&gt;</code>. It saves nothing, but it sees the variables of the last program you ran. Drag the handle between them to change their heights.</p><p><b>Game window</b>: a program with Pygame Zero (<code>import pgzrun</code> and <code>pgzrun.go()</code> at the end) or with pygame (<code>import pygame</code> and its <code>while</code> loop) starts with ▶ Run and opens its window in place of the terminal, full screen on a phone. Above it are Pause, Restart, Full screen and Close; on a phone the controls show up too, with just the keys the game uses. Close always stops the game: on a level it becomes Close and check, and the check plays the game by itself.</p>",
   updateReady: "A new version of Arcode is available.", updateNow: "Update now",
   setUpdates: "Updates", verInfo: (d) => `Version of ${d}`, verDev: "Test version",
   updCheck: "Check for updates", updChecking: "Checking…", updWorking: "Updating Arcode…",
@@ -41421,7 +41424,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "2fa560a525", APP_BUILT = "2026-11-11T00:17Z";
+const APP_VERSION = "3f9f791517", APP_BUILT = "2026-11-11T09:51Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
