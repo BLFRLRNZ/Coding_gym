@@ -40444,10 +40444,12 @@ function useWorld(id) {
 useWorld("python");
 const worldOf = (id) => (SQL_LEVELS.some((l) => l.id === id) ? "sql" : "python");
 /* A world opens when its "opens" level has stars (SQL: Python's part 7), or when it already has stars of its own */
+/* Worlds opened by the hidden access (?mondo=sql in the address), to try them before they open: the app fills it */
+const WORLDS_OPENED = new Set();
 function worldOpen(id, stars) {
   const L = LANGS.find((x) => x.id === id);
   if (!L || !L.ready) return false;
-  if (!L.opens || stars[L.opens]) return true;
+  if (!L.opens || stars[L.opens] || WORLDS_OPENED.has(id)) return true;
   return (COURSE[id] ? levelsOfWorld(COURSE[id]) : []).some((l) => stars[l.id]);
 }
 /* The project being built decides what's in the build levels: that project's lessons go in the slots (same ids, so
@@ -41403,6 +41405,16 @@ function defaultLang() { try { return (navigator.language || "it").toLowerCase()
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
   fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [], places: {}, dbfiles: {}, dbAt: 0 });
 let S = DEFAULTS();
+/* The hidden access, for trying a world before it opens: ?mondo=sql (or ?world=sql) in the address opens it as long as
+   the page has it, and each account starts there once (its map), then goes where it likes */
+const HIDDEN_WORLD = (() => {
+  try {
+    const p = new URLSearchParams(location.search), w = String(p.get("mondo") || p.get("world") || "").toLowerCase();
+    return LANGS.some((L) => L.id === w && L.ready && L.opens) ? w : null;
+  } catch (e) { return null; }
+})();
+if (HIDDEN_WORLD) WORLDS_OPENED.add(HIDDEN_WORLD);
+const hiddenDone = new Set();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
   if (!["lessons", "free"].includes(S.mode)) S.mode = "lessons";
@@ -41412,6 +41424,15 @@ function sanitize() {
   for (const k in S.stars) if (!LESSON_BY_ID[k] || !(S.stars[k] >= 1 && S.stars[k] <= 3)) delete S.stars[k];
   /* the world being played: one that's ready and open (SQL opens after Python's part 7) */
   if (!worldOpen(S.world, S.stars)) S.world = "python";
+  if (HIDDEN_WORLD && !hiddenDone.has(ACC.current || "")) {
+    hiddenDone.add(ACC.current || "");
+    if (S.world !== HIDDEN_WORLD) {
+      if (typeof S.curId === "string") S.places[S.world] = S.curId;
+      S.world = HIDDEN_WORLD;
+      S.curId = typeof S.places[HIDDEN_WORLD] === "string" ? S.places[HIDDEN_WORLD] : null;
+    }
+    if (S.view !== "lessons") S.view = "map";
+  }
   useWorld(S.world);
   for (const k in S.places) if (typeof S.places[k] !== "string") delete S.places[k];
   for (const k in S.dbfiles) if (!/^[\w\-. ]{1,60}\.db$/.test(k) || typeof S.dbfiles[k] !== "string") delete S.dbfiles[k];
@@ -44302,7 +44323,8 @@ const projEl = $("projects");
 const PJ = { sel: null, look: null, msg: "", first: false, step: "pick", then: null, raf: 0, cvs: [], io: null, last: 0 };
 /* a learner without a project, entering the world (then: where to go once it's chosen), or already inside it */
 function maybeAskProject(then) {
-  if (S.project || !projEl.hidden) return false;
+  /* the project is chosen for the Python world: in another one (open through the hidden access) it waits */
+  if (S.project || !projEl.hidden || S.world !== "python") return false;
   if (!then && S.view !== "map" && S.view !== "lessons") return false;
   openProjects(true, then);
   return true;
@@ -45351,7 +45373,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "f9a5b63526", APP_BUILT = "2026-11-11T15:43Z";
+const APP_VERSION = "6fe5e01fbe", APP_BUILT = "2026-11-11T19:29Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
