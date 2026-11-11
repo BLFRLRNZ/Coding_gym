@@ -1125,7 +1125,7 @@ def _pgz():
 
 
 # SQL for the second world (src/sqlrun.py, put here by build.py): a .sql file runs as a small program that imports it
-_SQL_SRC = "\"\"\"Arcode's SQL, the second world. A .sql file runs on an SQLite database one statement at a time, and every result is\nshown as a table. The checks run the learner's statements and the solution's on the lesson's database and on hidden\nones with other data, and compare what comes out. Inside the app the runner loads this file as the module _pp_sql\nand sets RT; the tests on a computer load it the same way, without RT, and get text instead of tables.\"\"\"\nimport sqlite3, json, os, re\n\n# Set by the runner: {\"emit\": function(kind, text), \"st\": the runner's state}. Without it the results are printed\n# and an error stops the program, as a Python error would.\nRT = None\nMAX_ROWS = 200\n# The databases kept open for the sqlite> prompt, one per key (the lesson's database, in each language)\n_cons = {}\n\n\nclass SqlError(Exception):\n    def __init__(self, msg, line):\n        super().__init__(f\"line {line}: {msg}\")\n        self.msg, self.line = msg, line\n\n\ndef split(src):\n    \"\"\"The statements of a script: [(line of its first word, line where its text begins, text)]. Quotes, comments\n    and the ; that closes each statement are followed by hand, so two statements on one line are two. The last one\n    may lack its ;\"\"\"\n    out, n = [], len(src)\n    i, line, seg, seg_line, start = 0, 1, 0, 1, None\n    while i < n:\n        c = src[i]\n        if c == \"\\n\":\n            line += 1\n            i += 1\n        elif c in \" \\t\\r\\f\":\n            i += 1\n        elif src.startswith(\"--\", i):\n            j = src.find(\"\\n\", i)\n            i = n if j < 0 else j\n        elif src.startswith(\"/*\", i):\n            j = src.find(\"*/\", i + 2)\n            end = n if j < 0 else j + 2\n            line += src.count(\"\\n\", i, end)\n            i = end\n        else:\n            if start is None:\n                start = line\n            if c in \"'\\\"`[\":\n                close, j = (\"]\" if c == \"[\" else c), i + 1\n                while j < n:\n                    if src[j] == close:\n                        if close != \"]\" and src.startswith(close * 2, j):\n                            j += 2\n                            continue\n                        break\n                    j += 1\n                line += src.count(\"\\n\", i, min(j, n))\n                i = min(j + 1, n)\n            elif c == \";\":\n                out.append((start, seg_line, src[seg:i + 1]))\n                seg, seg_line, start = i + 1, line, None\n                i += 1\n            else:\n                i += 1\n    if start is not None:\n        out.append((start, seg_line, src[seg:]))\n    return out\n\n\ndef _bare(text):\n    \"\"\"The statement without strings, comments and what's inside brackets: to look at its own words\"\"\"\n    t = re.sub(r\"--[^\\n]*|/\\*.*?(\\*/|$)|'(?:[^']|'')*'?|\\\"(?:[^\\\"]|\\\"\\\")*\\\"?\", \" \", text, flags=re.S)\n    prev = None\n    while prev != t:\n        prev, t = t, re.sub(r\"\\([^()]*\\)\", \" \", t)\n    return t\n\n\ndef first_word(text):\n    m = re.search(r\"[A-Za-z]+\", _bare(text))\n    return m.group(0).upper() if m else \"\"\n\n\ndef err_line(e, start, seg_line, text):\n    \"\"\"The line of an error: where the word it names is, else where the statement starts\"\"\"\n    msg = str(e)\n    if \"incomplete input\" in msg:\n        return seg_line + text.rstrip().count(\"\\n\")\n    m = re.search(r'near \"(.*?)\": syntax error|no such (?:column|table|function): ([\\w.]+)|ambiguous column name: ([\\w.]+)'\n                  r'|unrecognized token: \"(.*?)\"|table (\\w+) has no column named (\\w+)', msg, re.S)\n    if m:\n        tok = m.group(6) or next((g for g in m.groups() if g), \"\")\n        k = text.find(tok)\n        if k < 0:\n            k = text.lower().find(tok.lower())\n        if k >= 0 and tok.strip():\n            return seg_line + text.count(\"\\n\", 0, k)\n    return start\n\n\ndef _cell(v):\n    if v is None:\n        return \"NULL\"\n    if isinstance(v, bytes):\n        return \"x'\" + v.hex() + \"'\"\n    if isinstance(v, float) and v == int(v) and abs(v) < 1e15:\n        return f\"{v:.1f}\"\n    return str(v)\n\n\ndef text_table(cols, rows, total):\n    cells = [[_cell(v) for v in r] for r in rows]\n    w = [max([len(c)] + [len(r[k]) for r in cells]) for k, c in enumerate(cols)]\n    lines = [\" | \".join(c.ljust(w[k]) for k, c in enumerate(cols)), \"-+-\".join(\"-\" * x for x in w)]\n    lines += [\" | \".join(r[k].ljust(w[k]) for k in range(len(cols))) for r in cells]\n    lines.append(f\"({total} {'row' if total == 1 else 'rows'})\")\n    return \"\\n\".join(x.rstrip() for x in lines)\n\n\ndef _json(v):\n    if isinstance(v, bytes):\n        return \"x'\" + v.hex() + \"'\"\n    if isinstance(v, float) and v != v:\n        return None\n    return v\n\n\ndef connect(setup=None, path=None):\n    \"\"\"A database: a file (made from setup the first time) or a new one in memory filled by setup. Every statement\n    is saved as soon as it runs, as in SQLite's own terminal.\"\"\"\n    if path:\n        fresh = not os.path.exists(path)\n        con = sqlite3.connect(path, isolation_level=None)\n        if fresh and setup:\n            con.executescript(setup)\n    else:\n        con = sqlite3.connect(\":memory:\", isolation_level=None)\n        if setup:\n            con.executescript(setup)\n    return con\n\n\ndef _name_of(text):\n    m = re.search(r\"\\b(?:TABLE|VIEW|INDEX|TRIGGER)\\s+(?:IF\\s+(?:NOT\\s+)?EXISTS\\s+)?[\\\"`\\[]?(\\w+)\", _bare(text), re.I)\n    return m.group(1) if m else \"\"\n\n\ndef exec_script(con, src):\n    \"\"\"Runs the statements in order and shows what each one gives. Stops at the first error: in the app it's left in\n    the runner's state (message and line), in the tests it's raised.\"\"\"\n    for start, seg_line, text in split(src):\n        try:\n            cur = con.execute(text)\n            if cur.description is not None:\n                cols = [d[0] for d in cur.description]\n                rows = cur.fetchmany(MAX_ROWS + 1)\n                more = len(rows) > MAX_ROWS\n                total = len(rows) + (len(cur.fetchall()) if more else 0)\n                rows = rows[:MAX_ROWS]\n                if RT:\n                    RT[\"emit\"](\"table\", json.dumps({\"cols\": cols, \"rows\": [[_json(v) for v in r] for r in rows],\n                                                    \"n\": total, \"more\": more, \"line\": start}))\n                else:\n                    print(text_table(cols, rows, total))\n            else:\n                verb = first_word(text)\n                info = {\"verb\": verb, \"n\": cur.rowcount if cur.rowcount >= 0 else None, \"name\": _name_of(text), \"line\": start}\n                if RT:\n                    RT[\"emit\"](\"sqlinfo\", json.dumps(info))\n                else:\n                    print(f\"-- {verb} {info['name'] or ''} {'' if info['n'] is None else info['n']}\".rstrip())\n        except sqlite3.Error as e:\n            line = err_line(e, start, seg_line, text)\n            if RT:\n                RT[\"st\"][\"sqlerr\"] = {\"msg\": str(e), \"line\": line}\n                return False\n            raise SqlError(str(e), line) from None\n    return True\n\n\ndef run(db, src):\n    \"\"\"Runs a .sql file. db: {\"key\": name of the database, \"setup\": its script, \"path\": a file instead}. A database in\n    memory starts again from its script every time, and stays open afterwards for the sqlite> prompt.\"\"\"\n    path, key = db.get(\"path\"), db.get(\"key\")\n    con = connect(db.get(\"setup\"), path)\n    try:\n        exec_script(con, src)\n    finally:\n        if path or not key:\n            con.close()\n        else:\n            old = _cons.pop(key, None)\n            if old is not None:\n                old.close()\n            _cons[key] = con\n\n\ndef repl(db, src):\n    \"\"\"What's typed after sqlite>: on the same database as the statements before (a file is opened every time)\"\"\"\n    path, key = db.get(\"path\"), db.get(\"key\") or \"-\"\n    if path:\n        con = connect(db.get(\"setup\"), path)\n        try:\n            exec_script(con, src)\n        finally:\n            con.close()\n        return\n    con = _cons.get(key)\n    if con is None:\n        con = _cons[key] = connect(db.get(\"setup\"))\n    exec_script(con, src)\n\n\ndef schema(db):\n    \"\"\"The tables of a database, their columns and how many rows: for the Lab's side bar\"\"\"\n    con = connect(db.get(\"setup\"), db.get(\"path\"))\n    try:\n        out = []\n        for (name,) in con.execute(\"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name\").fetchall():\n            cols = [r[1] for r in con.execute(f'PRAGMA table_info(\"{name}\")')]\n            out.append({\"name\": name, \"cols\": cols, \"n\": con.execute(f'SELECT COUNT(*) FROM \"{name}\"').fetchone()[0]})\n        print(json.dumps(out))\n    finally:\n        con.close()\n\n\ndef reset():\n    for con in _cons.values():\n        try:\n            con.close()\n        except Exception:\n            pass\n    _cons.clear()\n\n\ndef make_file(path, setup):\n    \"\"\"A new database file filled by setup (an old file with that name is replaced)\"\"\"\n    if os.path.exists(path):\n        os.remove(path)\n    con = sqlite3.connect(path)\n    con.executescript(setup)\n    con.close()\n\n\ndef ensure_file(path, setup):\n    \"\"\"The file is made only if it isn't there: what was saved in it stays\"\"\"\n    if not os.path.exists(path):\n        make_file(path, setup)\n\n\n# ---------- The checks ----------\n\ndef _nv(v):\n    \"\"\"A value as the checks compare it: numbers as numbers (3 is 3.0), rounded to six decimals\"\"\"\n    if isinstance(v, bool):\n        return float(v)\n    if isinstance(v, (int, float)):\n        return round(float(v), 6)\n    return v\n\n\ndef _key(v):\n    if v is None:\n        return (0, 0)\n    if isinstance(v, float):\n        return (1, v)\n    if isinstance(v, str):\n        return (2, v)\n    return (3, repr(v))\n\n\ndef _row(r):\n    return tuple(_nv(v) for v in r)\n\n\ndef _sort(rows):\n    return sorted(rows, key=lambda r: tuple(_key(v) for v in r))\n\n\ndef _ordered(text):\n    return bool(re.search(r\"\\bORDER\\s+BY\\b\", _bare(text), re.I))\n\n\ndef results(con, src):\n    \"\"\"The tables a script gives, in order; an error is raised with its line\"\"\"\n    out = []\n    for start, seg_line, text in split(src):\n        try:\n            cur = con.execute(text)\n        except sqlite3.Error as e:\n            raise SqlError(str(e), err_line(e, start, seg_line, text)) from None\n        if cur.description is not None:\n            out.append({\"cols\": [d[0] for d in cur.description], \"rows\": [_row(r) for r in cur.fetchall()],\n                        \"ordered\": _ordered(text), \"line\": start})\n    return out\n\n\ndef state(con, tables):\n    \"\"\"The tables named (or all of them) after the statements: columns and rows\"\"\"\n    if not tables:\n        return {}\n    if tables == \"all\":\n        tables = [r[0] for r in con.execute(\"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name\")]\n    out = {}\n    for t in tables:\n        if not con.execute(\"SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND lower(name) = lower(?)\", (t,)).fetchone():\n            out[t] = None\n            continue\n        cur = con.execute(f'SELECT * FROM \"{t}\"')\n        out[t] = {\"cols\": [d[0] for d in cur.description], \"rows\": _sort([_row(r) for r in cur.fetchall()]), \"schema\": _schema(con, t)}\n    return out\n\n\ndef _affinity(t):\n    \"\"\"SQLite's own rule for what a declared type means: INT is INTEGER, VARCHAR is TEXT...\"\"\"\n    t = (t or \"\").upper()\n    if \"INT\" in t:\n        return \"INTEGER\"\n    if any(k in t for k in (\"CHAR\", \"CLOB\", \"TEXT\")):\n        return \"TEXT\"\n    if not t or \"BLOB\" in t:\n        return \"BLOB\"\n    if any(k in t for k in (\"REAL\", \"FLOA\", \"DOUB\")):\n        return \"REAL\"\n    return \"NUMERIC\"\n\n\ndef _schema(con, t):\n    \"\"\"How a table is made: for each column its type, whether it's required, its default, whether it's the key and\n    whether it allows no duplicates\"\"\"\n    uniq = set()\n    for idx in con.execute(f'PRAGMA index_list(\"{t}\")').fetchall():\n        if idx[2]:\n            cols = [r[2] for r in con.execute(f'PRAGMA index_info(\"{idx[1]}\")').fetchall()]\n            if len(cols) == 1:\n                uniq.add(cols[0].lower())\n    out = []\n    for cid, name, typ, notnull, dflt, pk in con.execute(f'PRAGMA table_info(\"{t}\")').fetchall():\n        out.append({\"name\": name.lower(), \"type\": _affinity(typ), \"notnull\": bool(notnull), \"default\": None if dflt is None else re.sub(r\"\\s+\", \"\", str(dflt)),\n                    \"pk\": bool(pk), \"unique\": name.lower() in uniq and not pk})\n    return out\n\n\ndef _plain(r):\n    return [None if v is None else (int(v) if isinstance(v, float) and v == int(v) and abs(v) < 1e15 else v) for v in r]\n\n\ndef _rows_diff(exp, got):\n    \"\"\"One expected row that's missing and one row that shouldn't be there\"\"\"\n    left = list(got)\n    missing = None\n    for r in exp:\n        if r in left:\n            left.remove(r)\n        elif missing is None:\n            missing = r\n    extra = next((r for r in left), None)\n    return {\"missing\": None if missing is None else _plain(missing), \"extra\": None if extra is None else _plain(extra)}\n\n\ndef diff_results(exp, got, opts):\n    mode = opts.get(\"results\", \"all\")\n    if mode == \"none\":\n        return None\n    if mode == \"last\":\n        if not got:\n            return {\"why\": \"noresult\"}\n        exp, got = exp[-1:], got[-1:]\n    if len(exp) != len(got):\n        return {\"why\": \"results\", \"exp\": len(exp), \"got\": len(got)}\n    for i, (e, g) in enumerate(zip(exp, got)):\n        base = {\"table\": i, \"count\": len(exp), \"line\": g[\"line\"]}\n        if len(e[\"cols\"]) != len(g[\"cols\"]):\n            return dict(base, why=\"cols\", exp=e[\"cols\"], got=g[\"cols\"])\n        if opts.get(\"names\") and [c.lower() for c in e[\"cols\"]] != [c.lower() for c in g[\"cols\"]]:\n            return dict(base, why=\"names\", exp=e[\"cols\"], got=g[\"cols\"])\n        if len(e[\"rows\"]) != len(g[\"rows\"]):\n            return dict(base, why=\"rows\", exp=len(e[\"rows\"]), got=len(g[\"rows\"]), **_rows_diff(e[\"rows\"], g[\"rows\"]))\n        if _sort(e[\"rows\"]) != _sort(g[\"rows\"]):\n            return dict(base, why=\"values\", **_rows_diff(e[\"rows\"], g[\"rows\"]))\n        ordered = opts.get(\"order\", e[\"ordered\"])\n        if ordered and e[\"rows\"] != g[\"rows\"]:\n            k = next(j for j in range(len(e[\"rows\"])) if e[\"rows\"][j] != g[\"rows\"][j])\n            return dict(base, why=\"order\", at=k + 1, exp=_plain(e[\"rows\"][k]), got=_plain(g[\"rows\"][k]))\n    return None\n\n\ndef diff_state(exp, got, schema=False):\n    for t, e in exp.items():\n        g = got.get(t)\n        if e is None:\n            continue\n        if g is None:\n            return {\"why\": \"notable\", \"name\": t}\n        if [c.lower() for c in e[\"cols\"]] != [c.lower() for c in g[\"cols\"]]:\n            return {\"why\": \"statecols\", \"name\": t, \"exp\": e[\"cols\"], \"got\": g[\"cols\"]}\n        if schema:\n            for ec, gc in zip(e[\"schema\"], g[\"schema\"]):\n                for k in (\"type\", \"pk\", \"notnull\", \"default\", \"unique\"):\n                    if ec[k] != gc[k]:\n                        return {\"why\": \"schema\", \"name\": t, \"col\": ec[\"name\"], \"rule\": k, \"exp\": ec[k], \"got\": gc[k]}\n        if e[\"rows\"] != g[\"rows\"]:\n            return dict({\"why\": \"state\", \"name\": t, \"exp\": len(e[\"rows\"]), \"got\": len(g[\"rows\"])}, **_rows_diff(e[\"rows\"], g[\"rows\"]))\n    return None\n\n\ndef compare(dbs, learner, solution, opts=None):\n    \"\"\"The learner's statements against the solution's, on every database in turn (the first is the lesson's)\"\"\"\n    opts = opts or {}\n    for k, setup in enumerate(dbs):\n        ecn = connect(setup)\n        exp = results(ecn, solution)\n        est = state(ecn, opts.get(\"state\"))\n        ecn.close()\n        gcn = connect(setup)\n        try:\n            got = results(gcn, learner)\n        except SqlError as e:\n            gcn.close()\n            return {\"ok\": False, \"db\": k, \"why\": \"error\", \"msg\": e.msg, \"line\": e.line}\n        gst = state(gcn, opts.get(\"state\"))\n        gcn.close()\n        d = diff_results(exp, got, opts) or diff_state(est, gst, opts.get(\"schema\"))\n        if d:\n            d.update(ok=False, db=k)\n            return d\n    return {\"ok\": True}\n\n\ndef check(dbs, learner, solution, opts=None):\n    print(json.dumps(compare(dbs, learner, solution, opts)))\n"
+_SQL_SRC = "\"\"\"Arcode's SQL, the second world. A .sql file runs on an SQLite database one statement at a time, and every result is\nshown as a table. The checks run the learner's statements and the solution's on the lesson's database and on hidden\nones with other data, and compare what comes out. Inside the app the runner loads this file as the module _pp_sql\nand sets RT; the tests on a computer load it the same way, without RT, and get text instead of tables.\"\"\"\nimport sqlite3, json, os, re\n\n# Set by the runner: {\"emit\": function(kind, text), \"st\": the runner's state}. Without it the results are printed\n# and an error stops the program, as a Python error would.\nRT = None\nMAX_ROWS = 200\n# The databases kept open for the sqlite> prompt, one per key (the lesson's database, in each language)\n_cons = {}\n\n\ndef _open(*a, **k):\n    # SQLite's own connect: the runner wraps sqlite3.connect to close the programs' connections, not these\n    return getattr(sqlite3.connect, \"__wrapped__\", sqlite3.connect)(*a, **k)\n\n\nclass SqlError(Exception):\n    def __init__(self, msg, line):\n        super().__init__(f\"line {line}: {msg}\")\n        self.msg, self.line = msg, line\n\n\ndef split(src):\n    \"\"\"The statements of a script: [(line of its first word, line where its text begins, text)]. Quotes, comments\n    and the ; that closes each statement are followed by hand, so two statements on one line are two. The last one\n    may lack its ;\"\"\"\n    out, n = [], len(src)\n    i, line, seg, seg_line, start = 0, 1, 0, 1, None\n    while i < n:\n        c = src[i]\n        if c == \"\\n\":\n            line += 1\n            i += 1\n        elif c in \" \\t\\r\\f\":\n            i += 1\n        elif src.startswith(\"--\", i):\n            j = src.find(\"\\n\", i)\n            i = n if j < 0 else j\n        elif src.startswith(\"/*\", i):\n            j = src.find(\"*/\", i + 2)\n            end = n if j < 0 else j + 2\n            line += src.count(\"\\n\", i, end)\n            i = end\n        else:\n            if start is None:\n                start = line\n            if c in \"'\\\"`[\":\n                close, j = (\"]\" if c == \"[\" else c), i + 1\n                while j < n:\n                    if src[j] == close:\n                        if close != \"]\" and src.startswith(close * 2, j):\n                            j += 2\n                            continue\n                        break\n                    j += 1\n                line += src.count(\"\\n\", i, min(j, n))\n                i = min(j + 1, n)\n            elif c == \";\":\n                out.append((start, seg_line, src[seg:i + 1]))\n                seg, seg_line, start = i + 1, line, None\n                i += 1\n            else:\n                i += 1\n    if start is not None:\n        out.append((start, seg_line, src[seg:]))\n    return out\n\n\ndef _bare(text):\n    \"\"\"The statement without strings, comments and what's inside brackets: to look at its own words\"\"\"\n    t = re.sub(r\"--[^\\n]*|/\\*.*?(\\*/|$)|'(?:[^']|'')*'?|\\\"(?:[^\\\"]|\\\"\\\")*\\\"?\", \" \", text, flags=re.S)\n    prev = None\n    while prev != t:\n        prev, t = t, re.sub(r\"\\([^()]*\\)\", \" \", t)\n    return t\n\n\ndef first_word(text):\n    m = re.search(r\"[A-Za-z]+\", _bare(text))\n    return m.group(0).upper() if m else \"\"\n\n\ndef err_line(e, start, seg_line, text):\n    \"\"\"The line of an error: where the word it names is, else where the statement starts\"\"\"\n    msg = str(e)\n    if \"incomplete input\" in msg:\n        return seg_line + text.rstrip().count(\"\\n\")\n    m = re.search(r'near \"(.*?)\": syntax error|no such (?:column|table|function): ([\\w.]+)|ambiguous column name: ([\\w.]+)'\n                  r'|unrecognized token: \"(.*?)\"|table (\\w+) has no column named (\\w+)', msg, re.S)\n    if m:\n        tok = m.group(6) or next((g for g in m.groups() if g), \"\")\n        k = text.find(tok)\n        if k < 0:\n            k = text.lower().find(tok.lower())\n        if k >= 0 and tok.strip():\n            return seg_line + text.count(\"\\n\", 0, k)\n    return start\n\n\ndef _cell(v):\n    if v is None:\n        return \"NULL\"\n    if isinstance(v, bytes):\n        return \"x'\" + v.hex() + \"'\"\n    if isinstance(v, float) and v == int(v) and abs(v) < 1e15:\n        return f\"{v:.1f}\"\n    return str(v)\n\n\ndef text_table(cols, rows, total):\n    cells = [[_cell(v) for v in r] for r in rows]\n    w = [max([len(c)] + [len(r[k]) for r in cells]) for k, c in enumerate(cols)]\n    lines = [\" | \".join(c.ljust(w[k]) for k, c in enumerate(cols)), \"-+-\".join(\"-\" * x for x in w)]\n    lines += [\" | \".join(r[k].ljust(w[k]) for k in range(len(cols))) for r in cells]\n    lines.append(f\"({total} {'row' if total == 1 else 'rows'})\")\n    return \"\\n\".join(x.rstrip() for x in lines)\n\n\ndef _json(v):\n    if isinstance(v, bytes):\n        return \"x'\" + v.hex() + \"'\"\n    if isinstance(v, float) and v != v:\n        return None\n    return v\n\n\ndef connect(setup=None, path=None):\n    \"\"\"A database: a file (made from setup the first time) or a new one in memory filled by setup. Every statement\n    is saved as soon as it runs, as in SQLite's own terminal.\"\"\"\n    if path:\n        fresh = not os.path.exists(path)\n        con = _open(path, isolation_level=None)\n        if fresh and setup:\n            con.executescript(setup)\n    else:\n        con = _open(\":memory:\", isolation_level=None)\n        if setup:\n            con.executescript(setup)\n    return con\n\n\ndef _name_of(text):\n    m = re.search(r\"\\b(?:TABLE|VIEW|INDEX|TRIGGER)\\s+(?:IF\\s+(?:NOT\\s+)?EXISTS\\s+)?[\\\"`\\[]?(\\w+)\", _bare(text), re.I)\n    return m.group(1) if m else \"\"\n\n\ndef exec_script(con, src):\n    \"\"\"Runs the statements in order and shows what each one gives. Stops at the first error: in the app it's left in\n    the runner's state (message and line), in the tests it's raised.\"\"\"\n    for start, seg_line, text in split(src):\n        try:\n            cur = con.execute(text)\n            if cur.description is not None:\n                cols = [d[0] for d in cur.description]\n                rows = cur.fetchmany(MAX_ROWS + 1)\n                more = len(rows) > MAX_ROWS\n                total = len(rows) + (len(cur.fetchall()) if more else 0)\n                rows = rows[:MAX_ROWS]\n                if RT:\n                    RT[\"emit\"](\"table\", json.dumps({\"cols\": cols, \"rows\": [[_json(v) for v in r] for r in rows],\n                                                    \"n\": total, \"more\": more, \"line\": start}))\n                else:\n                    print(text_table(cols, rows, total))\n            else:\n                verb = first_word(text)\n                info = {\"verb\": verb, \"n\": cur.rowcount if cur.rowcount >= 0 else None, \"name\": _name_of(text), \"line\": start}\n                if RT:\n                    RT[\"emit\"](\"sqlinfo\", json.dumps(info))\n                else:\n                    print(f\"-- {verb} {info['name'] or ''} {'' if info['n'] is None else info['n']}\".rstrip())\n        except sqlite3.Error as e:\n            line = err_line(e, start, seg_line, text)\n            if RT:\n                RT[\"st\"][\"sqlerr\"] = {\"msg\": str(e), \"line\": line}\n                return False\n            raise SqlError(str(e), line) from None\n    return True\n\n\ndef run(db, src):\n    \"\"\"Runs a .sql file. db: {\"key\": name of the database, \"setup\": its script, \"path\": a file instead}. A database in\n    memory starts again from its script every time, and stays open afterwards for the sqlite> prompt.\"\"\"\n    path, key = db.get(\"path\"), db.get(\"key\")\n    con = connect(db.get(\"setup\"), path)\n    try:\n        exec_script(con, src)\n    finally:\n        if path or not key:\n            con.close()\n        else:\n            old = _cons.pop(key, None)\n            if old is not None:\n                old.close()\n            _cons[key] = con\n\n\ndef repl(db, src):\n    \"\"\"What's typed after sqlite>: on the same database as the statements before (a file is opened every time)\"\"\"\n    path, key = db.get(\"path\"), db.get(\"key\") or \"-\"\n    if path:\n        con = connect(db.get(\"setup\"), path)\n        try:\n            exec_script(con, src)\n        finally:\n            con.close()\n        return\n    con = _cons.get(key)\n    if con is None:\n        con = _cons[key] = connect(db.get(\"setup\"))\n    exec_script(con, src)\n\n\ndef schema(db):\n    \"\"\"The tables of a database, their columns and how many rows: for the Lab's side bar\"\"\"\n    con = connect(db.get(\"setup\"), db.get(\"path\"))\n    try:\n        out = []\n        for (name,) in con.execute(\"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name\").fetchall():\n            cols = [r[1] for r in con.execute(f'PRAGMA table_info(\"{name}\")')]\n            out.append({\"name\": name, \"cols\": cols, \"n\": con.execute(f'SELECT COUNT(*) FROM \"{name}\"').fetchone()[0]})\n        print(json.dumps(out))\n    finally:\n        con.close()\n\n\ndef reset():\n    for con in _cons.values():\n        try:\n            con.close()\n        except Exception:\n            pass\n    _cons.clear()\n\n\ndef make_file(path, setup):\n    \"\"\"A new database file filled by setup (an old file with that name is replaced)\"\"\"\n    if os.path.exists(path):\n        os.remove(path)\n    con = _open(path)\n    con.executescript(setup)\n    con.close()\n\n\ndef ensure_file(path, setup):\n    \"\"\"The file is made only if it isn't there: what was saved in it stays\"\"\"\n    if not os.path.exists(path):\n        make_file(path, setup)\n\n\n# ---------- The checks ----------\n\ndef _nv(v):\n    \"\"\"A value as the checks compare it: numbers as numbers (3 is 3.0), rounded to six decimals\"\"\"\n    if isinstance(v, bool):\n        return float(v)\n    if isinstance(v, (int, float)):\n        return round(float(v), 6)\n    return v\n\n\ndef _key(v):\n    if v is None:\n        return (0, 0)\n    if isinstance(v, float):\n        return (1, v)\n    if isinstance(v, str):\n        return (2, v)\n    return (3, repr(v))\n\n\ndef _row(r):\n    return tuple(_nv(v) for v in r)\n\n\ndef _sort(rows):\n    return sorted(rows, key=lambda r: tuple(_key(v) for v in r))\n\n\ndef _ordered(text):\n    return bool(re.search(r\"\\bORDER\\s+BY\\b\", _bare(text), re.I))\n\n\ndef results(con, src):\n    \"\"\"The tables a script gives, in order; an error is raised with its line\"\"\"\n    out = []\n    for start, seg_line, text in split(src):\n        try:\n            cur = con.execute(text)\n        except sqlite3.Error as e:\n            raise SqlError(str(e), err_line(e, start, seg_line, text)) from None\n        if cur.description is not None:\n            out.append({\"cols\": [d[0] for d in cur.description], \"rows\": [_row(r) for r in cur.fetchall()],\n                        \"ordered\": _ordered(text), \"line\": start})\n    return out\n\n\ndef state(con, tables):\n    \"\"\"The tables named (or all of them) after the statements: columns and rows\"\"\"\n    if not tables:\n        return {}\n    if tables == \"all\":\n        tables = [r[0] for r in con.execute(\"SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name\")]\n    out = {}\n    for t in tables:\n        if not con.execute(\"SELECT 1 FROM sqlite_master WHERE type IN ('table', 'view') AND lower(name) = lower(?)\", (t,)).fetchone():\n            out[t] = None\n            continue\n        cur = con.execute(f'SELECT * FROM \"{t}\"')\n        out[t] = {\"cols\": [d[0] for d in cur.description], \"rows\": _sort([_row(r) for r in cur.fetchall()]), \"schema\": _schema(con, t)}\n    return out\n\n\ndef _affinity(t):\n    \"\"\"SQLite's own rule for what a declared type means: INT is INTEGER, VARCHAR is TEXT...\"\"\"\n    t = (t or \"\").upper()\n    if \"INT\" in t:\n        return \"INTEGER\"\n    if any(k in t for k in (\"CHAR\", \"CLOB\", \"TEXT\")):\n        return \"TEXT\"\n    if not t or \"BLOB\" in t:\n        return \"BLOB\"\n    if any(k in t for k in (\"REAL\", \"FLOA\", \"DOUB\")):\n        return \"REAL\"\n    return \"NUMERIC\"\n\n\ndef _schema(con, t):\n    \"\"\"How a table is made: for each column its type, whether it's required, its default, whether it's the key and\n    whether it allows no duplicates\"\"\"\n    uniq = set()\n    for idx in con.execute(f'PRAGMA index_list(\"{t}\")').fetchall():\n        if idx[2]:\n            cols = [r[2] for r in con.execute(f'PRAGMA index_info(\"{idx[1]}\")').fetchall()]\n            if len(cols) == 1:\n                uniq.add(cols[0].lower())\n    out = []\n    for cid, name, typ, notnull, dflt, pk in con.execute(f'PRAGMA table_info(\"{t}\")').fetchall():\n        out.append({\"name\": name.lower(), \"type\": _affinity(typ), \"notnull\": bool(notnull), \"default\": None if dflt is None else re.sub(r\"\\s+\", \"\", str(dflt)),\n                    \"pk\": bool(pk), \"unique\": name.lower() in uniq and not pk})\n    return out\n\n\ndef _plain(r):\n    return [None if v is None else (int(v) if isinstance(v, float) and v == int(v) and abs(v) < 1e15 else v) for v in r]\n\n\ndef _rows_diff(exp, got):\n    \"\"\"One expected row that's missing and one row that shouldn't be there\"\"\"\n    left = list(got)\n    missing = None\n    for r in exp:\n        if r in left:\n            left.remove(r)\n        elif missing is None:\n            missing = r\n    extra = next((r for r in left), None)\n    return {\"missing\": None if missing is None else _plain(missing), \"extra\": None if extra is None else _plain(extra)}\n\n\ndef diff_results(exp, got, opts):\n    mode = opts.get(\"results\", \"all\")\n    if mode == \"none\":\n        return None\n    if mode == \"last\":\n        if not got:\n            return {\"why\": \"noresult\"}\n        exp, got = exp[-1:], got[-1:]\n    if len(exp) != len(got):\n        return {\"why\": \"results\", \"exp\": len(exp), \"got\": len(got)}\n    for i, (e, g) in enumerate(zip(exp, got)):\n        base = {\"table\": i, \"count\": len(exp), \"line\": g[\"line\"]}\n        if len(e[\"cols\"]) != len(g[\"cols\"]):\n            return dict(base, why=\"cols\", exp=e[\"cols\"], got=g[\"cols\"])\n        if opts.get(\"names\") and [c.lower() for c in e[\"cols\"]] != [c.lower() for c in g[\"cols\"]]:\n            return dict(base, why=\"names\", exp=e[\"cols\"], got=g[\"cols\"])\n        if len(e[\"rows\"]) != len(g[\"rows\"]):\n            return dict(base, why=\"rows\", exp=len(e[\"rows\"]), got=len(g[\"rows\"]), **_rows_diff(e[\"rows\"], g[\"rows\"]))\n        if _sort(e[\"rows\"]) != _sort(g[\"rows\"]):\n            return dict(base, why=\"values\", **_rows_diff(e[\"rows\"], g[\"rows\"]))\n        ordered = opts.get(\"order\", e[\"ordered\"])\n        if ordered and e[\"rows\"] != g[\"rows\"]:\n            k = next(j for j in range(len(e[\"rows\"])) if e[\"rows\"][j] != g[\"rows\"][j])\n            return dict(base, why=\"order\", at=k + 1, exp=_plain(e[\"rows\"][k]), got=_plain(g[\"rows\"][k]))\n    return None\n\n\ndef diff_state(exp, got, schema=False):\n    for t, e in exp.items():\n        g = got.get(t)\n        if e is None:\n            continue\n        if g is None:\n            return {\"why\": \"notable\", \"name\": t}\n        if [c.lower() for c in e[\"cols\"]] != [c.lower() for c in g[\"cols\"]]:\n            return {\"why\": \"statecols\", \"name\": t, \"exp\": e[\"cols\"], \"got\": g[\"cols\"]}\n        if schema:\n            for ec, gc in zip(e[\"schema\"], g[\"schema\"]):\n                for k in (\"type\", \"pk\", \"notnull\", \"default\", \"unique\"):\n                    if ec[k] != gc[k]:\n                        return {\"why\": \"schema\", \"name\": t, \"col\": ec[\"name\"], \"rule\": k, \"exp\": ec[k], \"got\": gc[k]}\n        if e[\"rows\"] != g[\"rows\"]:\n            return dict({\"why\": \"state\", \"name\": t, \"exp\": len(e[\"rows\"]), \"got\": len(g[\"rows\"])}, **_rows_diff(e[\"rows\"], g[\"rows\"]))\n    return None\n\n\ndef compare(dbs, learner, solution, opts=None):\n    \"\"\"The learner's statements against the solution's, on every database in turn (the first is the lesson's)\"\"\"\n    opts = opts or {}\n    for k, setup in enumerate(dbs):\n        ecn = connect(setup)\n        exp = results(ecn, solution)\n        est = state(ecn, opts.get(\"state\"))\n        ecn.close()\n        gcn = connect(setup)\n        try:\n            got = results(gcn, learner)\n        except SqlError as e:\n            gcn.close()\n            return {\"ok\": False, \"db\": k, \"why\": \"error\", \"msg\": e.msg, \"line\": e.line}\n        gst = state(gcn, opts.get(\"state\"))\n        gcn.close()\n        d = diff_results(exp, got, opts) or diff_state(est, gst, opts.get(\"schema\"))\n        if d:\n            d.update(ok=False, db=k)\n            return d\n    return {\"ok\": True}\n\n\ndef check(dbs, learner, solution, opts=None):\n    print(json.dumps(compare(dbs, learner, solution, opts)))\n"
 
 
 def _sql():
@@ -1138,6 +1138,74 @@ def _sql():
         m.RT = {"emit": _emit, "st": _st}
         sys.modules["_pp_sql"] = m
     return m
+
+
+# The databases a program opens with sqlite3 stay open after it ends (the terminal still sees its variables), but
+# one left halfway, with a change not committed or a result half read, would keep the file busy and the next program
+# would stop with "database is locked". So they're closed before the next program, before a file is put back, and when
+# Python starts again: what wasn't committed is lost, as it would be when a program ends on a computer.
+_PP_DBS = []    # the connections opened by programs
+_PP_CURS = []   # weak references to their cursors: one with a result half read keeps the file busy even once closed
+
+
+def _pp_close_dbs():
+    while _PP_CURS:
+        cur = _PP_CURS.pop()()
+        if cur is not None:
+            try:
+                cur.close()
+            except Exception:
+                pass
+    while _PP_DBS:
+        con = _PP_DBS.pop()
+        try:
+            con.close()
+        except Exception:
+            pass
+
+
+def _pp_track_dbs():
+    import weakref
+    m = sys.modules.get("sqlite3")
+    if m is None or getattr(m.connect, "_pp_owner", None) is _st:
+        return
+    # a runner that starts again in the same Python finds the last one's connect: its databases are closed, and
+    # SQLite's own connect is wrapped again for this one
+    last = getattr(m.connect, "_pp_close", None)
+    if last is not None:
+        last()
+    real = getattr(m.connect, "__wrapped__", m.connect)
+
+    class Connection(m.Connection):
+        # every cursor is made here, so it's known (execute and the others make theirs here too, as SQLite's do)
+        def cursor(self, *a, **k):
+            cur = super().cursor(*a, **k)
+            if len(_PP_CURS) > 500:
+                _PP_CURS[:] = [r for r in _PP_CURS if r() is not None]
+            _PP_CURS.append(weakref.ref(cur))
+            return cur
+
+        def execute(self, *a, **k):
+            return self.cursor().execute(*a, **k)
+
+        def executemany(self, *a, **k):
+            return self.cursor().executemany(*a, **k)
+
+        def executescript(self, *a, **k):
+            return self.cursor().executescript(*a, **k)
+    Connection.__module__, Connection.__qualname__ = "sqlite3", "Connection"
+
+    def connect(*a, **k):
+        if len(a) < 6 and "factory" not in k:
+            k["factory"] = Connection
+        con = real(*a, **k)
+        _PP_DBS.append(con)
+        return con
+    connect.__wrapped__ = real
+    connect.__doc__ = real.__doc__
+    connect._pp_owner = _st
+    connect._pp_close = _pp_close_dbs
+    m.connect = connect
 
 
 class _NeedInput(BaseException):
@@ -1270,6 +1338,7 @@ def _restore_random():
 
 def _pp_reset():
     global _ns, _game
+    _pp_close_dbs()
     _ns = _fresh_ns()
     _game = None
     if "_pp_sql" in sys.modules:
@@ -1291,6 +1360,7 @@ def _pp_files_get():
 
 
 def _pp_files_put(payload, replace=False):
+    _pp_close_dbs()
     files = json.loads(payload)
     if replace:
         for name in os.listdir("."):
@@ -1306,6 +1376,7 @@ def _pp_files_put(payload, replace=False):
 
 
 def _pp_files_del(name):
+    _pp_close_dbs()
     if _DB_NAME.fullmatch(name) and os.path.isfile(name):
         os.remove(name)
     return "ok"
@@ -1337,6 +1408,15 @@ def _pp_run(payload):
     _st.update(skip=int(p.get("skip") or 0), pos=0, out=[], inputs=list(p.get("inputs") or []),
                need=None, silent=bool(p.get("silent")), images=0, sqlerr=None)
     linecache.cache[filename] = (len(src), None, src.splitlines(True), filename)
+    # a new program (or a .sql file): the databases the last one left open are closed first
+    if mode in ("file", "sql"):
+        _pp_close_dbs()
+    if "sqlite3" in src or "_pp_sql" in src:
+        try:
+            import sqlite3
+            _pp_track_dbs()
+        except ImportError:
+            pass
     if "_pp_sql" in src:
         _sql()
     # a program (or a hidden test) may move to another folder: the next one starts again from here
@@ -37103,6 +37183,32 @@ function sqlCheckProgram(lv, src, lang) {
 /* The lessons of folder 07 are Python programs that open the arcade's file: their hidden tests run in a folder of
    their own, on a new copy of it (copy 0 is the lesson's) */
 const sqlPyPrelude = (lang, copy = 0) => `import os as _os, tempfile as _tf, _pp_sql\n_os.chdir(_tf.mkdtemp())\n_pp_sql.make_file(${pyStr(sqlDbFile("sala", lang))}, ${pyStr(sqlSetup("sala", lang, copy))})\ndel _os, _tf\n`;
+/* What a program of folder 07 prints depends on the database, which the learner can change in the Lab: so it's
+   compared with what the solution prints on the same data. In the app the solution runs on a copy of the learner's
+   file as it was before the run, with the same answers (sqlPySnapProgram). A hidden test does it in one program, on a
+   new copy of the arcade: the solution first, in a namespace of its own, then a marker, then the learner's program on
+   another new copy of the same data; "after" adds lines that look into the database once each one has finished */
+const SQLPY_MARK = "~~ arcode: il tuo programma ~~";
+const sqlTwinSplit = (o) => {
+  const s = String(o), i = s.indexOf(SQLPY_MARK);
+  return i < 0 ? null : [s.slice(0, i).replace(/\n$/, ""), s.slice(i + SQLPY_MARK.length).replace(/^\n/, "")];
+};
+function sqlPyTwin(lang, copy, sol, code, inputs, desc, after = "") {
+  if (code == null) return null;
+  const end = (c) => c.replace(/\s*$/, "\n") + (after ? after.replace(/\s*$/, "\n") : "");
+  return tcase(sqlPyPrelude(lang, copy) + `exec(compile(${pyStr(end(sol))}, "<soluzione>", "exec"), {"__name__": "__main__"})\nprint(${pyStr(SQLPY_MARK)})\n` +
+    sqlPyPrelude(lang, copy) + end(code),
+    (o) => { const p = sqlTwinSplit(o); return !!p && p[0] === p[1]; }, desc, { inputs: inputs.concat(inputs), twin: true });
+}
+const sqlPySnapProgram = (snap, sol) => `def _pp_snap(files):\n    import os, tempfile, json, base64\n    os.chdir(tempfile.mkdtemp())\n    for n, d in json.loads(files).items():\n        with open(n, "wb") as f:\n            f.write(base64.b64decode(d))\n_pp_snap(${pyStr(snap)})\ndel _pp_snap\n` + sol;
+/* when the solution can't run on the learner's data: the program asked for fewer answers, or the file changed too much */
+const SQLPY_NOTWIN = {
+  it: { need_input: "Il programma deve fare le domande della consegna con input(), nello stesso ordine: con le tue risposte, alla soluzione ne mancava una.",
+    error: (f) => `Non riesco a provare la soluzione sul tuo database: forse ${f} è cambiato troppo nel Lab. Puoi farlo ripartire da capo dal riquadro Database del Lab.` },
+  en: { need_input: "The program must ask the task's questions with input(), in the same order: with your answers, the solution was missing one.",
+    error: (f) => `I can't try the solution on your database: maybe ${f} changed too much in the Lab. You can start it again from scratch in the Lab's Database box.` }
+};
+const sqlPyNoTwin = (lang, status) => (status === "need_input" ? SQLPY_NOTWIN[lang].need_input : SQLPY_NOTWIN[lang].error(sqlDbFile("sala", lang)));
 
 /* SQL's own words, for the colours and for the checks of what each lesson teaches */
 const SQL_KW = new Set(("SELECT FROM WHERE AND OR NOT IN IS NULL LIKE BETWEEN ORDER BY ASC DESC LIMIT OFFSET DISTINCT AS GROUP HAVING " +
@@ -38966,8 +39072,8 @@ SELECT name, score FROM podium WHERE title = 'Breakout' ORDER BY score DESC LIMI
   it: {
     title: "Il grande ripasso",
     theory: [
-`<p>L'ultimo ripasso prima di tornare a Python: una domanda per ogni cartella di questo mondo, e ognuna dice da quale cartella arriva.</p>`],
-    task: `Rispondi alle domande: una per cartella, dalla prima all'ultima.`,
+`<p>L'ultimo ripasso prima di tornare a Python: una domanda per ogni cartella che hai fatto in questo mondo, compresa questa, e ognuna dice da quale cartella arriva.</p>`],
+    task: `Rispondi alle domande: una per cartella, dalla 00 a questa.`,
     quiz: [
       { folder: 0, q: "Cosa vuol dire l'asterisco in SELECT * FROM giochi?",
         options: ["tutte le colonne", "tutte le tabelle", "moltiplica", "solo la prima colonna"], correct: 0,
@@ -38986,13 +39092,16 @@ SELECT name, score FROM podium WHERE title = 'Breakout' ORDER BY score DESC LIMI
         explain: "LEFT JOIN tiene tutte le righe della tabella a sinistra, con NULL dove la compagna manca." },
       { folder: 5, q: "Che cosa fa DELETE FROM partite; senza WHERE?",
         options: ["cancella tutte le partite e la tabella resta vuota", "cancella la tabella", "non fa niente", "cancella solo l'ultima partita"], correct: 0,
-        explain: "Senza WHERE l'istruzione vale per tutte le righe. Per cancellare la tabella intera servirebbe DROP TABLE." }]
+        explain: "Senza WHERE l'istruzione vale per tutte le righe. Per cancellare la tabella intera servirebbe DROP TABLE." },
+      { folder: 6, q: "Che cosa tiene una vista fatta con CREATE VIEW?",
+        options: ["la domanda, che riparte ogni volta che la usi", "una copia dei dati di quel momento", "una tabella vuota da riempire", "niente: sparisce alla fine del file"], correct: 0,
+        explain: "Una vista è una domanda con un nome: non copia i dati, li richiede ogni volta, così è sempre aggiornata." }]
   },
   en: {
     title: "The big review",
     theory: [
-`<p>The last review before going back to Python: one question for each folder of this world, and each one says which folder it comes from.</p>`],
-    task: `Answer the questions: one per folder, from the first to the last.`,
+`<p>The last review before going back to Python: one question for each folder you did in this world, this one included, and each one says which folder it comes from.</p>`],
+    task: `Answer the questions: one per folder, from 00 to this one.`,
     quiz: [
       { folder: 0, q: "What does the asterisk mean in SELECT * FROM games?",
         options: ["all the columns", "all the tables", "multiply", "only the first column"], correct: 0,
@@ -39011,7 +39120,10 @@ SELECT name, score FROM podium WHERE title = 'Breakout' ORDER BY score DESC LIMI
         explain: "LEFT JOIN keeps all the rows of the table on the left, with NULL where the partner is missing." },
       { folder: 5, q: "What does DELETE FROM matches; do without WHERE?",
         options: ["deletes every match and the table stays empty", "deletes the table", "does nothing", "deletes only the last match"], correct: 0,
-        explain: "Without WHERE the statement applies to every row. To delete the whole table you'd need DROP TABLE." }]
+        explain: "Without WHERE the statement applies to every row. To delete the whole table you'd need DROP TABLE." },
+      { folder: 6, q: "What does a view made with CREATE VIEW keep?",
+        options: ["the question, which runs again every time you use it", "a copy of the data at that moment", "an empty table to fill", "nothing: it vanishes at the end of the file"], correct: 0,
+        explain: "A view is a question with a name: it doesn't copy the data, it asks for it every time, so it's always up to date." }]
   }
 },
 {
@@ -39073,6 +39185,465 @@ AND player NOT IN (SELECT player FROM evening WHERE time BETWEEN '22:30' AND '22
   }
 }
 ];
+
+/* ---------- SQL 07_python: Python opens the arcade's database with sqlite3 (engine "py": these are Python lessons) ----------
+   The programs open the learner's own file (the Lab's): each run is compared with the solution on the same data,
+   and the hidden tests (sqlPyTwin) run both on new copies of the arcade with other answers */
+const SQLPY_OPEN = { re: /sqlite3\.connect\(\s*["'](sala_giochi|arcade)\.db["']\s*\)/,
+  it: "Apri il database della sala con sqlite3.connect(\"sala_giochi.db\").", en: "Open the arcade's database with sqlite3.connect(\"arcade.db\")." };
+const SQLPY_COMMIT = { re: /\.commit\s*\(\s*\)/,
+  it: "Dopo la modifica serve commit(): se no, quando il programma finisce, si perde.", en: "After the change you need commit(): otherwise it's lost when the program ends." };
+/* lines that look into the database once a program has finished, on a new connection: they see only what was saved */
+const sqlPyLook = (lang, sql, label) => `import sqlite3 as _pp_q\n_pp_c = _pp_q.connect(${pyStr(sqlDbFile("sala", lang))})\nprint(${pyStr(label)}, _pp_c.execute(${pyStr(sql)}).fetchone())\n_pp_c.close()\n`;
+
+const SQL_C07 = [
+{
+  id: "s_py", engine: "py", teaches: [], must: [SQLPY_OPEN,
+    { re: /\.fetchall\s*\(\s*\)/, it: "Prendi tutte le righe del risultato con fetchall().", en: "Take all the result's rows with fetchall()." }],
+  it: {
+    title: "Python apre il database",
+    theory: [
+`<p>Il caso è chiuso: Vera ha confessato. Aveva giocato con la tessera di Ugo e poi aveva cambiato la riga a mano, per far squalificare Zeno. Il gestore ha rimesso a posto il record e ha deciso: da oggi nessuno scrive più nel database a mano, i punteggi li registra un programma. Lo scriverai tu, in Python, e così il tuo gioco avrà finalmente una memoria.</p>
+<p>Python ha già il modulo <code>sqlite3</code>: <code>sqlite3.connect</code> apre il file del database, lo stesso <code>sala_giochi.db</code> del Lab, e dà una <b>connessione</b>. Il suo metodo <code>execute</code> fa una domanda in SQL, scritta come stringa, e <code>fetchall()</code> prende tutte le righe del risultato. Alla fine <code>close()</code> chiude il file.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+righe = con.execute("SELECT titolo, gettoni FROM giochi WHERE gettoni = 2").fetchall()
+print(righe)
+print(len(righe), "giochi costano 2 gettoni")
+con.close()` },
+`<p>Il risultato è una lista, con una <b>tupla</b> per ogni riga: una tupla è come una lista, ma si scrive tra parentesi tonde e non si può cambiare. <code>righe[0]</code> è la prima riga, <code>('Snake', 2)</code>, e <code>righe[0][0]</code> il suo primo valore, <code>'Snake'</code>.</p>`],
+    task: `Apri il database della sala e stampa la lista delle righe con nome e monete dei 3 giocatori con più monete, dal più ricco. Poi stampa solo il nome del primo, prendendolo dalla lista. Proverò il programma anche su un'altra sala, con altri giocatori.`,
+    starter: `import sqlite3\n\n`,
+    solution: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+righe = con.execute("SELECT nome, monete FROM giocatori ORDER BY monete DESC LIMIT 3").fetchall()
+print(righe)
+print(righe[0][0])
+con.close()`,
+    hints: ["Tre passi: aprire il file, fare la domanda in SQL (con quale ordine e quante righe?), prendere tutte le righe. Poi: dove sta il nome del primo, dentro la lista?",
+      "Apri sala_giochi.db con sqlite3.connect, poi execute della SELECT di nome e monete in ordine di monete DESC con LIMIT 3, e fetchall(). Stampa la lista, poi righe[0][0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_py.it, c, [], "un'altra sala giochi, con altri giocatori e altre monete"),
+      sqlPyTwin("it", 2, SQL_C07_SOL.s_py.it, c, [], "un'altra sala ancora"))
+  },
+  en: {
+    title: "Python opens the database",
+    theory: [
+`<p>The case is closed: Vera confessed. She had played with Ugo's card and then changed the row by hand, to get Zeno disqualified. The manager put the record right and decided: from today nobody writes in the database by hand, the scores are recorded by a program. You'll write it, in Python, and so your game will finally have a memory.</p>
+<p>Python already has the <code>sqlite3</code> module: <code>sqlite3.connect</code> opens the database file, the same <code>arcade.db</code> as the Lab's, and gives a <b>connection</b>. Its <code>execute</code> method asks a question in SQL, written as a string, and <code>fetchall()</code> takes all the result's rows. At the end <code>close()</code> closes the file.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+rows = con.execute("SELECT title, tokens FROM games WHERE tokens = 2").fetchall()
+print(rows)
+print(len(rows), "games cost 2 tokens")
+con.close()` },
+`<p>The result is a list, with a <b>tuple</b> for each row: a tuple is like a list, but it's written between round brackets and can't be changed. <code>rows[0]</code> is the first row, <code>('Snake', 2)</code>, and <code>rows[0][0]</code> its first value, <code>'Snake'</code>.</p>`],
+    task: `Open the arcade's database and print the list of rows with name and coins of the 3 players with the most coins, from the richest. Then print only the first one's name, taking it from the list. I'll also try the program on another arcade, with other players.`,
+    starter: `import sqlite3\n\n`,
+    solution: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+rows = con.execute("SELECT name, coins FROM players ORDER BY coins DESC LIMIT 3").fetchall()
+print(rows)
+print(rows[0][0])
+con.close()`,
+    hints: ["Three steps: open the file, ask the question in SQL (in what order, and how many rows?), take all the rows. Then: where is the first one's name, inside the list?",
+      "Open arcade.db with sqlite3.connect, then execute the SELECT of name and coins in order of coins DESC with LIMIT 3, and fetchall(). Print the list, then rows[0][0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_py.en, c, [], "another arcade, with other players and other coins"),
+      sqlPyTwin("en", 2, SQL_C07_SOL.s_py.en, c, [], "yet another arcade"))
+  }
+},
+{
+  id: "s_pyloop", engine: "py", teaches: [], must: [SQLPY_OPEN,
+    { re: /\bfor\s+\w+\s*,\s*\w+\s+in\b/, it: "Scorri le righe con un for che prende i due valori con due nomi, come for nome, punti in …", en: "Go through the rows with a for that takes the two values with two names, like for name, score in …" },
+    { re: /\.fetchone\s*\(\s*\)/, it: "Il numero delle partite è una riga sola: prendila con fetchone().", en: "The number of matches is a single row: take it with fetchone()." }],
+  it: {
+    title: "Una riga alla volta",
+    theory: [
+`<p>Una lista di tuple, stampata così, si legge male. Meglio scorrere le righe con un <code>for</code>: siccome ogni riga ha due valori, il <code>for</code> li prende con due nomi, come facevi con <code>items()</code> dei dizionari. E il <code>for</code> può scorrere direttamente quello che dà <code>execute</code>, anche senza <code>fetchall()</code>.</p>
+<p>Quando la risposta è una riga sola, come un conteggio, c'è <code>fetchone()</code>: dà la prima riga, una tupla, e con <code>[0]</code> prendi il valore. Se di righe non ce n'è nessuna, <code>fetchone()</code> dà <code>None</code>, il valore di Python che vuol dire «niente»; per controllarlo si scrive <code>if riga is None:</code>.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+for titolo, gettoni in con.execute("SELECT titolo, gettoni FROM giochi WHERE tipo = 'logica'"):
+    print(f"{titolo}: {gettoni} gettoni")
+n = con.execute("SELECT COUNT(*) FROM partite").fetchone()[0]
+print("Partite giocate:", n)
+riga = con.execute("SELECT nome FROM giocatori WHERE monete > 1000").fetchone()
+if riga is None:
+    print("Nessuno ha più di 1000 monete")
+con.close()` }],
+    task: `Stampa la classifica di Tetris (il gioco 9): per le 5 partite con più punti una riga con la posizione, il nome del giocatore e i punti, così: <code>1. Olga 39270</code> (unisci partite e giocatori). Poi il numero delle partite di Tetris: <code>Partite di Tetris: 10</code>.`,
+    starter: `import sqlite3\n\ncon = sqlite3.connect("sala_giochi.db")\n\ncon.close()\n`,
+    solution: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+domanda = "SELECT g.nome, p.punti FROM partite p JOIN giocatori g ON g.id = p.giocatore WHERE p.gioco = 9 ORDER BY p.punti DESC LIMIT 5"
+posto = 1
+for nome, punti in con.execute(domanda):
+    print(f"{posto}. {nome} {punti}")
+    posto += 1
+n = con.execute("SELECT COUNT(*) FROM partite WHERE gioco = 9").fetchone()[0]
+print(f"Partite di Tetris: {n}")
+con.close()`,
+    hints: ["Per la posizione serve un contatore che parte da 1 e cresce a ogni giro. E il numero delle partite è una riga sola: quale metodo la prende?",
+      "Un for con due nomi sulla JOIN di partite e giocatori (gioco 9, punti DESC, LIMIT 5); dentro stampa posto, nome e punti, poi aumenta posto di 1. Alla fine COUNT(*) delle partite del gioco 9 con fetchone()[0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_pyloop.it, c, [], "un'altra sala giochi, con altre partite di Tetris"),
+      sqlPyTwin("it", 2, SQL_C07_SOL.s_pyloop.it, c, [], "un'altra sala, dove a Tetris si è giocato solo 5 volte"))
+  },
+  en: {
+    title: "One row at a time",
+    theory: [
+`<p>A list of tuples, printed like that, is hard to read. Better to go through the rows with a <code>for</code>: since every row has two values, the <code>for</code> takes them with two names, as you did with dictionaries' <code>items()</code>. And the <code>for</code> can go straight through what <code>execute</code> gives, even without <code>fetchall()</code>.</p>
+<p>When the answer is a single row, like a count, there's <code>fetchone()</code>: it gives the first row, a tuple, and with <code>[0]</code> you take the value. If there are no rows at all, <code>fetchone()</code> gives <code>None</code>, Python's value that means "nothing"; to check it you write <code>if row is None:</code>.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+for title, tokens in con.execute("SELECT title, tokens FROM games WHERE kind = 'logic'"):
+    print(f"{title}: {tokens} tokens")
+n = con.execute("SELECT COUNT(*) FROM matches").fetchone()[0]
+print("Matches played:", n)
+row = con.execute("SELECT name FROM players WHERE coins > 1000").fetchone()
+if row is None:
+    print("Nobody has more than 1000 coins")
+con.close()` }],
+    task: `Print the Tetris leaderboard (game 9): for the 5 matches with the most points a line with the position, the player's name and the score, like this: <code>1. Olga 39270</code> (join matches and players). Then the number of Tetris matches: <code>Tetris matches: 10</code>.`,
+    starter: `import sqlite3\n\ncon = sqlite3.connect("arcade.db")\n\ncon.close()\n`,
+    solution: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+question = "SELECT p.name, m.score FROM matches m JOIN players p ON p.id = m.player WHERE m.game = 9 ORDER BY m.score DESC LIMIT 5"
+place = 1
+for name, score in con.execute(question):
+    print(f"{place}. {name} {score}")
+    place += 1
+n = con.execute("SELECT COUNT(*) FROM matches WHERE game = 9").fetchone()[0]
+print(f"Tetris matches: {n}")
+con.close()`,
+    hints: ["For the position you need a counter that starts at 1 and grows at every round. And the number of matches is a single row: which method takes it?",
+      "A for with two names over the JOIN of matches and players (game 9, score DESC, LIMIT 5); inside print place, name and score, then add 1 to place. At the end COUNT(*) of game 9's matches with fetchone()[0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_pyloop.en, c, [], "another arcade, with other Tetris matches"),
+      sqlPyTwin("en", 2, SQL_C07_SOL.s_pyloop.en, c, [], "another arcade, where Tetris was played only 5 times"))
+  }
+},
+{
+  id: "s_pyparams", engine: "py", teaches: [], sample: ["Bologna"], must: [SQLPY_OPEN,
+    { re: /=\s*\?/, it: "Nella domanda la città va come punto di domanda: WHERE citta = ?, con il valore a parte in una lista.", en: "In the question the city goes as a question mark: WHERE city = ?, with the value apart in a list." }],
+  it: {
+    title: "I punti di domanda",
+    theory: [
+`<p>Il gestore ha un'altra regola: nella domanda in SQL non si incolla mai un valore che arriva da fuori, come una risposta a <code>input</code>. Con una f-string un apostrofo, come in <code>L'Aquila</code>, chiuderebbe il testo a metà, e qualcuno furbo come Vera potrebbe scrivere un pezzo di SQL al posto del nome.</p>
+<p>Al posto del valore si mette un <b>punto di domanda</b>, <code>?</code>, e i valori si passano a parte a <code>execute</code>, in una lista: SQLite li mette al loro posto, sempre e solo come valori. Con più punti di domanda la lista ha più valori, nello stesso ordine.</p>`,
+{ code: `import sqlite3
+
+tipo = input("Che tipo di gioco? ")
+con = sqlite3.connect("sala_giochi.db")
+for titolo, gettoni in con.execute("SELECT titolo, gettoni FROM giochi WHERE tipo = ? AND gettoni <= ?", [tipo, 2]):
+    print(titolo, gettoni)
+con.close()`, inputs: ["logica"] }],
+    task: `Il programma chiede una città e stampa i giocatori di quella città, in ordine di nome, così: <code>Irene: 95 monete</code>. Se non ce n'è nessuno stampa <code>Nessun giocatore a Bari</code>. La città va nella domanda con un punto di domanda. Lo proverò anche con altre città, e con una che ha l'apostrofo.`,
+    starter: `import sqlite3\n\ncitta = input("Città? ")\n`,
+    solution: `import sqlite3
+
+citta = input("Città? ")
+con = sqlite3.connect("sala_giochi.db")
+righe = con.execute("SELECT nome, monete FROM giocatori WHERE citta = ? ORDER BY nome", [citta]).fetchall()
+if len(righe) == 0:
+    print(f"Nessun giocatore a {citta}")
+for nome, monete in righe:
+    print(f"{nome}: {monete} monete")
+con.close()`,
+    hints: ["Dove va la città nella domanda, e come ci arriva? E per sapere se non c'è nessuno ti serve la lista delle righe: quanto è lunga?",
+      "execute con WHERE citta = ? e la lista [citta], poi fetchall(); se la lista è lunga 0 stampa il messaggio, se no un for con nome e monete."],
+    tests: (c) => tlist(
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_pyparams.it, c, ["Milano"], "un'altra sala giochi, chiedendo Milano"),
+      sqlPyTwin("it", 2, SQL_C07_SOL.s_pyparams.it, c, ["Torino"], "un'altra sala ancora, chiedendo Torino"),
+      sqlPyTwin("it", 0, SQL_C07_SOL.s_pyparams.it, c, ["L'Aquila"], "una città con l'apostrofo, L'Aquila: con il punto di domanda non dà problemi"))
+  },
+  en: {
+    title: "Question marks",
+    theory: [
+`<p>The manager has another rule: you never paste a value that comes from outside, like an answer to <code>input</code>, into the SQL question. With an f-string an apostrophe, as in <code>L'Aquila</code>, would close the text halfway, and somebody sly like Vera could write a piece of SQL instead of the name.</p>
+<p>In place of the value you put a <b>question mark</b>, <code>?</code>, and the values are passed apart to <code>execute</code>, in a list: SQLite puts them in their place, always and only as values. With more question marks the list has more values, in the same order.</p>`,
+{ code: `import sqlite3
+
+kind = input("What kind of game? ")
+con = sqlite3.connect("arcade.db")
+for title, tokens in con.execute("SELECT title, tokens FROM games WHERE kind = ? AND tokens <= ?", [kind, 2]):
+    print(title, tokens)
+con.close()`, inputs: ["logic"] }],
+    task: `The program asks for a city and prints the players of that city, in order of name, like this: <code>Irene: 95 coins</code>. If there's nobody it prints <code>No players in Bari</code>. The city goes into the question with a question mark. I'll also try it with other cities, and with one that has an apostrophe.`,
+    starter: `import sqlite3\n\ncity = input("City? ")\n`,
+    solution: `import sqlite3
+
+city = input("City? ")
+con = sqlite3.connect("arcade.db")
+rows = con.execute("SELECT name, coins FROM players WHERE city = ? ORDER BY name", [city]).fetchall()
+if len(rows) == 0:
+    print(f"No players in {city}")
+for name, coins in rows:
+    print(f"{name}: {coins} coins")
+con.close()`,
+    hints: ["Where does the city go in the question, and how does it get there? And to know if there's nobody you need the list of rows: how long is it?",
+      "execute with WHERE city = ? and the list [city], then fetchall(); if the list's length is 0 print the message, otherwise a for with name and coins."],
+    tests: (c) => tlist(
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_pyparams.en, c, ["Milan"], "another arcade, asking for Milan"),
+      sqlPyTwin("en", 2, SQL_C07_SOL.s_pyparams.en, c, ["Turin"], "yet another arcade, asking for Turin"),
+      sqlPyTwin("en", 0, SQL_C07_SOL.s_pyparams.en, c, ["L'Aquila"], "a city with an apostrophe, L'Aquila: with the question mark it's no problem"))
+  }
+},
+{
+  id: "s_pysave", engine: "py", teaches: [], sample: ["Zoe", "Lecce", "2001"], must: [SQLPY_OPEN,
+    { re: /INSERT\s+INTO[^\n]*\?/i, it: "L'INSERT prende i valori dai punti di domanda, con la lista a parte.", en: "The INSERT takes the values from question marks, with the list apart." },
+    SQLPY_COMMIT],
+  it: {
+    title: "Salvare davvero: commit",
+    theory: [
+`<p>Con <code>execute</code> si fanno anche <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code>, con i punti di domanda per i valori. Ma una modifica fatta da Python resta in sospeso finché non chiami <code>commit()</code> sulla connessione: è il momento in cui finisce davvero nel file. Se il programma si chiude prima, la modifica si perde.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+con.execute("UPDATE giocatori SET monete = monete + 10 WHERE nome = ?", ["Ada"])
+con.commit()
+monete = con.execute("SELECT monete FROM giocatori WHERE nome = ?", ["Ada"]).fetchone()[0]
+print("Ada ha", monete, "monete")
+con.close()` },
+`<p>Eseguilo due volte: la seconda volta Ada ha 10 monete in più. Il programma è finito e le sue variabili si sono cancellate, ma il database si ricorda: è la memoria che mancava al tuo gioco.</p>`],
+    task: `Iscrivi un nuovo giocatore: il programma chiede il nome, la città e l'anno di nascita, e lo aggiunge ai giocatori con 50 monete di benvenuto, usando i punti di domanda. Salva con <code>commit()</code>, poi stampa quanti giocatori ci sono adesso: <code>Giocatori iscritti: 17</code>. Eseguilo due volte: il numero cresce. Dopo il programma riaprirò il database per vedere se il giocatore c'è ancora.`,
+    starter: `import sqlite3\n\nnome = input("Nome? ")\ncitta = input("Città? ")\nnascita = int(input("Anno di nascita? "))\n`,
+    solution: `import sqlite3
+
+nome = input("Nome? ")
+citta = input("Città? ")
+nascita = int(input("Anno di nascita? "))
+con = sqlite3.connect("sala_giochi.db")
+con.execute("INSERT INTO giocatori (nome, citta, nascita, monete) VALUES (?, ?, ?, 50)", [nome, citta, nascita])
+con.commit()
+n = con.execute("SELECT COUNT(*) FROM giocatori").fetchone()[0]
+print(f"Giocatori iscritti: {n}")
+con.close()`,
+    hints: ["Dopo le domande servono tre cose: l'INSERT con quattro valori (tre dalle risposte, uno fisso), il commit e il conteggio. In che ordine?",
+      "execute con INSERT INTO giocatori, le quattro colonne e VALUES con tre punti di domanda e 50, più la lista [nome, citta, nascita]; poi con.commit(); infine COUNT(*) con fetchone()[0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_pysave.it, c, ["Ugo", "Bari", "1998"], "un'altra sala giochi, iscrivendo Ugo di Bari, del 1998; dopo il programma ho riaperto il database per cercarlo (serve commit())",
+        sqlPyLook("it", "SELECT nome, citta, nascita, monete FROM giocatori ORDER BY id DESC LIMIT 1", "Nel database:")),
+      sqlPyTwin("it", 2, SQL_C07_SOL.s_pysave.it, c, ["Lia", "Torino", "2010"], "un'altra sala ancora, iscrivendo Lia di Torino, del 2010",
+        sqlPyLook("it", "SELECT nome, citta, nascita, monete FROM giocatori ORDER BY id DESC LIMIT 1", "Nel database:")))
+  },
+  en: {
+    title: "Saving for real: commit",
+    theory: [
+`<p>With <code>execute</code> you can also do <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code>, with question marks for the values. But a change made by Python stays pending until you call <code>commit()</code> on the connection: that's the moment it really goes into the file. If the program closes before, the change is lost.</p>`,
+{ code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+con.execute("UPDATE players SET coins = coins + 10 WHERE name = ?", ["Ada"])
+con.commit()
+coins = con.execute("SELECT coins FROM players WHERE name = ?", ["Ada"]).fetchone()[0]
+print("Ada has", coins, "coins")
+con.close()` },
+`<p>Run it twice: the second time Ada has 10 more coins. The program ended and its variables were wiped, but the database remembers: it's the memory your game was missing.</p>`],
+    task: `Sign up a new player: the program asks for the name, the city and the year of birth, and adds them to the players with 50 welcome coins, using question marks. Save with <code>commit()</code>, then print how many players there are now: <code>Players signed up: 17</code>. Run it twice: the number grows. After the program I'll open the database again to see whether the player is still there.`,
+    starter: `import sqlite3\n\nname = input("Name? ")\ncity = input("City? ")\nborn = int(input("Year of birth? "))\n`,
+    solution: `import sqlite3
+
+name = input("Name? ")
+city = input("City? ")
+born = int(input("Year of birth? "))
+con = sqlite3.connect("arcade.db")
+con.execute("INSERT INTO players (name, city, born, coins) VALUES (?, ?, ?, 50)", [name, city, born])
+con.commit()
+n = con.execute("SELECT COUNT(*) FROM players").fetchone()[0]
+print(f"Players signed up: {n}")
+con.close()`,
+    hints: ["After the questions you need three things: the INSERT with four values (three from the answers, one fixed), the commit and the count. In what order?",
+      "execute with INSERT INTO players, the four columns and VALUES with three question marks and 50, plus the list [name, city, born]; then con.commit(); finally COUNT(*) with fetchone()[0]."],
+    tests: (c) => tlist(
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_pysave.en, c, ["Ugo", "Bari", "1998"], "another arcade, signing up Ugo from Bari, born in 1998; after the program I opened the database again to look for him (you need commit())",
+        sqlPyLook("en", "SELECT name, city, born, coins FROM players ORDER BY id DESC LIMIT 1", "In the database:")),
+      sqlPyTwin("en", 2, SQL_C07_SOL.s_pysave.en, c, ["Lia", "Turin", "2010"], "yet another arcade, signing up Lia from Turin, born in 2010",
+        sqlPyLook("en", "SELECT name, city, born, coins FROM players ORDER BY id DESC LIMIT 1", "In the database:")))
+  }
+},
+{
+  id: "s_prev7", kind: "quiz", engine: "py", teaches: [],
+  it: {
+    title: "Prevedi: Python e il database",
+    theory: [
+`<p>Per prevedere un programma che parla con il database, segui i due mondi: che cosa risponde SQLite alla domanda, e che cosa ne fa Python. <code>fetchall()</code> dà sempre una lista, <code>fetchone()</code> una tupla oppure <code>None</code>, e senza <code>commit()</code> le modifiche non arrivano nel file.</p>`],
+    task: `Leggi ogni programma e scegli che cosa stampa. Dopo la risposta giusta potrai eseguirlo per vederlo.`,
+    quiz: [
+      { code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+riga = con.execute("SELECT titolo, gettoni FROM giochi WHERE id = 9").fetchone()
+print(riga[0], riga[1] * 2)`, q: "Che cosa stampa?",
+        options: ["Tetris 6", "('Tetris', 3)", "Tetris 3", "9 6"], correct: 0,
+        explain: "fetchone() dà la riga del gioco 9, la tupla ('Tetris', 3): riga[0] è il titolo e riga[1] i gettoni, 3, che per due fa 6." },
+      { code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+righe = con.execute("SELECT nome FROM giocatori WHERE citta = ?", ["Bari"]).fetchall()
+riga = con.execute("SELECT nome FROM giocatori WHERE citta = ?", ["Bari"]).fetchone()
+print(righe, riga)`, q: "Nella sala nessuno è di Bari. Che cosa stampa?",
+        options: ["[] None", "None None", "[] []", "si ferma con un errore"], correct: 0,
+        explain: "Senza righe, fetchall() dà una lista vuota e fetchone() dà None: nessuno dei due si ferma con un errore." },
+      { code: `import sqlite3
+
+con = sqlite3.connect("sala_giochi.db")
+con.execute("DELETE FROM partite")
+con.close()
+con = sqlite3.connect("sala_giochi.db")
+print(con.execute("SELECT COUNT(*) FROM partite").fetchone()[0])`, q: "Le partite sono 60. Che cosa stampa?",
+        options: ["60", "0", "None", "si ferma con un errore"], correct: 0,
+        explain: "Senza commit() la cancellazione non arriva nel file: close() la butta via. Riaprendo il database le partite sono ancora 60." }]
+  },
+  en: {
+    title: "Predict: Python and the database",
+    theory: [
+`<p>To predict a program that talks to the database, follow both worlds: what SQLite answers to the question, and what Python does with it. <code>fetchall()</code> always gives a list, <code>fetchone()</code> a tuple or <code>None</code>, and without <code>commit()</code> changes don't reach the file.</p>`],
+    task: `Read each program and choose what it prints. After the right answer you can run it to see.`,
+    quiz: [
+      { code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+row = con.execute("SELECT title, tokens FROM games WHERE id = 9").fetchone()
+print(row[0], row[1] * 2)`, q: "What does it print?",
+        options: ["Tetris 6", "('Tetris', 3)", "Tetris 3", "9 6"], correct: 0,
+        explain: "fetchone() gives game 9's row, the tuple ('Tetris', 3): row[0] is the title and row[1] the tokens, 3, which times two makes 6." },
+      { code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+rows = con.execute("SELECT name FROM players WHERE city = ?", ["Bari"]).fetchall()
+row = con.execute("SELECT name FROM players WHERE city = ?", ["Bari"]).fetchone()
+print(rows, row)`, q: "Nobody in the arcade is from Bari. What does it print?",
+        options: ["[] None", "None None", "[] []", "it stops with an error"], correct: 0,
+        explain: "With no rows, fetchall() gives an empty list and fetchone() gives None: neither of them stops with an error." },
+      { code: `import sqlite3
+
+con = sqlite3.connect("arcade.db")
+con.execute("DELETE FROM matches")
+con.close()
+con = sqlite3.connect("arcade.db")
+print(con.execute("SELECT COUNT(*) FROM matches").fetchone()[0])`, q: "There are 60 matches. What does it print?",
+        options: ["60", "0", "None", "it stops with an error"], correct: 0,
+        explain: "Without commit() the deletion doesn't reach the file: close() throws it away. Opening the database again, the matches are still 60." }]
+  }
+},
+{
+  id: "s_build7", engine: "py", build: true, part: 8, teaches: [], sample: ["Ada", "40"], must: [SQLPY_OPEN,
+    { re: /=\s*\?/, it: "Il nome va nella domanda con un punto di domanda: WHERE nome = ?", en: "The name goes into the question with a question mark: WHERE name = ?" },
+    SQLPY_COMMIT],
+  it: {
+    title: "Costruisci: il record che non si dimentica",
+    theory: [
+`<p>L'ultima parte del progetto chiude il cerchio. Il tuo gioco di Python, Indovina il numero, è il gioco 1 della sala, e nel database nessuno ci ha ancora giocato. Adesso le sue partite si salvano, e il record non sparisce più quando il programma finisce.</p>
+<p>Il programma usa tutto quello che hai visto in questa cartella: chiede, cerca con i punti di domanda, controlla <code>None</code>, salva con <code>commit()</code> e scorre una classifica. Il giorno della partita lo lasci vuoto: per il record non serve. Eseguito due volte, con due giocatori:</p>
+<pre class="term-sample">Come ti chiami? Ada
+Quanti punti hai fatto? 40
+Nuovo record!
+1. Ada 40</pre>
+<pre class="term-sample">Come ti chiami? Olga
+Quanti punti hai fatto? 30
+Il record resta di 40 punti
+1. Ada 40
+2. Olga 30</pre>`],
+    task: `Il programma chiede il nome e poi i punti. Se il nome non è tra i giocatori stampa <code>Non conosco Zed</code> e non salva niente. Altrimenti trova il record di Indovina il numero (il gioco 1), salva la partita (giocatore, gioco 1 e punti) con <code>commit()</code> e stampa <code>Nuovo record!</code> se i punti superano il record o se il record non c'era ancora, altrimenti <code>Il record resta di 40 punti</code>. Alla fine la classifica di Indovina il numero, i primi 3, così: <code>1. Ada 40</code>; a pari punti viene prima la partita salvata prima.`,
+    starter: `import sqlite3\n\nnome = input("Come ti chiami? ")\npunti = int(input("Quanti punti hai fatto? "))\n`,
+    solution: `import sqlite3
+
+nome = input("Come ti chiami? ")
+punti = int(input("Quanti punti hai fatto? "))
+con = sqlite3.connect("sala_giochi.db")
+riga = con.execute("SELECT id FROM giocatori WHERE nome = ?", [nome]).fetchone()
+if riga is None:
+    print(f"Non conosco {nome}")
+else:
+    record = con.execute("SELECT MAX(punti) FROM partite WHERE gioco = 1").fetchone()[0]
+    con.execute("INSERT INTO partite (giocatore, gioco, punti) VALUES (?, 1, ?)", [riga[0], punti])
+    con.commit()
+    if record is None or punti > record:
+        print("Nuovo record!")
+    else:
+        print(f"Il record resta di {record} punti")
+    classifica = "SELECT g.nome, p.punti FROM partite p JOIN giocatori g ON g.id = p.giocatore WHERE p.gioco = 1 ORDER BY p.punti DESC, p.id LIMIT 3"
+    posto = 1
+    for chi, quanti in con.execute(classifica):
+        print(f"{posto}. {chi} {quanti}")
+        posto += 1
+con.close()`,
+    hints: ["Prima cerca il giocatore con il suo nome: se fetchone() dà None ti fermi lì. Il record è il MAX dei punti del gioco 1: va letto prima o dopo aver salvato la partita nuova?",
+      "Leggi il record prima dell'INSERT, se no dentro c'è già la partita nuova. Poi INSERT INTO partite (giocatore, gioco, punti) con due punti di domanda e commit(); confronta i punti con il record, attento a None; infine un for sulla JOIN di partite e giocatori del gioco 1, in ordine di punti DESC e poi di id, LIMIT 3."],
+    tests: (c) => tlist(
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_build7.it, c, ["Bea", "7"], "un'altra sala giochi, dove Bea fa 7 punti e il record è di qualcun altro; dopo il programma ho riaperto il database per contare le partite di Indovina il numero (serve commit())",
+        sqlPyLook("it", "SELECT COUNT(*) FROM partite WHERE gioco = 1", "Partite nel database:")),
+      sqlPyTwin("it", 2, SQL_C07_SOL.s_build7.it, c, ["Teo", "12"], "un'altra sala ancora, dove Teo batte il record con 12 punti",
+        sqlPyLook("it", "SELECT COUNT(*) FROM partite WHERE gioco = 1", "Partite nel database:")),
+      sqlPyTwin("it", 1, SQL_C07_SOL.s_build7.it, c, ["Ivo", "8"], "Ivo che fa 8 punti, proprio quanti il record: superarlo vuol dire fare di più",
+        sqlPyLook("it", "SELECT COUNT(*) FROM partite WHERE gioco = 1", "Partite nel database:")),
+      sqlPyTwin("it", 0, SQL_C07_SOL.s_build7.it, c, ["Zed", "30"], "un giocatore che non c'è, Zed: non va salvato niente",
+        sqlPyLook("it", "SELECT COUNT(*) FROM partite WHERE gioco = 1", "Partite nel database:")))
+  },
+  en: {
+    title: "Build: the record that isn't forgotten",
+    theory: [
+`<p>The project's last part closes the circle. Your Python game, Guess the number, is game 1 of the arcade, and in the database nobody has played it yet. Now its matches get saved, and the record doesn't vanish any more when the program ends.</p>
+<p>The program uses everything you saw in this folder: it asks, searches with question marks, checks <code>None</code>, saves with <code>commit()</code> and goes through a leaderboard. You leave the match's day empty: the record doesn't need it. Run twice, with two players:</p>
+<pre class="term-sample">What's your name? Ada
+How many points did you score? 40
+New record!
+1. Ada 40</pre>
+<pre class="term-sample">What's your name? Olga
+How many points did you score? 30
+The record stays at 40 points
+1. Ada 40
+2. Olga 30</pre>`],
+    task: `The program asks for the name and then the points. If the name isn't among the players it prints <code>I don't know Zed</code> and saves nothing. Otherwise it finds the record of Guess the number (game 1), saves the match (player, game 1 and score) with <code>commit()</code> and prints <code>New record!</code> if the points beat the record or if there was no record yet, otherwise <code>The record stays at 40 points</code>. At the end the leaderboard of Guess the number, the top 3, like this: <code>1. Ada 40</code>; on equal points the match saved first comes first.`,
+    starter: `import sqlite3\n\nname = input("What's your name? ")\npoints = int(input("How many points did you score? "))\n`,
+    solution: `import sqlite3
+
+name = input("What's your name? ")
+points = int(input("How many points did you score? "))
+con = sqlite3.connect("arcade.db")
+row = con.execute("SELECT id FROM players WHERE name = ?", [name]).fetchone()
+if row is None:
+    print(f"I don't know {name}")
+else:
+    record = con.execute("SELECT MAX(score) FROM matches WHERE game = 1").fetchone()[0]
+    con.execute("INSERT INTO matches (player, game, score) VALUES (?, 1, ?)", [row[0], points])
+    con.commit()
+    if record is None or points > record:
+        print("New record!")
+    else:
+        print(f"The record stays at {record} points")
+    board = "SELECT p.name, m.score FROM matches m JOIN players p ON p.id = m.player WHERE m.game = 1 ORDER BY m.score DESC, m.id LIMIT 3"
+    place = 1
+    for who, score in con.execute(board):
+        print(f"{place}. {who} {score}")
+        place += 1
+con.close()`,
+    hints: ["First look for the player by name: if fetchone() gives None you stop there. The record is the MAX of game 1's scores: should it be read before or after saving the new match?",
+      "Read the record before the INSERT, otherwise the new match is already in. Then INSERT INTO matches (player, game, score) with two question marks and commit(); compare the points with the record, careful with None; finally a for over the JOIN of matches and players of game 1, in order of score DESC and then id, LIMIT 3."],
+    tests: (c) => tlist(
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_build7.en, c, ["Bea", "7"], "another arcade, where Bea scores 7 and the record is somebody else's; after the program I opened the database again to count the matches of Guess the number (you need commit())",
+        sqlPyLook("en", "SELECT COUNT(*) FROM matches WHERE game = 1", "Matches in the database:")),
+      sqlPyTwin("en", 2, SQL_C07_SOL.s_build7.en, c, ["Teo", "12"], "yet another arcade, where Teo beats the record with 12 points",
+        sqlPyLook("en", "SELECT COUNT(*) FROM matches WHERE game = 1", "Matches in the database:")),
+      sqlPyTwin("en", 1, SQL_C07_SOL.s_build7.en, c, ["Ivo", "8"], "Ivo scoring 8 points, exactly the record: beating it means scoring more",
+        sqlPyLook("en", "SELECT COUNT(*) FROM matches WHERE game = 1", "Matches in the database:")),
+      sqlPyTwin("en", 0, SQL_C07_SOL.s_build7.en, c, ["Zed", "30"], "a player who isn't there, Zed: nothing must be saved",
+        sqlPyLook("en", "SELECT COUNT(*) FROM matches WHERE game = 1", "Matches in the database:")))
+  }
+}
+];
+/* the solutions, for the hidden tests (which run them first, on the same copy) */
+const SQL_C07_SOL = Object.fromEntries(SQL_C07.filter((l) => l.kind !== "quiz").map((l) => [l.id, { it: l.it.solution, en: l.en.solution }]));
 
 /* ---------- The SQL world: folders, files and levels ---------- */
 const SQL_LESSONS = [].concat(
@@ -39138,9 +39709,20 @@ Object.assign(FILE_BASE, {
 function readySql(list) {
   for (const l of list) {
     l.needs = "full";
-    if (l.engine === "py") continue;
-    l.sql = true;
     const needs = l.must || [];
+    if (l.engine === "py") {
+      /* folder 07: a Python program passes when it has what the task asks for and prints what the solution prints
+         on the same database with the same answers (the app works that out: ctx.twin) */
+      if (l.kind !== "quiz") for (const lang of ["it", "en"]) {
+        const d = l[lang];
+        d.twin = true;
+        d.check = (o, c, x) => needs.every((n) => n.re.test(c)) && !!x && x.twin != null && o === x.twin;
+        d.why = (o, c, x) => { const n = needs.find((y) => !y.re.test(c)); return n ? n[lang] : !x || x.twin == null ? sqlPyNoTwin(lang, x && x.twinStatus) : null; };
+        d.expect = (x) => (x && x.twin != null ? x.twin : null);
+      }
+      continue;
+    }
+    l.sql = true;
     for (const lang of ["it", "en"]) {
       const d = l[lang];
       if (l.kind === "order" && !d.solution) d.solution = d.lines.join("\n");
@@ -40191,7 +40773,7 @@ function decodeSave(text) {
 Object.assign(UI.it, {
   tabLessons: "Mondi",
   splitAria: "Trascina per cambiare l'altezza del terminale", secGuide: "Guida",
-  guideWhich: "<p><b>Editor</b>, il riquadro con i numeri di riga: per scrivere programmi interi. Vengono salvati come file e partono tutti insieme con ▶ Esegui. Nei livelli la correzione guarda il codice dell'editor.</p><p><b>Terminale</b>, il riquadro scuro in basso: per provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>. Non salva niente, ma vede le variabili dell'ultimo programma eseguito. Trascina la maniglia tra i due per cambiare le altezze.</p><p><b>Finestra dei giochi</b>: un programma con Pygame Zero (<code>import pgzrun</code> e in fondo <code>pgzrun.go()</code>) o con pygame (<code>import pygame</code> e il suo ciclo <code>while</code>) parte con ▶ Esegui e apre la sua finestra al posto del terminale, a tutto schermo sul telefono. Sopra ci sono Pausa, Ricomincia, Schermo intero e Chiudi; sul telefono compaiono anche i comandi, solo con i tasti che il gioco usa. Chiudi ferma sempre il gioco: in un livello diventa Chiudi e verifica, e la verifica ci gioca da sola.</p>",
+  guideWhich: "<p><b>Editor</b>, il riquadro con i numeri di riga: per scrivere programmi interi. Vengono salvati come file e partono tutti insieme con ▶ Esegui. Nei livelli la correzione guarda il codice dell'editor.</p><p><b>Terminale</b>, il riquadro scuro in basso: per provare un'istruzione alla volta dopo <code>&gt;&gt;&gt;</code>. Non salva niente, ma vede le variabili dell'ultimo programma eseguito. Trascina la maniglia tra i due per cambiare le altezze.</p><p><b>Finestra dei giochi</b>: un programma con Pygame Zero (<code>import pgzrun</code> e in fondo <code>pgzrun.go()</code>) o con pygame (<code>import pygame</code> e il suo ciclo <code>while</code>) parte con ▶ Esegui e apre la sua finestra al posto del terminale, a tutto schermo sul telefono. Sopra ci sono Pausa, Ricomincia, Schermo intero e Chiudi; sul telefono compaiono anche i comandi, solo con i tasti che il gioco usa. Chiudi ferma sempre il gioco: in un livello diventa Chiudi e verifica, e la verifica ci gioca da sola.</p><p><b>File .sql</b>: quando il mondo SQL è aperto, nel Lab puoi creare file <code>.sql</code> accanto ai <code>.py</code>. Contengono domande in SQL sul database della sala, <code>sala_giochi.db</code>, che resta salvato: il risultato esce come una tabella, e dopo <code>sqlite&gt;</code> nel terminale provi una domanda alla volta. Un programma Python lo apre con <code>sqlite3</code>.</p>",
   updateReady: "È disponibile una nuova versione di Arcode.", updateNow: "Aggiorna ora",
   setUpdates: "Aggiornamenti", verInfo: (d) => `Versione del ${d}`, verDev: "Versione di prova",
   updCheck: "Cerca aggiornamenti", updChecking: "Controllo…", updWorking: "Aggiorno Arcode…",
@@ -40271,7 +40853,7 @@ Object.assign(UI.it, {
 Object.assign(UI.en, {
   tabLessons: "Worlds",
   splitAria: "Drag to resize the terminal", secGuide: "Guide",
-  guideWhich: "<p><b>Editor</b>, the box with the line numbers: for writing whole programs. They're saved as files and run all at once with ▶ Run. In levels, checking looks at the editor's code.</p><p><b>Terminal</b>, the dark strip at the bottom: for trying one instruction at a time after <code>&gt;&gt;&gt;</code>. It saves nothing, but it sees the variables of the last program you ran. Drag the handle between them to change their heights.</p><p><b>Game window</b>: a program with Pygame Zero (<code>import pgzrun</code> and <code>pgzrun.go()</code> at the end) or with pygame (<code>import pygame</code> and its <code>while</code> loop) starts with ▶ Run and opens its window in place of the terminal, full screen on a phone. Above it are Pause, Restart, Full screen and Close; on a phone the controls show up too, with just the keys the game uses. Close always stops the game: on a level it becomes Close and check, and the check plays the game by itself.</p>",
+  guideWhich: "<p><b>Editor</b>, the box with the line numbers: for writing whole programs. They're saved as files and run all at once with ▶ Run. In levels, checking looks at the editor's code.</p><p><b>Terminal</b>, the dark strip at the bottom: for trying one instruction at a time after <code>&gt;&gt;&gt;</code>. It saves nothing, but it sees the variables of the last program you ran. Drag the handle between them to change their heights.</p><p><b>Game window</b>: a program with Pygame Zero (<code>import pgzrun</code> and <code>pgzrun.go()</code> at the end) or with pygame (<code>import pygame</code> and its <code>while</code> loop) starts with ▶ Run and opens its window in place of the terminal, full screen on a phone. Above it are Pause, Restart, Full screen and Close; on a phone the controls show up too, with just the keys the game uses. Close always stops the game: on a level it becomes Close and check, and the check plays the game by itself.</p><p><b>.sql files</b>: once the SQL world is open, in the Lab you can create <code>.sql</code> files next to the <code>.py</code> ones. They hold SQL questions on the arcade's database, <code>arcade.db</code>, which stays saved: the result comes out as a table, and after <code>sqlite&gt;</code> in the terminal you try one question at a time. A Python program opens it with <code>sqlite3</code>.</p>",
   updateReady: "A new version of Arcode is available.", updateNow: "Update now",
   setUpdates: "Updates", verInfo: (d) => `Version of ${d}`, verDev: "Test version",
   updCheck: "Check for updates", updChecking: "Checking…", updWorking: "Updating Arcode…",
@@ -40733,8 +41315,16 @@ const CHEAT_SQL = [
   ["INSERT INTO giochi (titolo) VALUES ('Pong');", "INSERT INTO games (title) VALUES ('Pong');", "aggiungere una riga", "add a row"],
   ["UPDATE giocatori SET monete = 10 WHERE id = 3;", "UPDATE players SET coins = 10 WHERE id = 3;", "cambiare righe (senza WHERE: tutte!)", "change rows (without WHERE: all of them!)"],
   ["DELETE FROM partite WHERE punti = 0;", "DELETE FROM matches WHERE score = 0;", "cancellare righe", "delete rows"],
+  ["CREATE TABLE tornei (id INTEGER PRIMARY KEY, nome TEXT UNIQUE);", "CREATE TABLE tournaments (id INTEGER PRIMARY KEY, name TEXT UNIQUE);", "una tabella nuova, con la sua chiave", "a new table, with its key"],
+  ["WHERE punti = (SELECT MAX(punti) FROM partite)", "WHERE score = (SELECT MAX(score) FROM matches)", "una domanda dentro la domanda", "a question inside the question"],
+  ["CASE WHEN monete >= 100 THEN 'ricco' ELSE 'no' END", "CASE WHEN coins >= 100 THEN 'rich' ELSE 'no' END", "decidere il valore di una colonna", "decide a column's value"],
+  ["CREATE VIEW ricchi AS SELECT nome FROM giocatori WHERE monete > 100;", "CREATE VIEW rich AS SELECT name FROM players WHERE coins > 100;", "una domanda salvata con un nome", "a question saved with a name"],
+  ["RANK() OVER (PARTITION BY gioco ORDER BY punti DESC)", "RANK() OVER (PARTITION BY game ORDER BY score DESC)", "la posizione in classifica, gruppo per gruppo", "the leaderboard position, group by group"],
   ["con = sqlite3.connect(\"sala_giochi.db\")", "con = sqlite3.connect(\"arcade.db\")", "Python: aprire il database", "Python: open the database", true],
-  ["con.execute(\"SELECT nome FROM giocatori WHERE id = ?\", (3,))", "con.execute(\"SELECT name FROM players WHERE id = ?\", (3,))", "Python: una domanda con un valore", "Python: a question with a value", true]
+  ["righe = con.execute(\"SELECT nome FROM giocatori\").fetchall()", "rows = con.execute(\"SELECT name FROM players\").fetchall()", "Python: tutte le righe, una tupla per riga", "Python: all the rows, a tuple per row", true],
+  ["n = con.execute(\"SELECT COUNT(*) FROM partite\").fetchone()[0]", "n = con.execute(\"SELECT COUNT(*) FROM matches\").fetchone()[0]", "Python: una riga sola (None se non c'è)", "Python: a single row (None if there's none)", true],
+  ["con.execute(\"SELECT nome FROM giocatori WHERE id = ?\", [3])", "con.execute(\"SELECT name FROM players WHERE id = ?\", [3])", "Python: un valore da fuori, con il punto di domanda", "Python: a value from outside, with the question mark", true],
+  ["con.commit()", "con.commit()", "Python: salvare davvero le modifiche nel file", "Python: really save the changes in the file", true]
 ];
 
 /* The Lab's examples for the SQL world: a question on the Lab's database, and Python using the same database */
@@ -40762,7 +41352,7 @@ import sqlite3
 
 con = sqlite3.connect("sala_giochi.db")
 punti = int(input("Quanti punti hai fatto a Snake? "))
-con.execute("INSERT INTO partite (giocatore, gioco, punti, giorno) VALUES (1, 4, ?, date('now'))", (punti,))
+con.execute("INSERT INTO partite (giocatore, gioco, punti, giorno) VALUES (1, 4, ?, date('now'))", [punti])
 con.commit()
 record = con.execute("SELECT MAX(punti) FROM partite WHERE gioco = 4").fetchone()[0]
 print("Il record di Snake è", record)
@@ -40773,7 +41363,7 @@ import sqlite3
 
 con = sqlite3.connect("arcade.db")
 score = int(input("How many points did you make at Snake? "))
-con.execute("INSERT INTO matches (player, game, score, day) VALUES (1, 4, ?, date('now'))", (score,))
+con.execute("INSERT INTO matches (player, game, score, day) VALUES (1, 4, ?, date('now'))", [score])
 con.commit()
 best = con.execute("SELECT MAX(score) FROM matches WHERE game = 4").fetchone()[0]
 print("The Snake high score is", best)
@@ -41477,7 +42067,7 @@ async function restartWorker(announce) {
 }
 /* Runs code; when the program asks for input, it asks here and runs again with the answers so far */
 /* Hidden tests pass their answers up front (preset): a test that asks for more just fails */
-async function pyExec(src, filename, mode, { silent = false, inputs: preset = null } = {}) {
+async function pyExec(src, filename, mode, { silent = false, inputs: preset = null, beforeRerun = null } = {}) {
   await ensurePip(src, silent);
   const seed = rnd(), inputs = preset ? preset.slice() : [];
   let skip = 0;
@@ -41488,6 +42078,7 @@ async function pyExec(src, filename, mode, { silent = false, inputs: preset = nu
       const v = await askLine("", false);
       if (v === null) return { status: "stopped", out: "", inputs, images: 0 };
       inputs.push(v); skip = res.pos;
+      if (beforeRerun) await beforeRerun();
       continue;
     }
     res.inputs = inputs;
@@ -42437,7 +43028,11 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false, re
   const t0 = performance.now();
   const usesDb = /\bsqlite3\b/.test(src) && engine === "pyodide";
   if (usesDb) await ensureSalaFile();
-  let res = await engineRun(src, label, "file");
+  /* the database as it was before the run: a program that asks for input starts again from the top with the
+     answers, so its database goes back to how it was first (no row saved twice); folder 07 also compares the run
+     with the solution on this same copy */
+  const snap = usesDb ? await dbSnapshot() : null;
+  let res = await engineRun(src, label, "file", snap ? { beforeRerun: () => workerCall({ t: "files", op: "put", args: [snap, true] }) } : undefined);
   if (usesDb) await keepDbFiles();
   /* the program ran and called pgzrun.go(): its window opens, until it's closed */
   if (res.status === "game") res = await playGame(res, fromEditor, src);
@@ -42453,7 +43048,7 @@ async function runFile(src, label, { fromEditor = false, lessonCheck = false, re
   if (res.stuck) termWrite("→ " + t("gameStuck") + "\n", "why");
   if (status === "ok") termWrite(t("done", secs) + "\n", "dim");
   if (status === "ok" && res.hint) termWrite("→ " + t(res.hint === "go" ? "gameNoGo" : res.hint === "pgloop" ? "gameNoLoop" : "gameNoImport") + "\n", "why");
-  if (lessonCheck && status === "ok") await checkLesson(res, src);
+  if (lessonCheck && status === "ok") await checkLesson(res, src, snap);
   else if (lessonCheck && status === "error") mascotReact("error");
   else if (S.view === "lessons" && ui.mexpr === "t") mascotReact(null);
   end(false);
@@ -42549,12 +43144,17 @@ async function runSqlRepl(src, refocus) {
   if (db.path) labDbRefresh();
 }
 /* ---------- The databases that remember: the Lab's file (and folder 07's) travels with the progress ---------- */
-async function keepDbFiles() {
-  if (engine !== "pyodide" || !worker) return;
+/* the database files of the working folder as they are now: a JSON of base64 files, to keep, copy or put back */
+async function dbSnapshot() {
+  if (engine !== "pyodide" || !worker) return null;
   const r = await workerCall({ t: "files", op: "get" });
-  if (!r || r.status !== "ok") return;
+  return r && r.status === "ok" ? r.data : null;
+}
+async function keepDbFiles() {
+  const data = await dbSnapshot();
+  if (data == null) return;
   let files = {};
-  try { files = JSON.parse(r.data); } catch (e) { return; }
+  try { files = JSON.parse(data); } catch (e) { return; }
   if (JSON.stringify(files) === JSON.stringify(S.dbfiles)) return;
   S.dbfiles = files; S.dbAt = Date.now(); save();
 }
@@ -42623,10 +43223,17 @@ async function ensurePip(src, silent) {
   want.forEach((p) => pipHere.add(p));
   await workerCall({ t: "pip", pkgs: want });
 }
-async function checkLesson(res, src) {
+async function checkLesson(res, src, snap) {
   const L = lesson();
   const got = norm(res.out || "");
   const ctx = { inputs: res.inputs || [], images: res.images || 0, out: got, src };
+  /* folder 07 of SQL: what the solution prints on the same database (as it was before the run) with the same answers */
+  if (L.twin) {
+    const tw = snap == null ? { status: "error" } : await engineRun(sqlPySnapProgram(snap, L.solution), "test.py", "test", { silent: true, inputs: ctx.inputs });
+    if (stopReq) return;
+    ctx.twin = tw.status === "ok" ? norm(tw.out || "") : null;
+    ctx.twinStatus = tw.status;
+  }
   if (!L.check(got, src, ctx)) { explainFail(L, got, src, ctx); mascotReact("fail"); return; }
   /* Hidden tests: the same program with other values or other answers. Tests with loaded dice need the full Python */
   const tests = (L.tests ? L.tests(src) : []).filter((tc) => tc && !(tc.rand && engine !== "pyodide"));
@@ -42645,6 +43252,9 @@ async function checkLesson(res, src) {
         if (why) termWrite("→ " + why + "\n", "why");
         const hint = tc.game && r.status === "error" ? errHint(r.name, last) : "";
         if (hint) termWrite("→ " + hint + "\n", "why");
+        /* a test that ran the solution first: what it printed and what the program printed, side by side */
+        const two = tc.twin && r.status === "ok" ? sqlTwinSplit(norm(r.out || "")) : null;
+        if (two) showMismatch(two[0], two[1], src);
         mascotReact("fail"); return;
       }
     }
@@ -42662,8 +43272,12 @@ function explainFail(L, got, src, ctx) {
   const exp = L.expect ? L.expect(ctx) : null;
   if (exp == null) { termWrite(t("notYet") + "\n", "fail"); return; }
   if (got === exp) { termWrite(t("notYet") + "\n", "fail"); termWrite("→ " + t("outputOkCode") + "\n", "why"); return; }
-  const d = describeMismatch(exp, got, src);
   termWrite(t("mismatch") + "\n", "fail");
+  showMismatch(exp, got, src);
+}
+/* Where the printed output first differs from the required one: the two lines, and a caret under the difference */
+function showMismatch(exp, got, src) {
+  const d = describeMismatch(exp, got, src);
   if (d.kind === "nothing") {
     termWrite("→ " + t("nothing") + "\n", "why");
   } else {
@@ -44737,7 +45351,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "27ced85cf1", APP_BUILT = "2026-11-11T15:09Z";
+const APP_VERSION = "f9a5b63526", APP_BUILT = "2026-11-11T15:43Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
