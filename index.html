@@ -1383,9 +1383,9 @@ self.onmessage = async (e) => {
    lessons, a "predict" quiz, a review that mixes old and new, a "build" level (one game that grows
    folder after folder) and a boss to debug. Kinds: "code" (default), "quiz", "order" (put the lines
    in order and set the indentation). Hints come in two steps: a question, then the plan in words. */
-const COURSE_VER = 7;
+const COURSE_VER = 8;
 /* Levels whose task changed in a version: saved drafts and attempts of these levels are dropped (stars stay) */
-const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"], 6: ["str"], 7: ["build0"] };
+const COURSE_CHANGED = { 3: ["build2", "build3", "build4", "build5", "final", "list", "mod", "types"], 4: ["rules", "try", "update"], 5: ["build4", "build5", "final"], 6: ["str"], 7: ["build0"], 8: ["snake:build4", "snake:build5a", "snake:build5", "snake:build6a", "snake:final", "snake:build7", "snake:build8"] };
 
 /* Python's int() accepts spaces around the number, a sign and _ between digits */
 const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
@@ -30016,10 +30016,10 @@ const SNK_CLASS = {
 };
 const SNK_APPLES = {
   it: [snkNeed(/\bclass\s+Mela\b/, "Le mele diventano oggetti: class Mela:, con la cella, il colore e i punti."),
-    snkNeed(/\brandom\.choice\s*\(/, "Il colore di una mela nuova si sceglie con random.choice, tra red, red e gold."),
+    snkNeed(/\brandom\.choice\s*\(/, "Il colore di una mela nuova si sceglie con random.choice, tra ROSSA, ROSSA e DORATA."),
     snkNeed(/\bmax\s*\(/, "Il passo accelera fino a 0.05 secondi: il nuovo intervallo si calcola con max.")],
   en: [snkNeed(/\bclass\s+Apple\b/, "The apples become objects: class Apple:, with the cell, the colour and the points."),
-    snkNeed(/\brandom\.choice\s*\(/, "The colour of a new apple is chosen with random.choice, among red, red and gold."),
+    snkNeed(/\brandom\.choice\s*\(/, "The colour of a new apple is chosen with random.choice, among RED, RED and GOLD."),
     snkNeed(/\bmax\s*\(/, "The step speeds up down to 0.05 seconds: work out the new interval with max.")]
 };
 const SNK_COMPUTER = {
@@ -30043,34 +30043,44 @@ const SNK_PG = {
     snkNeed(/\bmax\s*\(\s*50\s*,/, "In pygame time is counted in milliseconds: the speeds are 250, 150 and 80, and after an apple the step goes down by 10, down to 50, with max(50, ...).")]
 };
 const snakePg = (lang) => PG_GAME.concat(SNK_PG[lang], SNK_CLASS[lang], SNK_APPLES[lang].slice(0, 2));
-/* Hidden tests of the window parts: the game played without a screen. The head is yellow, the body green, the apples
-   red (or gold); a square [x, y] is drawn at (x * 20, y * 20). */
+/* Hidden tests of the window parts: the game played without a screen, drawn as in the chooser's preview. The field is
+   600 × 360, of 30-pixel squares, on "#10261a"; a piece of the snake in the square [x, y] is a 24 × 24 rectangle at
+   (x * 30 + 3, y * 30 + 3), striped "#6fd39a" and "#4fb57e", with the head "#b5f27a" on top; an apple is a circle of
+   radius 12 at (x * 30 + 15, y * 30 + 15), "#e53935" (or gold, "#ffd54f"). _hd: the head; _cells: how many squares the
+   snake covers, head included; _ap: the red apples. */
+const SNK_SQ = (x, y) => `(${x * 30 + 3}, ${y * 30 + 3}, 24, 24)`;
+const SNK_AP = (x, y) => `(${x * 30 + 15}, ${y * 30 + 15}, 12)`;
+const SNK_LOOK = "_hd = lambda: _t.rects('#b5f27a')\n_cells = lambda: len(set(_t.rects('#6fd39a') + _t.rects('#4fb57e') + _hd()))\n_ap = lambda: _t.circles('#e53935')\n";
 const snakeWinTests = (lang) => (c) => {
   const it = lang === "it", m = it ? "Mele" : "Apples";
   return [
-    gtcase(c, "_t.step()\ng = _t.rects('green')\nprint(_t.rects('yellow'), (100, 140, 20, 20) in g and (120, 140, 20, 20) in g, _t.rects('red'))",
-      (o) => o === "[(140, 140, 20, 20)] True [(240, 140, 20, 20)]",
-      it ? "all'inizio la testa gialla è in (7, 7), il corpo verde in (5, 7) e (6, 7) e la mela rossa in (12, 7)" : "at the start the yellow head is at (7, 7), the green body at (5, 7) and (6, 7) and the red apple at (12, 7)"),
-    gtcase(c, "_t.step()\n_t.wait(0.5)\nprint(_t.rects('yellow'))", (o) => o === "[(180, 140, 20, 20)]",
+    gtcase(c, SNK_LOOK + "_t.step()\ng = _t.rects('#6fd39a') + _t.rects('#4fb57e')\nprint(_hd(), " + SNK_SQ(5, 7) + " in g and " + SNK_SQ(6, 7) + " in g, _ap())",
+      (o) => o === `[${SNK_SQ(7, 7)}] True [${SNK_AP(12, 7)}]`,
+      it ? "all'inizio la testa #b5f27a è in (7, 7), il corpo in (5, 7) e (6, 7) e la mela, un cerchio #e53935 di raggio 12, in (12, 7)" : "at the start the #b5f27a head is at (7, 7), the body at (5, 7) and (6, 7) and the apple, a #e53935 circle of radius 12, at (12, 7)"),
+    gtcase(c, SNK_LOOK + "_t.step()\n_t.wait(0.5)\nprint(_hd())", (o) => o === `[${SNK_SQ(9, 7)}]`,
       it ? "in mezzo secondo la testa fa 2 passi verso destra, uno ogni 0.2 secondi" : "in half a second the head takes 2 steps right, one every 0.2 seconds"),
-    gtcase(c, "_t.step()\n_t.tap('up')\n_t.wait(0.4)\nprint(_t.rects('yellow'))", (o) => o === "[(140, 100, 20, 20)]",
+    gtcase(c, SNK_LOOK + "_t.step()\n_t.tap('up')\n_t.wait(0.4)\nprint(_hd())", (o) => o === `[${SNK_SQ(7, 5)}]`,
       it ? "con la freccia su il serpente sale di un quadretto a ogni passo" : "with the up arrow the snake goes up one square at every step"),
-    gtcase(c, "_t.step()\n_t.tap('left')\n_t.wait(0.4)\nprint(_t.rects('yellow'))", (o) => o === "[(180, 140, 20, 20)]",
+    gtcase(c, SNK_LOOK + "_t.step()\n_t.tap('left')\n_t.wait(0.4)\nprint(_hd())", (o) => o === `[${SNK_SQ(9, 7)}]`,
       it ? "la freccia opposta, a sinistra, non cambia direzione" : "the opposite arrow, left, doesn't change the direction"),
-    gtcase(c, "_t.step()\n_t.wait(1.1)\nprint(len(_t.rects('green')), _t.rects('red'), " + JSON.stringify(m + ": 1") + " in _t.texts())", (o) => o === "4 [(240, 60, 20, 20)] True",
+    gtcase(c, SNK_LOOK + "_t.step()\n_t.wait(1.1)\nprint(_cells(), _ap(), " + JSON.stringify(m + ": 1") + " in _t.texts())", (o) => o === `4 [${SNK_AP(12, 3)}] True`,
       it ? "mangiata la prima mela il serpente è lungo 4, arriva la mela in (12, 3) e c'è scritto Mele: 1" : "after the first apple the snake is 4 long, the apple at (12, 3) comes and it says Apples: 1"),
-    gtcase(c, "_t.step()\n_t.wait(3)\nprint('GAME OVER' in _t.texts(), _t.rects('yellow'))", (o) => o === "True [(380, 140, 20, 20)]",
-      it ? "contro il bordo destro compare GAME OVER e il serpente si ferma" : "against the right edge GAME OVER appears and the snake stops")
+    gtcase(c, SNK_LOOK + "_t.step()\n_t.wait(3)\nprint('GAME OVER' in _t.texts(), _hd())", (o) => o === `True [${SNK_SQ(19, 7)}]`,
+      it ? "contro il bordo destro compare GAME OVER e il serpente si ferma" : "against the right edge GAME OVER appears and the snake stops"),
+    gtcase(c, "_t.step()\n_h = " + SNK_SQ(7, 7) + "\nprint(_t.size, _t.background(), len(_t.rects('#162b20')), _t.rects('#6fd39a'), [_r for _r in _t.rects('#4fb57e') if _r != _h], sorted(_t.circles('#10261a')))",
+      (o) => o === `(600, 360) #10261a 120 [${SNK_SQ(6, 7)}] [${SNK_SQ(5, 7)}] [(220, 220, 4), (230, 220, 4)]`,
+      it ? "la finestra è 600 × 360 come nell'anteprima: lo sfondo #10261a con 120 quadretti #162b20 a scacchi, il pezzo dietro la testa #6fd39a e quello dopo #4fb57e, e sulla testa due occhi #10261a di raggio 4"
+        : "the window is 600 × 360 as in the preview: the background #10261a with 120 #162b20 squares as a chessboard, the piece behind the head #6fd39a and the one after #4fb57e, and on the head two #10261a eyes of radius 4")
   ];
 };
 const snakeAppleTests = (lang) => (c) => {
   const it = lang === "it";
   return [
-    gtcase(SNK_RIG([7, 7, 9, 2]) + c, "_t.step()\nprint(_t.rects('red'))", (o) => o === "[(180, 40, 20, 20)]",
+    gtcase(SNK_RIG([7, 7, 9, 2]) + c, SNK_LOOK + "_t.step()\nprint(_ap())", (o) => o === `[${SNK_AP(9, 2)}]`,
       it ? "se randint dà prima 7 e 7, una cella del serpente, la mela si sceglie di nuovo: con 9 e 2 va in (9, 2)" : "if randint first gives 7 and 7, a cell of the snake, the apple is chosen again: with 9 and 2 it goes to (9, 2)"),
-    gtcase("import random\nrandom.randint = lambda a, b: b\n" + c, "_t.step()\nprint(_t.rects('red'))", (o) => o === "[(380, 280, 20, 20)]",
-      it ? "la mela resta nel campo: se randint dà sempre il massimo, va nell'angolo in basso a destra, (19, 14)" : "the apple stays in the field: if randint always gives the top value, it goes to the bottom right corner, (19, 14)"),
-    gtcase(SNK_RIG([10, 7, 3, 3]) + c, "_t.step()\n_t.wait(0.7)\nprint(_t.rects('red'), len(_t.rects('green')))", (o) => o === "[(60, 60, 20, 20)] 4",
+    gtcase("import random\nrandom.randint = lambda a, b: b\n" + c, SNK_LOOK + "_t.step()\nprint(_ap())", (o) => o === `[${SNK_AP(19, 11)}]`,
+      it ? "la mela resta nel campo: se randint dà sempre il massimo, va nell'angolo in basso a destra, (19, 11)" : "the apple stays in the field: if randint always gives the top value, it goes to the bottom right corner, (19, 11)"),
+    gtcase(SNK_RIG([10, 7, 3, 3]) + c, SNK_LOOK + "_t.step()\n_t.wait(0.7)\nprint(_ap(), _cells())", (o) => o === `[${SNK_AP(3, 3)}] 4`,
       it ? "mangiata la mela in (10, 7) ne arriva una nuova a caso: con 3 e 3 va in (3, 3)" : "once the apple at (10, 7) is eaten a new one comes at random: with 3 and 3 it goes to (3, 3)")
   ];
 };
@@ -30079,18 +30089,18 @@ const snakeMenuTests = (lang, recordVar) => (c) => {
   const it = lang === "it", P = it ? "Punti" : "Points", S = it ? ["lenta", "media", "veloce"] : ["slow", "medium", "fast"];
   const rec = (a, b, d) => JSON.stringify({ [S[0]]: a, [S[1]]: b, [S[2]]: d }).replace(/:/g, ": ").replace(/,/g, ", ").replace(/"/g, "'");
   return [
-    gtcase(SNK_RIG([0, 0]) + c, "_t.step()\nt = ' '.join(_t.texts())\nprint(_t.rects('green') == [] and " + JSON.stringify(S) + " == [n for n in " + JSON.stringify(S) + " if n in t])",
-      (o) => o === "True", it ? "all'inizio c'è il menu, con le tre velocità, e il serpente non c'è ancora" : "at the start there's the menu, with the three speeds, and the snake isn't there yet"),
-    gtcase(SNK_RIG([0, 0]) + c, "_t.step()\n_t.tap('1')\n_t.wait(0.6)\nprint(_t.rects('yellow'))", (o) => o === "[(180, 140, 20, 20)]",
+    gtcase(SNK_RIG([0, 0]) + c, SNK_LOOK + "_t.step()\nt = ' '.join(_t.texts())\nprint(_cells() == 0 and " + JSON.stringify(S) + " == [n for n in " + JSON.stringify(S) + " if n in t], _t.background(), len(_t.rects('#162b20')))",
+      (o) => o === "True #10261a 120", it ? "all'inizio c'è il menu, con le tre velocità sul campo a scacchi, e il serpente non c'è ancora" : "at the start there's the menu, with the three speeds on the chessboard field, and the snake isn't there yet"),
+    gtcase(SNK_RIG([0, 0]) + c, SNK_LOOK + "_t.step()\n_t.tap('1')\n_t.wait(0.6)\nprint(_hd())", (o) => o === `[${SNK_SQ(9, 7)}]`,
       it ? "con 1, lenta, in 0.6 secondi la testa fa 2 passi (uno ogni 0.25)" : "with 1, slow, in 0.6 seconds the head takes 2 steps (one every 0.25)"),
-    gtcase(SNK_RIG([0, 0]) + c, "_t.step()\n_t.tap('2')\n_t.wait(0.6)\nprint(_t.rects('yellow'))", (o) => o === "[(220, 140, 20, 20)]",
+    gtcase(SNK_RIG([0, 0]) + c, SNK_LOOK + "_t.step()\n_t.tap('2')\n_t.wait(0.6)\nprint(_hd())", (o) => o === `[${SNK_SQ(11, 7)}]`,
       it ? "con 2, media, in 0.6 secondi la testa fa 4 passi (uno ogni 0.15)" : "with 2, medium, in 0.6 seconds the head takes 4 steps (one every 0.15)"),
-    gtcase(SNK_RIG([0, 0]) + c, "_t.step()\n_t.tap('3')\n_t.wait(0.5)\nprint(_t.rects('yellow'))", (o) => o === "[(260, 140, 20, 20)]",
+    gtcase(SNK_RIG([0, 0]) + c, SNK_LOOK + "_t.step()\n_t.tap('3')\n_t.wait(0.5)\nprint(_hd())", (o) => o === `[${SNK_SQ(13, 7)}]`,
       it ? "con 3, veloce, in mezzo secondo la testa fa 6 passi (uno ogni 0.08)" : "with 3, fast, in half a second the head takes 6 steps (one every 0.08)"),
     gtcase(SNK_RIG([9, 7, 0, 0]) + c, "_t.step()\n_t.tap('3')\n_t.wait(0.3)\nprint(" + JSON.stringify(P + ": 1") + " in _t.texts())\n_t.wait(1.5)\nprint('GAME OVER' in _t.texts(), _t.var(" + JSON.stringify(recordVar) + "))\n_t.tap('space')\n_t.tap('3')\n_t.wait(1.5)\nprint(_t.var(" + JSON.stringify(recordVar) + "))",
       (o) => o === "True\nTrue " + rec(0, 0, 1) + "\n" + rec(0, 0, 1),
       it ? `con la mela in (9, 7) a velocità veloce fai 1 punto, poi contro il bordo GAME OVER e il record di veloce diventa 1; una partita da 0 punti non lo abbassa` : `with the apple at (9, 7) at fast speed you score 1 point, then against the edge GAME OVER and the fast record becomes 1; a game with 0 points doesn't lower it`),
-    gtcase(SNK_RIG([0, 0]) + c, "_t.step()\n_t.tap('3')\n_t.wait(1.5)\n_t.tap('space')\nt = ' '.join(_t.texts())\n_t.tap('1')\nprint(" + JSON.stringify(S[0]) + " in t, len(_t.rects('green')), " + JSON.stringify(P + ": 0") + " in _t.texts())",
+    gtcase(SNK_RIG([0, 0]) + c, SNK_LOOK + "_t.step()\n_t.tap('3')\n_t.wait(1.5)\n_t.tap('space')\nt = ' '.join(_t.texts())\n_t.tap('1')\nprint(" + JSON.stringify(S[0]) + " in t, _cells(), " + JSON.stringify(P + ": 0") + " in _t.texts())",
       (o) => o === "True 3 True", it ? "dopo GAME OVER Spazio riporta al menu, e la partita nuova riparte da capo" : "after GAME OVER Space goes back to the menu, and the new game starts from scratch")
   ];
 };
@@ -30110,14 +30120,14 @@ const snakeClassTests = (lang) => (c) => {
 const snakeApplesTests = (lang, intervalVar, ms) => (c) => {
   const it = lang === "it", P = it ? "Punti" : "Points";
   return [
-    gtcase(SNK_RIG([9, 7, 0, 0, 1, 1], "last") + c, "_t.step()\n_t.tap('2')\nprint(len(_t.rects('gold')))", (o) => o === "3",
-      it ? "a ogni partita nel campo ci sono tre mele (qui tutte dorate)" : "in every game there are three apples on the field (here all gold)"),
-    gtcase(SNK_RIG([9, 7, 0, 0, 1, 1, 3, 3], "last") + c, "_t.step()\n_t.tap('2')\n_t.wait(0.35)\nprint(" + JSON.stringify(P + ": 3") + " in _t.texts(), round(_t.var(" + JSON.stringify(intervalVar) + "), 2))\n_t.wait(1.1)\nprint(_t.rects('yellow'))",
-      (o) => o === (ms ? "True 140" : "True 0.14") + "\n[(340, 140, 20, 20)]", it ? `una mela dorata vale 3 punti, e dopo una mela il passo a velocità media accelera davvero, da uno ogni ${ms ? "150 a uno ogni 140 millisecondi" : "0.15 a uno ogni 0.14 secondi"}`
+    gtcase(SNK_RIG([9, 7, 0, 0, 1, 1], "last") + c, "_t.step()\n_t.tap('2')\nprint(sorted(_t.circles('#ffd54f')))", (o) => o === `[${SNK_AP(0, 0)}, ${SNK_AP(1, 1)}, ${SNK_AP(9, 7)}]`,
+      it ? "a ogni partita nel campo ci sono tre mele, qui tutte dorate: cerchi #ffd54f di raggio 12" : "in every game there are three apples on the field, here all gold: #ffd54f circles of radius 12"),
+    gtcase(SNK_RIG([9, 7, 0, 0, 1, 1, 3, 3], "last") + c, "_t.step()\n_t.tap('2')\n_t.wait(0.35)\nprint(" + JSON.stringify(P + ": 3") + " in _t.texts(), round(_t.var(" + JSON.stringify(intervalVar) + "), 2))\n_t.wait(1.1)\nprint(_t.rects('#b5f27a'))",
+      (o) => o === (ms ? "True 140" : "True 0.14") + `\n[${SNK_SQ(17, 7)}]`, it ? `una mela dorata vale 3 punti, e dopo una mela il passo a velocità media accelera davvero, da uno ogni ${ms ? "150 a uno ogni 140 millisecondi" : "0.15 a uno ogni 0.14 secondi"}`
         : `a gold apple is worth 3 points, and after an apple the step at medium speed really speeds up, from one every ${ms ? "150 to one every 140 milliseconds" : "0.15 to one every 0.14 seconds"}`),
     gtcase(SNK_RIG([9, 7, 0, 0, 1, 1, 3, 3], "first") + c, "_t.step()\n_t.tap('2')\n_t.wait(0.35)\nprint(" + JSON.stringify(P + ": 1") + " in _t.texts())", (o) => o === "True",
       it ? "una mela rossa vale 1 punto" : "a red apple is worth 1 point"),
-    gtcase(SNK_RIG([7, 7, 2, 2, 2, 2, 4, 4, 2, 2, 6, 6], "first") + c, "_t.step()\n_t.tap('2')\nprint(sorted(_t.rects('red')))", (o) => o === "[(40, 40, 20, 20), (80, 80, 20, 20), (120, 120, 20, 20)]",
+    gtcase(SNK_RIG([7, 7, 2, 2, 2, 2, 4, 4, 2, 2, 6, 6], "first") + c, "_t.step()\n_t.tap('2')\nprint(sorted(_t.circles('#e53935')))", (o) => o === `[${SNK_AP(2, 2)}, ${SNK_AP(4, 4)}, ${SNK_AP(6, 6)}]`,
       it ? "le mele non stanno mai sul serpente né una sopra l'altra: con 7 7, 2 2, 2 2, 4 4, 2 2, 6 6 vanno in (2, 2), (4, 4) e (6, 6)" : "the apples are never on the snake or on top of each other: with 7 7, 2 2, 2 2, 4 4, 2 2, 6 6 they go to (2, 2), (4, 4) and (6, 6)")
   ];
 };
@@ -30127,15 +30137,15 @@ const snakeComputerTests = (lang) => (c) => {
   return [
     gtcase(c, "print(type(_t.title) == str and len(_t.title) > 0 and _t.title != 'Pygame Zero')", (o) => o === "True",
       it ? "la finestra ha un titolo tuo, con TITLE" : "the window has a title of yours, with TITLE"),
-    gtcase(SNK_RIG([0, 0, 1, 1, 2, 2]) + c, "_t.step()\n_t.tap('2')\n_t.wait(0.4)\na = _t.rects('yellow')\n_t.tap('p')\n_t.tap('up')\n_t.wait(1)\nb = _t.rects('yellow')\nt = ' '.join(_t.texts())\n_t.tap('p')\n_t.wait(0.4)\nprint(a == b, " + JSON.stringify(pause) + " in t, _t.rects('yellow'))",
-      (o) => o === "True True [(220, 140, 20, 20)]", it ? "con P il serpente si ferma, compare PAUSA e le frecce non contano; con P di nuovo riparte verso destra" : "with P the snake stops, PAUSED appears and the arrows don't count; with P again it goes on to the right"),
+    gtcase(SNK_RIG([0, 0, 1, 1, 2, 2]) + c, "_t.step()\n_t.tap('2')\n_t.wait(0.4)\na = _t.rects('#b5f27a')\n_t.tap('p')\n_t.tap('up')\n_t.wait(1)\nb = _t.rects('#b5f27a')\nt = ' '.join(_t.texts())\n_t.tap('p')\n_t.wait(0.4)\nprint(a == b, " + JSON.stringify(pause) + " in t, _t.rects('#b5f27a'))",
+      (o) => o === `True True [${SNK_SQ(11, 7)}]`, it ? "con P il serpente si ferma, compare PAUSA e le frecce non contano; con P di nuovo riparte verso destra" : "with P the snake stops, PAUSED appears and the arrows don't count; with P again it goes on to the right"),
     gtcase(SNK_RIG([0, 0, 1, 1, 2, 2]) + c, "_t.step()\n_t.tap('2')\n_t.tap('escape')\nprint(_t.over)", (o) => o === "True",
       it ? "Esc chiude il gioco, con exit()" : "Esc closes the game, with exit()")
   ];
 };
 /* part 11, with pygame: the same game, its own title, the loop that ends with Esc and with the X, then the tests of
    parts 9 and 10 played on it (with the steps counted in milliseconds) */
-const snakePgTests = (lang) => (c) => pgBaseTests(lang, 400, 300)(c).concat(asPygame(snakeApplesTests(lang, lang === "it" ? "intervallo" : "interval", true)(c)
+const snakePgTests = (lang) => (c) => pgBaseTests(lang, 600, 360)(c).concat(asPygame(snakeApplesTests(lang, lang === "it" ? "intervallo" : "interval", true)(c)
   .concat(snakeClassTests(lang)(c).slice(1, 2), snakeMenuTests(lang, lang === "it" ? "record" : "records")(c).slice(0, 1), snakeComputerTests(lang)(c).slice(1, 2))));
 addProjectBuilds("snake", [
 {
@@ -30734,17 +30744,18 @@ print(f"Game over: {eaten} apples, length {len(body)}.")`,
   it: {
     title: "Costruisci: Snake, parte 5",
     theory: [
-`<p>Parte 5: Snake esce dal terminale ed entra in una <b>finestra</b>. Il campo diventa di 20 × 15 quadretti da 20 pixel, quindi la finestra è larga 400 e alta 300. Il quadretto <code>[x, y]</code> si disegna con un <code>Rect</code> che ha l'angolo in <code>(x * 20, y * 20)</code> ed è largo e alto 20.</p>
+`<p>Parte 5: Snake esce dal terminale ed entra in una <b>finestra</b>, uguale all'anteprima della scelta del progetto. Il campo diventa di 20 × 12 quadretti da 30 pixel, quindi la finestra è larga 600 e alta 360. Il quadretto <code>[x, y]</code> ha l'angolo in <code>(x * 30, y * 30)</code>, ma i pezzi del serpente si disegnano un po' più piccoli: un <code>Rect</code> con l'angolo in <code>(x * 30 + 3, y * 30 + 3)</code>, largo e alto 24, così tra un pezzo e l'altro si vede una riga di campo.</p>
 <p>Cosa tieni del tuo codice: il corpo come lista di posizioni, che ora parte da <code>[[5, 7], [6, 7], [7, 7]]</code>, la lista delle mele e la funzione <code>scontro</code>, con il campo nuovo. Cosa togli: il ciclo con <code>input</code> e il campo stampato con <code>print</code>.</p>
 <p>Ora il serpente si muove <b>da solo</b>. La direzione sta in due variabili, <code>dx</code> e <code>dy</code>, all'inizio 1 e 0, verso destra. Ogni 0.2 secondi l'orologio, <code>clock</code>, chiama una tua funzione <code>passo()</code>, che fa avanzare la testa di un quadretto con le regole di prima. Le frecce, in <code>on_key_down</code>, cambiano <code>dx</code> e <code>dy</code>; la freccia opposta alla direzione di adesso non conta, se no il serpente si morderebbe da solo.</p>
-<p><code>draw()</code> disegna lo sfondo nero, la mela rossa, tutti i pezzi del corpo verdi e sopra la testa gialla, e in alto a sinistra scrive <code>Mele: 0</code> con le mele mangiate. Quando il serpente sbatte o si morde, <code>passo()</code> non lo muove più e sullo schermo compare <code>GAME OVER</code>. Sul telefono le frecce compaiono accanto al gioco.</p>`],
-    task: `Porta Snake nella finestra come qui sopra: 400 × 300, il corpo che parte da [[5, 7], [6, 7], [7, 7]] verso destra, un passo ogni 0.2 secondi con <code>clock</code>, le frecce (ma non quella opposta), le mele dalla lista [[12, 7], [12, 3], [4, 3]], una dopo l'altra e poi da capo, i colori <code>"red"</code>, <code>"green"</code> e <code>"yellow"</code>, la scritta <code>Mele:</code> e <code>GAME OVER</code> alla fine. Quando chiudi la finestra, proverò a lasciarlo andare, a girare, a mangiare la mela e a sbattere.`,
+<p>Il disegno sta in quattro funzioni piccole. <code>campo()</code> colora lo sfondo di <code>"#10261a"</code> e, con due <code>for</code> uno dentro l'altro, ripassa di <code>"#162b20"</code> i quadretti in cui <code>(x + y) % 2</code> vale 1: viene una scacchiera di due verdi scuri. <code>quadretto(cella, colore)</code> disegna un pezzo del serpente, e <code>pallino(cella, colore)</code> la mela: un cerchio di raggio 12 al centro del quadretto, in <code>(x * 30 + 15, y * 30 + 15)</code>, con <code>screen.draw.filled_circle</code>. <code>disegna_serpente(corpo)</code> fa le strisce contando dalla testa: il pezzo <code>k</code> della lista è a <code>len(corpo) - 1 - k</code> passi dalla testa, e quando <code>(len(corpo) - k) % 2</code> vale 0 è <code>"#6fd39a"</code>, se no <code>"#4fb57e"</code>; poi ridisegna la testa <code>"#b5f27a"</code>, con due occhi <code>"#10261a"</code> di raggio 4 in <code>(x * 30 + 10, y * 30 + 10)</code> e <code>(x * 30 + 20, y * 30 + 10)</code>.</p>
+<p><code>draw()</code> chiama <code>campo()</code>, disegna la mela <code>"#e53935"</code> e il serpente, e in alto a sinistra scrive <code>Mele: 0</code> con le mele mangiate. Quando il serpente sbatte o si morde, <code>passo()</code> non lo muove più e compare <code>GAME OVER</code>, al centro: con <code>center=(300, 180)</code> al posto della posizione, il centro della scritta va in quel punto. Sul telefono le frecce compaiono accanto al gioco.</p>`],
+    task: `Porta Snake nella finestra come qui sopra, uguale all'anteprima: 600 × 360, il campo a scacchi, il corpo che parte da [[5, 7], [6, 7], [7, 7]] verso destra, un passo ogni 0.2 secondi con <code>clock</code>, le frecce (ma non quella opposta), le mele dalla lista [[12, 7], [12, 3], [4, 3]], una dopo l'altra e poi da capo, la mela tonda, il serpente a strisce con la testa e gli occhi, con i colori di qui sopra, la scritta <code>Mele:</code> e <code>GAME OVER</code> alla fine. Quando chiudi la finestra, proverò a lasciarlo andare, a girare, a mangiare la mela e a sbattere, e guarderò il disegno.`,
     solution: `# Snake, parte 5: nella finestra
 import pgzrun
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 
@@ -30766,18 +30777,40 @@ def scontro(cella, corpo):
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
-    quadretto(mela, "red")
-    for parte in corpo:
-        quadretto(parte, "green")
-    quadretto(corpo[-1], "yellow")
+    campo()
+    pallino(mela, "#e53935")
+    disegna_serpente(corpo)
     screen.draw.text(f"Mele: {mangiate}", (10, 10))
     if finita:
-        screen.draw.text("GAME OVER", (160, 140))
+        screen.draw.text("GAME OVER", center=(300, 180))
 
 
 def on_key_down(key):
@@ -30816,7 +30849,7 @@ def passo():
 clock.schedule_interval(passo, 0.2)
 pgzrun.go()`,
     hints: ["Quali variabili servono a passo() per spostare la testa, e chi le cambia? Come riconosci la freccia opposta alla direzione di adesso?",
-      "In cima import pgzrun, WIDTH, HEIGHT, il corpo, dx e dy, le mele e una variabile per la fine della partita. In passo(), con global, la nuova testa è l'ultima più dx e dy: se scontro trova qualcosa la partita è finita, se no append e, sulla mela, la mela dopo, altrimenti remove della coda. In on_key_down un if per freccia, che controlla di non andare all'indietro. In fondo l'orologio con passo e 0.2, poi pgzrun.go()."],
+      "In cima import pgzrun, WIDTH, HEIGHT, il corpo, dx e dy, le mele e una variabile per la fine della partita. In passo(), con global, la nuova testa è l'ultima più dx e dy: se scontro trova qualcosa la partita è finita, se no append e, sulla mela, la mela dopo, altrimenti remove della coda. In on_key_down un if per freccia, che controlla di non andare all'indietro. Per disegnare, quadretto, pallino, campo e disegna_serpente, chiamate da draw(). In fondo l'orologio con passo e 0.2, poi pgzrun.go()."],
     check: (o, c) => !pgzWhy(c, "it", [SNK_NOINPUT, SNK_KEYS, SNK_ARROWS, PGZ_GLOBAL, SNK_CLOCK]),
     why: (o, c) => pgzWhy(c, "it", [SNK_NOINPUT, SNK_KEYS, SNK_ARROWS, PGZ_GLOBAL, SNK_CLOCK]),
     tests: snakeWinTests("it")
@@ -30824,17 +30857,18 @@ pgzrun.go()`,
   en: {
     title: "Build: Snake, part 5",
     theory: [
-`<p>Part 5: Snake leaves the terminal and goes into a <b>window</b>. The field becomes 20 × 15 squares of 20 pixels, so the window is 400 wide and 300 high. The square <code>[x, y]</code> is drawn with a <code>Rect</code> that has its corner at <code>(x * 20, y * 20)</code> and is 20 wide and high.</p>
+`<p>Part 5: Snake leaves the terminal and goes into a <b>window</b>, just like the preview where you chose the project. The field becomes 20 × 12 squares of 30 pixels, so the window is 600 wide and 360 high. The square <code>[x, y]</code> has its corner at <code>(x * 30, y * 30)</code>, but the snake's pieces are drawn a bit smaller: a <code>Rect</code> with its corner at <code>(x * 30 + 3, y * 30 + 3)</code>, 24 wide and high, so a line of field shows between one piece and the next.</p>
 <p>What you keep from your code: the body as a list of positions, which now starts from <code>[[5, 7], [6, 7], [7, 7]]</code>, the list of apples and the function <code>crash</code>, with the new field. What you take away: the loop with <code>input</code> and the field printed with <code>print</code>.</p>
 <p>Now the snake moves <b>by itself</b>. The direction is in two variables, <code>dx</code> and <code>dy</code>, at the start 1 and 0, to the right. Every 0.2 seconds the clock, <code>clock</code>, calls a function of yours, <code>step()</code>, which moves the head one square with the rules from before. The arrows, in <code>on_key_down</code>, change <code>dx</code> and <code>dy</code>; the arrow opposite to the direction now doesn't count, otherwise the snake would bite itself.</p>
-<p><code>draw()</code> draws the black background, the red apple, every piece of the body in green and the yellow head on top, and at the top left writes <code>Apples: 0</code> with the apples eaten. When the snake crashes or bites itself, <code>step()</code> doesn't move it any more and <code>GAME OVER</code> appears on the screen. On a phone the arrows show up beside the game.</p>`],
-    task: `Take Snake into the window as above: 400 × 300, the body starting from [[5, 7], [6, 7], [7, 7]] going right, a step every 0.2 seconds with <code>clock</code>, the arrows (but not the opposite one), the apples from the list [[12, 7], [12, 3], [4, 3]], one after the other and then from the start again, the colours <code>"red"</code>, <code>"green"</code> and <code>"yellow"</code>, the text <code>Apples:</code> and <code>GAME OVER</code> at the end. When you close the window, I'll test it: letting it go, turning, eating the apple and crashing.`,
+<p>The drawing is in four small functions. <code>field()</code> colours the background <code>"#10261a"</code> and, with two <code>for</code>s one inside the other, goes over the squares where <code>(x + y) % 2</code> is 1 with <code>"#162b20"</code>: a chessboard of two dark greens comes out. <code>square(cell, colour)</code> draws a piece of the snake, and <code>dot(cell, colour)</code> the apple: a circle of radius 12 in the middle of the square, at <code>(x * 30 + 15, y * 30 + 15)</code>, with <code>screen.draw.filled_circle</code>. <code>draw_snake(body)</code> makes the stripes counting from the head: the piece <code>k</code> of the list is <code>len(body) - 1 - k</code> steps from the head, and when <code>(len(body) - k) % 2</code> is 0 it's <code>"#6fd39a"</code>, otherwise <code>"#4fb57e"</code>; then it draws the head again, <code>"#b5f27a"</code>, with two <code>"#10261a"</code> eyes of radius 4 at <code>(x * 30 + 10, y * 30 + 10)</code> and <code>(x * 30 + 20, y * 30 + 10)</code>.</p>
+<p><code>draw()</code> calls <code>field()</code>, draws the <code>"#e53935"</code> apple and the snake, and at the top left writes <code>Apples: 0</code> with the apples eaten. When the snake crashes or bites itself, <code>step()</code> doesn't move it any more and <code>GAME OVER</code> appears, in the middle: with <code>center=(300, 180)</code> instead of the position, the middle of the text goes at that point. On a phone the arrows show up beside the game.</p>`],
+    task: `Take Snake into the window as above, just like the preview: 600 × 360, the chessboard field, the body starting from [[5, 7], [6, 7], [7, 7]] going right, a step every 0.2 seconds with <code>clock</code>, the arrows (but not the opposite one), the apples from the list [[12, 7], [12, 3], [4, 3]], one after the other and then from the start again, the round apple, the striped snake with its head and eyes, in the colours above, the text <code>Apples:</code> and <code>GAME OVER</code> at the end. When you close the window, I'll test it: letting it go, turning, eating the apple and crashing, and I'll look at the drawing.`,
     solution: `# Snake, part 5: in a window
 import pgzrun
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 
@@ -30856,18 +30890,40 @@ def crash(cell, body):
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
-    square(apple, "red")
-    for part in body:
-        square(part, "green")
-    square(body[-1], "yellow")
+    field()
+    dot(apple, "#e53935")
+    draw_snake(body)
     screen.draw.text(f"Apples: {eaten}", (10, 10))
     if over:
-        screen.draw.text("GAME OVER", (160, 140))
+        screen.draw.text("GAME OVER", center=(300, 180))
 
 
 def on_key_down(key):
@@ -30906,7 +30962,7 @@ def step():
 clock.schedule_interval(step, 0.2)
 pgzrun.go()`,
     hints: ["Which variables does step() need to move the head, and who changes them? How do you tell the arrow opposite to the direction now?",
-      "At the top import pgzrun, WIDTH, HEIGHT, the body, dx and dy, the apples and a variable for the end of the game. In step(), with global, the new head is the last one plus dx and dy: if crash finds something the game is over, otherwise append and, on the apple, the next apple, otherwise remove the tail. In on_key_down an if for each arrow, checking you don't go backwards. At the bottom the clock with step and 0.2, then pgzrun.go()."],
+      "At the top import pgzrun, WIDTH, HEIGHT, the body, dx and dy, the apples and a variable for the end of the game. In step(), with global, the new head is the last one plus dx and dy: if crash finds something the game is over, otherwise append and, on the apple, the next apple, otherwise remove the tail. In on_key_down an if for each arrow, checking you don't go backwards. For the drawing, square, dot, field and draw_snake, called from draw(). At the bottom the clock with step and 0.2, then pgzrun.go()."],
     check: (o, c) => !pgzWhy(c, "en", [SNK_NOINPUT, SNK_KEYS, SNK_ARROWS, PGZ_GLOBAL, SNK_CLOCK]),
     why: (o, c) => pgzWhy(c, "en", [SNK_NOINPUT, SNK_KEYS, SNK_ARROWS, PGZ_GLOBAL, SNK_CLOCK]),
     tests: snakeWinTests("en")
@@ -30924,9 +30980,9 @@ pgzrun.go()`,
 import pgzrun
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 
@@ -30956,18 +31012,40 @@ mela = nuova_mela()
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
-    quadretto(mela, "red")
-    for parte in corpo:
-        quadretto(parte, "green")
-    quadretto(corpo[-1], "yellow")
+    campo()
+    pallino(mela, "#e53935")
+    disegna_serpente(corpo)
     screen.draw.text(f"Mele: {mangiate}", (10, 10))
     if finita:
-        screen.draw.text("GAME OVER", (160, 140))
+        screen.draw.text("GAME OVER", center=(300, 180))
 
 
 def on_key_down(key):
@@ -31021,9 +31099,9 @@ pgzrun.go()`,
 import pgzrun
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 
@@ -31053,18 +31131,40 @@ apple = new_apple()
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
-    square(apple, "red")
-    for part in body:
-        square(part, "green")
-    square(body[-1], "yellow")
+    field()
+    dot(apple, "#e53935")
+    draw_snake(body)
     screen.draw.text(f"Apples: {eaten}", (10, 10))
     if over:
-        screen.draw.text("GAME OVER", (160, 140))
+        screen.draw.text("GAME OVER", center=(300, 180))
 
 
 def on_key_down(key):
@@ -31116,15 +31216,15 @@ pgzrun.go()`,
     theory: [
 `<p>Parte 7: Snake diventa un gioco con dei <b>record</b> da battere, e lo fai con i dizionari. Le velocità hanno un nome: <code>velocita = {"lenta": 0.25, "media": 0.15, "veloce": 0.08}</code> dice quanti secondi passano tra un passo e l'altro. I record, uno per velocità, stanno in <code>record = {"lenta": 0, "media": 0, "veloce": 0}</code>.</p>
 <p>Il gioco ora ha tre momenti, e una variabile <code>stato</code> dice in quale sei. <code>"menu"</code>: scegli la velocità con i tasti 1, 2 e 3, che in Pygame Zero sono <code>keys.K_1</code>, <code>keys.K_2</code> e <code>keys.K_3</code>. <code>"gioco"</code>: il serpente corre. <code>"fine"</code>: dopo lo scontro, finché Spazio non ti riporta al menu. <code>draw()</code> e <code>on_key_down</code> fanno cose diverse a seconda dello stato.</p>
-<p>Una partita nuova rimette a posto serpente, direzione, punti e mela, e fa partire il passo con la velocità scelta: <code>clock.schedule_interval(passo, velocita[nome])</code>. A fine partita il passo si ferma con <code>clock.unschedule(passo)</code> e, se i punti superano il record di quella velocità, il record si aggiorna. Ogni mela vale un punto, scritto in alto come <code>Punti: 0</code>.</p>`],
+<p>Una partita nuova rimette a posto serpente, direzione, punti e mela, e fa partire il passo con la velocità scelta: <code>clock.schedule_interval(passo, velocita[nome])</code>. A fine partita il passo si ferma con <code>clock.unschedule(passo)</code> e, se i punti superano il record di quella velocità, il record si aggiorna. Ogni mela vale un punto, scritto in alto come <code>Punti: 0</code>. Le scritte del menu e della fine vanno al centro, con <code>center=</code> come <code>GAME OVER</code>, sopra il campo a scacchi; <code>SNAKE</code> è più grande, con <code>fontsize=48</code>, e verde come la testa, <code>color="#b5f27a"</code>.</p>`],
     task: `Aggiungi il menu, le velocità e i record, come qui sopra. Nel menu scrivi <code>SNAKE</code>, le tre velocità con i loro tasti (<code>1 lenta</code>, <code>2 media</code>, <code>3 veloce</code>) e i record; durante la partita <code>Punti:</code> con i punti; alla fine <code>GAME OVER</code>, il record di quella velocità e che con Spazio si torna al menu. Il dizionario dei record si chiama <code>record</code>. Proverò le tre velocità, i punti, il record e il ritorno al menu.`,
     solution: `# Snake, parte 7: punti e record
 import pgzrun
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 
@@ -31175,29 +31275,51 @@ def fine_partita():
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    campo()
     if stato == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Scegli la velocità:", (110, 100))
-        screen.draw.text("1 lenta   2 media   3 veloce", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Scegli la velocità:", center=(300, 130))
+        screen.draw.text("1 lenta   2 media   3 veloce", center=(300, 165))
+        y = 220
         for nome, valore in record.items():
-            screen.draw.text(f"Record {nome}: {valore}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {nome}: {valore}", center=(300, y))
+            y += 30
         return
-    quadretto(mela, "red")
-    for parte in corpo:
-        quadretto(parte, "green")
-    quadretto(corpo[-1], "yellow")
+    pallino(mela, "#e53935")
+    disegna_serpente(corpo)
     screen.draw.text(f"Punti: {punti}", (10, 10))
     if stato == "fine":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {livello}: {record[livello]}", (130, 140))
-        screen.draw.text("Spazio per tornare al menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {livello}: {record[livello]}", center=(300, 180))
+        screen.draw.text("Spazio per tornare al menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -31253,15 +31375,15 @@ pgzrun.go()`,
     theory: [
 `<p>Part 7: Snake becomes a game with <b>records</b> to beat, and you do it with dictionaries. The speeds have names: <code>speeds = {"slow": 0.25, "medium": 0.15, "fast": 0.08}</code> says how many seconds go by between one step and the next. The records, one per speed, are in <code>records = {"slow": 0, "medium": 0, "fast": 0}</code>.</p>
 <p>The game now has three moments, and a variable <code>state</code> says which one you're in. <code>"menu"</code>: you choose the speed with the keys 1, 2 and 3, which in Pygame Zero are <code>keys.K_1</code>, <code>keys.K_2</code> and <code>keys.K_3</code>. <code>"game"</code>: the snake runs. <code>"over"</code>: after the crash, until Space takes you back to the menu. <code>draw()</code> and <code>on_key_down</code> do different things depending on the state.</p>
-<p>A new game puts the snake, the direction, the points and the apple back in place, and starts the step at the chosen speed: <code>clock.schedule_interval(step, speeds[name])</code>. At the end of a game the step stops with <code>clock.unschedule(step)</code> and, if the points beat the record for that speed, the record is updated. Every apple is worth one point, written at the top as <code>Points: 0</code>.</p>`],
+<p>A new game puts the snake, the direction, the points and the apple back in place, and starts the step at the chosen speed: <code>clock.schedule_interval(step, speeds[name])</code>. At the end of a game the step stops with <code>clock.unschedule(step)</code> and, if the points beat the record for that speed, the record is updated. Every apple is worth one point, written at the top as <code>Points: 0</code>. The texts of the menu and of the end go in the middle, with <code>center=</code> like <code>GAME OVER</code>, on top of the chessboard field; <code>SNAKE</code> is bigger, with <code>fontsize=48</code>, and green like the head, <code>color="#b5f27a"</code>.</p>`],
     task: `Add the menu, the speeds and the records, as above. In the menu write <code>SNAKE</code>, the three speeds with their keys (<code>1 slow</code>, <code>2 medium</code>, <code>3 fast</code>) and the records; during the game <code>Points:</code> with the points; at the end <code>GAME OVER</code>, the record for that speed and that Space goes back to the menu. The dictionary of the records is called <code>records</code>. I'll test the three speeds, the points, the record and going back to the menu.`,
     solution: `# Snake, part 7: points and records
 import pgzrun
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 
@@ -31312,29 +31434,51 @@ def end_game():
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    field()
     if state == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Choose the speed:", (110, 100))
-        screen.draw.text("1 slow   2 medium   3 fast", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Choose the speed:", center=(300, 130))
+        screen.draw.text("1 slow   2 medium   3 fast", center=(300, 165))
+        y = 220
         for name, value in records.items():
-            screen.draw.text(f"Record {name}: {value}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {name}: {value}", center=(300, y))
+            y += 30
         return
-    square(apple, "red")
-    for part in body:
-        square(part, "green")
-    square(body[-1], "yellow")
+    dot(apple, "#e53935")
+    draw_snake(body)
     screen.draw.text(f"Points: {points}", (10, 10))
     if state == "over":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {level}: {records[level]}", (130, 140))
-        screen.draw.text("Space for the menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {level}: {records[level]}", center=(300, 180))
+        screen.draw.text("Space for the menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -31403,9 +31547,9 @@ pgzrun.go()`,
 import pgzrun
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 
@@ -31477,29 +31621,51 @@ def fine_partita():
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    campo()
     if stato == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Scegli la velocità:", (110, 100))
-        screen.draw.text("1 lenta   2 media   3 veloce", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Scegli la velocità:", center=(300, 130))
+        screen.draw.text("1 lenta   2 media   3 veloce", center=(300, 165))
+        y = 220
         for nome, valore in record.items():
-            screen.draw.text(f"Record {nome}: {valore}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {nome}: {valore}", center=(300, y))
+            y += 30
         return
-    quadretto(mela, "red")
-    for parte in serpente.corpo:
-        quadretto(parte, "green")
-    quadretto(serpente.testa(), "yellow")
+    pallino(mela, "#e53935")
+    disegna_serpente(serpente.corpo)
     screen.draw.text(f"Punti: {punti}", (10, 10))
     if stato == "fine":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {livello}: {record[livello]}", (130, 140))
-        screen.draw.text("Spazio per tornare al menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {livello}: {record[livello]}", center=(300, 180))
+        screen.draw.text("Spazio per tornare al menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -31559,9 +31725,9 @@ pgzrun.go()`,
 import pgzrun
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 
@@ -31633,29 +31799,51 @@ def end_game():
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    field()
     if state == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Choose the speed:", (110, 100))
-        screen.draw.text("1 slow   2 medium   3 fast", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Choose the speed:", center=(300, 130))
+        screen.draw.text("1 slow   2 medium   3 fast", center=(300, 165))
+        y = 220
         for name, value in records.items():
-            screen.draw.text(f"Record {name}: {value}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {name}: {value}", center=(300, y))
+            y += 30
         return
-    square(apple, "red")
-    for part in snake.body:
-        square(part, "green")
-    square(snake.head(), "yellow")
+    dot(apple, "#e53935")
+    draw_snake(snake.body)
     screen.draw.text(f"Points: {points}", (10, 10))
     if state == "over":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {level}: {records[level]}", (130, 140))
-        screen.draw.text("Space for the menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {level}: {records[level]}", center=(300, 180))
+        screen.draw.text("Space for the menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -31706,17 +31894,19 @@ pgzrun.go()`,
   it: {
     title: "Costruisci: Snake, la partita completa",
     theory: [
-`<p>Parte 9, la sfida finale: la partita completa. Le mele diventano oggetti di una classe <code>Mela</code>, con una cella, un colore e i punti che valgono: le rosse (<code>"red"</code>) 1 punto, le dorate (<code>"gold"</code>) 3. Nel campo ce ne sono sempre <b>tre</b>, in una lista <code>mele</code>: una squadra di oggetti.</p>
-<p><code>nuova_mela()</code> ora restituisce una <code>Mela</code>: la cella a caso come prima, ma libera anche dalle altre mele, e il colore scelto con <code>random.choice(["red", "red", "gold"])</code>, così una mela su tre è dorata. Una funzione <code>occupata(cella)</code> dice se una cella è nel serpente o sotto una mela.</p>
+`<p>Parte 9, la sfida finale: la partita completa. Le mele diventano oggetti di una classe <code>Mela</code>, con una cella, un colore e i punti che valgono: le rosse 1 punto, le dorate 3. I due colori stanno in cima al programma, <code>ROSSA = "#e53935"</code> e <code>DORATA = "#ffd54f"</code>, e ogni mela si disegna con <code>pallino</code> nel suo colore. Nel campo ce ne sono sempre <b>tre</b>, in una lista <code>mele</code>: una squadra di oggetti.</p>
+<p><code>nuova_mela()</code> ora restituisce una <code>Mela</code>: la cella a caso come prima, ma libera anche dalle altre mele, e il colore scelto con <code>random.choice([ROSSA, ROSSA, DORATA])</code>, così una mela su tre è dorata. Una funzione <code>occupata(cella)</code> dice se una cella è nel serpente o sotto una mela.</p>
 <p>In <code>passo()</code> un <code>for</code> cerca se la nuova testa è su una delle mele: quella mangiata esce dalla lista con <code>remove</code>, i suoi punti si aggiungono e al suo posto ne arriva una nuova. E il gioco accelera: a ogni mela l'intervallo tra i passi, in <code>intervallo</code>, cala di 0.01 secondi, ma mai sotto 0.05 (con <code>max</code>). Per cambiare il ritmo fermi il passo e lo fai ripartire con l'intervallo nuovo.</p>`],
     task: `Scrivi la classe <code>Mela</code> (cella, colore e punti), metti tre mele nella lista <code>mele</code> a ogni partita, disegnale con il loro colore, conta i loro punti e, a ogni mela, accelera il passo di 0.01 secondi, fino a 0.05: l'intervallo di adesso sta in <code>intervallo</code>. Proverò con dei dadi truccati le mele dorate, i punti, il passo che accelera e le mele che non si sovrappongono.`,
     solution: `# Snake, parte 9: la partita completa
 import pgzrun
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
+ROSSA = "#e53935"
+DORATA = "#ffd54f"
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 
@@ -31749,7 +31939,7 @@ class Mela:
     def __init__(self, cella, colore):
         self.cella = cella
         self.colore = colore
-        if colore == "gold":
+        if colore == DORATA:
             self.punti = 3
         else:
             self.punti = 1
@@ -31786,7 +31976,7 @@ def nuova_mela():
     while True:
         cella = [random.randint(0, larghezza - 1), random.randint(0, altezza - 1)]
         if not occupata(cella):
-            return Mela(cella, random.choice(["red", "red", "gold"]))
+            return Mela(cella, random.choice([ROSSA, ROSSA, DORATA]))
 
 
 def nuova_partita(nome):
@@ -31811,30 +32001,52 @@ def fine_partita():
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    campo()
     if stato == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Scegli la velocità:", (110, 100))
-        screen.draw.text("1 lenta   2 media   3 veloce", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Scegli la velocità:", center=(300, 130))
+        screen.draw.text("1 lenta   2 media   3 veloce", center=(300, 165))
+        y = 220
         for nome, valore in record.items():
-            screen.draw.text(f"Record {nome}: {valore}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {nome}: {valore}", center=(300, y))
+            y += 30
         return
     for m in mele:
-        quadretto(m.cella, m.colore)
-    for parte in serpente.corpo:
-        quadretto(parte, "green")
-    quadretto(serpente.testa(), "yellow")
+        pallino(m.cella, m.colore)
+    disegna_serpente(serpente.corpo)
     screen.draw.text(f"Punti: {punti}", (10, 10))
     if stato == "fine":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {livello}: {record[livello]}", (130, 140))
-        screen.draw.text("Spazio per tornare al menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {livello}: {record[livello]}", center=(300, 180))
+        screen.draw.text("Spazio per tornare al menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -31882,7 +32094,7 @@ def passo():
 
 pgzrun.go()`,
     hints: ["Cosa deve sapere ogni mela di sé? Quando ne mangi una, quali cose cambiano: la lista, i punti, la velocità?",
-      "La classe Mela salva cella e colore, e i punti: 3 se il colore è gold, se no 1. In nuova_partita la lista parte vuota e un for ci aggiunge tre mele nuove. In passo() un for sulle mele: se la cella di una mela è la nuova testa, segni che l'hai mangiata, aggiungi i suoi punti, la togli con remove ed esci con break. Dopo avanza, se l'hai mangiata, aggiungi una mela nuova, calcoli il nuovo intervallo con max e rifai partire il passo."],
+      "La classe Mela salva cella e colore, e i punti: 3 se il colore è DORATA, se no 1. In nuova_partita la lista parte vuota e un for ci aggiunge tre mele nuove. In passo() un for sulle mele: se la cella di una mela è la nuova testa, segni che l'hai mangiata, aggiungi i suoi punti, la togli con remove ed esci con break. Dopo avanza, se l'hai mangiata, aggiungi una mela nuova, calcoli il nuovo intervallo con max e rifai partire il passo."],
     check: (o, c) => !pgzWhy(c, "it", [SNK_NOINPUT, SNK_KEYS, PGZ_GLOBAL, SNK_CLOCK, SNK_RANDOM, SNK_DICT, SNK_UNSCHEDULE].concat(SNK_CLASS.it, SNK_APPLES.it)),
     why: (o, c) => pgzWhy(c, "it", [SNK_NOINPUT, SNK_KEYS, PGZ_GLOBAL, SNK_CLOCK, SNK_RANDOM, SNK_DICT, SNK_UNSCHEDULE].concat(SNK_CLASS.it, SNK_APPLES.it)),
     tests: (c) => snakeApplesTests("it", "intervallo")(c).concat(snakeClassTests("it")(c).slice(1, 2), snakeMenuTests("it", "record")(c).slice(0, 1))
@@ -31890,17 +32102,19 @@ pgzrun.go()`,
   en: {
     title: "Build: Snake, the full game",
     theory: [
-`<p>Part 9, the final challenge: the full game. The apples become objects of a class <code>Apple</code>, with a cell, a colour and the points they're worth: the red ones (<code>"red"</code>) 1 point, the gold ones (<code>"gold"</code>) 3. There are always <b>three</b> on the field, in a list <code>apples</code>: a team of objects.</p>
-<p><code>new_apple()</code> now gives back an <code>Apple</code>: the random cell as before, but free from the other apples too, and the colour chosen with <code>random.choice(["red", "red", "gold"])</code>, so one apple in three is gold. A function <code>taken(cell)</code> says whether a cell is in the snake or under an apple.</p>
+`<p>Part 9, the final challenge: the full game. The apples become objects of a class <code>Apple</code>, with a cell, a colour and the points they're worth: the red ones 1 point, the gold ones 3. The two colours are at the top of the program, <code>RED = "#e53935"</code> and <code>GOLD = "#ffd54f"</code>, and every apple is drawn with <code>dot</code> in its colour. There are always <b>three</b> on the field, in a list <code>apples</code>: a team of objects.</p>
+<p><code>new_apple()</code> now gives back an <code>Apple</code>: the random cell as before, but free from the other apples too, and the colour chosen with <code>random.choice([RED, RED, GOLD])</code>, so one apple in three is gold. A function <code>taken(cell)</code> says whether a cell is in the snake or under an apple.</p>
 <p>In <code>step()</code> a <code>for</code> looks for whether the new head is on one of the apples: the one eaten leaves the list with <code>remove</code>, its points are added and a new one comes in its place. And the game speeds up: with every apple the time between steps, in <code>interval</code>, goes down by 0.01 seconds, but never below 0.05 (with <code>max</code>). To change the pace you stop the step and start it again with the new interval.</p>`],
     task: `Write the class <code>Apple</code> (cell, colour and points), put three apples in the list <code>apples</code> at every game, draw them in their colour, count their points and, with every apple, speed the step up by 0.01 seconds, down to 0.05: the interval now is in <code>interval</code>. With loaded dice I'll test the gold apples, the points, the step speeding up and the apples not overlapping.`,
     solution: `# Snake, part 9: the full game
 import pgzrun
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
+RED = "#e53935"
+GOLD = "#ffd54f"
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 
@@ -31933,7 +32147,7 @@ class Apple:
     def __init__(self, cell, colour):
         self.cell = cell
         self.colour = colour
-        if colour == "gold":
+        if colour == GOLD:
             self.points = 3
         else:
             self.points = 1
@@ -31970,7 +32184,7 @@ def new_apple():
     while True:
         cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
         if not taken(cell):
-            return Apple(cell, random.choice(["red", "red", "gold"]))
+            return Apple(cell, random.choice([RED, RED, GOLD]))
 
 
 def new_game(name):
@@ -31995,30 +32209,52 @@ def end_game():
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    field()
     if state == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Choose the speed:", (110, 100))
-        screen.draw.text("1 slow   2 medium   3 fast", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Choose the speed:", center=(300, 130))
+        screen.draw.text("1 slow   2 medium   3 fast", center=(300, 165))
+        y = 220
         for name, value in records.items():
-            screen.draw.text(f"Record {name}: {value}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {name}: {value}", center=(300, y))
+            y += 30
         return
     for m in apples:
-        square(m.cell, m.colour)
-    for part in snake.body:
-        square(part, "green")
-    square(snake.head(), "yellow")
+        dot(m.cell, m.colour)
+    draw_snake(snake.body)
     screen.draw.text(f"Points: {points}", (10, 10))
     if state == "over":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {level}: {records[level]}", (130, 140))
-        screen.draw.text("Space for the menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {level}: {records[level]}", center=(300, 180))
+        screen.draw.text("Space for the menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -32066,7 +32302,7 @@ def step():
 
 pgzrun.go()`,
     hints: ["What must every apple know about itself? When you eat one, which things change: the list, the points, the speed?",
-      "The Apple class saves cell and colour, and the points: 3 if the colour is gold, otherwise 1. In new_game the list starts empty and a for adds three new apples to it. In step() a for over the apples: if an apple's cell is the new head, note that you ate it, add its points, take it out with remove and leave with break. After advance, if you ate it, add a new apple, work out the new interval with max and start the step again."],
+      "The Apple class saves cell and colour, and the points: 3 if the colour is GOLD, otherwise 1. In new_game the list starts empty and a for adds three new apples to it. In step() a for over the apples: if an apple's cell is the new head, note that you ate it, add its points, take it out with remove and leave with break. After advance, if you ate it, add a new apple, work out the new interval with max and start the step again."],
     check: (o, c) => !pgzWhy(c, "en", [SNK_NOINPUT, SNK_KEYS, PGZ_GLOBAL, SNK_CLOCK, SNK_RANDOM, SNK_DICT, SNK_UNSCHEDULE].concat(SNK_CLASS.en, SNK_APPLES.en)),
     why: (o, c) => pgzWhy(c, "en", [SNK_NOINPUT, SNK_KEYS, PGZ_GLOBAL, SNK_CLOCK, SNK_RANDOM, SNK_DICT, SNK_UNSCHEDULE].concat(SNK_CLASS.en, SNK_APPLES.en)),
     tests: (c) => snakeApplesTests("en", "interval")(c).concat(snakeClassTests("en")(c).slice(1, 2), snakeMenuTests("en", "records")(c).slice(0, 1))
@@ -32081,15 +32317,17 @@ pgzrun.go()`,
 <ol><li>installa Python da python.org (su Windows, durante l'installazione, spunta «Add Python to PATH»);</li>
 <li>nel terminale del computer scrivi <code>pip install pgzero</code>: è la libreria di Pygame Zero, che in Arcode c'è già;</li>
 <li>salva il programma in un file, per esempio <code>snake.py</code>, e nel terminale, dalla stessa cartella, scrivi <code>python snake.py</code>.</li></ol>
-<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in pausa e fa ripartire: ferma il passo e lo riavvia, con un nuovo stato, <code>"pausa"</code>, in cui le frecce non contano. La scritta della pausa sta in mezzo al campo, magari proprio sopra il serpente: disegnale sotto un rettangolo nero, perché quello che disegni dopo copre quello che c'era prima. E Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, così funziona in ogni stato.</p>`],
+<p>Sul computer però non ci sono i pulsanti che Arcode mette sopra il gioco, e allora li metti nel gioco. <code>TITLE</code> dà il nome alla finestra, come <code>WIDTH</code> e <code>HEIGHT</code> le danno la misura. Il tasto P mette in pausa e fa ripartire: ferma il passo e lo riavvia, con un nuovo stato, <code>"pausa"</code>, in cui le frecce non contano. La scritta della pausa sta in mezzo al campo, magari proprio sopra il serpente: disegnale sotto un rettangolo dello stesso verde dello sfondo, <code>"#10261a"</code>, perché quello che disegni dopo copre quello che c'era prima. E Esc chiude il gioco con <code>exit()</code>, la funzione che fa finire un programma: controllalo prima di tutto il resto, così funziona in ogni stato.</p>`],
     task: `Prepara Snake per il computer: un titolo per la finestra con <code>TITLE</code>, il tasto P per la pausa (con la scritta <code>PAUSA: P per ripartire</code>, e le frecce che durante la pausa non contano) ed Esc per uscire con <code>exit()</code>. Proverò il titolo, la pausa e l'uscita. Poi, se vuoi, segui i tre passi qui sopra e gioca a Snake sul tuo computer.`,
     solution: `# Snake, parte 10: pronto per il computer
 import pgzrun
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
+ROSSA = "#e53935"
+DORATA = "#ffd54f"
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 TITLE = "Snake di Ada"
@@ -32123,7 +32361,7 @@ class Mela:
     def __init__(self, cella, colore):
         self.cella = cella
         self.colore = colore
-        if colore == "gold":
+        if colore == DORATA:
             self.punti = 3
         else:
             self.punti = 1
@@ -32160,7 +32398,7 @@ def nuova_mela():
     while True:
         cella = [random.randint(0, larghezza - 1), random.randint(0, altezza - 1)]
         if not occupata(cella):
-            return Mela(cella, random.choice(["red", "red", "gold"]))
+            return Mela(cella, random.choice([ROSSA, ROSSA, DORATA]))
 
 
 def nuova_partita(nome):
@@ -32185,33 +32423,55 @@ def fine_partita():
 
 
 def quadretto(cella, colore):
-    screen.draw.filled_rect(Rect((cella[0] * CELLA, cella[1] * CELLA), (CELLA, CELLA)), colore)
+    screen.draw.filled_rect(Rect((cella[0] * CELLA + 3, cella[1] * CELLA + 3), (CELLA - 6, CELLA - 6)), colore)
+
+
+def pallino(cella, colore):
+    screen.draw.filled_circle((cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12, colore)
+
+
+def campo():
+    screen.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELLA, y * CELLA), (CELLA, CELLA)), "#162b20")
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    screen.draw.filled_circle((testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4, "#10261a")
+    screen.draw.filled_circle((testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    campo()
     if stato == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Scegli la velocità:", (110, 100))
-        screen.draw.text("1 lenta   2 media   3 veloce", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Scegli la velocità:", center=(300, 130))
+        screen.draw.text("1 lenta   2 media   3 veloce", center=(300, 165))
+        y = 220
         for nome, valore in record.items():
-            screen.draw.text(f"Record {nome}: {valore}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {nome}: {valore}", center=(300, y))
+            y += 30
         return
     for m in mele:
-        quadretto(m.cella, m.colore)
-    for parte in serpente.corpo:
-        quadretto(parte, "green")
-    quadretto(serpente.testa(), "yellow")
+        pallino(m.cella, m.colore)
+    disegna_serpente(serpente.corpo)
     screen.draw.text(f"Punti: {punti}", (10, 10))
     if stato == "pausa":
-        screen.draw.filled_rect(Rect((75, 130), (250, 40)), "black")
-        screen.draw.text("PAUSA: P per ripartire", (85, 140))
+        screen.draw.filled_rect(Rect((150, 160), (300, 40)), "#10261a")
+        screen.draw.text("PAUSA: P per ripartire", center=(300, 180))
     if stato == "fine":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {livello}: {record[livello]}", (130, 140))
-        screen.draw.text("Spazio per tornare al menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {livello}: {record[livello]}", center=(300, 180))
+        screen.draw.text("Spazio per tornare al menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -32281,15 +32541,17 @@ pgzrun.go()`,
 <ol><li>install Python from python.org (on Windows, while installing, tick «Add Python to PATH»);</li>
 <li>in the computer's terminal type <code>pip install pgzero</code>: it's the Pygame Zero library, which Arcode already has;</li>
 <li>save the program in a file, for example <code>snake.py</code>, and in the terminal, from the same folder, type <code>python snake.py</code>.</li></ol>
-<p>On the computer, though, there are no buttons like the ones Arcode puts above the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key pauses and starts again: it stops the step and starts it again, with a new state, <code>"paused"</code>, in which the arrows don't count. The pause text sits in the middle of the field, maybe right on top of the snake: draw a black rectangle under it, because what you draw later covers what was there before. And Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, so it works in every state.</p>`],
+<p>On the computer, though, there are no buttons like the ones Arcode puts above the game, so you put them in the game. <code>TITLE</code> gives the window its name, as <code>WIDTH</code> and <code>HEIGHT</code> give it its size. The P key pauses and starts again: it stops the step and starts it again, with a new state, <code>"paused"</code>, in which the arrows don't count. The pause text sits in the middle of the field, maybe right on top of the snake: draw a rectangle under it in the same green as the background, <code>"#10261a"</code>, because what you draw later covers what was there before. And Esc closes the game with <code>exit()</code>, the function that ends a program: check it before everything else, so it works in every state.</p>`],
     task: `Get Snake ready for the computer: a title for the window with <code>TITLE</code>, the P key for the pause (with the text <code>PAUSED: P to go on</code>, and the arrows not counting during the pause) and Esc to quit with <code>exit()</code>. I'll test the title, the pause and quitting. Then, if you like, follow the three steps above and play Snake on your computer.`,
     solution: `# Snake, part 10: ready for your computer
 import pgzrun
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
+RED = "#e53935"
+GOLD = "#ffd54f"
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 TITLE = "Snake by Ada"
@@ -32323,7 +32585,7 @@ class Apple:
     def __init__(self, cell, colour):
         self.cell = cell
         self.colour = colour
-        if colour == "gold":
+        if colour == GOLD:
             self.points = 3
         else:
             self.points = 1
@@ -32360,7 +32622,7 @@ def new_apple():
     while True:
         cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
         if not taken(cell):
-            return Apple(cell, random.choice(["red", "red", "gold"]))
+            return Apple(cell, random.choice([RED, RED, GOLD]))
 
 
 def new_game(name):
@@ -32385,33 +32647,55 @@ def end_game():
 
 
 def square(cell, colour):
-    screen.draw.filled_rect(Rect((cell[0] * CELL, cell[1] * CELL), (CELL, CELL)), colour)
+    screen.draw.filled_rect(Rect((cell[0] * CELL + 3, cell[1] * CELL + 3), (CELL - 6, CELL - 6)), colour)
+
+
+def dot(cell, colour):
+    screen.draw.filled_circle((cell[0] * CELL + 15, cell[1] * CELL + 15), 12, colour)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                screen.draw.filled_rect(Rect((x * CELL, y * CELL), (CELL, CELL)), "#162b20")
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    screen.draw.filled_circle((head[0] * CELL + 10, head[1] * CELL + 10), 4, "#10261a")
+    screen.draw.filled_circle((head[0] * CELL + 20, head[1] * CELL + 10), 4, "#10261a")
 
 
 def draw():
-    screen.fill("black")
+    field()
     if state == "menu":
-        screen.draw.text("SNAKE", (165, 50))
-        screen.draw.text("Choose the speed:", (110, 100))
-        screen.draw.text("1 slow   2 medium   3 fast", (50, 130))
-        y = 180
+        screen.draw.text("SNAKE", center=(300, 70), fontsize=48, color="#b5f27a")
+        screen.draw.text("Choose the speed:", center=(300, 130))
+        screen.draw.text("1 slow   2 medium   3 fast", center=(300, 165))
+        y = 220
         for name, value in records.items():
-            screen.draw.text(f"Record {name}: {value}", (120, y))
-            y += 25
+            screen.draw.text(f"Record {name}: {value}", center=(300, y))
+            y += 30
         return
     for m in apples:
-        square(m.cell, m.colour)
-    for part in snake.body:
-        square(part, "green")
-    square(snake.head(), "yellow")
+        dot(m.cell, m.colour)
+    draw_snake(snake.body)
     screen.draw.text(f"Points: {points}", (10, 10))
     if state == "paused":
-        screen.draw.filled_rect(Rect((75, 130), (250, 40)), "black")
-        screen.draw.text("PAUSED: P to go on", (85, 140))
+        screen.draw.filled_rect(Rect((150, 160), (300, 40)), "#10261a")
+        screen.draw.text("PAUSED: P to go on", center=(300, 180))
     if state == "over":
-        screen.draw.text("GAME OVER", (150, 110))
-        screen.draw.text(f"Record {level}: {records[level]}", (130, 140))
-        screen.draw.text("Space for the menu", (55, 180))
+        screen.draw.text("GAME OVER", center=(300, 140))
+        screen.draw.text(f"Record {level}: {records[level]}", center=(300, 180))
+        screen.draw.text("Space for the menu", center=(300, 220))
 
 
 def on_key_down(key):
@@ -32479,16 +32763,18 @@ pgzrun.go()`,
   id: "build8", build: true, part: 11, from: "build7", needs: "full", teaches: ["pygame", "None"], file: ["costruisci_con_pygame.py", "build_with_pygame.py"],
   it: {
     title: "Costruisci: Snake con pygame",
-    theory: pgTheory("it", { game: "Snake", file: "snake.py", center: false, numkeys: true, own: [
+    theory: pgTheory("it", { game: "Snake", file: "snake.py", circle: true, numkeys: true, own: [
 `<p>In Snake il tempo è tutto: il serpente fa un passo ogni <code>intervallo</code>. Con pygame il tempo lo conti in <b>millisecondi</b>, quelli che restituisce <code>orologio.tick(60)</code>: le velocità diventano <code>{"lenta": 250, "media": 150, "veloce": 80}</code>, e dopo ogni mela <code>intervallo</code> scende di 10, fino a 50. Nel ciclo, solo mentre <code>stato</code> è <code>"gioco"</code>, <code>attesa</code> somma i millisecondi passati: quando arriva a <code>intervallo</code>, togli <code>intervallo</code> da <code>attesa</code> e chiami <code>passo()</code>. Dove Pygame Zero ripartiva da capo con <code>clock.schedule_interval</code> (la partita nuova, la fine della pausa, la mela mangiata) ora rimetti <code>attesa</code> a 0; e dove c'era <code>clock.unschedule(passo)</code> non serve niente, perché fuori dal gioco il ciclo non chiama <code>passo</code>. Il resto non cambia: le classi <code>Serpente</code> e <code>Mela</code>, il menu delle velocità e i record.</p>`] }),
-    task: `Riscrivi Snake con pygame, come qui sopra: la finestra con <code>set_mode</code> e il suo titolo con <code>set_caption</code>, i caratteri in <code>CARATTERI</code> con <code>scrivi</code>, il ciclo del gioco con <code>tick(60)</code> e gli eventi (la X ed Esc lo fanno finire, gli altri tasti vanno a <code>tasto</code>), i passi del serpente contati in millisecondi, il disegno con <code>pygame.draw.rect</code> e, alla fine di ogni giro, <code>pygame.display.flip()</code>. Proverò di nuovo il gioco, con il menu, le mele, il passo che accelera e la pausa, e la finestra che si chiude con Esc e con la X.`,
+    task: `Riscrivi Snake con pygame, come qui sopra: la finestra con <code>set_mode</code> e il suo titolo con <code>set_caption</code>, i caratteri in <code>CARATTERI</code> con <code>scrivi</code> e <code>scrivi_al_centro</code>, il ciclo del gioco con <code>tick(60)</code> e gli eventi (la X ed Esc lo fanno finire, gli altri tasti vanno a <code>tasto</code>), i passi del serpente contati in millisecondi, il disegno con <code>pygame.draw.rect</code> e <code>pygame.draw.circle</code> e, alla fine di ogni giro, <code>pygame.display.flip()</code>. Proverò di nuovo il gioco, con il menu, le mele, il passo che accelera e la pausa, e la finestra che si chiude con Esc e con la X.`,
     solution: `# Snake, parte 11: con pygame
 import pygame
 import random
 
-CELLA = 20
+CELLA = 30
 larghezza = 20
-altezza = 15
+altezza = 12
+ROSSA = "#e53935"
+DORATA = "#ffd54f"
 WIDTH = larghezza * CELLA
 HEIGHT = altezza * CELLA
 TITLE = "Snake di Ada"
@@ -32499,7 +32785,7 @@ schermo = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(TITLE)
 orologio = pygame.time.Clock()
 CARATTERI = {}
-for grandezza in [24]:
+for grandezza in [24, 48]:
     CARATTERI[grandezza] = pygame.font.Font(None, grandezza)
 
 
@@ -32531,7 +32817,7 @@ class Mela:
     def __init__(self, cella, colore):
         self.cella = cella
         self.colore = colore
-        if colore == "gold":
+        if colore == DORATA:
             self.punti = 3
         else:
             self.punti = 1
@@ -32569,7 +32855,7 @@ def nuova_mela():
     while True:
         cella = [random.randint(0, larghezza - 1), random.randint(0, altezza - 1)]
         if not occupata(cella):
-            return Mela(cella, random.choice(["red", "red", "gold"]))
+            return Mela(cella, random.choice([ROSSA, ROSSA, DORATA]))
 
 
 def nuova_partita(nome):
@@ -32593,37 +32879,64 @@ def fine_partita():
 
 
 def quadretto(cella, colore):
-    pygame.draw.rect(schermo, colore, pygame.Rect(cella[0] * CELLA, cella[1] * CELLA, CELLA, CELLA))
+    pygame.draw.rect(schermo, colore, pygame.Rect(cella[0] * CELLA + 3, cella[1] * CELLA + 3, CELLA - 6, CELLA - 6))
+
+
+def pallino(cella, colore):
+    pygame.draw.circle(schermo, colore, (cella[0] * CELLA + 15, cella[1] * CELLA + 15), 12)
+
+
+def campo():
+    schermo.fill("#10261a")
+    for x in range(larghezza):
+        for y in range(altezza):
+            if (x + y) % 2 == 1:
+                pygame.draw.rect(schermo, "#162b20", pygame.Rect(x * CELLA, y * CELLA, CELLA, CELLA))
+
+
+def disegna_serpente(corpo):
+    for k in range(len(corpo)):
+        if (len(corpo) - k) % 2 == 0:
+            quadretto(corpo[k], "#6fd39a")
+        else:
+            quadretto(corpo[k], "#4fb57e")
+    testa = corpo[-1]
+    quadretto(testa, "#b5f27a")
+    pygame.draw.circle(schermo, "#10261a", (testa[0] * CELLA + 10, testa[1] * CELLA + 10), 4)
+    pygame.draw.circle(schermo, "#10261a", (testa[0] * CELLA + 20, testa[1] * CELLA + 10), 4)
 
 
 def scrivi(testo, dove, grandezza, colore):
     schermo.blit(CARATTERI[grandezza].render(testo, True, colore), dove)
 
 
+def scrivi_al_centro(testo, centro, grandezza, colore):
+    immagine = CARATTERI[grandezza].render(testo, True, colore)
+    schermo.blit(immagine, immagine.get_rect(center=centro))
+
+
 def disegna_tutto():
-    schermo.fill("black")
+    campo()
     if stato == "menu":
-        scrivi("SNAKE", (165, 50), 24, "white")
-        scrivi("Scegli la velocità:", (110, 100), 24, "white")
-        scrivi("1 lenta   2 media   3 veloce", (50, 130), 24, "white")
-        y = 180
+        scrivi_al_centro("SNAKE", (300, 70), 48, "#b5f27a")
+        scrivi_al_centro("Scegli la velocità:", (300, 130), 24, "white")
+        scrivi_al_centro("1 lenta   2 media   3 veloce", (300, 165), 24, "white")
+        y = 220
         for nome, valore in record.items():
-            scrivi(f"Record {nome}: {valore}", (120, y), 24, "white")
-            y += 25
+            scrivi_al_centro(f"Record {nome}: {valore}", (300, y), 24, "white")
+            y += 30
         return
     for m in mele:
-        quadretto(m.cella, m.colore)
-    for parte in serpente.corpo:
-        quadretto(parte, "green")
-    quadretto(serpente.testa(), "yellow")
+        pallino(m.cella, m.colore)
+    disegna_serpente(serpente.corpo)
     scrivi(f"Punti: {punti}", (10, 10), 24, "white")
     if stato == "pausa":
-        pygame.draw.rect(schermo, "black", pygame.Rect(75, 130, 250, 40))
-        scrivi("PAUSA: P per ripartire", (85, 140), 24, "white")
+        pygame.draw.rect(schermo, "#10261a", pygame.Rect(150, 160, 300, 40))
+        scrivi_al_centro("PAUSA: P per ripartire", (300, 180), 24, "white")
     if stato == "fine":
-        scrivi("GAME OVER", (150, 110), 24, "white")
-        scrivi(f"Record {livello}: {record[livello]}", (130, 140), 24, "white")
-        scrivi("Spazio per tornare al menu", (55, 180), 24, "white")
+        scrivi_al_centro("GAME OVER", (300, 140), 24, "white")
+        scrivi_al_centro(f"Record {livello}: {record[livello]}", (300, 180), 24, "white")
+        scrivi_al_centro("Spazio per tornare al menu", (300, 220), 24, "white")
 
 
 def tasto(key):
@@ -32703,16 +33016,18 @@ pygame.quit()`,
   },
   en: {
     title: "Build: Snake with pygame",
-    theory: pgTheory("en", { game: "Snake", file: "snake.py", center: false, numkeys: true, own: [
+    theory: pgTheory("en", { game: "Snake", file: "snake.py", circle: true, numkeys: true, own: [
 `<p>In Snake time is everything: the snake takes a step every <code>interval</code>. With pygame you count the time in <b>milliseconds</b>, the ones <code>clock.tick(60)</code> gives back: the speeds become <code>{"slow": 250, "medium": 150, "fast": 80}</code>, and after every apple <code>interval</code> goes down by 10, down to 50. In the loop, only while <code>state</code> is <code>"playing"</code>, <code>waited</code> adds up the milliseconds passed: when it gets to <code>interval</code>, take <code>interval</code> away from <code>waited</code> and call <code>step()</code>. Where Pygame Zero started again from scratch with <code>clock.schedule_interval</code> (the new game, the end of the pause, the apple eaten) now put <code>waited</code> back to 0; and where there was <code>clock.unschedule(step)</code> nothing is needed, because outside the game the loop doesn't call <code>step</code>. The rest doesn't change: the classes <code>Snake</code> and <code>Apple</code>, the speed menu and the records.</p>`] }),
-    task: `Write Snake again with pygame, as above: the window with <code>set_mode</code> and its title with <code>set_caption</code>, the fonts in <code>FONTS</code> with <code>write</code>, the game loop with <code>tick(60)</code> and the events (the X and Esc end it, the other keys go to <code>key_pressed</code>), the snake's steps counted in milliseconds, the drawing with <code>pygame.draw.rect</code> and, at the end of every time round, <code>pygame.display.flip()</code>. I'll test the game again, with the menu, the apples, the step speeding up and the pause, and the window closing with Esc and with the X.`,
+    task: `Write Snake again with pygame, as above: the window with <code>set_mode</code> and its title with <code>set_caption</code>, the fonts in <code>FONTS</code> with <code>write</code> and <code>write_centred</code>, the game loop with <code>tick(60)</code> and the events (the X and Esc end it, the other keys go to <code>key_pressed</code>), the snake's steps counted in milliseconds, the drawing with <code>pygame.draw.rect</code> and <code>pygame.draw.circle</code> and, at the end of every time round, <code>pygame.display.flip()</code>. I'll test the game again, with the menu, the apples, the step speeding up and the pause, and the window closing with Esc and with the X.`,
     solution: `# Snake, part 11: with pygame
 import pygame
 import random
 
-CELL = 20
+CELL = 30
 cols = 20
-rows = 15
+rows = 12
+RED = "#e53935"
+GOLD = "#ffd54f"
 WIDTH = cols * CELL
 HEIGHT = rows * CELL
 TITLE = "Snake by Ada"
@@ -32723,7 +33038,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption(TITLE)
 clock = pygame.time.Clock()
 FONTS = {}
-for font_size in [24]:
+for font_size in [24, 48]:
     FONTS[font_size] = pygame.font.Font(None, font_size)
 
 
@@ -32755,7 +33070,7 @@ class Apple:
     def __init__(self, cell, colour):
         self.cell = cell
         self.colour = colour
-        if colour == "gold":
+        if colour == GOLD:
             self.points = 3
         else:
             self.points = 1
@@ -32793,7 +33108,7 @@ def new_apple():
     while True:
         cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
         if not taken(cell):
-            return Apple(cell, random.choice(["red", "red", "gold"]))
+            return Apple(cell, random.choice([RED, RED, GOLD]))
 
 
 def new_game(name):
@@ -32817,37 +33132,64 @@ def end_game():
 
 
 def square(cell, colour):
-    pygame.draw.rect(screen, colour, pygame.Rect(cell[0] * CELL, cell[1] * CELL, CELL, CELL))
+    pygame.draw.rect(screen, colour, pygame.Rect(cell[0] * CELL + 3, cell[1] * CELL + 3, CELL - 6, CELL - 6))
+
+
+def dot(cell, colour):
+    pygame.draw.circle(screen, colour, (cell[0] * CELL + 15, cell[1] * CELL + 15), 12)
+
+
+def field():
+    screen.fill("#10261a")
+    for x in range(cols):
+        for y in range(rows):
+            if (x + y) % 2 == 1:
+                pygame.draw.rect(screen, "#162b20", pygame.Rect(x * CELL, y * CELL, CELL, CELL))
+
+
+def draw_snake(body):
+    for k in range(len(body)):
+        if (len(body) - k) % 2 == 0:
+            square(body[k], "#6fd39a")
+        else:
+            square(body[k], "#4fb57e")
+    head = body[-1]
+    square(head, "#b5f27a")
+    pygame.draw.circle(screen, "#10261a", (head[0] * CELL + 10, head[1] * CELL + 10), 4)
+    pygame.draw.circle(screen, "#10261a", (head[0] * CELL + 20, head[1] * CELL + 10), 4)
 
 
 def write(text, where, font_size, colour):
     screen.blit(FONTS[font_size].render(text, True, colour), where)
 
 
+def write_centred(text, centre, font_size, colour):
+    picture = FONTS[font_size].render(text, True, colour)
+    screen.blit(picture, picture.get_rect(center=centre))
+
+
 def draw_all():
-    screen.fill("black")
+    field()
     if state == "menu":
-        write("SNAKE", (165, 50), 24, "white")
-        write("Choose the speed:", (110, 100), 24, "white")
-        write("1 slow   2 medium   3 fast", (50, 130), 24, "white")
-        y = 180
+        write_centred("SNAKE", (300, 70), 48, "#b5f27a")
+        write_centred("Choose the speed:", (300, 130), 24, "white")
+        write_centred("1 slow   2 medium   3 fast", (300, 165), 24, "white")
+        y = 220
         for name, value in records.items():
-            write(f"Record {name}: {value}", (120, y), 24, "white")
-            y += 25
+            write_centred(f"Record {name}: {value}", (300, y), 24, "white")
+            y += 30
         return
     for m in apples:
-        square(m.cell, m.colour)
-    for part in snake.body:
-        square(part, "green")
-    square(snake.head(), "yellow")
+        dot(m.cell, m.colour)
+    draw_snake(snake.body)
     write(f"Points: {points}", (10, 10), 24, "white")
     if state == "paused":
-        pygame.draw.rect(screen, "black", pygame.Rect(75, 130, 250, 40))
-        write("PAUSED: P to go on", (85, 140), 24, "white")
+        pygame.draw.rect(screen, "#10261a", pygame.Rect(150, 160, 300, 40))
+        write_centred("PAUSED: P to go on", (300, 180), 24, "white")
     if state == "over":
-        write("GAME OVER", (150, 110), 24, "white")
-        write(f"Record {level}: {records[level]}", (130, 140), 24, "white")
-        write("Space for the menu", (55, 180), 24, "white")
+        write_centred("GAME OVER", (300, 140), 24, "white")
+        write_centred(f"Record {level}: {records[level]}", (300, 180), 24, "white")
+        write_centred("Space for the menu", (300, 220), 24, "white")
 
 
 def key_pressed(key):
@@ -41424,7 +41766,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "3f9f791517", APP_BUILT = "2026-11-11T09:51Z";
+const APP_VERSION = "b59ce538ca", APP_BUILT = "2026-11-11T10:26Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
