@@ -37227,7 +37227,7 @@ const sqlPyNoTwin = (lang, status) => (status === "need_input" ? SQLPY_NOTWIN[la
 const SQL_KW = new Set(("SELECT FROM WHERE AND OR NOT IN IS NULL LIKE BETWEEN ORDER BY ASC DESC LIMIT OFFSET DISTINCT AS GROUP HAVING " +
   "JOIN INNER LEFT RIGHT FULL OUTER CROSS ON USING INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE VIEW INDEX DROP ALTER ADD COLUMN " +
   "PRIMARY KEY FOREIGN REFERENCES UNIQUE DEFAULT CHECK CASE WHEN THEN ELSE END EXISTS UNION ALL WITH OVER PARTITION IF BEGIN COMMIT " +
-  "ROLLBACK TRANSACTION INTEGER TEXT REAL BLOB NUMERIC AUTOINCREMENT COLLATE NOCASE RECURSIVE EXCEPT INTERSECT ROWS RANGE PRAGMA").split(" "));
+  "ROLLBACK TRANSACTION INTEGER TEXT REAL BLOB NUMERIC AUTOINCREMENT COLLATE NOCASE RECURSIVE EXCEPT INTERSECT ROWS RANGE PRAGMA EXPLAIN QUERY PLAN").split(" "));
 const SQL_FN = new Set("COUNT SUM AVG MIN MAX ROUND ABS UPPER LOWER LENGTH SUBSTR TRIM REPLACE COALESCE IFNULL INSTR RANK DENSE_RANK ROW_NUMBER CAST DATE STRFTIME RANDOM PRINTF".split(" "));
 const SQL_CONST = new Set(["NULL", "TRUE", "FALSE", "CURRENT_DATE", "CURRENT_TIME"]);
 
@@ -38861,7 +38861,7 @@ SELECT * FROM hours;`,
   it: {
     title: "Ripasso: cambiare i dati",
     theory: [
-`<p>Un ripasso di questa cartella, con le precedenti: <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code> (con il loro <code>WHERE</code>!), le transazioni, <code>CREATE TABLE</code>, i tipi e le regole, <code>IF NOT EXISTS</code> e <code>ALTER TABLE</code>.</p>`],
+`<p>Un ripasso di questa cartella, con le precedenti: <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code> (con il loro <code>WHERE</code>!), le transazioni, <code>CREATE TABLE</code>, i tipi e le regole con <code>CHECK</code>, <code>IF NOT EXISTS</code>, <code>ALTER TABLE</code> e gli indici.</p>`],
     task: `Rispondi alle domande: qualcuna chiede di toccare la riga che non va.`,
     quiz: [
       { spot: true, code: `INSERT INTO giocatori (nome, citta, monete)
@@ -38879,12 +38879,15 @@ SELECT COUNT(*) AS tetris FROM partite WHERE gioco = 9;`, table: true, q: "Che c
         explain: "Le partite di Tetris sono state cancellate tutte: il conteggio è 0, e COUNT dà sempre una riga." },
       { code: `BEGIN;\nDELETE FROM partite;\nROLLBACK;\nSELECT COUNT(*) AS partite FROM partite;`, table: true, q: "Che cosa esce?",
         options: ["partite\n60", "partite\n0", "nessuna riga", "un errore, perché la tabella è vuota"], correct: 0,
-        explain: "ROLLBACK annulla tutto quello che è successo dopo BEGIN: la cancellazione non conta, e le partite sono ancora 60." }]
+        explain: "ROLLBACK annulla tutto quello che è successo dopo BEGIN: la cancellazione non conta, e le partite sono ancora 60." },
+      { q: "A che cosa serve un indice, fatto con CREATE INDEX?",
+        options: ["a trovare in fretta le righe con un certo valore", "a tenere la tabella sempre in ordine", "a vietare le caselle vuote", "a fare una copia di sicurezza della tabella"], correct: 0,
+        explain: "Un indice è come quello di un libro: SQLite va dritto alle righe giuste invece di guardarle tutte. Il prezzo è che INSERT e UPDATE devono tenerlo aggiornato." }]
   },
   en: {
     title: "Review: changing data",
     theory: [
-`<p>A review of this folder, with the earlier ones: <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> (with their <code>WHERE</code>!), transactions, <code>CREATE TABLE</code>, types and rules, <code>IF NOT EXISTS</code> and <code>ALTER TABLE</code>.</p>`],
+`<p>A review of this folder, with the earlier ones: <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> (with their <code>WHERE</code>!), transactions, <code>CREATE TABLE</code>, types and rules with <code>CHECK</code>, <code>IF NOT EXISTS</code>, <code>ALTER TABLE</code> and indexes.</p>`],
     task: `Answer the questions: some ask you to tap the line that's wrong.`,
     quiz: [
       { spot: true, code: `INSERT INTO players (name, city, coins)
@@ -38902,7 +38905,10 @@ SELECT COUNT(*) AS tetris FROM matches WHERE game = 9;`, table: true, q: "What c
         explain: "The Tetris matches were all deleted: the count is 0, and COUNT always gives a row." },
       { code: `BEGIN;\nDELETE FROM matches;\nROLLBACK;\nSELECT COUNT(*) AS matches FROM matches;`, table: true, q: "What comes out?",
         options: ["matches\n60", "matches\n0", "no rows", "an error, because the table is empty"], correct: 0,
-        explain: "ROLLBACK undoes everything that happened after BEGIN: the deletion doesn't count, and there are still 60 matches." }]
+        explain: "ROLLBACK undoes everything that happened after BEGIN: the deletion doesn't count, and there are still 60 matches." },
+      { q: "What is an index, made with CREATE INDEX, for?",
+        options: ["finding fast the rows with a certain value", "keeping the table always in order", "forbidding empty cells", "making a backup copy of the table"], correct: 0,
+        explain: "An index is like a book's one: SQLite goes straight to the right rows instead of looking at them all. The price is that INSERT and UPDATE have to keep it up to date." }]
   }
 },
 {
@@ -39074,6 +39080,85 @@ DROP TABLE IF EXISTS old_prizes;
 SELECT name, tickets FROM players WHERE city = 'Rome';`,
     hints: ["Three things before the last question: one more column in a table that's there, a table to create only if it's missing, one to drop only if it's there. With which words?",
       "ALTER TABLE players ADD COLUMN with the type and DEFAULT 0; CREATE TABLE IF NOT EXISTS prizes with the three columns and their rules; DROP TABLE IF EXISTS and the name; then the SELECT of the players from Rome."]
+  }
+},
+{
+  id: "s_rules", db: "sala", teaches: ["CHECK", "PRAGMA"], cmp: { names: true, state: ["ricariche"], schema: true }, same: true,
+  must: [{ re: /\bCHECK\s*\(/i, it: "Le monete hanno una regola: serve CHECK con la condizione tra parentesi.", en: "The coins have a rule: you need CHECK with the condition in brackets." },
+    { re: /PRAGMA\s+foreign_keys\s*=\s*ON/i, it: "Il controllo delle chiavi esterne si accende con PRAGMA foreign_keys = ON.", en: "The foreign key check is switched on with PRAGMA foreign_keys = ON." }],
+  it: {
+    title: "Regole controllate: CHECK e le chiavi esterne",
+    theory: [
+`<p>Le regole viste finora dicono se una casella c'è e se è unica. <code>CHECK</code> e una condizione tra parentesi dicono com'è fatto il valore: <code>monete INTEGER CHECK (monete >= 0)</code> non accetta monete negative. Una riga che rompe la regola non entra, e SQLite si ferma con <code>CHECK constraint failed</code>.</p>`,
+{ code: `CREATE TABLE salvadanai (id INTEGER PRIMARY KEY, monete INTEGER CHECK (monete >= 0));
+INSERT INTO salvadanai (monete) VALUES (10);
+INSERT INTO salvadanai (monete) VALUES (-5);`, error: true },
+`<p>Poi c'è la stranezza di <code>REFERENCES</code>: SQLite la controlla solo dopo <code>PRAGMA foreign_keys = ON;</code>. Un <code>PRAGMA</code> è un'istruzione che cambia il modo di lavorare di SQLite. Da lì in poi, un numero che rimanda a una riga che non c'è si ferma con <code>FOREIGN KEY constraint failed</code>.</p>`,
+{ code: `PRAGMA foreign_keys = ON;  -- da qui SQLite controlla REFERENCES
+INSERT INTO partite (giocatore, gioco, punti, giorno) VALUES (99, 4, 100, '2026-04-01');`, error: true },
+`<p>Le regole servono anche perché SQLite è elastico con i tipi: in una colonna <code>INTEGER</code> accetta anche un testo come <code>'tante'</code>, e lo tiene così. Sono le regole a tenere fuori quello che non va.</p>`],
+    task: `Crea la tabella <code>ricariche</code>: <code>id</code> la chiave; <code>giocatore</code>, un intero che rimanda ai giocatori; <code>monete</code>, un intero obbligatorio che deve stare tra 1 e 500. Prima accendi il controllo delle chiavi esterne. Poi registra una ricarica di 50 monete per il giocatore 3 e una di 200 per il giocatore 8, e mostra tutta la tabella.`,
+    starter: ``,
+    solution: `PRAGMA foreign_keys = ON;
+CREATE TABLE ricariche (id INTEGER PRIMARY KEY, giocatore INTEGER REFERENCES giocatori(id), monete INTEGER NOT NULL CHECK (monete BETWEEN 1 AND 500));
+INSERT INTO ricariche (giocatore, monete) VALUES (3, 50), (8, 200);
+SELECT * FROM ricariche;`,
+    hints: ["Quattro istruzioni: quale va per prima? E nella colonna delle monete, quali regole servono, una per l'obbligo e una per i limiti?",
+      "Prima il PRAGMA che accende le chiavi esterne; poi CREATE TABLE con giocatore INTEGER REFERENCES giocatori(id) e monete INTEGER NOT NULL CHECK con BETWEEN 1 AND 500; un INSERT con due gruppi di valori; la SELECT."]
+  },
+  en: {
+    title: "Checked rules: CHECK and foreign keys",
+    theory: [
+`<p>The rules seen so far say whether a cell is there and whether it's unique. <code>CHECK</code> and a condition in brackets say what the value is like: <code>coins INTEGER CHECK (coins >= 0)</code> doesn't accept negative coins. A row that breaks the rule doesn't get in, and SQLite stops with <code>CHECK constraint failed</code>.</p>`,
+{ code: `CREATE TABLE piggy_banks (id INTEGER PRIMARY KEY, coins INTEGER CHECK (coins >= 0));
+INSERT INTO piggy_banks (coins) VALUES (10);
+INSERT INTO piggy_banks (coins) VALUES (-5);`, error: true },
+`<p>Then there's the oddity of <code>REFERENCES</code>: SQLite checks it only after <code>PRAGMA foreign_keys = ON;</code>. A <code>PRAGMA</code> is a statement that changes the way SQLite works. From then on, a number pointing to a row that isn't there stops with <code>FOREIGN KEY constraint failed</code>.</p>`,
+{ code: `PRAGMA foreign_keys = ON;  -- from here SQLite checks REFERENCES
+INSERT INTO matches (player, game, score, day) VALUES (99, 4, 100, '2026-04-01');`, error: true },
+`<p>Rules are also needed because SQLite is flexible with types: in an <code>INTEGER</code> column it accepts a text like <code>'lots'</code> too, and keeps it like that. It's the rules that keep out what doesn't belong.</p>`],
+    task: `Create the table <code>top_ups</code>: <code>id</code> the key; <code>player</code>, an integer pointing to the players; <code>coins</code>, a required integer that must be between 1 and 500. First switch on the foreign key check. Then record a top-up of 50 coins for player 3 and one of 200 for player 8, and show the whole table.`,
+    starter: ``,
+    solution: `PRAGMA foreign_keys = ON;
+CREATE TABLE top_ups (id INTEGER PRIMARY KEY, player INTEGER REFERENCES players(id), coins INTEGER NOT NULL CHECK (coins BETWEEN 1 AND 500));
+INSERT INTO top_ups (player, coins) VALUES (3, 50), (8, 200);
+SELECT * FROM top_ups;`,
+    hints: ["Four statements: which one goes first? And in the coins column, which rules do you need, one for being required and one for the limits?",
+      "First the PRAGMA that switches foreign keys on; then CREATE TABLE with player INTEGER REFERENCES players(id) and coins INTEGER NOT NULL CHECK with BETWEEN 1 AND 500; an INSERT with two groups of values; the SELECT."]
+  }
+},
+{
+  id: "s_index", db: "sala", teaches: ["INDEX", "EXPLAIN", "QUERY", "PLAN"], cmp: { names: true }, same: true,
+  must: [{ re: /CREATE\s+INDEX\s+idx_(partite|matches)_(gioco|game)\s+ON/i, it: "La consegna chiede l'indice idx_partite_gioco, con CREATE INDEX … ON.", en: "The task asks for the index idx_matches_game, with CREATE INDEX … ON." }],
+  it: {
+    title: "Trovare in fretta: gli indici",
+    theory: [
+`<p>Per trovare le partite di un giocatore, SQLite le guarda tutte, una per una: con 60 righe non si nota, con un milione sì. Un <b>indice</b> è come l'indice di un libro: una lista ordinata dei valori di una colonna, ognuno con il posto della sua riga. Si crea con <code>CREATE INDEX</code>, un nome, <code>ON</code>, la tabella e la colonna tra parentesi.</p>`,
+{ code: `EXPLAIN QUERY PLAN SELECT * FROM partite WHERE giocatore = 3;
+CREATE INDEX idx_partite_giocatore ON partite (giocatore);
+EXPLAIN QUERY PLAN SELECT * FROM partite WHERE giocatore = 3;` },
+`<p><code>EXPLAIN QUERY PLAN</code> davanti a una domanda non la esegue: dice come la farebbe. Prima dell'indice dice <code>SCAN partite</code>, cioè le guarda tutte; dopo, <code>SEARCH partite USING INDEX</code>, cioè va dritto alle righe giuste. Un indice rende più veloci le domande, ma un po' più lenti <code>INSERT</code> e <code>UPDATE</code>, che devono tenerlo in ordine: si mette sulle colonne che si cercano spesso. E <code>CREATE UNIQUE INDEX</code> vieta anche i doppioni, come <code>UNIQUE</code>.</p>`],
+    task: `Le partite si cercano spesso per gioco. Crea l'indice <code>idx_partite_gioco</code> sulla colonna <code>gioco</code> delle partite, poi mostra con <code>EXPLAIN QUERY PLAN</code> come SQLite farebbe <code>SELECT * FROM partite WHERE gioco = 9</code>.`,
+    starter: ``,
+    solution: `CREATE INDEX idx_partite_gioco ON partite (gioco);
+EXPLAIN QUERY PLAN SELECT * FROM partite WHERE gioco = 9;`,
+    hints: ["Due istruzioni: prima l'indice, con il suo nome, la tabella e la colonna; poi la domanda, con le tre parole che chiedono il piano davanti.",
+      "CREATE INDEX idx_partite_gioco ON partite e la colonna gioco tra parentesi; poi EXPLAIN QUERY PLAN seguito dalla SELECT della consegna."]
+  },
+  en: {
+    title: "Finding fast: indexes",
+    theory: [
+`<p>To find a player's matches, SQLite looks at all of them, one by one: with 60 rows you don't notice, with a million you do. An <b>index</b> is like a book's index: a sorted list of a column's values, each with the place of its row. It's created with <code>CREATE INDEX</code>, a name, <code>ON</code>, the table and the column in brackets.</p>`,
+{ code: `EXPLAIN QUERY PLAN SELECT * FROM matches WHERE player = 3;
+CREATE INDEX idx_matches_player ON matches (player);
+EXPLAIN QUERY PLAN SELECT * FROM matches WHERE player = 3;` },
+`<p><code>EXPLAIN QUERY PLAN</code> in front of a question doesn't run it: it says how it would do it. Before the index it says <code>SCAN matches</code>, that is it looks at all of them; after, <code>SEARCH matches USING INDEX</code>, that is it goes straight to the right rows. An index makes questions faster, but <code>INSERT</code> and <code>UPDATE</code> a bit slower, since they have to keep it in order: you put it on the columns that are searched often. And <code>CREATE UNIQUE INDEX</code> also forbids duplicates, like <code>UNIQUE</code>.</p>`],
+    task: `Matches are often searched by game. Create the index <code>idx_matches_game</code> on the <code>game</code> column of the matches, then show with <code>EXPLAIN QUERY PLAN</code> how SQLite would do <code>SELECT * FROM matches WHERE game = 9</code>.`,
+    starter: ``,
+    solution: `CREATE INDEX idx_matches_game ON matches (game);
+EXPLAIN QUERY PLAN SELECT * FROM matches WHERE game = 9;`,
+    hints: ["Two statements: first the index, with its name, the table and the column; then the question, with the three words that ask for the plan in front.",
+      "CREATE INDEX idx_matches_game ON matches and the game column in brackets; then EXPLAIN QUERY PLAN followed by the task's SELECT."]
   }
 }
 ];
@@ -39388,6 +39473,114 @@ WHERE came_in <= '22:41' AND went_out >= '22:41'
 AND player NOT IN (SELECT player FROM evening WHERE time BETWEEN '22:30' AND '22:45');`,
     hints: ["There are three conditions: two on the entry, as in the second case, and one on a list. Which list, and from which question does it come?",
       "From the entries, WHERE came_in and went_out around 22:41, AND the player NOT IN a SELECT of the evening's players with the time BETWEEN '22:30' AND '22:45'."]
+  }
+},
+{
+  id: "s_exists", db: "sala", teaches: ["EXISTS"], cmp: { names: true },
+  must: [{ re: /\bEXISTS\s*\(/i, it: "La consegna chiede NOT EXISTS con una sottoquery.", en: "The task asks for NOT EXISTS with a subquery." }],
+  it: {
+    title: "Ce n'è almeno una?: EXISTS",
+    theory: [
+`<p><code>EXISTS</code> e una sottoquery tra parentesi è vero se la sottoquery dà almeno una riga, e non importa quali colonne: per questo spesso si scrive <code>SELECT 1</code>. La sottoquery può guardare la riga della domanda di fuori, con il suo nome corto: così, per ogni riga di fuori, fa una ricerca diversa.</p>`,
+{ code: `SELECT nome FROM giocatori g
+WHERE EXISTS (SELECT 1 FROM partite p WHERE p.giocatore = g.id AND p.punti > 30000);` },
+`<p>Qui, per ogni giocatore, la sottoquery cerca le sue partite sopra i 30000 punti: escono i giocatori che ne hanno almeno una. <code>NOT EXISTS</code> trova invece chi non ne ha nessuna.</p>`],
+    task: `Quali giochi non sono mai stati giocati da nessun giocatore di Roma? Mostra il titolo, in ordine alfabetico.`,
+    starter: ``,
+    solution: `SELECT titolo FROM giochi gi
+WHERE NOT EXISTS (SELECT 1 FROM partite p JOIN giocatori g ON g.id = p.giocatore WHERE p.gioco = gi.id AND g.citta = 'Roma')
+ORDER BY titolo;`,
+    hints: ["Per ogni gioco: c'è almeno una partita di quel gioco fatta da un giocatore di Roma? Quale parola dice «non ce n'è nessuna»?",
+      "Dai giochi, WHERE NOT EXISTS e tra parentesi una SELECT 1 dalle partite unite ai giocatori, con la partita di quel gioco (gi.id) e la città Roma; poi ORDER BY titolo."]
+  },
+  en: {
+    title: "Is there at least one?: EXISTS",
+    theory: [
+`<p><code>EXISTS</code> and a subquery in brackets is true if the subquery gives at least one row, and which columns doesn't matter: that's why <code>SELECT 1</code> is often written. The subquery can look at the outer question's row, with its short name: so, for every outer row, it does a different search.</p>`,
+{ code: `SELECT name FROM players p
+WHERE EXISTS (SELECT 1 FROM matches m WHERE m.player = p.id AND m.score > 30000);` },
+`<p>Here, for every player, the subquery looks for their matches above 30000 points: the players who have at least one come out. <code>NOT EXISTS</code> instead finds whoever has none.</p>`],
+    task: `Which games have never been played by any player from Rome? Show the title, in alphabetical order.`,
+    starter: ``,
+    solution: `SELECT title FROM games g
+WHERE NOT EXISTS (SELECT 1 FROM matches m JOIN players p ON p.id = m.player WHERE m.game = g.id AND p.city = 'Rome')
+ORDER BY title;`,
+    hints: ["For every game: is there at least one match of that game played by a player from Rome? Which word says \"there's none\"?",
+      "From the games, WHERE NOT EXISTS and in brackets a SELECT 1 from the matches joined to the players, with the match of that game (g.id) and the city Rome; then ORDER BY title."]
+  }
+},
+{
+  id: "s_union", db: "sala", teaches: ["UNION", "ALL"], cmp: { names: true },
+  must: [{ re: /\bUNION\b/i, it: "La consegna chiede di unire le due liste con UNION.", en: "The task asks to join the two lists with UNION." }],
+  it: {
+    title: "Due liste in una: UNION",
+    theory: [
+`<p><code>UNION</code> mette uno sotto l'altro i risultati di due <code>SELECT</code>, che devono avere lo stesso numero di colonne: i nomi delle colonne sono quelli della prima. I doppioni spariscono, come con <code>DISTINCT</code>; con <code>UNION ALL</code> restano tutti. Un <code>ORDER BY</code> alla fine ordina la lista intera.</p>`,
+{ code: `SELECT nome FROM giocatori WHERE citta = 'Roma'
+UNION
+SELECT nome FROM giocatori WHERE monete > 200
+ORDER BY nome;` },
+`<p>Qui escono i giocatori di Roma e quelli con più di 200 monete, in una lista sola, e chi è tutte e due le cose esce una volta.</p>`],
+    task: `Gli inviti alla festa della sala vanno a chi ha più di 150 monete e a chi ha giocato almeno una volta a Tetris (il gioco 9). Mostra una lista sola di nomi, senza doppioni, in ordine alfabetico.`,
+    starter: ``,
+    solution: `SELECT nome FROM giocatori WHERE monete > 150
+UNION
+SELECT g.nome FROM partite p JOIN giocatori g ON g.id = p.giocatore WHERE p.gioco = 9
+ORDER BY nome;`,
+    hints: ["Le liste sono due, da tabelle diverse: quali? E quale parola le unisce togliendo i doppioni?",
+      "Una SELECT dei nomi dei giocatori con più di 150 monete, UNION, una SELECT dei nomi dalle partite di Tetris unite ai giocatori; alla fine ORDER BY nome."]
+  },
+  en: {
+    title: "Two lists in one: UNION",
+    theory: [
+`<p><code>UNION</code> puts the results of two <code>SELECT</code>s one under the other; they must have the same number of columns, and the column names are the first one's. Duplicates vanish, as with <code>DISTINCT</code>; with <code>UNION ALL</code> they all stay. An <code>ORDER BY</code> at the end sorts the whole list.</p>`,
+{ code: `SELECT name FROM players WHERE city = 'Rome'
+UNION
+SELECT name FROM players WHERE coins > 200
+ORDER BY name;` },
+`<p>Here the players from Rome and those with more than 200 coins come out, in a single list, and whoever is both comes out once.</p>`],
+    task: `The invitations to the arcade's party go to whoever has more than 150 coins and to whoever played Tetris (game 9) at least once. Show a single list of names, without duplicates, in alphabetical order.`,
+    starter: ``,
+    solution: `SELECT name FROM players WHERE coins > 150
+UNION
+SELECT p.name FROM matches m JOIN players p ON p.id = m.player WHERE m.game = 9
+ORDER BY name;`,
+    hints: ["There are two lists, from different tables: which? And which word joins them taking away duplicates?",
+      "A SELECT of the names of the players with more than 150 coins, UNION, a SELECT of the names from the Tetris matches joined to the players; at the end ORDER BY name."]
+  }
+},
+{
+  id: "s_with", db: "sala", teaches: ["WITH"], cmp: { names: true },
+  must: [{ re: /^\s*WITH\b/im, it: "La consegna chiede di preparare le medie con WITH, prima della domanda.", en: "The task asks to prepare the averages with WITH, before the question." }],
+  it: {
+    title: "Un nome provvisorio: WITH",
+    theory: [
+`<p>Una sottoquery lunga, dentro un'altra domanda, si legge male. Con <code>WITH</code> le si dà un nome <b>prima</b> della domanda: <code>WITH</code>, il nome, <code>AS</code> e la sottoquery tra parentesi; poi la domanda la usa come una tabella. È come una vista, ma vale solo per quella domanda e non resta nel database.</p>`,
+{ code: `WITH ricchi AS (SELECT * FROM giocatori WHERE monete > 150)
+SELECT citta, COUNT(*) AS quanti FROM ricchi GROUP BY citta;` }],
+    task: `Quali giocatori hanno più monete della media della loro città? Con <code>WITH</code> prepara <code>medie</code>, la media delle monete di ogni città (<code>citta</code> e <code>media</code>); poi unisci i giocatori a <code>medie</code> sulla città e mostra nome, città e monete di chi sta sopra la media, in ordine di nome.`,
+    starter: ``,
+    solution: `WITH medie AS (SELECT citta, AVG(monete) AS media FROM giocatori GROUP BY citta)
+SELECT g.nome, g.citta, g.monete FROM giocatori g JOIN medie m ON m.citta = g.citta
+WHERE g.monete > m.media
+ORDER BY g.nome;`,
+    hints: ["Prima la tabella provvisoria: che cosa contiene, e con quale GROUP BY? Poi, quali due cose unisci, su quale colonna, e quale condizione tieni?",
+      "WITH medie AS e tra parentesi la SELECT di citta e AVG(monete) AS media con GROUP BY citta; poi i giocatori JOIN medie ON la città, WHERE le monete maggiori della media, ORDER BY il nome."]
+  },
+  en: {
+    title: "A name for a while: WITH",
+    theory: [
+`<p>A long subquery, inside another question, is hard to read. With <code>WITH</code> you give it a name <b>before</b> the question: <code>WITH</code>, the name, <code>AS</code> and the subquery in brackets; then the question uses it like a table. It's like a view, but it holds only for that question and doesn't stay in the database.</p>`,
+{ code: `WITH rich AS (SELECT * FROM players WHERE coins > 150)
+SELECT city, COUNT(*) AS how_many FROM rich GROUP BY city;` }],
+    task: `Which players have more coins than the average of their city? With <code>WITH</code> prepare <code>averages</code>, the average coins of each city (<code>city</code> and <code>average</code>); then join the players to <code>averages</code> on the city and show name, city and coins of whoever is above the average, in order of name.`,
+    starter: ``,
+    solution: `WITH averages AS (SELECT city, AVG(coins) AS average FROM players GROUP BY city)
+SELECT p.name, p.city, p.coins FROM players p JOIN averages a ON a.city = p.city
+WHERE p.coins > a.average
+ORDER BY p.name;`,
+    hints: ["First the temporary table: what does it hold, and with which GROUP BY? Then, which two things do you join, on which column, and which condition do you keep?",
+      "WITH averages AS and in brackets the SELECT of city and AVG(coins) AS average with GROUP BY city; then the players JOIN averages ON the city, WHERE the coins greater than the average, ORDER BY the name."]
   }
 }
 ];
@@ -40050,10 +40243,10 @@ const SQL_FOLDERS = [
     it: { name: "Contare", tag: "COUNT, SUM, AVG, GROUP BY, HAVING e le date" }, en: { name: "Counting", tag: "COUNT, SUM, AVG, GROUP BY, HAVING and dates" } },
   { id: "s4", dir: { it: "04_unire", en: "04_joins" }, mascot: "pip", levels: ["s_keys", "s_join", "s_prev4", "s_left", "s_joingroup", "s_rip4", "s_build4", "s_boss4"],
     it: { name: "Più tabelle", tag: "Le chiavi, JOIN e LEFT JOIN" }, en: { name: "Several tables", tag: "Keys, JOIN and LEFT JOIN" } },
-  { id: "s5", dir: { it: "05_modificare", en: "05_changing" }, mascot: "floppy", levels: ["s_insert", "s_update", "s_delete", "s_prev5", "s_trans", "s_create", "s_alter", "s_rip5", "s_build5", "s_boss5"],
+  { id: "s5", dir: { it: "05_modificare", en: "05_changing" }, mascot: "floppy", levels: ["s_insert", "s_update", "s_delete", "s_prev5", "s_trans", "s_create", "s_rules", "s_alter", "s_index", "s_rip5", "s_build5", "s_boss5"],
     it: { name: "Cambiare i dati", tag: "INSERT, UPDATE, DELETE, transazioni e tabelle" }, en: { name: "Changing data", tag: "INSERT, UPDATE, DELETE, transactions and tables" } },
-  { id: "s6", dir: { it: "06_sottoquery", en: "06_subqueries" }, mascot: "nocciola", levels: ["s_sub", "s_subin", "s_case", "s_prev6", "s_view", "s_rank", "s_rip6", "s_build6", "s_boss6"],
-    it: { name: "Domande dentro domande", tag: "Sottoquery, CASE, viste e posizioni" }, en: { name: "Questions inside questions", tag: "Subqueries, CASE, views and rankings" } },
+  { id: "s6", dir: { it: "06_sottoquery", en: "06_subqueries" }, mascot: "nocciola", levels: ["s_sub", "s_subin", "s_exists", "s_case", "s_prev6", "s_union", "s_with", "s_view", "s_rank", "s_rip6", "s_build6", "s_boss6"],
+    it: { name: "Domande dentro domande", tag: "Sottoquery, EXISTS, UNION, WITH, viste e posizioni" }, en: { name: "Questions inside questions", tag: "Subqueries, EXISTS, UNION, WITH, views and rankings" } },
   { id: "s7", dir: { it: "07_python", en: "07_python" }, mascot: "pip", levels: ["s_py", "s_pyloop", "s_pyparams", "s_pysave", "s_pymany", "s_pyerror", "s_prev7", "s_build7"],
     it: { name: "SQL e Python", tag: "sqlite3: il programma che ricorda" }, en: { name: "SQL and Python", tag: "sqlite3: the program that remembers" } }
 ];
@@ -40078,9 +40271,9 @@ Object.assign(FILE_BASE, {
   s_build4: ["costruisci_record.sql", "build_records.sql"], s_boss4: ["boss_tessera.sql", "boss_card.sql"],
   s_insert: ["insert.sql", "insert.sql"], s_update: ["update.sql", "update.sql"], s_delete: ["delete.sql", "delete.sql"],
   s_prev5: ["prevedi_modifiche.sql", "predict_changes.sql"], s_trans: ["transazioni.sql", "transactions.sql"], s_create: ["create_table.sql", "create_table.sql"],
-  s_alter: ["alter_table.sql", "alter_table.sql"], s_rip5: ["ripasso.sql", "review.sql"],
+  s_alter: ["alter_table.sql", "alter_table.sql"], s_rules: ["regole_check.sql", "check_rules.sql"], s_index: ["indici.sql", "indexes.sql"], s_rip5: ["ripasso.sql", "review.sql"],
   s_build5: ["costruisci_tornei.sql", "build_tournaments.sql"], s_boss5: ["boss_copia.sql", "boss_backup.sql"],
-  s_sub: ["sottoquery.sql", "subqueries.sql"], s_subin: ["in_select.sql", "in_select.sql"], s_case: ["case.sql", "case.sql"],
+  s_sub: ["sottoquery.sql", "subqueries.sql"], s_subin: ["in_select.sql", "in_select.sql"], s_exists: ["exists.sql", "exists.sql"], s_union: ["union.sql", "union.sql"], s_with: ["with.sql", "with.sql"], s_case: ["case.sql", "case.sql"],
   s_prev6: ["prevedi_sottoquery.sql", "predict_subqueries.sql"], s_view: ["viste.sql", "views.sql"], s_rank: ["posizioni.sql", "rankings.sql"],
   s_rip6: ["grande_ripasso.sql", "big_review.sql"], s_build6: ["costruisci_posizioni.sql", "build_rankings.sql"], s_boss6: ["boss_alibi.sql", "boss_alibi.sql"],
   s_py: ["sqlite3.py", "sqlite3.py"], s_pyloop: ["righe.py", "rows.py"], s_pyparams: ["parametri.py", "parameters.py"],
@@ -41522,6 +41715,7 @@ Object.assign(UI.it, {
     if (v === "COMMIT" || v === "END") return "✓ transazione salvata";
     if (v === "ROLLBACK") return "✓ transazione annullata: tutto torna com'era al BEGIN";
     if (v === "OPEN") return "⚠ Il file è finito con una transazione aperta, senza COMMIT: SQLite l'ha annullata.";
+    if (v === "PRAGMA") return "✓ PRAGMA: un'impostazione di SQLite è cambiata";
     return `✓ ${v}`;
   },
   sqlErr: "Errore SQL", sqlErrLine: (n) => `riga ${n}:`,
@@ -41579,6 +41773,7 @@ Object.assign(UI.en, {
     if (v === "COMMIT" || v === "END") return "✓ transaction saved";
     if (v === "ROLLBACK") return "✓ transaction undone: everything is back as it was at BEGIN";
     if (v === "OPEN") return "⚠ The file ended with a transaction still open, without COMMIT: SQLite undid it.";
+    if (v === "PRAGMA") return "✓ PRAGMA: a setting of SQLite changed";
     return `✓ ${v}`;
   },
   sqlErr: "SQL error", sqlErrLine: (n) => `line ${n}:`,
@@ -45811,7 +46006,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "7328fe4334", APP_BUILT = "2026-11-12T01:53Z";
+const APP_VERSION = "52f1c13729", APP_BUILT = "2026-11-12T01:58Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
