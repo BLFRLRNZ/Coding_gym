@@ -40444,15 +40444,13 @@ function useWorld(id) {
 useWorld("python");
 const worldOf = (id) => (SQL_LEVELS.some((l) => l.id === id) ? "sql" : "python");
 /* A world opens when its "opens" level has stars (SQL: Python's part 7), or when it already has stars of its own */
-/* Worlds opened by the hidden access (?mondo=sql in the address), to try them before they open: the app fills it.
-   UNLOCK comes from the Lab's special commands (sblocca mondi, sblocca livelli), kept in the account: every world
+/* UNLOCK comes from the Lab's special commands (sblocca mondi, sblocca livelli), kept in the account: every world
    that's ready opens, every level can be opened, and the stars stay the real ones */
-const WORLDS_OPENED = new Set();
 const UNLOCK = { worlds: false, levels: false };
 function worldOpen(id, stars) {
   const L = LANGS.find((x) => x.id === id);
   if (!L || !L.ready) return false;
-  if (!L.opens || stars[L.opens] || WORLDS_OPENED.has(id) || UNLOCK.worlds) return true;
+  if (!L.opens || stars[L.opens] || UNLOCK.worlds) return true;
   return (COURSE[id] ? levelsOfWorld(COURSE[id]) : []).some((l) => stars[l.id]);
 }
 /* The project being built decides what's in the build levels: that project's lessons go in the slots (same ids, so
@@ -41425,16 +41423,6 @@ const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", 
   fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [], places: {}, dbfiles: {}, dbAt: 0,
   unlock: { worlds: false, levels: false } });
 let S = DEFAULTS();
-/* The hidden access, for trying a world before it opens: ?mondo=sql (or ?world=sql) in the address opens it as long as
-   the page has it, and each account starts there once (its map), then goes where it likes */
-const HIDDEN_WORLD = (() => {
-  try {
-    const p = new URLSearchParams(location.search), w = String(p.get("mondo") || p.get("world") || "").toLowerCase();
-    return LANGS.some((L) => L.id === w && L.ready && L.opens) ? w : null;
-  } catch (e) { return null; }
-})();
-if (HIDDEN_WORLD) WORLDS_OPENED.add(HIDDEN_WORLD);
-const hiddenDone = new Set();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
   if (!["lessons", "free"].includes(S.mode)) S.mode = "lessons";
@@ -41448,15 +41436,6 @@ function sanitize() {
   UNLOCK.worlds = S.unlock.worlds; UNLOCK.levels = S.unlock.levels;
   /* the world being played: one that's ready and open (SQL opens after Python's part 7) */
   if (!worldOpen(S.world, S.stars)) S.world = "python";
-  if (HIDDEN_WORLD && !hiddenDone.has(ACC.current || "")) {
-    hiddenDone.add(ACC.current || "");
-    if (S.world !== HIDDEN_WORLD) {
-      if (typeof S.curId === "string") S.places[S.world] = S.curId;
-      S.world = HIDDEN_WORLD;
-      S.curId = typeof S.places[HIDDEN_WORLD] === "string" ? S.places[HIDDEN_WORLD] : null;
-    }
-    if (S.view !== "lessons") S.view = "map";
-  }
   useWorld(S.world);
   for (const k in S.places) if (typeof S.places[k] !== "string") delete S.places[k];
   for (const k in S.dbfiles) if (!/^[\w\-. ]{1,60}\.db$/.test(k) || typeof S.dbfiles[k] !== "string") delete S.dbfiles[k];
@@ -43361,7 +43340,7 @@ function labCommand(src) {
   if (!m || running) return false;
   const on = /^(sblocca|unlock)$/i.test(m[1]), what = m[2].toLowerCase();
   const worlds = !/^(livelli|levels)$/.test(what), levels = !/^(mondi|worlds)$/.test(what);
-  if (worlds) { S.unlock.worlds = on; if (!on) WORLDS_OPENED.clear(); }
+  if (worlds) S.unlock.worlds = on;
   if (levels) S.unlock.levels = on;
   UNLOCK.worlds = S.unlock.worlds; UNLOCK.levels = S.unlock.levels;
   /* back to the normal path: a world or a level that's closed again is left for the one reached */
@@ -44376,7 +44355,7 @@ const projEl = $("projects");
 const PJ = { sel: null, look: null, msg: "", first: false, step: "pick", then: null, raf: 0, cvs: [], io: null, last: 0 };
 /* a learner without a project, entering the world (then: where to go once it's chosen), or already inside it */
 function maybeAskProject(then) {
-  /* the project is chosen for the Python world: in another one (open through the hidden access) it waits */
+  /* the project is chosen for the Python world: in another one (opened by the Lab's commands) it waits */
   if (S.project || !projEl.hidden || S.world !== "python") return false;
   if (!then && S.view !== "map" && S.view !== "lessons") return false;
   openProjects(true, then);
@@ -45426,7 +45405,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "a5f213676d", APP_BUILT = "2026-11-11T23:48Z";
+const APP_VERSION = "8fd122d098", APP_BUILT = "2026-11-12T00:10Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
