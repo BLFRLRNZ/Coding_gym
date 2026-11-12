@@ -37225,7 +37225,7 @@ const SQL_C00 = [
   it: {
     title: "Cos'è un database",
     theory: [
-`<p>In Python l'hai visto: quando il programma finisce, le variabili spariscono e il record torna a zero. Per <b>ricordare</b> serve un posto che resti anche dopo: un <b>database</b>. È un archivio fatto di <b>tabelle</b>. Ogni tabella ha delle <b>colonne</b>, cioè cosa si ricorda (il nome, la città, i punti), e delle <b>righe</b>, una per ogni cosa ricordata (un giocatore, una partita).</p>
+`<p>In Python l'hai visto: quando il programma finisce, le variabili spariscono, e i tuoi punti con loro. Per <b>ricordare</b> serve un posto che resti anche dopo: un <b>database</b>. È un archivio fatto di <b>tabelle</b>. Ogni tabella ha delle <b>colonne</b>, cioè cosa si ricorda (il nome, la città, i punti), e delle <b>righe</b>, una per ogni cosa ricordata (un giocatore, una partita).</p>
 <p>Le lezioni di questo mondo usano il database della sala giochi di Arcode, <code>sala_giochi.db</code>. Lo trovi qui sotto, nel riquadro <b>Database</b>, con le sue tre tabelle: tocca una tabella per vederne le colonne e le righe.</p>
 <p>Con un database si parla in <b>SQL</b>. Non si scrivono i passi da fare, come in Python: si descrive <b>quello che si vuole</b>, e il database lo trova. La prima domanda è <code>SELECT</code>, «mostrami»: dopo <code>SELECT</code> si dice cosa mostrare (l'asterisco <code>*</code> vuol dire tutte le colonne), dopo <code>FROM</code> da quale tabella. Il punto e virgola <code>;</code> chiude la domanda.</p>`,
 { code: `SELECT * FROM giocatori;` },
@@ -37239,7 +37239,7 @@ const SQL_C00 = [
   en: {
     title: "What a database is",
     theory: [
-`<p>You saw it in Python: when the program ends, the variables vanish and the high score goes back to zero. To <b>remember</b> you need a place that stays afterwards: a <b>database</b>. It's an archive made of <b>tables</b>. Every table has <b>columns</b>, that is what is remembered (the name, the city, the score), and <b>rows</b>, one for each thing remembered (a player, a match).</p>
+`<p>You saw it in Python: when the program ends, the variables vanish, and your points with them. To <b>remember</b> you need a place that stays afterwards: a <b>database</b>. It's an archive made of <b>tables</b>. Every table has <b>columns</b>, that is what is remembered (the name, the city, the score), and <b>rows</b>, one for each thing remembered (a player, a match).</p>
 <p>The lessons of this world use the database of Arcode's arcade, <code>arcade.db</code>. You'll find it below, in the <b>Database</b> box, with its three tables: tap a table to see its columns and rows.</p>
 <p>You talk to a database in <b>SQL</b>. You don't write the steps to take, as in Python: you describe <b>what you want</b>, and the database finds it. The first question is <code>SELECT</code>, "show me": after <code>SELECT</code> you say what to show (the asterisk <code>*</code> means all the columns), after <code>FROM</code> from which table. The semicolon <code>;</code> ends the question.</p>`,
 { code: `SELECT * FROM players;` },
@@ -37519,7 +37519,10 @@ const SQL_C01 = [
 `<p>Più condizioni si uniscono come in Python: con <code>AND</code> devono essere vere tutte e due, con <code>OR</code> ne basta una, <code>NOT</code> rovescia quella che segue.</p>`,
 { code: `SELECT nome, citta, monete FROM giocatori WHERE citta = 'Roma' AND monete > 100;` },
 `<p>Qui escono i giocatori di Roma che hanno anche più di 100 monete. Con <code>OR</code> uscirebbero tutti quelli di Roma, più tutti quelli con più di 100 monete.</p>
-<p>Attenzione all'ordine: <code>AND</code> si fa prima di <code>OR</code>, come in matematica la moltiplicazione prima della somma. Quando una condizione con <code>OR</code> va presa tutta insieme, si mette <b>tra parentesi</b>.</p>`],
+<p>Attenzione all'ordine: <code>AND</code> si fa prima di <code>OR</code>, come in matematica la moltiplicazione prima della somma. Quando una condizione con <code>OR</code> va presa tutta insieme, si mette <b>tra parentesi</b>.</p>
+<p><code>NOT</code> si scrive davanti a una condizione e la rovescia: passa chi non la rispetta. Davanti a una condizione con le parentesi, rovescia tutto quello che c'è dentro.</p>`,
+{ code: `SELECT nome, citta, monete FROM giocatori WHERE NOT (citta = 'Roma' OR monete < 50);` },
+`<p>Qui escono i giocatori che non sono di Roma e che hanno almeno 50 monete.</p>`],
     task: `Mostra nome, città e anno di nascita dei giocatori di Torino o di Napoli nati dal 2009 in poi.`,
     starter: ``,
     solution: `SELECT nome, citta, nascita FROM giocatori WHERE (citta = 'Torino' OR citta = 'Napoli') AND nascita >= 2009;`,
@@ -37532,7 +37535,10 @@ const SQL_C01 = [
 `<p>Several conditions are joined as in Python: with <code>AND</code> both must be true, with <code>OR</code> one is enough, <code>NOT</code> turns round the one after it.</p>`,
 { code: `SELECT name, city, coins FROM players WHERE city = 'Rome' AND coins > 100;` },
 `<p>Here the players from Rome who also have more than 100 coins come out. With <code>OR</code> all the ones from Rome would come out, plus all the ones with more than 100 coins.</p>
-<p>Mind the order: <code>AND</code> is done before <code>OR</code>, as multiplication comes before addition in maths. When a condition with <code>OR</code> has to be taken as a whole, it goes <b>between brackets</b>.</p>`],
+<p>Mind the order: <code>AND</code> is done before <code>OR</code>, as multiplication comes before addition in maths. When a condition with <code>OR</code> has to be taken as a whole, it goes <b>between brackets</b>.</p>
+<p><code>NOT</code> is written in front of a condition and turns it round: what doesn't meet it passes. In front of a condition in brackets, it turns round everything inside.</p>`,
+{ code: `SELECT name, city, coins FROM players WHERE NOT (city = 'Rome' OR coins < 50);` },
+`<p>Here the players come out who aren't from Rome and have at least 50 coins.</p>`],
     task: `Show name, city and year of birth of the players from Turin or from Naples born in 2009 or later.`,
     starter: ``,
     solution: `SELECT name, city, born FROM players WHERE (city = 'Turin' OR city = 'Naples') AND born >= 2009;`,
@@ -37559,7 +37565,10 @@ const SQL_C01 = [
         explain: "Di difficoltà 2 sono Snake, Forza 4, 2048 e Breakout; con AND deve valere anche gettoni > 1, e Forza 4 ne costa uno solo." },
       { code: `SELECT titolo FROM giochi WHERE tipo = 'azione' OR difficolta = 3;`, q: "Quante righe escono?",
         options: ["5", "6", "1", "4"], correct: 0,
-        explain: "Sono d'azione Labirinto, Snake, Breakout e Tetris; di difficoltà 3 Campo minato e Tetris. Con OR basta una condizione, e Tetris esce una volta sola: 5 righe." }]
+        explain: "Sono d'azione Labirinto, Snake, Breakout e Tetris; di difficoltà 3 Campo minato e Tetris. Con OR basta una condizione, e Tetris esce una volta sola: 5 righe." },
+      { code: `SELECT titolo FROM giochi WHERE NOT tipo = 'azione' AND gettoni = 2;`, table: true, q: "Che cosa esce?",
+        options: ["titolo\n2048\nCampo minato", "titolo\nSnake\nBreakout", "titolo\nSnake\n2048\nBreakout\nCampo minato", "nessuna riga"], correct: 0,
+        explain: "NOT rovescia solo la condizione che lo segue, tipo = 'azione': restano i giochi che non sono d'azione e costano 2 gettoni, 2048 e Campo minato." }]
   },
   en: {
     title: "Predict: which rows get through?",
@@ -37578,7 +37587,10 @@ const SQL_C01 = [
         explain: "Difficulty 2 are Snake, Connect Four, 2048 and Breakout; with AND, tokens > 1 must hold too, and Connect Four costs only one." },
       { code: `SELECT title FROM games WHERE kind = 'action' OR difficulty = 3;`, q: "How many rows come out?",
         options: ["5", "6", "1", "4"], correct: 0,
-        explain: "Maze, Snake, Breakout and Tetris are action games; Minesweeper and Tetris are difficulty 3. With OR one condition is enough, and Tetris comes out only once: 5 rows." }]
+        explain: "Maze, Snake, Breakout and Tetris are action games; Minesweeper and Tetris are difficulty 3. With OR one condition is enough, and Tetris comes out only once: 5 rows." },
+      { code: `SELECT title FROM games WHERE NOT kind = 'action' AND tokens = 2;`, table: true, q: "What comes out?",
+        options: ["title\n2048\nMinesweeper", "title\nSnake\nBreakout", "title\nSnake\n2048\nBreakout\nMinesweeper", "no rows"], correct: 0,
+        explain: "NOT turns round only the condition after it, kind = 'action': the games left are the ones that aren't action games and cost 2 tokens, 2048 and Minesweeper." }]
   }
 },
 {
@@ -37589,7 +37601,8 @@ const SQL_C01 = [
     theory: [
 `<p>Due modi brevi per scrivere condizioni lunghe. <code>IN</code> seguito da una lista tra parentesi vuol dire «uguale a uno di questi»: al posto di tante condizioni unite da <code>OR</code> ne basta una.</p>`,
 { code: `SELECT nome, citta FROM giocatori WHERE citta IN ('Roma', 'Bologna');` },
-`<p><code>BETWEEN</code> <i>a</i> <code>AND</code> <i>b</i> vuol dire «da <i>a</i> a <i>b</i>», con <i>a</i> e <i>b</i> compresi. Vale per i numeri (<code>monete BETWEEN 50 AND 100</code>) e anche per le date scritte anno-mese-giorno.</p>`],
+`<p><code>BETWEEN</code> <i>a</i> <code>AND</code> <i>b</i> vuol dire «da <i>a</i> a <i>b</i>», con <i>a</i> e <i>b</i> compresi. Vale per i numeri (<code>monete BETWEEN 50 AND 100</code>) e anche per le date scritte anno-mese-giorno.</p>
+<p>Con <code>NOT</code> davanti si rovesciano tutti e due: <code>citta NOT IN ('Roma', 'Bologna')</code> tiene le altre città, <code>monete NOT BETWEEN 50 AND 100</code> chi ne ha meno di 50 o più di 100.</p>`],
     task: `Mostra id, giocatore, punti e giorno delle partite giocate dal 1° al 10 marzo 2026, estremi compresi. Usa <code>BETWEEN</code>.`,
     starter: ``,
     solution: `SELECT id, giocatore, punti, giorno FROM partite WHERE giorno BETWEEN '2026-03-01' AND '2026-03-10';`,
@@ -37601,7 +37614,8 @@ const SQL_C01 = [
     theory: [
 `<p>Two short ways to write long conditions. <code>IN</code> followed by a list in brackets means "equal to one of these": instead of many conditions joined by <code>OR</code>, one is enough.</p>`,
 { code: `SELECT name, city FROM players WHERE city IN ('Rome', 'Bologna');` },
-`<p><code>BETWEEN</code> <i>a</i> <code>AND</code> <i>b</i> means "from <i>a</i> to <i>b</i>", with <i>a</i> and <i>b</i> included. It works for numbers (<code>coins BETWEEN 50 AND 100</code>) and also for dates written year-month-day.</p>`],
+`<p><code>BETWEEN</code> <i>a</i> <code>AND</code> <i>b</i> means "from <i>a</i> to <i>b</i>", with <i>a</i> and <i>b</i> included. It works for numbers (<code>coins BETWEEN 50 AND 100</code>) and also for dates written year-month-day.</p>
+<p>With <code>NOT</code> in front both turn round: <code>city NOT IN ('Rome', 'Bologna')</code> keeps the other cities, <code>coins NOT BETWEEN 50 AND 100</code> whoever has less than 50 or more than 100.</p>`],
     task: `Show id, player, score and day of the matches played from 1 to 10 March 2026, both ends included. Use <code>BETWEEN</code>.`,
     starter: ``,
     solution: `SELECT id, player, score, day FROM matches WHERE day BETWEEN '2026-03-01' AND '2026-03-10';`,
@@ -37617,7 +37631,7 @@ const SQL_C01 = [
     theory: [
 `<p>Con <code>=</code> un testo deve essere identico. Con <code>LIKE</code> si cerca uno <b>schema</b>, con due simboli speciali: <code>%</code> sta per «qualsiasi cosa», anche niente, e <code>_</code> per «un carattere qualsiasi», uno solo.</p>`,
 { code: `SELECT nome FROM giocatori WHERE nome LIKE 'M%';` },
-`<p><code>'M%'</code> vuol dire: comincia con M, poi qualsiasi cosa. Allo stesso modo <code>'%ar%'</code> trova i testi che contengono «ar» in qualunque punto, e <code>'_a%'</code> quelli con la a come seconda lettera. In SQLite <code>LIKE</code> non bada alle maiuscole: <code>'m%'</code> trova anche Marta.</p>`],
+`<p><code>'M%'</code> vuol dire: comincia con M, poi qualsiasi cosa. Allo stesso modo <code>'%ar%'</code> trova i testi che contengono «ar» in qualunque punto, e <code>'_a%'</code> quelli con la a come seconda lettera. In SQLite <code>LIKE</code> non bada alle maiuscole: <code>'m%'</code> trova anche Marta. E <code>NOT LIKE</code> tiene i testi che lo schema non lo rispettano.</p>`],
     task: `Mostra il nome e la città dei giocatori il cui nome <b>finisce</b> con la lettera a.`,
     starter: ``,
     solution: `SELECT nome, citta FROM giocatori WHERE nome LIKE '%a';`,
@@ -37629,7 +37643,7 @@ const SQL_C01 = [
     theory: [
 `<p>With <code>=</code> a text must be identical. With <code>LIKE</code> you search for a <b>pattern</b>, with two special symbols: <code>%</code> stands for "anything", even nothing, and <code>_</code> for "any one character", a single one.</p>`,
 { code: `SELECT name FROM players WHERE name LIKE 'M%';` },
-`<p><code>'M%'</code> means: starts with M, then anything. In the same way <code>'%ar%'</code> finds the texts that contain "ar" anywhere, and <code>'_a%'</code> those with a as their second letter. In SQLite <code>LIKE</code> doesn't mind capitals: <code>'m%'</code> finds Marta too.</p>`],
+`<p><code>'M%'</code> means: starts with M, then anything. In the same way <code>'%ar%'</code> finds the texts that contain "ar" anywhere, and <code>'_a%'</code> those with a as their second letter. In SQLite <code>LIKE</code> doesn't mind capitals: <code>'m%'</code> finds Marta too. And <code>NOT LIKE</code> keeps the texts that don't fit the pattern.</p>`],
     task: `Show the name and the city of the players whose name <b>ends</b> with the letter a.`,
     starter: ``,
     solution: `SELECT name, city FROM players WHERE name LIKE '%a';`,
@@ -37783,7 +37797,7 @@ const SQL_C02 = [
 `<p>Senza istruzioni, le righe escono nell'ordine che fa comodo a SQLite: di solito quello in cui sono state inserite, ma non è una promessa. Per avere un ordine preciso si aggiunge <code>ORDER BY</code> e la colonna, alla fine della domanda.</p>
 <p>L'ordine normale è crescente (<code>ASC</code>, che si può non scrivere): i numeri dal più piccolo, i testi in ordine alfabetico, le date dalla più vecchia. <code>DESC</code> lo rovescia.</p>`,
 { code: `SELECT nome, monete FROM giocatori ORDER BY monete DESC;` },
-`<p>Si può ordinare per più colonne, separate da una virgola: la seconda decide solo tra le righe che nella prima sono uguali. Ognuna ha il suo <code>ASC</code> o <code>DESC</code>. Le caselle vuote (<code>NULL</code>) vengono prima di tutte.</p>`],
+`<p>Si può ordinare per più colonne, separate da una virgola: la seconda decide solo tra le righe che nella prima sono uguali. Ognuna ha il suo <code>ASC</code> o <code>DESC</code>. Le caselle vuote (<code>NULL</code>) vengono prima di tutte in ordine crescente, e per ultime con <code>DESC</code>.</p>`],
     task: `Mostra nome, città e anno di nascita di tutti i giocatori, in ordine di città (dalla A alla Z) e, nella stessa città, dal più giovane al più vecchio.`,
     starter: ``,
     solution: `SELECT nome, citta, nascita FROM giocatori ORDER BY citta, nascita DESC;`,
@@ -37796,7 +37810,7 @@ const SQL_C02 = [
 `<p>Without instructions, the rows come out in whatever order suits SQLite: usually the one they were inserted in, but that's no promise. For a precise order you add <code>ORDER BY</code> and the column, at the end of the question.</p>
 <p>The normal order is ascending (<code>ASC</code>, which can be left out): numbers from the smallest, texts in alphabetical order, dates from the oldest. <code>DESC</code> turns it round.</p>`,
 { code: `SELECT name, coins FROM players ORDER BY coins DESC;` },
-`<p>You can sort by several columns, separated by commas: the second decides only between the rows that are equal in the first. Each has its own <code>ASC</code> or <code>DESC</code>. Empty cells (<code>NULL</code>) come before all the others.</p>`],
+`<p>You can sort by several columns, separated by commas: the second decides only between the rows that are equal in the first. Each has its own <code>ASC</code> or <code>DESC</code>. Empty cells (<code>NULL</code>) come before all the others in ascending order, and last with <code>DESC</code>.</p>`],
     task: `Show name, city and year of birth of every player, in order of city (from A to Z) and, within the same city, from the youngest to the oldest.`,
     starter: ``,
     solution: `SELECT name, city, born FROM players ORDER BY city, born DESC;`,
@@ -38722,7 +38736,8 @@ SELECT id FROM games WHERE title = 'Pong';`, table: true, q: "What id does Pong 
     title: "Una tabella nuova: CREATE TABLE",
     theory: [
 `<p><code>CREATE TABLE</code>, il nome, e tra parentesi le colonne, separate da virgole. Ogni colonna ha un nome e un <b>tipo</b>: <code>INTEGER</code> per i numeri interi, <code>TEXT</code> per i testi (e <code>REAL</code> per i numeri con la virgola).</p>
-<p>Dopo il tipo si possono mettere delle <b>regole</b>, che SQLite fa rispettare a ogni riga: <code>PRIMARY KEY</code> fa della colonna la chiave (con <code>INTEGER</code>, il numero lo dà SQLite); <code>NOT NULL</code> la rende obbligatoria; <code>UNIQUE</code> vieta i doppioni; <code>DEFAULT</code> e un valore dice cosa metterci quando non viene scritta; <code>REFERENCES</code> e una tabella dicono che la colonna rimanda alla chiave di quella tabella.</p>`,
+<p>Dopo il tipo si possono mettere delle <b>regole</b> per ogni riga: <code>PRIMARY KEY</code> fa della colonna la chiave (con <code>INTEGER</code>, il numero lo dà SQLite); <code>NOT NULL</code> la rende obbligatoria; <code>UNIQUE</code> vieta i doppioni; <code>DEFAULT</code> e un valore dice cosa metterci quando non viene scritta; <code>REFERENCES</code> e una tabella dicono che la colonna rimanda alla chiave di quella tabella.</p>
+<p>Attenzione a una stranezza di SQLite: tutte queste regole le controlla da sé, tranne <code>REFERENCES</code>. Quella la controlla solo se glielo chiedi, con <code>PRAGMA foreign_keys = ON;</code>; altrimenti accetta anche un numero che nell'altra tabella non c'è.</p>`,
 { code: `CREATE TABLE premi (id INTEGER PRIMARY KEY, nome TEXT NOT NULL UNIQUE, costo INTEGER DEFAULT 10);
 INSERT INTO premi (nome) VALUES ('Adesivo');
 INSERT INTO premi (nome, costo) VALUES ('Peluche', 50);
@@ -38741,7 +38756,8 @@ SELECT * FROM orari;`,
     title: "A new table: CREATE TABLE",
     theory: [
 `<p><code>CREATE TABLE</code>, the name, and in brackets the columns, separated by commas. Each column has a name and a <b>type</b>: <code>INTEGER</code> for whole numbers, <code>TEXT</code> for texts (and <code>REAL</code> for numbers with a decimal point).</p>
-<p>After the type you can put <b>rules</b>, which SQLite enforces on every row: <code>PRIMARY KEY</code> makes the column the key (with <code>INTEGER</code>, SQLite gives the number); <code>NOT NULL</code> makes it required; <code>UNIQUE</code> forbids duplicates; <code>DEFAULT</code> and a value say what to put there when it isn't written; <code>REFERENCES</code> and a table say the column points to that table's key.</p>`,
+<p>After the type you can put <b>rules</b> for every row: <code>PRIMARY KEY</code> makes the column the key (with <code>INTEGER</code>, SQLite gives the number); <code>NOT NULL</code> makes it required; <code>UNIQUE</code> forbids duplicates; <code>DEFAULT</code> and a value say what to put there when it isn't written; <code>REFERENCES</code> and a table say the column points to that table's key.</p>
+<p>Mind one of SQLite's oddities: it checks all these rules by itself, except <code>REFERENCES</code>. That one it checks only if you ask, with <code>PRAGMA foreign_keys = ON;</code>; otherwise it accepts even a number that isn't in the other table.</p>`,
 { code: `CREATE TABLE prizes (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, price INTEGER DEFAULT 10);
 INSERT INTO prizes (name) VALUES ('Sticker');
 INSERT INTO prizes (name, price) VALUES ('Teddy', 50);
@@ -39977,7 +39993,7 @@ const UI = {
     restarted: "=== RIAVVIO: variabili azzerate ===",
     testing: "Verifico la soluzione con altri valori…",
     testingGame: "Ora gioco io al tuo gioco, senza schermo: premo i tasti e guardo cosa succede…",
-    pass: (last) => last ? "✓ Livello superato! Era l'ultimo del percorso." : "✓ Livello superato!",
+    pass: (last, world) => last ? (world ? `✓ Livello superato! Era l'ultimo del mondo ${world}.` : "✓ Livello superato! Era l'ultimo del percorso.") : "✓ Livello superato!",
     notYet: "✗ Il programma funziona, ma non fa ancora quello che chiede l'esercizio. Rileggi la consegna o apri il suggerimento.",
     mismatch: "✗ Quasi! Il programma funziona, ma quello che stampa non è ancora uguale a quello richiesto.",
     expLabel: "Richiesto", gotLabel: "Stampato",
@@ -40114,7 +40130,7 @@ const UI = {
     restarted: "=== RESTART: variables cleared ===",
     testing: "Checking your solution with other values…",
     testingGame: "Now I play your game myself, without a screen: I press the keys and watch what happens…",
-    pass: (last) => last ? "✓ Level passed! It was the last one on the path." : "✓ Level passed!",
+    pass: (last, world) => last ? (world ? `✓ Level passed! It was the last one in the ${world} world.` : "✓ Level passed! It was the last one on the path.") : "✓ Level passed!",
     notYet: "✗ The program runs, but it doesn't do what the exercise asks yet. Reread the task or open the hint.",
     mismatch: "✗ Almost! The program runs, but what it prints doesn't match what's required yet.",
     expLabel: "Required", gotLabel: "Printed",
@@ -41097,6 +41113,8 @@ Object.assign(UI.en, {
 
 /* ================= The Lab's special commands, for trying the course ================= */
 Object.assign(UI.it, {
+  celeWorldEnd: (w, o) => `Hai finito il mondo ${w}! Nel mondo ${o} ti aspetta ancora un pezzo di strada.`,
+  celeGoWorld: (o) => `Continua in ${o} →`,
   cmdWorldsOn: (w) => `Tutti i mondi pronti sono aperti: ${w}.`,
   cmdWorldsOff: "I mondi tornano ad aprirsi con i progressi.",
   cmdLevelsOn: "Tutti i livelli sono aperti, in ogni mondo: li apri dalla mappa senza finire quelli prima. Le stelle restano quelle vere.",
@@ -41104,6 +41122,8 @@ Object.assign(UI.it, {
   cmdList: "Comandi speciali (da soli nell'editor, poi Esegui): sblocca mondi · sblocca livelli · sblocca tutto · blocca mondi · blocca livelli · blocca tutto"
 });
 Object.assign(UI.en, {
+  celeWorldEnd: (w, o) => `You finished the ${w} world! In the ${o} world there's still some road waiting for you.`,
+  celeGoWorld: (o) => `Continue in ${o} →`,
   cmdWorldsOn: (w) => `Every world that's ready is open: ${w}.`,
   cmdWorldsOff: "Worlds go back to opening with progress.",
   cmdLevelsOn: "Every level is open, in every world: you open them from the map without finishing the ones before. The stars stay the real ones.",
@@ -41511,6 +41531,15 @@ function maxUnlocked() { let i = 0; while (i < LEVELS.length - 1 && passable(LEV
    Lab's command "sblocca livelli" they're all open */
 const unlocked = (k) => UNLOCK.levels || k <= maxUnlocked() || !!S.stars[LEVELS[k].id];
 const worldMascot = (lv) => lv.boss ? "papera" : WORLDS[lv.w].mascot;
+/* The levels of a world, whichever is being played */
+const worldLevels = (id) => (id === "sql" ? SQL_LEVELS : PY_LEVELS);
+/* At the end of a world: another open world that still has levels to do (SQL done, Python's parts 8–9 still there) */
+const otherWorld = () => LANGS.find((L) => L.ready && L.id !== S.world && worldOpen(L.id, S.stars) && worldLevels(L.id).some((lv) => !S.stars[lv.id])) || null;
+/* The line of a level passed: the last one of a world says so, naming the world when another one still waits */
+function passLine() {
+  const last = S.current === LEVELS.length - 1, other = last ? otherWorld() : null;
+  return t("pass", last, other ? LANGS.find((L) => L.id === S.world)[S.lang].name : null);
+}
 /* Into another world: the level reached in the one left is remembered, the other world starts where it was left */
 function enterWorld(id) {
   if (!worldOpen(id, S.stars)) return false;
@@ -43122,7 +43151,7 @@ async function checkSql(src) {
   try { v = JSON.parse(String(r.out || "").trim().split("\n").pop()); } catch (e) {}
   if (!v) { newline(); termWrite(t("sqlCheckBroken") + "\n", "fail"); mascotReact("fail"); return; }
   if (!v.ok) { sqlExplain(v); mascotReact("fail"); return; }
-  termWrite(t("pass", S.current === LEVELS.length - 1) + "\n", "pass");
+  termWrite(passLine() + "\n", "pass");
   S.won[codeKey(level().id, S.lang)] = src;
   completeLevel();
 }
@@ -43284,7 +43313,7 @@ async function checkLesson(res, src, snap) {
       }
     }
   }
-  termWrite(t("pass", S.current === LEVELS.length - 1) + "\n", "pass");
+  termWrite(passLine() + "\n", "pass");
   /* the code that passed: the next part of the game starts from it */
   S.won[codeKey(level().id, S.lang)] = src;
   completeLevel();
@@ -43731,6 +43760,7 @@ const cele = $("cele");
 function celebrate(o) {
   sfxUnlock();
   const next = S.current + 1 < LEVELS.length ? S.current + 1 : -1;
+  const other = next < 0 ? otherWorld() : null;
   const w = WORLDS[o.lv.w], key = worldMascot(o.lv);
   const stars = [0, 1, 2].map((i) => `<span class="st ${i < o.got ? "on" : ""}" style="animation-delay:${0.25 + i * 0.22}s">★</span>`).join("");
   cele.querySelector(".ocard").innerHTML = `
@@ -43740,14 +43770,14 @@ function celebrate(o) {
     <div class="cele-stars" aria-label="${o.got}/3">${stars}</div>
     ${o.gained ? `<div class="cele-bytes">+${fmtBytes(o.gained)}</div>` : ""}
     ${o.rankUp >= 0 ? `<p class="cele-rank">${t("celeRank", RANKS[o.rankUp][S.lang])}</p>` : ""}
-    ${o.worldDone ? `<p class="cele-world">${next < 0 ? t("celeEnd") : t("celeWorld", w[S.lang].name)}</p>` : ""}
+    ${o.worldDone ? `<p class="cele-world">${next < 0 ? (other ? t("celeWorldEnd", LANGS.find((L) => L.id === S.world)[S.lang].name, other[S.lang].name) : t("celeEnd")) : t("celeWorld", w[S.lang].name)}</p>` : ""}
     ${o.worldDone ? `<div class="cele-floppy"><div class="fl-m"></div><p>${t("celeBackup")}</p><button class="btn" id="cele-save">${t("celeBackupBtn")}</button></div>` : ""}
     ${o.opens ? `<div class="cele-world-new" style="--lc:${o.opens.color}"><div class="nw-m"></div><div><h3>${t("sqlNoticeTitle")}</h3><p><b>${MASCOTS[o.opens.mascot].name}:</b> ${escHtml(t("sqlNotice"))}</p>
       <div class="row"><button class="btn primary" id="cele-world">${t("sqlNoticeGo")}</button></div></div></div>` : ""}
     ${o.got < 3 ? `<p class="cele-note">${t("celeReplay")}</p>` : ""}
     <div class="row cele-actions">
       <button class="btn" id="cele-map">${t("celeMap")}</button>
-      ${next >= 0 ? `<button class="btn primary" id="cele-next">${t("celeNext")}</button>` : ""}
+      ${next >= 0 ? `<button class="btn primary" id="cele-next">${t("celeNext")}</button>` : other ? `<button class="btn primary" id="cele-other">${t("celeGoWorld", other[S.lang].name)}</button>` : ""}
     </div>`;
   cele.querySelector(".cele-m").appendChild(mascotCanvas(key, "h", "a-hop"));
   const fl = cele.querySelector(".fl-m"); if (fl) fl.appendChild(mascotCanvas("floppy", "i", "a-bob"));
@@ -43756,8 +43786,9 @@ function celebrate(o) {
   SFX.pass();
   for (let i = 0; i < o.got; i++) setTimeout(() => SFX.star(i), 450 + i * 220);
   if (o.rankUp >= 0) setTimeout(SFX.rank, 1300);
-  const nb = $("cele-next");
-  (nb || $("cele-map")).focus();
+  const nb = $("cele-next"), ob = $("cele-other");
+  (nb || ob || $("cele-map")).focus();
+  if (ob) ob.onclick = () => { closeCele(); if (enterWorld(other.id)) setView("map"); };
   if (nb) nb.onclick = () => { closeCele(); goLesson(next); };
   $("cele-map").onclick = () => { closeCele(); setView("map"); };
   const sv = $("cele-save"); if (sv) sv.onclick = () => { closeCele(); openSettings(); };
@@ -45405,7 +45436,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "8fd122d098", APP_BUILT = "2026-11-12T00:10Z";
+const APP_VERSION = "10ba64945f", APP_BUILT = "2026-11-12T01:41Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
