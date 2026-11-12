@@ -936,6 +936,18 @@ body.intro-open { overflow: hidden; }
   .intro-card { padding: 16px; }
 }
 @media (max-width: 360px) { .intro-alt { grid-template-columns: 1fr; } }
+/* A world's scene: the opening's look, then the mascot's line and a button */
+.scene .intro-main { gap: 16px; justify-content: center; }
+.scene .intro-stage { cursor: default; }
+#scene-cv { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.scene-tag { font-family: var(--f-mono); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; color: #6cc4d9; }
+/* the line is there from the start, hidden, so it holds its place; the button reads it out when it gets the focus */
+.scene-say { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: clamp(1.1rem, 4.6vw, 1.5rem); line-height: 1.3; color: #f2c14e; text-align: center; text-wrap: balance; opacity: 0; visibility: hidden; transform: translateY(8px); }
+.scene-say.on { opacity: 1; visibility: visible; transform: none; transition: opacity 0.4s ease, transform 0.4s ease; }
+/* the button keeps its place from the start, so nothing moves when it shows up */
+.scene-go { visibility: hidden; }
+.scene-go.on { visibility: visible; animation: intro-up 0.35s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .scene-say.on { transition: none; } .scene-go.on { animation: none; } }
 
 @media (max-width: 560px) {
   .hright { gap: 8px; width: 100%; }
@@ -1091,6 +1103,21 @@ code b, pre b, #term b { font-family: inherit; }
     </div>
     <p class="intro-hello" id="intro-hello" role="status" hidden></p>
     <section class="intro-card" id="intro-card" aria-labelledby="acct-title" hidden></section>
+  </div>
+</div>
+
+<div class="intro scene" id="scene" role="dialog" aria-modal="true" aria-labelledby="scene-tag" hidden>
+  <div class="intro-top">
+    <span class="scene-tag" id="scene-tag"></span>
+    <button class="intro-skip" id="scene-skip" data-t="introSkip">Salta ›</button>
+  </div>
+  <div class="intro-main">
+    <div class="intro-win">
+      <div class="intro-bar" aria-hidden="true"><i></i><i></i><i></i><span>sala_giochi.db</span></div>
+      <div class="intro-stage"><canvas id="scene-cv" width="300" height="100" role="img"></canvas></div>
+    </div>
+    <p class="scene-say" id="scene-say"></p>
+    <button class="btn primary scene-go" id="scene-go" aria-describedby="scene-say"></button>
   </div>
 </div>
 
@@ -41998,6 +42025,8 @@ function bracketDepth(src) {
 /* ================= Game: worlds, mascots, ranks (no DOM access) ================= */
 
 
+/* A world's first opening can have a short scene told by its mascot, seen once (app.js plays it) */
+const SCENES = { sql: { mascot: "nocciola" } };
 /* Arcode worlds: one programming language each, from the easiest to the hardest */
 const LANGS = [
   { id: "python", badge: "PY", color: "#3a6fc4", diff: 1, ready: true, mascot: "pip",
@@ -42196,9 +42225,8 @@ const MASCOTS = {
       pxEll(l, 19.5, 23, 2.6, 2.6, "#8b5a2b"); pxRect(l, 17, 20, 6, 2, "#5e3b1c"); pxPut(l, 19, 19, "#5e3b1c"); },
     eyes: [15, 22], ey: 9, m: [18, 15], sw: [31, 5], bub: [30, 9] }
 };
-/* e: "i" idle, "h" happy, "t" thinking, "o" oops; blink closes the eyes */
-function pxCompose(m, e, blink) {
-  const B = pxNew(); m.body(B);
+/* Filled shapes get their shading (lighter on top and left, darker at the bottom) and a dark outline */
+function pxShade(B) {
   const F = pxNew();
   for (let y = 0; y < PX_H; y++) for (let x = 0; x < PX_W; x++) {
     const c = pxAt(B, x, y);
@@ -42210,6 +42238,14 @@ function pxCompose(m, e, blink) {
       pxPut(F, x, y, v);
     } else if (pxAt(B, x - 1, y) || pxAt(B, x + 1, y) || pxAt(B, x, y - 1) || pxAt(B, x, y + 1)) pxPut(F, x, y, PX_K);
   }
+  return F;
+}
+/* A thing drawn like the mascots, without a face (the scenes' props) */
+function pxProp(body, det) { const B = pxNew(); body(B); const F = pxShade(B); if (det) det(F); return F; }
+/* e: "i" idle, "h" happy, "t" thinking, "o" oops, "s" sad; blink closes the eyes */
+function pxCompose(m, e, blink) {
+  const B = pxNew(); m.body(B);
+  const F = pxShade(B);
   if (m.det) m.det(F);
   const fc = m.fc || PX_K, [a, b] = m.eyes, ey = m.ey;
   for (const x of [a, b]) {
@@ -42217,6 +42253,7 @@ function pxCompose(m, e, blink) {
     else if (blink) pxRect(F, x, ey + 2, 2, 1, fc);
     else if (e === "t") pxRect(F, x + 1, ey, 2, 2, fc);
     else if (e === "o") { pxRect(F, x, ey, 3, 3, fc); pxPut(F, x + 1, ey + 1, m.pupil || PX_WHITE); }
+    else if (e === "s") pxRect(F, x, ey + 1, 2, 2, fc);
     else { pxRect(F, x, ey, 2, 3, fc); if (m.hl !== false) pxPut(F, x + 1, ey, PX_WHITE); }
   }
   if (m.ck !== false && (e === "h" || e === "i")) (m.ckp || [[a - 2, ey + 4], [b + 2, ey + 4]]).forEach(([x, y]) => pxRect(F, x, y, 2, 1, PX_PINK));
@@ -42225,12 +42262,15 @@ function pxCompose(m, e, blink) {
     if (e === "h") { pxRect(F, mx - 2, my, 6, 1, fc); pxPut(F, mx - 1, my + 1, fc); pxRect(F, mx, my + 1, 2, 1, PX_PINK); pxPut(F, mx + 2, my + 1, fc); pxRect(F, mx, my + 2, 2, 1, fc); }
     else if (e === "t") pxRect(F, mx + 1, my + 1, 3, 1, fc);
     else if (e === "o") [[-2, 1], [-1, 0], [0, 1], [1, 0], [2, 1], [3, 0]].forEach(([dx, dy]) => pxPut(F, mx + dx, my + dy, fc));
+    else if (e === "s") { pxPut(F, mx - 1, my + 1, fc); pxRect(F, mx, my, 2, 1, fc); pxPut(F, mx + 2, my + 1, fc); }
     else { pxPut(F, mx - 1, my, fc); pxRect(F, mx, my + 1, 2, 1, fc); pxPut(F, mx + 2, my, fc); }
   }
   if (m.extra) m.extra(F, e);
   if (e === "h") { const s = "#f2c14e"; pxPut(F, 33, 3, s); pxPut(F, 32, 3, s); pxPut(F, 34, 3, s); pxPut(F, 33, 2, s); pxPut(F, 33, 4, s); pxPut(F, 35, 7, s); }
   if (e === "t" && m.bub) { const s = "#9aa5b8", [x, y] = m.bub; pxPut(F, x, y, s); pxRect(F, x + 2, y - 3, 2, 2, s); pxRect(F, x + 4, y - 6, 3, 2, s); }
   if (e === "o") { const s = "#6fb8ef", [x, y] = m.sw; pxPut(F, x, y, s); pxRect(F, x - 1, y + 1, 3, 1, s); pxPut(F, x, y + 2, s); }
+  /* sad: a tear under the first eye */
+  if (e === "s") { const s = "#6fb8ef"; pxPut(F, a, ey + 4, s); pxRect(F, a, ey + 5, 1, 2, s); }
   return F;
 }
 
@@ -42605,6 +42645,9 @@ function mergeStates(local, incoming) {
   }
   out.programs = [...progs.values()];
   out.tutorialDone = !!(out.tutorialDone || inc.tutorialDone);
+  /* a scene seen on one device is seen everywhere */
+  out.scenes = Object.assign({}, inc.scenes || {}, out.scenes || {});
+  for (const k in out.scenes) if (out.scenes[k] !== true) delete out.scenes[k];
   /* the project: the one already chosen here stays, otherwise the other copy's */
   out.project = out.project || inc.project || null;
   /* the databases of the Lab: the copy changed last */
@@ -42679,6 +42722,15 @@ const GLYPHS = {
   ">": ["#..", ".#.", "..#", ".#.", "#.."],
   check: ["........#", ".......##", "#.....##.", "##...##..", ".##.##...", "..###....", "...#....."]
 };
+/* The scenes' pixel font: digits and the few letters they write, 5 pixels high */
+const FONT5 = {
+  "0": ["###", "#.#", "#.#", "#.#", "###"], "1": [".#.", "##.", ".#.", ".#.", "###"], "2": ["###", "..#", "###", "#..", "###"],
+  "3": ["###", "..#", ".##", "..#", "###"], "4": ["#.#", "#.#", "###", "..#", "..#"], "5": ["###", "#..", "###", "..#", "###"],
+  "6": ["###", "#..", "###", "#.#", "###"], "7": ["###", "..#", ".#.", ".#.", ".#."], "8": ["###", "#.#", "###", "#.#", "###"],
+  "9": ["###", "#.#", "###", "..#", "###"], A: [".#.", "#.#", "###", "#.#", "#.#"], E: ["###", "#..", "##.", "#..", "###"],
+  G: [".##", "#..", "#.#", "#.#", ".##"], M: ["#...#", "##.##", "#.#.#", "#...#", "#...#"], O: [".#.", "#.#", "#.#", "#.#", ".#."],
+  R: ["##.", "#.#", "##.", "#.#", "#.#"], V: ["#.#", "#.#", "#.#", "#.#", ".#."], "?": ["##.", "..#", ".#.", "...", ".#."], " ": ["..", "..", "..", "..", ".."]
+};
 /* Who runs in first, where they land after the fight, and the order of the line-up */
 const CAST = ["cursy", "bit", "pip", "graffa", "floppy", "papera"];
 const CHASE = ["pip", "bit", "cursy", "graffa", "floppy", "papera"];
@@ -42707,7 +42759,11 @@ Object.assign(UI.it, {
   cmdWorldsOff: "I mondi tornano ad aprirsi con i progressi.",
   cmdLevelsOn: "Tutti i livelli sono aperti, in ogni mondo: li apri dalla mappa senza finire quelli prima. Le stelle restano quelle vere.",
   cmdLevelsOff: "I livelli tornano ad aprirsi uno dopo l'altro.",
-  cmdList: "Comandi speciali (da soli nell'editor, poi Esegui): sblocca mondi · sblocca livelli · sblocca tutto · blocca mondi · blocca livelli · blocca tutto"
+  cmdList: "Comandi speciali (da soli nell'editor, poi Esegui): sblocca mondi · sblocca livelli · sblocca tutto · blocca mondi · blocca livelli · blocca tutto · scena sql",
+  cmdScene: "Ecco di nuovo la scena di Nocciola.",
+  /* the scene of the SQL world's first opening */
+  sceneSay: "Io non dimentico niente. Cominciamo?", sceneGo: "Sì, cominciamo!",
+  sceneAria: "Pip gioca e fa 120 punti, ma a fine partita le cifre cadono e si spengono. Nocciola le raccoglie nel suo borsone e, alla partita dopo, gliele restituisce."
 });
 Object.assign(UI.en, {
   celeWorldEnd: (w, o) => `You finished the ${w} world! In the ${o} world there's still some road waiting for you.`,
@@ -42716,7 +42772,10 @@ Object.assign(UI.en, {
   cmdWorldsOff: "Worlds go back to opening with progress.",
   cmdLevelsOn: "Every level is open, in every world: you open them from the map without finishing the ones before. The stars stay the real ones.",
   cmdLevelsOff: "Levels go back to opening one after the other.",
-  cmdList: "Special commands (alone in the editor, then Run): unlock worlds · unlock levels · unlock all · lock worlds · lock levels · lock all"
+  cmdList: "Special commands (alone in the editor, then Run): unlock worlds · unlock levels · unlock all · lock worlds · lock levels · lock all · scene sql",
+  cmdScene: "Here's Nocciola's scene again.",
+  sceneSay: "I never forget anything. Shall we start?", sceneGo: "Yes, let's start!",
+  sceneAria: "Pip plays and scores 120 points, but when the game ends the digits fall and fade. Nocciola catches them in her bag and, at the next game, gives them back."
 });
 
 /* ================= The SQL world: words, colours, explanations ================= */
@@ -43039,7 +43098,7 @@ function readState(key) { try { const v = JSON.parse(localStorage.getItem(key) |
 function defaultLang() { try { return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en"; } catch (e) { return "it"; } }
 const DEFAULTS = () => ({ lang: defaultLang(), mode: "lessons", view: "worlds", world: "python", current: 0, stars: {}, attempt: {}, bytes: 0, code: {}, won: {}, programs: [], active: null,
   fontSize: 14, theme: "auto", sound: true, intro: true, tutorialDone: false, lastBackup: null, project: null, pip: [], places: {}, dbfiles: {}, dbAt: 0,
-  unlock: { worlds: false, levels: false } });
+  unlock: { worlds: false, levels: false }, scenes: {} });
 let S = DEFAULTS();
 function sanitize() {
   if (!["it", "en"].includes(S.lang)) S.lang = "it";
@@ -43052,6 +43111,10 @@ function sanitize() {
   const u = S.unlock && typeof S.unlock === "object" ? S.unlock : {};
   S.unlock = { worlds: u.worlds === true, levels: u.levels === true };
   UNLOCK.worlds = S.unlock.worlds; UNLOCK.levels = S.unlock.levels;
+  /* the scenes already seen (a world's first opening has one) */
+  const sc = S.scenes && typeof S.scenes === "object" && !Array.isArray(S.scenes) ? S.scenes : {};
+  S.scenes = {};
+  for (const k in sc) if (sc[k] === true && SCENES[k]) S.scenes[k] = true;
   /* the world being played: one that's ready and open (SQL opens after Python's part 7) */
   if (!worldOpen(S.world, S.stars)) S.world = "python";
   useWorld(S.world);
@@ -43149,6 +43212,8 @@ function enterWorld(id) {
   S.curId = LEVELS[S.current].id;
   ui.open = null; ui.autoW = null; ui.sel = undefined; ui.quiz = null; ui.order = null; ui.msay = ""; ui.mexpr = "i"; ui.hint = 0; ui.sol = false;
   save();
+  /* the first time in a world with a scene, its mascot tells it */
+  if (SCENES[id] && !S.scenes[id]) playScene(id);
   return true;
 }
 /* Is the code at hand SQL? A level of the SQL world (not folder 07's Python) or a .sql file of the Lab */
@@ -44962,7 +45027,18 @@ function replaceEditor(text) {
    both; "blocca …" goes back to the normal path (in English: unlock / lock worlds, levels, all). They're kept in
    the account and don't touch the stars. No program is just that line: for Python and SQL it means nothing */
 const LAB_CMD = /^\s*(sblocca|blocca|unlock|lock)\s+(mondi|livelli|tutto|worlds|levels|all)\s*$/i;
+const LAB_SCENE = /^\s*(scena|scene)\s+(sql)\s*$/i;
 function labCommand(src) {
+  const sc = LAB_SCENE.exec(src || "");
+  if (sc && !running) {
+    newline();
+    if (term.childNodes.length) termWrite("\n");
+    termWrite("$ " + sc[0].trim() + "\n", "cmd");
+    termWrite("✓ " + t("cmdScene") + "\n", "pass");
+    scrollTerm();
+    playScene(sc[2].toLowerCase(), true);
+    return true;
+  }
   const m = LAB_CMD.exec(src || "");
   if (!m || running) return false;
   const on = /^(sblocca|unlock)$/i.test(m[1]), what = m[2].toLowerCase();
@@ -46405,7 +46481,7 @@ const PREVIEWS = {
 };
 
 /* ---------- Progress fields (what an account owns) ---------- */
-const PROGRESS_KEYS = ["stars", "bytes", "code", "codeAt", "programs", "tutorialDone", "lastBackup", "updatedAt", "project", "dbfiles", "dbAt"];
+const PROGRESS_KEYS = ["stars", "bytes", "code", "codeAt", "programs", "tutorialDone", "lastBackup", "updatedAt", "project", "dbfiles", "dbAt", "scenes"];
 function applyProgress(m) {
   for (const k of PROGRESS_KEYS) if (m[k] !== undefined) S[k] = m[k];
   sanitize();
@@ -46802,16 +46878,31 @@ function introLayout() {
   IN.s = s; IN.W = W;
   introCv.width = W; introCv.height = STAGE_H;
   introCv.style.width = Math.round(W * s) + "px"; introCv.style.height = Math.round(STAGE_H * s) + "px";
-  const r = seeded(7);
+  const bd = backdrop(W, 7);
   /* no stars under the terminal text in the top left corner */
-  IN.stars = Array.from({ length: Math.round(W / 12) }, () => ({ x: Math.floor(r() * W), y: Math.floor(4 + r() * 46), p: r() * 6, big: r() < 0.14 }))
-    .filter((st) => !(st.x < 175 / s + 6 && st.y < 50 / s + 4));
-  const cols = ["#d59ae8", "#8fd19e", "#f2b56b", "#7ea3ee", "#6cc4d9", "#7f8aa3"];
-  IN.floor = [];
+  IN.stars = bd.stars.filter((st) => !(st.x < 175 / s + 6 && st.y < 50 / s + 4));
+  IN.floor = bd.floor;
+}
+/* The night sky and the arcade's coloured floor, the same for the opening and the scenes */
+function backdrop(W, seed) {
+  const r = seeded(seed);
+  const stars = Array.from({ length: Math.round(W / 12) }, () => ({ x: Math.floor(r() * W), y: Math.floor(4 + r() * 46), p: r() * 6, big: r() < 0.14 }));
+  const cols = ["#d59ae8", "#8fd19e", "#f2b56b", "#7ea3ee", "#6cc4d9", "#7f8aa3"], floor = [];
   for (const [y, start] of [[GROUND + 3, 6], [GROUND + 6, 14]]) {
     let x = start;
-    while (x < W - 10) { const w = Math.min(2 + Math.floor(r() * 8), W - 8 - x); IN.floor.push({ x, y, w, c: cols[Math.floor(r() * cols.length)] }); x += w + 2 + Math.floor(r() * 3); }
+    while (x < W - 10) { const w = Math.min(2 + Math.floor(r() * 8), W - 8 - x); floor.push({ x, y, w, c: cols[Math.floor(r() * cols.length)] }); x += w + 2 + Math.floor(r() * 3); }
   }
+  return { stars, floor };
+}
+function drawBackdrop(c, T, stars, floor, reduce) {
+  for (const s of stars) {
+    c.globalAlpha = reduce ? 0.5 : 0.2 + 0.6 * Math.abs(Math.sin(T * 1.3 + s.p));
+    c.fillStyle = "#c9d2e3"; c.fillRect(s.x, s.y, 1, 1);
+    if (s.big) { c.fillRect(s.x - 1, s.y, 3, 1); c.fillRect(s.x, s.y - 1, 1, 3); }
+  }
+  c.globalAlpha = 0.45;
+  for (const f of floor) { c.fillStyle = f.c; c.fillRect(f.x, f.y, f.w, 1); }
+  c.globalAlpha = 1;
 }
 const FIGHT_COLS = ["#5cc98a", "#b8c2d3", "#3a6fc4", "#8a7fe0", "#f5c542", "#3b5a9a"];
 const SPARK_COLS = ["#f2c14e", "#6fd39a", "#7ea3ee", "#d59ae8", "#ff8a80", "#e6ebf5"];
@@ -46819,14 +46910,7 @@ const SPARK_GLYPHS = ["star", "{", "}", "#", "<", ">", "!"];
 function drawStage(T) {
   const c = introCv.getContext("2d"), W = IN.W, G = GROUND, cx = Math.round(W * 0.58), R = 24, cy = G - 14;
   c.clearRect(0, 0, W, STAGE_H);
-  for (const s of IN.stars) {
-    c.globalAlpha = IN.reduce ? 0.5 : 0.2 + 0.6 * Math.abs(Math.sin(T * 1.3 + s.p));
-    c.fillStyle = "#c9d2e3"; c.fillRect(s.x, s.y, 1, 1);
-    if (s.big) { c.fillRect(s.x - 1, s.y, 3, 1); c.fillRect(s.x, s.y - 1, 1, 3); }
-  }
-  c.globalAlpha = 0.45;
-  for (const f of IN.floor) { c.fillStyle = f.c; c.fillRect(f.x, f.y, f.w, 1); }
-  c.globalAlpha = 1;
+  drawBackdrop(c, T, IN.stars, IN.floor, IN.reduce);
 
   const acts = [], over = [], v = (cx + 14) / (TL.hit - TL.enter), L = lineup(W);
   const add = (key, x, y, e, flip, z, b) => acts.push({ key, x, y, e, flip, z, b });
@@ -47033,8 +47117,220 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 });
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
+/* ---------- A world's scene: the first time in the SQL world, Nocciola keeps what Python forgets ---------- */
+/* Three moments of about three seconds. Pip plays and scores 120; at game over the digits fall and fade. Nocciola runs
+   in with her bag and catches them before they vanish. Next game Pip is back to 0 and sad: she opens the bag and the
+   120 flies back to its place. Then her line and a button. Seen once (S.scenes), again with the Lab's "scena sql". */
+const sceneEl = $("scene"), sceneCv = $("scene-cv"), sceneSay = $("scene-say"), sceneGo = $("scene-go"), sceneSkip = $("scene-skip");
+const SC = { open: false, on: false, id: null, raf: 0, t0: 0, last: 0, W: 300, s: 2, reduce: false, stars: [], floor: [], ended: false, sfx: {} };
+const SC_TL = { count0: 0.4, count1: 2.0, over: 2.25, fall0: 2.9, fallGap: 0.3, fallDur: 1.75, nocIn: 2.6, nocAt: 3.8, open: 3.95,
+  tie: 5.55, pat: 5.75, restart: 6.5, sad: 6.8, give: 7.4, giveGap: 0.24, giveDur: 0.6, joy: 8.6, say: 9.5 };
+const SC_SCORE = "120", SC_ROW = 30;
+/* The props, drawn like the mascots: the arcade cabinet, Nocciola's bag closed and open */
+const SC_PROPS = {
+  cab: () => pxProp((l) => { const P = "#5b4fb0"; pxRect(l, 11, 3, 16, 30, P); pxRect(l, 9, 19, 20, 4, P); },
+    (l) => { pxRect(l, 12, 4, 14, 3, "#f2c14e"); pxRect(l, 13, 9, 12, 8, "#0e1628"); pxRect(l, 11, 25, 16, 1, "#7a6ee0");
+      pxRect(l, 14, 17, 1, 2, PX_K); pxRect(l, 13, 15, 3, 2, "#e5534b"); pxRect(l, 20, 20, 2, 1, "#6fd39a"); pxRect(l, 24, 20, 2, 1, "#7ea3ee");
+      pxRect(l, 18, 27, 2, 3, PX_K); }),
+  bag: () => pxProp((l) => { const T = "#c9a26b"; pxEll(l, 19, 21, 14, 11.4, T); pxRect(l, 16, 6, 6, 5, T); pxEll(l, 19, 4.5, 5.2, 2.4, T); },
+    (l) => { pxRect(l, 16, 8, 6, 1, "#8b5a2b"); scNut(l); }),
+  bagOpen: () => pxProp((l) => { const T = "#c9a26b"; pxEll(l, 19, 21, 14, 11.4, T); pxRect(l, 11, 7, 16, 5, T); },
+    (l) => { pxEll(l, 19, 8.5, 7, 1.8, "#3b2614"); scNut(l); })
+};
+/* the hazelnut sewn on the bag: it's hers */
+function scNut(l) { pxEll(l, 19, 24, 3.2, 3.4, "#8b5a2b"); pxRect(l, 16, 20, 7, 2, "#5e3b1c"); pxPut(l, 19, 19, "#5e3b1c"); pxPut(l, 18, 23, "#b07a42"); }
+const SC_IMG = {};
+function scProp(key) {
+  if (!SC_IMG[key]) { const F = SC_PROPS[key](); let r = 0; F.forEach((c, i) => { if (c) r = Math.max(r, Math.floor(i / PX_W)); }); SC_IMG[key] = { cv: pxCanvas(F), feet: r + 1 }; }
+  return SC_IMG[key];
+}
+function drawProp(c, key, x, gy) { const p = scProp(key); c.drawImage(p.cv, Math.round(x) - 19, Math.round(gy) - p.feet); }
+/* Text in the pixel font, k pixels per dot, with a dark edge so it reads on the sky */
+function textW(str, k) { let w = 0; for (const ch of str) w += ((FONT5[ch] || FONT5[" "])[0].length + 1) * k; return Math.max(0, w - k); }
+function drawText(c, str, x, y, color, k = 1, alpha = 1) {
+  c.globalAlpha = Math.max(0, Math.min(1, alpha));
+  for (const pass of [0, 1]) {
+    let px = Math.round(x);
+    for (const ch of str) {
+      const g = FONT5[ch] || FONT5[" "];
+      g.forEach((row, j) => { for (let i = 0; i < row.length; i++) if (row[i] === "#") {
+        if (pass) { c.fillStyle = color; c.fillRect(px + i * k, Math.round(y) + j * k, k, k); }
+        else { c.fillStyle = PX_K; c.fillRect(px + i * k - 1, Math.round(y) + j * k - 1, k + 2, k + 2); }
+      } });
+      px += (g[0].length + 1) * k;
+    }
+  }
+  c.globalAlpha = 1;
+}
+/* Where everyone stands: Pip at the cabinet, the bag where the digits fall, Nocciola beside it */
+function scenePlaces(W) {
+  const xc = Math.round(W / 2 + 50), xp = xc - 30, xb = xp - 38, xn = xb - 24, x0 = xp - Math.round(textW(SC_SCORE, 2) / 2);
+  return { xc, xp, xb, xn, x0, mouth: GROUND - scProp("bagOpen").feet + 8 };
+}
+/* A sound once per moment */
+function scSound(key, f) { if (SC.sfx[key]) return; SC.sfx[key] = true; if (S.sound) { sfxUnlock(); f(); } }
+function drawScene(T) {
+  const c = sceneCv.getContext("2d"), W = SC.W, G = GROUND, L = SC_TL, P = scenePlaces(W), gold = "#f2c14e";
+  c.clearRect(0, 0, W, STAGE_H);
+  drawBackdrop(c, T, SC.stars, SC.floor, SC.reduce);
+  const over = T >= L.over && T < L.restart, k = (a, b) => clamp01((T - a) / (b - a));
+  /* the cabinet, and on its screen a little game that stops at game over */
+  drawProp(c, "cab", P.xc, G);
+  const sx = P.xc - 19 + 13, sy = G - scProp("cab").feet + 9;
+  if (!over) {
+    c.fillStyle = "#1e3a5f"; c.fillRect(sx, sy, 12, 8);
+    c.fillStyle = "#6fd39a"; c.fillRect(sx + 1 + (Math.floor(T * 6) % 9), sy + 6, 2, 1);
+    if (Math.floor(T * 3) % 2) { c.fillStyle = "#ff8a80"; c.fillRect(sx + 2 + ((Math.floor(T * 1.5) * 5) % 8), sy + 1, 1, 1); }
+  } else {
+    c.fillStyle = "#3a1020"; c.fillRect(sx, sy, 12, 8);
+    if (Math.floor(T * 4) % 2) { c.fillStyle = "#ff8a80"; for (let q = 0; q < 3; q++) { c.fillRect(sx + 4 + q, sy + 2 + q, 1, 1); c.fillRect(sx + 6 - q, sy + 2 + q, 1, 1); } }
+  }
+  /* the score over Pip's head: it counts up, it falls at game over, it comes back from the bag */
+  const home = (i) => P.x0 + i * 8, lands = (i) => L.fall0 + i * L.fallGap + L.fallDur, back = (i) => L.give + i * L.giveGap + L.giveDur;
+  if (T >= L.count0 && T < L.count1) { const v = String(Math.round(120 * (1 - (1 - k(L.count0, L.count1)) ** 2))); drawText(c, v, P.xp - textW(v, 2) / 2, SC_ROW, gold, 2); }
+  for (let i = 0; i < 3; i++) {
+    const ch = SC_SCORE[i], tf = L.fall0 + i * L.fallGap, tg = L.give + i * L.giveGap;
+    if (T >= L.count1 && T < tf) drawText(c, ch, home(i), SC_ROW, gold, 2);
+    else if (T >= tf && T < lands(i)) {
+      /* falling like a leaf, fading on the way */
+      const u = (T - tf) / L.fallDur, ex = P.xb - 3 + (i - 1) * 3;
+      drawText(c, ch, lerp(home(i), ex, u) + Math.sin(u * 7 + i * 1.7) * 5 * (1 - u), lerp(SC_ROW, P.mouth - 7, u * u * 0.5 + u * 0.5), gold, 2, 1 - 0.65 * u);
+    } else if (T >= tg && T < back(i)) {
+      /* out of the bag, back home in an arc */
+      const u = (T - tg) / L.giveDur, e = 1 - (1 - u) * (1 - u);
+      drawText(c, ch, lerp(P.xb - 3, home(i), e), lerp(P.mouth - 7, SC_ROW, e) - Math.sin(Math.PI * u) * 14, gold, 2, lerp(0.45, 1, u));
+    } else if (T >= back(i)) drawText(c, ch, home(i), SC_ROW, gold, 2);
+  }
+  /* the new game starts from 0, until the 120 comes back */
+  if (T >= L.restart && T < L.give + 0.25) drawText(c, "0", P.xp - 3, SC_ROW, "#c9d2e3", 2, 0.6 * (1 - k(L.give, L.give + 0.25)));
+  if (T >= L.over && T < L.over + 1.5 && Math.floor((T - L.over) * 4) % 2 === 0) {
+    const w = textW("GAME OVER", 1); drawText(c, "GAME OVER", (P.xp + P.xc) / 2 - w / 2, SC_ROW + 13, "#ff8a80", 1);
+  }
+  if (T >= L.over && T < L.over + 0.1) scSound("over", () => { tone(330, 0, 0.18, 0.05, "square"); tone(247, 0.16, 0.32, 0.05, "square"); });
+  /* Pip: plays, is shocked, sad; plays again, sad and puzzled; then happy, and hops */
+  const hop = (t0, n) => (T >= t0 && T < t0 + n * 0.4 ? Math.sin(Math.PI * (((T - t0) / 0.4) % 1)) * 7 : 0);
+  let pe = "i", plift = 0;
+  const blink = (n) => (T + n * 0.73) % 3.4 < 0.13;
+  if (T < L.over || (T >= L.restart && T < L.sad)) plift = Math.floor(T * 8) % 2;
+  else if (T < L.over + 0.8) pe = "o";
+  else if (T < L.restart) pe = "s";
+  if (T >= L.sad && T < back(2)) pe = "s";
+  if (T >= back(2)) { pe = "h"; plift = hop(L.joy, 2); }
+  if (T >= L.say + 1.2) { pe = "i"; plift = Math.floor(T * 2.2) % 2; }
+  drawSprite(c, "pip", pe, pe === "i" && blink(0), P.xp, G - plift, false);
+  if (T >= L.sad && T < back(0)) drawText(c, "?", P.xp + 12, G - 46 + Math.round(Math.sin(T * 5)), "#e6ebf5", 2);
+  /* Nocciola: runs in pushing her bag, catches the digits, ties the bag; opens it again for Pip */
+  if (T >= L.nocIn) {
+    const run = T < L.nocAt, u = k(L.nocIn, L.nocAt), nx = lerp(-36, P.xn, u);
+    const bob = run ? Math.round(Math.abs(Math.sin((T - L.nocIn) * 17)) * 3) : 0;
+    let ne = "i", nlift = bob;
+    for (let i = 0; i < 3; i++) if (T >= lands(i) && T < lands(i) + 0.35) ne = "h";
+    if (T >= L.pat && T < L.pat + 0.6) { ne = "h"; nlift = hop(L.pat, 1); }
+    if (T >= L.give - 0.15 && T < back(2)) ne = "h";
+    if (T >= back(2) && T < L.say + 1.2) { ne = "h"; nlift = hop(L.joy, 2); }
+    if (T >= L.say + 1.2) nlift = Math.floor(T * 2.2 + 0.5) % 2;
+    const bx = run ? nx + 24 : P.xb, by = G - (run ? bob : 0);
+    const open = (T >= L.open && T < L.tie) || (T >= L.give && T < back(2) + 0.1);
+    let dip = 0;
+    for (let i = 0; i < 3; i++) if (T >= lands(i) && T < lands(i) + 0.12) dip = 1;
+    drawSprite(c, "nocciola", ne, ne === "i" && blink(2), nx, G - nlift, false);
+    drawProp(c, open ? "bagOpen" : "bag", bx, by + dip);
+    /* a puff and a star where each digit drops in */
+    for (let i = 0; i < 3; i++) {
+      const d = T - lands(i);
+      if (d >= 0 && d < 0.35) {
+        scSound("c" + i, () => SFX.star(i));
+        disc(c, P.xb, P.mouth - 1, 3 * (1 - d / 0.35) + 1, "#e3e8f1");
+        drawGlyph(c, "star", P.xb - 2 + (i - 1) * 4, P.mouth - 12 - d * 16, gold, 1 - d / 0.35);
+      }
+    }
+    /* the pat on the closed bag */
+    if (T >= L.pat && T < L.pat + 0.6) drawGlyph(c, "star", P.xb + 6, G - 34 - (T - L.pat) * 14, gold, 1 - (T - L.pat) / 0.6);
+  }
+  /* the 120 is back: sparkles all round, then it twinkles now and then */
+  if (T >= back(2)) {
+    scSound("back", () => SFX.pass());
+    const d = T - back(2);
+    if (d < 0.8) for (let q = 0; q < 6; q++) { const a = (q / 6) * Math.PI * 2, r = 8 + d * 22; drawGlyph(c, "star", P.xp - 2 + Math.cos(a) * r, SC_ROW + 3 + Math.sin(a) * r * 0.6, q % 2 ? gold : "#6fd39a", 1 - d / 0.8); }
+    else if ((T % 2.6) < 0.3) drawGlyph(c, "star", P.x0 + 23, SC_ROW - 4, "#ffffff", 1 - (T % 2.6) / 0.3);
+  }
+}
+function sceneLayout() {
+  const main = sceneEl.querySelector(".intro-main");
+  const avail = Math.max(200, Math.min(main.clientWidth || window.innerWidth - 32, 860) - 2);
+  /* the scene fits in a narrower stage than the opening: on a phone its pixels come out bigger */
+  let s = Math.min(avail / 220, (window.innerHeight - 280) / STAGE_H);
+  s = Math.max(1.4, Math.min(2.6, s));
+  const W = Math.max(150, Math.min(420, Math.floor(avail / s)));
+  SC.s = s; SC.W = W;
+  sceneCv.width = W; sceneCv.height = STAGE_H;
+  sceneCv.style.width = Math.round(W * s) + "px"; sceneCv.style.height = Math.round(STAGE_H * s) + "px";
+  const bd = backdrop(W, 11);
+  SC.stars = bd.stars; SC.floor = bd.floor;
+}
+const sceneT = () => (performance.now() - SC.t0) / 1000;
+function sceneFrame(now) {
+  if (!SC.on) return;
+  SC.raf = requestAnimationFrame(sceneFrame);
+  const T = (now - SC.t0) / 1000;
+  if (T > SC_TL.say + 1.5 && now - SC.last < 32) return; /* idle: about 30 frames a second is plenty */
+  SC.last = now;
+  drawScene(T);
+  if (T >= SC_TL.say && !SC.ended) endScene();
+}
+/* The scene's end: Nocciola's line and the button that goes on */
+function endScene() {
+  SC.ended = true;
+  /* Salta goes, but keeps its place: nothing moves */
+  sceneSkip.style.visibility = "hidden";
+  sceneSay.classList.add("on");
+  sceneGo.classList.add("on"); sceneGo.focus({ preventScroll: true });
+}
+/* The first time in a world with a scene (not with the opening animation turned off, nor with less motion); the Lab's
+   command plays it anyway, still if motion is reduced */
+function playScene(id, force) {
+  if (!SCENES[id] || SC.open) return false;
+  const motion = !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (!force && (!motion || S.intro === false)) return false;
+  const L = LANGS.find((x) => x.id === id);
+  Object.assign(SC, { open: true, id, ended: false, sfx: {}, last: 0, reduce: !motion });
+  $("scene-tag").textContent = t("worldNum", LANGS.indexOf(L) + 1) + " · " + L[S.lang].name;
+  sceneCv.setAttribute("aria-label", t("sceneAria"));
+  sceneSay.textContent = t("sceneSay"); sceneSay.classList.remove("on");
+  sceneGo.textContent = t("sceneGo"); sceneGo.classList.remove("on");
+  sceneSkip.textContent = t("introSkip"); sceneSkip.style.visibility = "";
+  sceneEl.hidden = false; sceneEl.classList.remove("leaving");
+  document.body.classList.add("intro-open"); wrapEl.inert = true;
+  sceneLayout();
+  cancelAnimationFrame(SC.raf);
+  if (motion) {
+    SC.on = true; SC.t0 = performance.now();
+    SC.raf = requestAnimationFrame(sceneFrame);
+    sceneSkip.focus({ preventScroll: true });
+  } else {
+    /* less motion: the last picture, still */
+    SC.on = false; SC.t0 = performance.now() - (SC_TL.say + 2) * 1000;
+    drawScene(sceneT()); endScene();
+  }
+  return true;
+}
+function closeScene() {
+  if (!SC.open) return;
+  SC.open = false; SC.on = false; cancelAnimationFrame(SC.raf);
+  S.scenes[SC.id] = true; save();
+  document.body.classList.remove("intro-open"); wrapEl.inert = false;
+  sceneEl.classList.add("leaving");
+  setTimeout(() => { if (SC.open) return; sceneEl.hidden = true; sceneEl.classList.remove("leaving"); }, SC.reduce ? 0 : 320);
+  const go = $("map-go");
+  if (go && S.view === "map") go.focus({ preventScroll: true });
+}
+sceneSkip.onclick = closeScene;
+sceneGo.onclick = closeScene;
+document.addEventListener("keydown", (e) => { if (SC.open && e.key === "Escape") { e.preventDefault(); closeScene(); } });
+window.addEventListener("resize", () => { if (!SC.open) return; sceneLayout(); if (!SC.on) drawScene(sceneT()); });
+
 /* ---------- Boot ---------- */
-const APP_VERSION = "3c5d691738", APP_BUILT = "2026-11-12T02:54Z";
+const APP_VERSION = "dbde1a9b8e", APP_BUILT = "2026-11-12T11:05Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
