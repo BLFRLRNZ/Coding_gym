@@ -1598,6 +1598,8 @@ const isIntText = (s) => /^\s*[-+]?\d+(_\d+)*\s*$/.test(String(s));
 const toInt = (s) => parseInt(String(s).replace(/_/g, ""), 10);
 /* The learner's program with another value in place of the first match (null if the match isn't there) */
 const swapRe = (c, re, to) => (re.test(c) ? c.replace(re, to) : null);
+/* ... with several values, [re, to] each: null if one of them isn't there */
+const swapEach = (c, ...pairs) => pairs.reduce((s, [re, to]) => (s == null ? null : swapRe(s, re, to)), c);
 /* A hidden test; dropped when the program doesn't contain what the test needs to change */
 const tcase = (code, ok, desc, extra) => (code == null ? null : Object.assign({ code, ok, desc }, extra || {}));
 const tlist = (...xs) => xs.filter(Boolean);
@@ -3956,6 +3958,81 @@ print(backpack)`,
   }
 },
 {
+  id: "listmore", teaches: ["m:insert", "m:pop", "m:sort"],
+  it: {
+    title: "Altri attrezzi delle liste: insert, pop e sort",
+    theory: [
+`<p>Oltre ad <code>append</code> e <code>remove</code>, le liste hanno altri <b>metodi</b>, gli attrezzi che si scrivono dopo il punto:</p>
+<ul><li><code>insert(posizione, elemento)</code> mette l'elemento in quella posizione, e quelli che c'erano da lì in poi si spostano avanti di uno;</li>
+<li><code>pop()</code> toglie l'<b>ultimo</b> elemento e te lo <b>restituisce</b>, così puoi salvarlo in una variabile; con una posizione, come <code>pop(0)</code>, toglie l'elemento che sta lì;</li>
+<li><code>sort()</code> mette in ordine la lista, dal più piccolo al più grande, e le parole in ordine alfabetico; con <code>sort(reverse=True)</code> al contrario.</li></ul>`,
+{ code: `fila = ["Bob", "Cleo"]
+fila.insert(0, "Ada")       # ["Ada", "Bob", "Cleo"]: Ada passa davanti
+ultimo = fila.pop()         # toglie "Cleo", l'ultimo, e lo restituisce
+primo = fila.pop(0)         # toglie "Ada", il primo
+print(primo, ultimo, fila)  # Ada Cleo ['Bob']
+numeri = [5, 2, 9]
+numeri.sort()               # [2, 5, 9]
+print(numeri)` },
+`<p>La differenza con <code>remove</code>: <code>remove</code> cerca un elemento uguale a quello che gli dai, <code>pop</code> lavora con la posizione e ti dà l'elemento che ha tolto. E <code>sort()</code> non crea una lista nuova: mette in ordine proprio quella, e non restituisce niente. Per questo si scrive da solo, <code>numeri.sort()</code>, e non dentro un'assegnazione.</p>`],
+    task: `La coda della sala giochi. Il primo della coda va a giocare: toglilo con <code>pop(0)</code>, salvalo in una variabile e stampa <code>Tocca a Eva</code>. Poi arriva Zoe con il biglietto prioritario: mettila in testa alla coda con <code>insert</code> e stampa la coda, <code>['Zoe', 'Bob', 'Dan']</code>. Infine il tabellone mostra chi aspetta in ordine alfabetico: metti in ordine la coda con <code>sort()</code> e stampala, <code>['Bob', 'Dan', 'Zoe']</code>. Proverò anche con un'altra coda.`,
+    starter: `coda = ["Eva", "Bob", "Dan"]\n\n`,
+    solution: `coda = ["Eva", "Bob", "Dan"]
+
+turno = coda.pop(0)
+print("Tocca a", turno)
+coda.insert(0, "Zoe")
+print(coda)
+coda.sort()
+print(coda)`,
+    hints: ["Quale metodo toglie un elemento e te lo restituisce, e quale posizione gli dai per il primo della coda? Per mettere Zoe in testa, in quale posizione va?",
+      "pop con la posizione 0, salvando quello che restituisce in una variabile da stampare dopo Tocca a; poi insert con la posizione 0 e il nome di Zoe, e stampa la coda; infine sort sulla coda, e stampala di nuovo."],
+    check: (o, c) => o === "Tocca a Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']" && /\.pop\s*\(/.test(c) && /\.insert\s*\(/.test(c) && /\.sort\s*\(/.test(c),
+    why: (o) => (o === "Tocca a Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']" ? "L'output è giusto, ma qui l'esercizio è usare i tre metodi: pop per il primo della coda, insert per Zoe e sort per il tabellone." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /coda\s*=\s*\[[^\]]*\]/, 'coda = ["Ugo", "Ada", "Cleo", "Bob"]'), (o) => o === "Tocca a Ugo\n['Zoe', 'Ada', 'Cleo', 'Bob']\n['Ada', 'Bob', 'Cleo', 'Zoe']",
+        'con coda = ["Ugo", "Ada", "Cleo", "Bob"] doveva toccare a Ugo, e il tabellone doveva essere [\'Ada\', \'Bob\', \'Cleo\', \'Zoe\']'),
+      tcase(swapRe(c, /coda\s*=\s*\[[^\]]*\]/, 'coda = ["Max"]'), (o) => o === "Tocca a Max\n['Zoe']\n['Zoe']", 'con coda = ["Max"] doveva toccare a Max, e poi in coda doveva restare solo Zoe')),
+    expect: "Tocca a Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']"
+  },
+  en: {
+    title: "More list tools: insert, pop and sort",
+    theory: [
+`<p>Besides <code>append</code> and <code>remove</code>, lists have other <b>methods</b>, the tools you write after the dot:</p>
+<ul><li><code>insert(position, item)</code> puts the item in that position, and the ones that were there from that point on move forward by one;</li>
+<li><code>pop()</code> takes out the <b>last</b> item and <b>gives it back</b> to you, so you can keep it in a variable; with a position, like <code>pop(0)</code>, it takes out the item that's there;</li>
+<li><code>sort()</code> puts the list in order, from the smallest to the biggest, and words in alphabetical order; with <code>sort(reverse=True)</code> the other way round.</li></ul>`,
+{ code: `line = ["Bob", "Cleo"]
+line.insert(0, "Ada")       # ["Ada", "Bob", "Cleo"]: Ada goes in front
+last = line.pop()           # takes out "Cleo", the last one, and gives it back
+first = line.pop(0)         # takes out "Ada", the first one
+print(first, last, line)    # Ada Cleo ['Bob']
+numbers = [5, 2, 9]
+numbers.sort()              # [2, 5, 9]
+print(numbers)` },
+`<p>The difference from <code>remove</code>: <code>remove</code> looks for an item equal to the one you give it, <code>pop</code> works with the position and gives you the item it took out. And <code>sort()</code> doesn't make a new list: it puts that very list in order, and gives back nothing. That's why it's written on its own, <code>numbers.sort()</code>, and not inside an assignment.</p>`],
+    task: `The arcade queue. The first in the queue goes to play: take them out with <code>pop(0)</code>, keep them in a variable and print <code>Next up: Eva</code>. Then Zoe arrives with a priority ticket: put her at the front of the queue with <code>insert</code> and print the queue, <code>['Zoe', 'Bob', 'Dan']</code>. Finally the board shows who's waiting in alphabetical order: sort the queue with <code>sort()</code> and print it, <code>['Bob', 'Dan', 'Zoe']</code>. I'll also try another queue.`,
+    starter: `queue = ["Eva", "Bob", "Dan"]\n\n`,
+    solution: `queue = ["Eva", "Bob", "Dan"]
+
+player = queue.pop(0)
+print("Next up:", player)
+queue.insert(0, "Zoe")
+print(queue)
+queue.sort()
+print(queue)`,
+    hints: ["Which method takes out an item and gives it back to you, and which position do you give it for the first in the queue? To put Zoe at the front, which position does she go in?",
+      "pop with position 0, keeping what it gives back in a variable to print after Next up:; then insert with position 0 and Zoe's name, and print the queue; finally sort on the queue, and print it again."],
+    check: (o, c) => o === "Next up: Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']" && /\.pop\s*\(/.test(c) && /\.insert\s*\(/.test(c) && /\.sort\s*\(/.test(c),
+    why: (o) => (o === "Next up: Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']" ? "The output is right, but the exercise here is using the three methods: pop for the first in the queue, insert for Zoe and sort for the board." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /queue\s*=\s*\[[^\]]*\]/, 'queue = ["Ugo", "Ada", "Cleo", "Bob"]'), (o) => o === "Next up: Ugo\n['Zoe', 'Ada', 'Cleo', 'Bob']\n['Ada', 'Bob', 'Cleo', 'Zoe']",
+        'with queue = ["Ugo", "Ada", "Cleo", "Bob"] Ugo had to be next, and the board had to be [\'Ada\', \'Bob\', \'Cleo\', \'Zoe\']'),
+      tcase(swapRe(c, /queue\s*=\s*\[[^\]]*\]/, 'queue = ["Max"]'), (o) => o === "Next up: Max\n['Zoe']\n['Zoe']", 'with queue = ["Max"] Max had to be next, and then only Zoe had to be left in the queue')),
+    expect: "Next up: Eva\n['Zoe', 'Bob', 'Dan']\n['Bob', 'Dan', 'Zoe']"
+  }
+},
+{
   id: "loop", teaches: [],
   it: {
     title: "Scorrere una lista",
@@ -4138,6 +4215,75 @@ for i in range(len(names)):
     tests: (c) => tlist(tcase(swapRe(c, /names\s*=\s*\[[^\]]*\]/, 'names = ["Eva", "Gio"]') && c.replace(/names\s*=\s*\[[^\]]*\]/, 'names = ["Eva", "Gio"]').replace(/points\s*=\s*\[[^\]]*\]/, "points = [5, 9]"),
       (o) => o === "1. Eva: 5 points\n2. Gio: 9 points", "with two players it had to print two lines")),
     expect: "1. Ada: 30 points\n2. Bob: 25 points\n3. Cleo: 40 points"
+  }
+},
+{
+  id: "enumzip", teaches: ["enumerate", "zip"],
+  it: {
+    title: "Numeri e coppie: enumerate e zip",
+    theory: [
+`<p>Nella lezione di prima, per numerare gli elementi o leggere due liste insieme, il ciclo girava sulle posizioni con <code>range(len(lista))</code>. Due funzioni di Python fanno lo stesso in modo più semplice, senza indici da scrivere:</p>
+<ul><li><code>enumerate(lista)</code> a ogni giro dà due cose insieme, la posizione e l'elemento: nel <code>for</code> scrivi due variabili separate da una virgola, e la prima prende la posizione, la seconda l'elemento. Con <code>enumerate(lista, 1)</code> si conta da 1 invece che da 0;</li>
+<li><code>zip(lista1, lista2)</code> cammina su due liste nello stesso momento: a ogni giro un elemento della prima e quello nella stessa posizione della seconda.</li></ul>`,
+{ code: `frutti = ["mela", "pera", "kiwi"]
+prezzi = [0.5, 0.8, 0.3]
+for i, frutto in enumerate(frutti, 1):
+    print(i, frutto)                  # 1 mela, poi 2 pera, poi 3 kiwi
+for frutto, prezzo in zip(frutti, prezzi):
+    print(frutto, "costa", prezzo)    # mela costa 0.5, poi pera...` },
+`<p>Se le due liste non sono lunghe uguali, <code>zip</code> si ferma alla fine della più corta.</p>`],
+    task: `Stampa la squadra numerata da 1 con <code>enumerate</code>: <code>1. Ada</code>, <code>2. Bob</code>, <code>3. Cleo</code>. Poi, con <code>zip</code>, stampa il ruolo di ognuno: <code>Ada gioca in attacco</code>, <code>Bob gioca in difesa</code>, <code>Cleo gioca in porta</code>. Proverò anche con un'altra squadra.`,
+    starter: `giocatori = ["Ada", "Bob", "Cleo"]\nruoli = ["attacco", "difesa", "porta"]\n\n`,
+    solution: `giocatori = ["Ada", "Bob", "Cleo"]
+ruoli = ["attacco", "difesa", "porta"]
+
+for n, nome in enumerate(giocatori, 1):
+    print(f"{n}. {nome}")
+for nome, ruolo in zip(giocatori, ruoli):
+    print(f"{nome} gioca in {ruolo}")`,
+    hints: ["Nel primo ciclo ti servono insieme il numero e il nome: da quale numero deve partire? Nel secondo, come cammini sulle due liste nello stesso momento?",
+      "Un for con due variabili su enumerate dei giocatori, con 1 come secondo argomento, e una f-string con il numero, il punto e il nome. Poi un secondo for con due variabili su zip delle due liste, e una f-string con il nome, gioca in e il ruolo."],
+    check: (o, c) => o === "1. Ada\n2. Bob\n3. Cleo\nAda gioca in attacco\nBob gioca in difesa\nCleo gioca in porta" && /\benumerate\s*\(/.test(c) && /\bzip\s*\(/.test(c),
+    why: (o) => (o === "1. Ada\n2. Bob\n3. Cleo\nAda gioca in attacco\nBob gioca in difesa\nCleo gioca in porta" ? "L'output è giusto, ma qui l'esercizio è usare enumerate per i numeri e zip per le coppie, senza range(len(...))." : null),
+    tests: (c) => tlist(
+      tcase(swapEach(c, [/giocatori\s*=\s*\[[^\]]*\]/, 'giocatori = ["Eva", "Ugo"]'], [/ruoli\s*=\s*\[[^\]]*\]/, 'ruoli = ["porta", "attacco"]']),
+        (o) => o === "1. Eva\n2. Ugo\nEva gioca in porta\nUgo gioca in attacco", 'con giocatori = ["Eva", "Ugo"] e ruoli = ["porta", "attacco"] doveva stampare 1. Eva, 2. Ugo, Eva gioca in porta e Ugo gioca in attacco'),
+      tcase(swapEach(c, [/giocatori\s*=\s*\[[^\]]*\]/, 'giocatori = ["Zoe"]'], [/ruoli\s*=\s*\[[^\]]*\]/, 'ruoli = ["difesa"]']),
+        (o) => o === "1. Zoe\nZoe gioca in difesa", 'con una sola giocatrice, Zoe in difesa, doveva stampare 1. Zoe e Zoe gioca in difesa')),
+    expect: "1. Ada\n2. Bob\n3. Cleo\nAda gioca in attacco\nBob gioca in difesa\nCleo gioca in porta"
+  },
+  en: {
+    title: "Numbers and pairs: enumerate and zip",
+    theory: [
+`<p>In the lesson before, to number the items or read two lists together, the loop went over the positions with <code>range(len(items))</code>. Two Python functions do the same more simply, with no indexes to write:</p>
+<ul><li><code>enumerate(items)</code> gives two things together each round, the position and the item: in the <code>for</code> you write two variables separated by a comma, and the first takes the position, the second the item. With <code>enumerate(items, 1)</code> counting starts from 1 instead of 0;</li>
+<li><code>zip(list1, list2)</code> walks over two lists at the same time: each round an item of the first and the one in the same position of the second.</li></ul>`,
+{ code: `fruits = ["apple", "pear", "kiwi"]
+prices = [0.5, 0.8, 0.3]
+for i, fruit in enumerate(fruits, 1):
+    print(i, fruit)                   # 1 apple, then 2 pear, then 3 kiwi
+for fruit, price in zip(fruits, prices):
+    print(fruit, "costs", price)      # apple costs 0.5, then pear...` },
+`<p>If the two lists aren't the same length, <code>zip</code> stops at the end of the shorter one.</p>`],
+    task: `Print the team numbered from 1 with <code>enumerate</code>: <code>1. Ada</code>, <code>2. Bob</code>, <code>3. Cleo</code>. Then, with <code>zip</code>, print each one's role: <code>Ada plays in attack</code>, <code>Bob plays in defence</code>, <code>Cleo plays in goal</code>. I'll also try another team.`,
+    starter: `players = ["Ada", "Bob", "Cleo"]\nroles = ["attack", "defence", "goal"]\n\n`,
+    solution: `players = ["Ada", "Bob", "Cleo"]
+roles = ["attack", "defence", "goal"]
+
+for n, name in enumerate(players, 1):
+    print(f"{n}. {name}")
+for name, role in zip(players, roles):
+    print(f"{name} plays in {role}")`,
+    hints: ["In the first loop you need the number and the name together: which number should it start from? In the second, how do you walk over the two lists at the same time?",
+      "A for with two variables over enumerate of the players, with 1 as the second argument, and an f-string with the number, the dot and the name. Then a second for with two variables over zip of the two lists, and an f-string with the name, plays in and the role."],
+    check: (o, c) => o === "1. Ada\n2. Bob\n3. Cleo\nAda plays in attack\nBob plays in defence\nCleo plays in goal" && /\benumerate\s*\(/.test(c) && /\bzip\s*\(/.test(c),
+    why: (o) => (o === "1. Ada\n2. Bob\n3. Cleo\nAda plays in attack\nBob plays in defence\nCleo plays in goal" ? "The output is right, but the exercise here is using enumerate for the numbers and zip for the pairs, without range(len(...))." : null),
+    tests: (c) => tlist(
+      tcase(swapEach(c, [/players\s*=\s*\[[^\]]*\]/, 'players = ["Eva", "Ugo"]'], [/roles\s*=\s*\[[^\]]*\]/, 'roles = ["goal", "attack"]']),
+        (o) => o === "1. Eva\n2. Ugo\nEva plays in goal\nUgo plays in attack", 'with players = ["Eva", "Ugo"] and roles = ["goal", "attack"] it had to print 1. Eva, 2. Ugo, Eva plays in goal and Ugo plays in attack'),
+      tcase(swapEach(c, [/players\s*=\s*\[[^\]]*\]/, 'players = ["Zoe"]'], [/roles\s*=\s*\[[^\]]*\]/, 'roles = ["defence"]']),
+        (o) => o === "1. Zoe\nZoe plays in defence", "with a single player, Zoe in defence, it had to print 1. Zoe and Zoe plays in defence")),
+    expect: "1. Ada\n2. Bob\n3. Cleo\nAda plays in attack\nBob plays in defence\nCleo plays in goal"
   }
 },
 {
@@ -4359,6 +4505,75 @@ print("Bye!")`,
   }
 },
 {
+  id: "continue", teaches: ["continue"],
+  it: {
+    title: "Saltare un giro: continue",
+    theory: [
+`<p><code>break</code> esce dal ciclo. Il suo fratello <code>continue</code> invece salta solo il <b>giro</b> di adesso: le righe del blocco che lo seguono non vengono eseguite, e il ciclo riparte subito con il giro dopo. Funziona sia nel <code>for</code> sia nel <code>while</code>.</p>`,
+{ code: `voti = [7, 0, 9, 0, 6]
+for v in voti:
+    if v == 0:
+        continue          # 0 vuol dire assente: passa al prossimo
+    print("voto:", v)     # qui arrivano solo 7, 9 e 6` },
+`<p>Si usa per scartare subito, in cima al blocco, i casi che non interessano, invece di mettere tutto il resto dentro un <code>if</code>.</p>`],
+    task: `Le partite annullate valgono <code>-1</code>: saltale con <code>continue</code>. Per le altre stampa <code>Partita: 30</code> e somma i punti. Alla fine stampa <code>Totale: 100</code> e <code>Partite valide: 3</code>. Proverò anche con altre partite.`,
+    starter: `partite = [30, -1, 50, -1, 20]\n\n`,
+    solution: `partite = [30, -1, 50, -1, 20]
+
+totale = 0
+valide = 0
+for punti in partite:
+    if punti == -1:
+        continue
+    print("Partita:", punti)
+    totale += punti
+    valide += 1
+print("Totale:", totale)
+print("Partite valide:", valide)`,
+    hints: ["Cosa deve succedere appena il ciclo trova una partita annullata? E quali due numeri tieni aggiornati per le altre?",
+      "Due variabili a zero, una per il totale e una per le partite valide. Nel for, un if che con -1 fa continue; sotto, fuori dall'if, stampa la partita e aggiorna le due variabili. I due risultati si stampano dopo il ciclo."],
+    check: (o, c) => o === "Partita: 30\nPartita: 50\nPartita: 20\nTotale: 100\nPartite valide: 3" && /\bcontinue\b/.test(c),
+    why: (o) => (o === "Partita: 30\nPartita: 50\nPartita: 20\nTotale: 100\nPartite valide: 3" ? "L'output è giusto, ma qui l'esercizio è saltare le partite annullate con continue." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /partite\s*=\s*\[[^\]]*\]/, "partite = [-1, 10, -1]"), (o) => o === "Partita: 10\nTotale: 10\nPartite valide: 1", "con partite = [-1, 10, -1] doveva stampare Partita: 10, Totale: 10 e Partite valide: 1"),
+      tcase(swapRe(c, /partite\s*=\s*\[[^\]]*\]/, "partite = [5, 15]"), (o) => o === "Partita: 5\nPartita: 15\nTotale: 20\nPartite valide: 2", "con partite = [5, 15], senza partite annullate, doveva stampare le due partite, Totale: 20 e Partite valide: 2")),
+    expect: "Partita: 30\nPartita: 50\nPartita: 20\nTotale: 100\nPartite valide: 3"
+  },
+  en: {
+    title: "Skipping a round: continue",
+    theory: [
+`<p><code>break</code> leaves the loop. Its sibling <code>continue</code> skips only the current <b>round</b> instead: the lines of the block after it don't run, and the loop starts the next round straight away. It works in both <code>for</code> and <code>while</code>.</p>`,
+{ code: `grades = [7, 0, 9, 0, 6]
+for g in grades:
+    if g == 0:
+        continue          # 0 means absent: on to the next one
+    print("grade:", g)    # only 7, 9 and 6 get here` },
+`<p>You use it to throw away, at the top of the block, the cases you don't care about, instead of putting everything else inside an <code>if</code>.</p>`],
+    task: `Cancelled games are worth <code>-1</code>: skip them with <code>continue</code>. For the others print <code>Game: 30</code> and add up the points. At the end print <code>Total: 100</code> and <code>Valid games: 3</code>. I'll also try other games.`,
+    starter: `games = [30, -1, 50, -1, 20]\n\n`,
+    solution: `games = [30, -1, 50, -1, 20]
+
+total = 0
+valid = 0
+for points in games:
+    if points == -1:
+        continue
+    print("Game:", points)
+    total += points
+    valid += 1
+print("Total:", total)
+print("Valid games:", valid)`,
+    hints: ["What must happen as soon as the loop finds a cancelled game? And which two numbers do you keep up to date for the others?",
+      "Two variables at zero, one for the total and one for the valid games. In the for, an if that does continue on -1; below it, outside the if, print the game and update the two variables. The two results are printed after the loop."],
+    check: (o, c) => o === "Game: 30\nGame: 50\nGame: 20\nTotal: 100\nValid games: 3" && /\bcontinue\b/.test(c),
+    why: (o) => (o === "Game: 30\nGame: 50\nGame: 20\nTotal: 100\nValid games: 3" ? "The output is right, but the exercise here is skipping the cancelled games with continue." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /games\s*=\s*\[[^\]]*\]/, "games = [-1, 10, -1]"), (o) => o === "Game: 10\nTotal: 10\nValid games: 1", "with games = [-1, 10, -1] it had to print Game: 10, Total: 10 and Valid games: 1"),
+      tcase(swapRe(c, /games\s*=\s*\[[^\]]*\]/, "games = [5, 15]"), (o) => o === "Game: 5\nGame: 15\nTotal: 20\nValid games: 2", "with games = [5, 15], no cancelled games, it had to print both games, Total: 20 and Valid games: 2")),
+    expect: "Game: 30\nGame: 50\nGame: 20\nTotal: 100\nValid games: 3"
+  }
+},
+{
   id: "ripasso3", kind: "quiz", review: true, teaches: [],
   it: {
     title: "Ripasso: cicli e liste",
@@ -4390,7 +4605,16 @@ massima = 0
 for t in temperature:
     if t > massima:
         massima = t
-print(massima)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "Nessuna temperatura supera lo 0 di partenza, quindi massima resta 0, che nella lista non c'è nemmeno. Per questo il migliore finora parte dal primo elemento." }]
+print(massima)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "Nessuna temperatura supera lo 0 di partenza, quindi massima resta 0, che nella lista non c'è nemmeno. Per questo il migliore finora parte dal primo elemento." },
+      { q: "Cosa stampa?", code: `numeri = [9, 4, 7, 2]
+numeri.sort()
+for n in numeri:
+    if n % 2 == 0:
+        continue
+    print(n)`, options: ["7\n9", "9\n7", "2\n4", "2\n4\n7\n9"], correct: 0, explain: "sort() mette la lista in ordine: [2, 4, 7, 9]. I pari fanno continue e saltano il print: restano 7 e poi 9." },
+      { q: "Cosa stampa?", code: `for i, c in enumerate(["x", "y", "z"], 1):
+    if c == "y":
+        print(i)`, options: ["2", "1", "y", "3"], correct: 0, explain: "Con enumerate(..., 1) le posizioni partono da 1: la x è la 1, la y è la 2." }]
   },
   en: {
     title: "Review: loops and lists",
@@ -4422,7 +4646,16 @@ highest = 0
 for t in temperatures:
     if t > highest:
         highest = t
-print(highest)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "No temperature beats the starting 0, so highest stays 0, which isn't even in the list. That's why the best so far starts from the first item." }]
+print(highest)`, options: ["0", "-1", "-8", "-3"], correct: 0, explain: "No temperature beats the starting 0, so highest stays 0, which isn't even in the list. That's why the best so far starts from the first item." },
+      { q: "What does it print?", code: `numbers = [9, 4, 7, 2]
+numbers.sort()
+for n in numbers:
+    if n % 2 == 0:
+        continue
+    print(n)`, options: ["7\n9", "9\n7", "2\n4", "2\n4\n7\n9"], correct: 0, explain: "sort() puts the list in order: [2, 4, 7, 9]. The even ones do continue and skip the print: 7 and then 9 are left." },
+      { q: "What does it print?", code: `for i, c in enumerate(["x", "y", "z"], 1):
+    if c == "y":
+        print(i)`, options: ["2", "1", "y", "3"], correct: 0, explain: "With enumerate(..., 1) the positions start from 1: x is 1, y is 2." }]
   }
 },
 {
@@ -4620,6 +4853,19 @@ const clickTests = (c, lang) => {
       it ? "dopo 33 secondi il tempo si è fermato a 0" : "after 33 seconds the time has stopped at 0")
   ];
 };
+/* The tuples level: what the program needs besides the right output (the function, a return with two values, the
+   result unpacked, the swap in one line), [regex, Italian, English] */
+const TUPLE_NEEDS = {
+  it: [[/^def\s+quanto_manca\s*\(/m, "Serve la funzione quanto_manca(partenza, arrivo), scritta con def."],
+    [/\breturn\b[^\n]*,/, "quanto_manca deve restituire i due valori con un return solo, separati da una virgola."],
+    [/^[ \t]*\w+\s*,\s*\w+\s*=\s*quanto_manca\s*\(/m, "Il risultato di quanto_manca va spacchettato in due variabili, scritte a sinistra dell'uguale e separate da una virgola."],
+    [/^[ \t]*(giocatore\s*,\s*tesoro\s*=\s*tesoro\s*,\s*giocatore|tesoro\s*,\s*giocatore\s*=\s*giocatore\s*,\s*tesoro)[ \t]*$/m, "Lo scambio va fatto in una riga sola: a sinistra dell'uguale giocatore e tesoro, a destra gli stessi due, al contrario."]],
+  en: [[/^def\s+how_far\s*\(/m, "You need the function how_far(start, goal), written with def."],
+    [/\breturn\b[^\n]*,/, "how_far has to give back the two values with a single return, separated by a comma."],
+    [/^[ \t]*\w+\s*,\s*\w+\s*=\s*how_far\s*\(/m, "The result of how_far has to be unpacked into two variables, written left of the equals sign and separated by a comma."],
+    [/^[ \t]*(player\s*,\s*treasure\s*=\s*treasure\s*,\s*player|treasure\s*,\s*player\s*=\s*player\s*,\s*treasure)[ \t]*$/m, "The swap has to be done in a single line: left of the equals sign player and treasure, on the right the same two, the other way round."]]
+};
+const tupleWhy = (c, lang) => { const n = TUPLE_NEEDS[lang].find(([re]) => !re.test(c)); return n ? n[1] : null; };
 const C04 = [
 {
   id: "str", teaches: ["slice"],
@@ -4740,6 +4986,73 @@ print(clean.upper())`,
   }
 },
 {
+  id: "splitjoin", teaches: ["m:split", "m:join"],
+  it: {
+    title: "Spezzare e unire: split e join",
+    theory: [
+`<p>Due metodi passano dal testo alle liste, e ritorno:</p>
+<ul><li><code>testo.split()</code> spezza il testo dove ci sono spazi e restituisce la <b>lista</b> dei pezzi; con un separatore, come <code>split(",")</code>, lo spezza dove c'è quel separatore;</li>
+<li><code>separatore.join(lista)</code> fa il contrario: unisce gli elementi di una lista di stringhe in un testo solo, con il separatore in mezzo. Si scrive al contrario di come ti aspetti: prima il separatore, poi <code>.join</code> con la lista.</li></ul>`,
+{ code: `testo = "rosso,verde,blu"
+colori = testo.split(",")      # ['rosso', 'verde', 'blu']
+print(len(colori))             # 3
+print(" e ".join(colori))      # rosso e verde e blu
+print("ciao a tutti".split())  # ['ciao', 'a', 'tutti']` },
+`<p>I pezzi di <code>split</code> sono sempre stringhe, anche quando sono cifre: <code>"4 5".split()</code> dà <code>['4', '5']</code>, e per fare i conti ogni pezzo va trasformato con <code>int()</code>. Per lo stesso motivo <code>join</code> vuole una lista di stringhe. È il modo più comune per leggere più valori scritti su una riga sola, come quelli che arrivano da <code>input()</code>.</p>`],
+    task: `I punti delle partite di Ada arrivano tutti su una riga, separati da spazi. Spezza la riga e stampa quante partite ci sono, <code>Partite: 3</code>; poi la somma scritta per intero, cioè i pezzi uniti con il separatore <code>" + "</code>, poi <code>=</code> e il totale: <code>30 + 45 + 12 = 87</code>. Proverò anche con un'altra riga.`,
+    starter: `riga = "30 45 12"\n\n`,
+    solution: `riga = "30 45 12"
+
+pezzi = riga.split()
+print("Partite:", len(pezzi))
+totale = 0
+for p in pezzi:
+    totale += int(p)
+print(" + ".join(pezzi), "=", totale)`,
+    hints: ["Quale metodo trasforma la riga in una lista di pezzi? E i pezzi sono numeri o stringhe: puoi sommarli così come sono?",
+      "Salva in una variabile la riga spezzata e stampa Partite: con il suo len. Poi un totale a zero e un for sui pezzi che ci aggiunge ogni pezzo trasformato con int. Alla fine un print con i pezzi uniti da join, con il separatore del più, poi l'uguale e il totale."],
+    check: (o, c) => o === "Partite: 3\n30 + 45 + 12 = 87" && /\.split\s*\(/.test(c) && /\.join\s*\(/.test(c),
+    why: (o) => (o === "Partite: 3\n30 + 45 + 12 = 87" ? "L'output è giusto, ma qui l'esercizio è usare split per spezzare la riga e join per unire i pezzi." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /riga\s*=\s*"[^"]*"/, 'riga = "5 10"'), (o) => o === "Partite: 2\n5 + 10 = 15", 'con riga = "5 10" doveva stampare Partite: 2 e 5 + 10 = 15'),
+      tcase(swapRe(c, /riga\s*=\s*"[^"]*"/, 'riga = "100 1 2 3"'), (o) => o === "Partite: 4\n100 + 1 + 2 + 3 = 106", 'con riga = "100 1 2 3" doveva stampare Partite: 4 e 100 + 1 + 2 + 3 = 106'),
+      tcase(swapRe(c, /riga\s*=\s*"[^"]*"/, 'riga = "7"'), (o) => o === "Partite: 1\n7 = 7", 'con una partita sola, riga = "7", doveva stampare Partite: 1 e 7 = 7')),
+    expect: "Partite: 3\n30 + 45 + 12 = 87"
+  },
+  en: {
+    title: "Splitting and joining: split and join",
+    theory: [
+`<p>Two methods go from text to lists, and back:</p>
+<ul><li><code>text.split()</code> splits the text where there are spaces and gives back the <b>list</b> of pieces; with a separator, like <code>split(",")</code>, it splits it where that separator is;</li>
+<li><code>separator.join(items)</code> does the opposite: it joins the items of a list of strings into a single text, with the separator in between. It's written the other way round from what you'd expect: first the separator, then <code>.join</code> with the list.</li></ul>`,
+{ code: `text = "red,green,blue"
+colours = text.split(",")      # ['red', 'green', 'blue']
+print(len(colours))            # 3
+print(" and ".join(colours))   # red and green and blue
+print("hello to all".split())  # ['hello', 'to', 'all']` },
+`<p>The pieces from <code>split</code> are always strings, even when they're digits: <code>"4 5".split()</code> gives <code>['4', '5']</code>, and to do sums each piece has to be turned into a number with <code>int()</code>. For the same reason <code>join</code> wants a list of strings. It's the most common way to read several values written on a single line, like the ones that come from <code>input()</code>.</p>`],
+    task: `The points of Ada's games all come on one line, separated by spaces. Split the line and print how many games there are, <code>Games: 3</code>; then the sum written out in full, that is the pieces joined with the separator <code>" + "</code>, then <code>=</code> and the total: <code>30 + 45 + 12 = 87</code>. I'll also try another line.`,
+    starter: `line = "30 45 12"\n\n`,
+    solution: `line = "30 45 12"
+
+pieces = line.split()
+print("Games:", len(pieces))
+total = 0
+for p in pieces:
+    total += int(p)
+print(" + ".join(pieces), "=", total)`,
+    hints: ["Which method turns the line into a list of pieces? And are the pieces numbers or strings: can you add them up as they are?",
+      "Store the split line in a variable and print Games: with its len. Then a total at zero and a for over the pieces that adds each piece turned into a number with int. At the end a print with the pieces joined by join, with the plus separator, then the equals sign and the total."],
+    check: (o, c) => o === "Games: 3\n30 + 45 + 12 = 87" && /\.split\s*\(/.test(c) && /\.join\s*\(/.test(c),
+    why: (o) => (o === "Games: 3\n30 + 45 + 12 = 87" ? "The output is right, but the exercise here is using split to split the line and join to join the pieces." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /line\s*=\s*"[^"]*"/, 'line = "5 10"'), (o) => o === "Games: 2\n5 + 10 = 15", 'with line = "5 10" it had to print Games: 2 and 5 + 10 = 15'),
+      tcase(swapRe(c, /line\s*=\s*"[^"]*"/, 'line = "100 1 2 3"'), (o) => o === "Games: 4\n100 + 1 + 2 + 3 = 106", 'with line = "100 1 2 3" it had to print Games: 4 and 100 + 1 + 2 + 3 = 106'),
+      tcase(swapRe(c, /line\s*=\s*"[^"]*"/, 'line = "7"'), (o) => o === "Games: 1\n7 = 7", 'with a single game, line = "7", it had to print Games: 1 and 7 = 7')),
+    expect: "Games: 3\n30 + 45 + 12 = 87"
+  }
+},
+{
   id: "vowels", teaches: [],
   it: {
     title: "Contare le lettere",
@@ -4803,6 +5116,77 @@ print(f"Spaces: {spaces}")`,
   }
 },
 {
+  id: "strsearch", teaches: ["m:count", "m:find", "m:startswith"],
+  it: {
+    title: "Cercare nel testo: count, find e startswith",
+    theory: [
+`<p>Con <code>in</code> sai <b>se</b> un pezzo di testo c'è. Tre metodi rispondono a domande più precise:</p>
+<ul><li><code>testo.count(pezzo)</code> dice <b>quante volte</b> c'è il pezzo: il contatore della lezione di prima, già pronto;</li>
+<li><code>testo.find(pezzo)</code> dice <b>dove</b> si trova la prima volta, cioè l'indice da cui comincia, oppure <code>-1</code> se non c'è;</li>
+<li><code>testo.startswith(pezzo)</code> dice se il testo <b>comincia</b> con quel pezzo, <code>True</code> o <code>False</code>. Il suo gemello <code>endswith</code> guarda la fine.</li></ul>`,
+{ code: `nome_file = "foto_mare_2026.jpg"
+print(nome_file.count("o"))          # 2: la o c'è due volte
+print(nome_file.find("mare"))        # 5: comincia all'indice 5
+print(nome_file.find("monti"))       # -1: non c'è
+print(nome_file.startswith("foto"))  # True` },
+`<p>Come <code>replace</code>, distinguono le maiuscole dalle minuscole: se non ti importa, cerca in <code>testo.lower()</code>. E il <code>-1</code> di <code>find</code> va controllato con un <code>if</code>, prima di usare il risultato come posizione.</p>`],
+    task: `Questo è il registro delle mosse di una partita: <code>S</code> è un salto, <code>D</code> un passo a destra, <code>X</code> il momento in cui un nemico ti colpisce. Stampa quanti salti ci sono, <code>Salti: 5</code>; poi a quale mossa sei stato colpito la prima volta, contando da 1, <code>Colpito alla mossa 6</code>, oppure <code>Mai colpito</code> se la X non c'è; infine se la partita comincia con un doppio salto, <code>Doppio salto in partenza: True</code>. Proverò anche con altre partite.`,
+    starter: `mosse = "SSDSSXSD"\n\n`,
+    solution: `mosse = "SSDSSXSD"
+
+print("Salti:", mosse.count("S"))
+dove = mosse.find("X")
+if dove == -1:
+    print("Mai colpito")
+else:
+    print("Colpito alla mossa", dove + 1)
+print("Doppio salto in partenza:", mosse.startswith("SS"))`,
+    hints: ["Quale metodo conta, quale dice dove si trova la X e quale guarda l'inizio? E cosa restituisce quello che cerca, quando la X non c'è?",
+      "Stampa Salti: con il count della S. Salva in una variabile il find della X: con un if, se vale -1 stampa Mai colpito, altrimenti la mossa, cioè quell'indice più 1. Per l'ultima riga, startswith con due S."],
+    check: (o, c) => o === "Salti: 5\nColpito alla mossa 6\nDoppio salto in partenza: True" && /\.count\s*\(/.test(c) && /\.find\s*\(/.test(c) && /\.startswith\s*\(/.test(c),
+    why: (o) => (o === "Salti: 5\nColpito alla mossa 6\nDoppio salto in partenza: True" ? "L'output è giusto, ma qui l'esercizio è usare i tre metodi: count, find e startswith." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /mosse\s*=\s*"[^"]*"/, 'mosse = "DSDS"'), (o) => o === "Salti: 2\nMai colpito\nDoppio salto in partenza: False", 'con mosse = "DSDS" doveva stampare Salti: 2, Mai colpito e Doppio salto in partenza: False'),
+      tcase(swapRe(c, /mosse\s*=\s*"[^"]*"/, 'mosse = "XSS"'), (o) => o === "Salti: 2\nColpito alla mossa 1\nDoppio salto in partenza: False", 'con mosse = "XSS" doveva stampare Salti: 2, Colpito alla mossa 1 e Doppio salto in partenza: False'),
+      tcase(swapRe(c, /mosse\s*=\s*"[^"]*"/, 'mosse = "SSDX"'), (o) => o === "Salti: 2\nColpito alla mossa 4\nDoppio salto in partenza: True", 'con mosse = "SSDX" doveva stampare Salti: 2, Colpito alla mossa 4 e Doppio salto in partenza: True')),
+    expect: "Salti: 5\nColpito alla mossa 6\nDoppio salto in partenza: True"
+  },
+  en: {
+    title: "Searching text: count, find and startswith",
+    theory: [
+`<p>With <code>in</code> you know <b>whether</b> a piece of text is there. Three methods answer more precise questions:</p>
+<ul><li><code>text.count(piece)</code> says <b>how many times</b> the piece is there: the counter of the lesson before, ready-made;</li>
+<li><code>text.find(piece)</code> says <b>where</b> it is the first time, that is the index it starts at, or <code>-1</code> if it isn't there;</li>
+<li><code>text.startswith(piece)</code> says whether the text <b>starts</b> with that piece, <code>True</code> or <code>False</code>. Its twin <code>endswith</code> looks at the end.</li></ul>`,
+{ code: `file_name = "photo_sea_2026.jpg"
+print(file_name.count("o"))           # 2: o is there twice
+print(file_name.find("sea"))          # 6: it starts at index 6
+print(file_name.find("hills"))        # -1: not there
+print(file_name.startswith("photo"))  # True` },
+`<p>Like <code>replace</code>, they tell uppercase from lowercase: if you don't care, search in <code>text.lower()</code>. And the <code>-1</code> from <code>find</code> has to be checked with an <code>if</code>, before using the result as a position.</p>`],
+    task: `This is the log of a game's moves: <code>J</code> is a jump, <code>R</code> a step right, <code>X</code> the moment an enemy hits you. Print how many jumps there are, <code>Jumps: 5</code>; then at which move you were first hit, counting from 1, <code>Hit at move 6</code>, or <code>Never hit</code> if there's no X; finally whether the game starts with a double jump, <code>Double jump at the start: True</code>. I'll also try other games.`,
+    starter: `moves = "JJRJJXJR"\n\n`,
+    solution: `moves = "JJRJJXJR"
+
+print("Jumps:", moves.count("J"))
+where = moves.find("X")
+if where == -1:
+    print("Never hit")
+else:
+    print("Hit at move", where + 1)
+print("Double jump at the start:", moves.startswith("JJ"))`,
+    hints: ["Which method counts, which says where the X is and which looks at the start? And what does the one that searches give back when there's no X?",
+      "Print Jumps: with the count of J. Keep the find of X in a variable: with an if, if it's -1 print Never hit, otherwise the move, that is that index plus 1. For the last line, startswith with two J's."],
+    check: (o, c) => o === "Jumps: 5\nHit at move 6\nDouble jump at the start: True" && /\.count\s*\(/.test(c) && /\.find\s*\(/.test(c) && /\.startswith\s*\(/.test(c),
+    why: (o) => (o === "Jumps: 5\nHit at move 6\nDouble jump at the start: True" ? "The output is right, but the exercise here is using the three methods: count, find and startswith." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /moves\s*=\s*"[^"]*"/, 'moves = "RJRJ"'), (o) => o === "Jumps: 2\nNever hit\nDouble jump at the start: False", 'with moves = "RJRJ" it had to print Jumps: 2, Never hit and Double jump at the start: False'),
+      tcase(swapRe(c, /moves\s*=\s*"[^"]*"/, 'moves = "XJJ"'), (o) => o === "Jumps: 2\nHit at move 1\nDouble jump at the start: False", 'with moves = "XJJ" it had to print Jumps: 2, Hit at move 1 and Double jump at the start: False'),
+      tcase(swapRe(c, /moves\s*=\s*"[^"]*"/, 'moves = "JJRX"'), (o) => o === "Jumps: 2\nHit at move 4\nDouble jump at the start: True", 'with moves = "JJRX" it had to print Jumps: 2, Hit at move 4 and Double jump at the start: True')),
+    expect: "Jumps: 5\nHit at move 6\nDouble jump at the start: True"
+  }
+},
+{
   id: "builtins", teaches: ["sum", "max", "min", "sorted"],
   it: {
     title: "Funzioni già pronte: sum, max, min, sorted",
@@ -4810,7 +5194,7 @@ print(f"Spaces: {spaces}")`,
 `<p>Alcuni schemi che hai scritto a mano con i cicli sono così comuni che Python li ha già pronti, come funzioni che ricevono una lista e <b>restituiscono</b> un risultato:</p>
 <ul><li><code>sum(lista)</code> restituisce la somma dei numeri, come il totale accumulato nel ciclo;</li>
 <li><code>max(lista)</code> e <code>min(lista)</code> restituiscono il più grande e il più piccolo, come il migliore finora;</li>
-<li><code>sorted(lista)</code> restituisce una lista <b>nuova</b> con gli elementi in ordine crescente; con <code>sorted(lista, reverse=True)</code> l'ordine è decrescente. La lista di partenza non cambia.</li></ul>`,
+<li><code>sorted(lista)</code> restituisce una lista <b>nuova</b> con gli elementi in ordine crescente; con <code>sorted(lista, reverse=True)</code> l'ordine è decrescente. La lista di partenza non cambia: è la differenza con <code>sort()</code>, che mette in ordine la lista stessa.</li></ul>`,
 { code: `voti = [7, 9, 6, 8]
 print(sum(voti))      # 30
 print(max(voti))      # 9
@@ -4842,7 +5226,7 @@ print(sorted(punti, reverse=True)[:3])`,
 `<p>Some patterns you wrote by hand with loops are so common that Python already has them ready, as functions that receive a list and <b>give back</b> a result:</p>
 <ul><li><code>sum(list)</code> gives back the sum of the numbers, like the total built up in a loop;</li>
 <li><code>max(list)</code> and <code>min(list)</code> give back the biggest and the smallest, like the best so far;</li>
-<li><code>sorted(list)</code> gives back a <b>new</b> list with the items in increasing order; with <code>sorted(list, reverse=True)</code> the order is decreasing. The starting list doesn't change.</li></ul>`,
+<li><code>sorted(list)</code> gives back a <b>new</b> list with the items in increasing order; with <code>sorted(list, reverse=True)</code> the order is decreasing. The starting list doesn't change: that's the difference from <code>sort()</code>, which puts the list itself in order.</li></ul>`,
 { code: `grades = [7, 9, 6, 8]
 print(sum(grades))      # 30
 print(max(grades))      # 9
@@ -5104,6 +5488,97 @@ print(discounted(80, 25) + discounted(20, 10))`,
   }
 },
 {
+  id: "tuple", teaches: ["tuple", "multassign"],
+  it: {
+    title: "Tuple: più valori insieme",
+    theory: [
+`<p>Una <b>tupla</b> è una fila di valori tra parentesi tonde, come <code>(3, 5)</code>. Si legge con gli indici, come una lista, ma <b>non si può cambiare</b>: si usa per i valori che vanno sempre insieme, come le due coordinate di un punto.</p>
+<p>Una tupla si può <b>spacchettare</b>: a sinistra dell'uguale scrivi tante variabili, separate da virgole, quanti sono i valori, e ognuna prende il suo. Con lo stesso trucco si scambiano due variabili in una riga sola: <code>a, b = b, a</code>.</p>`,
+{ code: `punto = (3, 5)        # una tupla: x e y insieme
+print(punto[0])       # 3
+x, y = punto          # spacchettare: x vale 3, y vale 5
+a, b = 1, 2
+a, b = b, a           # scambio: ora a vale 2 e b vale 1
+print(a, b)` },
+`<p>Se provi a cambiare un valore, Python si ferma con un <code>TypeError</code>, come con le lettere di una stringa:</p>`,
+{ code: `punto = (3, 5)
+punto[0] = 4`, error: true },
+`<p>Lo spacchettamento lo hai già visto nel <code>for</code> con <code>enumerate</code> e <code>zip</code>: a ogni giro arriva una tupla, e le due variabili se la dividono. E serve alle funzioni: <code>return</code> restituisce un valore solo, ma quel valore può essere una tupla, così una funzione ne restituisce due. Le parentesi si possono lasciare fuori: <code>return a, b</code> restituisce la tupla <code>(a, b)</code>.</p>`,
+{ code: `def estremi(numeri):
+    return min(numeri), max(numeri)   # una tupla di due valori
+
+basso, alto = estremi([4, 9, 1])
+print(basso, alto)    # 1 9` }],
+    task: `Le posizioni nel gioco sono tuple <code>(x, y)</code>. Scrivi la funzione <code>quanto_manca(partenza, arrivo)</code>, che restituisce <b>due</b> valori: quanti passi mancano in orizzontale (la x di <code>arrivo</code> meno la x di <code>partenza</code>) e quanti in verticale (lo stesso con la y). Chiamala con il giocatore e il tesoro, spacchetta il risultato in due variabili e stampa <code>Passi: 3 in orizzontale, 4 in verticale</code>. Poi giocatore e tesoro si scambiano di posto: scambiali in una riga sola e stampali, <code>(5, 7) (2, 3)</code>. Proverò anche la funzione e lo scambio con altre posizioni.`,
+    starter: `giocatore = (2, 3)\ntesoro = (5, 7)\n\n`,
+    solution: `giocatore = (2, 3)
+tesoro = (5, 7)
+
+def quanto_manca(partenza, arrivo):
+    x1, y1 = partenza
+    x2, y2 = arrivo
+    return x2 - x1, y2 - y1
+
+dx, dy = quanto_manca(giocatore, tesoro)
+print(f"Passi: {dx} in orizzontale, {dy} in verticale")
+giocatore, tesoro = tesoro, giocatore
+print(giocatore, tesoro)`,
+    hints: ["Una funzione può restituire due valori con un return solo? E quando la chiami, come metti i due valori in due variabili?",
+      "Nella funzione spacchetta le due tuple nelle loro x e y, poi un return con le due differenze separate da una virgola. Fuori, due variabili a sinistra dell'uguale prendono il risultato della chiamata, e una f-string stampa la frase. Per lo scambio, una riga con i due nomi a sinistra e gli stessi nomi, invertiti, a destra."],
+    check: (o, c) => o === "Passi: 3 in orizzontale, 4 in verticale\n(5, 7) (2, 3)" && !tupleWhy(c, "it"),
+    why: (o, c) => tupleWhy(c, "it"),
+    tests: (c) => tlist(
+      tcase(c + "\nprint(quanto_manca((1, 1), (3, 0)))", (o) => o.split("\n").pop() === "(2, -1)", "quanto_manca((1, 1), (3, 0)) doveva restituire (2, -1)"),
+      tcase(swapEach(c, [/giocatore\s*=\s*\(\s*2\s*,\s*3\s*\)/, "giocatore = (0, 0)"], [/tesoro\s*=\s*\(\s*5\s*,\s*7\s*\)/, "tesoro = (4, 1)"]),
+        (o) => o === "Passi: 4 in orizzontale, 1 in verticale\n(4, 1) (0, 0)", "con giocatore = (0, 0) e tesoro = (4, 1) doveva stampare Passi: 4 in orizzontale, 1 in verticale e poi (4, 1) (0, 0)")),
+    expect: "Passi: 3 in orizzontale, 4 in verticale\n(5, 7) (2, 3)"
+  },
+  en: {
+    title: "Tuples: several values together",
+    theory: [
+`<p>A <b>tuple</b> is a row of values in round brackets, like <code>(3, 5)</code>. You read it with indexes, like a list, but it <b>can't be changed</b>: it's used for values that always go together, like the two coordinates of a point.</p>
+<p>A tuple can be <b>unpacked</b>: left of the equals sign you write as many variables, separated by commas, as there are values, and each one takes its own. With the same trick you swap two variables in a single line: <code>a, b = b, a</code>.</p>`,
+{ code: `point = (3, 5)        # a tuple: x and y together
+print(point[0])       # 3
+x, y = point          # unpacking: x is 3, y is 5
+a, b = 1, 2
+a, b = b, a           # swap: now a is 2 and b is 1
+print(a, b)` },
+`<p>If you try to change a value, Python stops with a <code>TypeError</code>, as with the letters of a string:</p>`,
+{ code: `point = (3, 5)
+point[0] = 4`, error: true },
+`<p>You've already seen unpacking in the <code>for</code> with <code>enumerate</code> and <code>zip</code>: each round a tuple comes in, and the two variables share it out. And it's handy for functions: <code>return</code> gives back a single value, but that value can be a tuple, so a function can give back two. The brackets can be left out: <code>return a, b</code> gives back the tuple <code>(a, b)</code>.</p>`,
+{ code: `def extremes(numbers):
+    return min(numbers), max(numbers)   # a tuple of two values
+
+low, high = extremes([4, 9, 1])
+print(low, high)      # 1 9` }],
+    task: `Positions in the game are tuples <code>(x, y)</code>. Write the function <code>how_far(start, goal)</code>, which gives back <b>two</b> values: how many steps are left horizontally (the x of <code>goal</code> minus the x of <code>start</code>) and how many vertically (the same with y). Call it with the player and the treasure, unpack the result into two variables and print <code>Steps: 3 horizontally, 4 vertically</code>. Then player and treasure swap places: swap them in a single line and print them, <code>(5, 7) (2, 3)</code>. I'll also try the function and the swap with other positions.`,
+    starter: `player = (2, 3)\ntreasure = (5, 7)\n\n`,
+    solution: `player = (2, 3)
+treasure = (5, 7)
+
+def how_far(start, goal):
+    x1, y1 = start
+    x2, y2 = goal
+    return x2 - x1, y2 - y1
+
+dx, dy = how_far(player, treasure)
+print(f"Steps: {dx} horizontally, {dy} vertically")
+player, treasure = treasure, player
+print(player, treasure)`,
+    hints: ["Can a function give back two values with a single return? And when you call it, how do you put the two values into two variables?",
+      "In the function unpack the two tuples into their x and y, then a return with the two differences separated by a comma. Outside, two variables left of the equals sign take the result of the call, and an f-string prints the sentence. For the swap, a line with the two names on the left and the same names, the other way round, on the right."],
+    check: (o, c) => o === "Steps: 3 horizontally, 4 vertically\n(5, 7) (2, 3)" && !tupleWhy(c, "en"),
+    why: (o, c) => tupleWhy(c, "en"),
+    tests: (c) => tlist(
+      tcase(c + "\nprint(how_far((1, 1), (3, 0)))", (o) => o.split("\n").pop() === "(2, -1)", "how_far((1, 1), (3, 0)) had to give back (2, -1)"),
+      tcase(swapEach(c, [/player\s*=\s*\(\s*2\s*,\s*3\s*\)/, "player = (0, 0)"], [/treasure\s*=\s*\(\s*5\s*,\s*7\s*\)/, "treasure = (4, 1)"]),
+        (o) => o === "Steps: 4 horizontally, 1 vertically\n(4, 1) (0, 0)", "with player = (0, 0) and treasure = (4, 1) it had to print Steps: 4 horizontally, 1 vertically and then (4, 1) (0, 0)")),
+    expect: "Steps: 3 horizontally, 4 vertically\n(5, 7) (2, 3)"
+  }
+},
+{
   id: "build4a", build: true, part: 4, from: "build3", teaches: [], sample: ["Ada", "4", "9", "7"],
   it: {
     title: "Costruisci: indovina il numero, parte 4",
@@ -5294,7 +5769,7 @@ def draw():
 
 pgzrun.go()` },
 `<p>Premi ▶ Prova e si apre la finestra. <code>WIDTH</code> e <code>HEIGHT</code> dicono quanto è grande. Dentro <code>draw()</code> scrivi cosa c'è sullo schermo: è Pygame Zero a chiamarla, ogni volta che la finestra va disegnata, tu non la chiami mai. <code>screen</code> è lo schermo: <code>screen.fill</code> lo colora tutto, <code>screen.draw</code> ci disegna sopra, una riga dopo l'altra, e quello che viene dopo copre quello che c'era. L'ultima riga, <code>pgzrun.go()</code>, fa partire il gioco.</p>
-<p>Le posizioni sono coppie di numeri tra parentesi, <code>(x, y)</code>: x va da sinistra a destra, y <b>dall'alto in basso</b>, quindi <code>(0, 0)</code> è l'angolo in alto a sinistra. Un rettangolo è un <code>Rect</code>: la posizione del suo angolo in alto a sinistra e la sua misura, <code>Rect((x, y), (larghezza, altezza))</code>. I colori si scrivono con il nome inglese: "red", "white", "skyblue"...</p>`],
+<p>Le posizioni sono tuple di due numeri, <code>(x, y)</code>, come quelle che conosci: x va da sinistra a destra, y <b>dall'alto in basso</b>, quindi <code>(0, 0)</code> è l'angolo in alto a sinistra. Un rettangolo è un <code>Rect</code>: la posizione del suo angolo in alto a sinistra e la sua misura, <code>Rect((x, y), (larghezza, altezza))</code>. I colori si scrivono con il nome inglese: "red", "white", "skyblue"...</p>`],
     task: `Disegna una casetta in una finestra larga 400 e alta 300: lo sfondo <code>"skyblue"</code>, il muro un rettangolo <code>"white"</code> con l'angolo in (100, 120), largo 200 e alto 150, la porta un rettangolo <code>"brown"</code> in (180, 190), largo 40 e alto 80, e la scritta <code>Casa mia</code> in (10, 10). Esegui per vederla: quando chiudi la finestra, proverò il gioco senza schermo, e misure, colori e rettangoli devono essere proprio questi.`,
     starter: `# La casetta, in una finestra di Pygame Zero\n\n`,
     solution: `import pgzrun
@@ -5332,7 +5807,7 @@ def draw():
 
 pgzrun.go()` },
 `<p>Press ▶ Try and the window opens. <code>WIDTH</code> and <code>HEIGHT</code> say how big it is. Inside <code>draw()</code> you write what's on the screen: Pygame Zero calls it, every time the window needs drawing, you never call it yourself. <code>screen</code> is the screen: <code>screen.fill</code> colours all of it, <code>screen.draw</code> draws on it, one line after the other, and what comes later covers what was there. The last line, <code>pgzrun.go()</code>, starts the game.</p>
-<p>Positions are pairs of numbers in brackets, <code>(x, y)</code>: x goes from left to right, y <b>from top to bottom</b>, so <code>(0, 0)</code> is the top left corner. A rectangle is a <code>Rect</code>: the position of its top left corner and its size, <code>Rect((x, y), (width, height))</code>. Colours are written by their name: "red", "white", "skyblue"...</p>`],
+<p>Positions are tuples of two numbers, <code>(x, y)</code>, like the ones you know: x goes from left to right, y <b>from top to bottom</b>, so <code>(0, 0)</code> is the top left corner. A rectangle is a <code>Rect</code>: the position of its top left corner and its size, <code>Rect((x, y), (width, height))</code>. Colours are written by their name: "red", "white", "skyblue"...</p>`],
     task: `Draw a little house in a window 400 wide and 300 high: the background <code>"skyblue"</code>, the wall a <code>"white"</code> rectangle with its corner at (100, 120), 200 wide and 150 high, the door a <code>"brown"</code> rectangle at (180, 190), 40 wide and 80 high, and the text <code>My house</code> at (10, 10). Run it to see it: when you close the window, I'll test the game without a screen, and sizes, colours and rectangles must be exactly these.`,
     starter: `# The little house, in a Pygame Zero window\n\n`,
     solution: `import pgzrun
@@ -5680,7 +6155,12 @@ for i in range(len(numeri)):
     numeri[i] = numeri[i] // 2
 print(numeri)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Ogni elemento viene sostituito dalla sua metà intera: 4 // 2, 7 // 2, 10 // 2." },
       { q: "Cosa stampa?", code: `punti = [4, 9, 2]
-print(max(punti) - min(punti), sorted(punti)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max dà 9 e min dà 2, quindi 9 - 2 fa 7. sorted(punti) è [2, 4, 9], e il suo primo elemento è 2." }]
+print(max(punti) - min(punti), sorted(punti)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max dà 9 e min dà 2, quindi 9 - 2 fa 7. sorted(punti) è [2, 4, 9], e il suo primo elemento è 2." },
+      { q: "Cosa stampa?", code: `pezzi = "10,20,30".split(",")
+print(len(pezzi), pezzi[1] + pezzi[2])`, options: ["3 2030", "3 50", "2 2030", "3 20 30"], correct: 0, explain: "split dà tre pezzi, ['10', '20', '30'], e sono stringhe: il + le attacca una all'altra, e \"20\" + \"30\" fa 2030." },
+      { q: "Cosa stampa?", code: `a, b = 3, 8
+a, b = b, a + b
+print(a, b)`, options: ["8 11", "8 16", "3 8", "11 8"], correct: 0, explain: "A destra dell'uguale si calcola tutto prima di assegnare: b vale 8 e a + b vale 11. Poi a prende 8 e b prende 11." }]
   },
   en: {
     title: "Review: text and functions",
@@ -5710,7 +6190,12 @@ for i in range(len(numbers)):
     numbers[i] = numbers[i] // 2
 print(numbers)`, options: ["[2, 3, 5]", "[2, 3.5, 5]", "[4, 7, 10]", "[2.0, 3.5, 5.0]"], correct: 0, explain: "Each item is replaced by its whole half: 4 // 2, 7 // 2, 10 // 2." },
       { q: "What does it print?", code: `scores = [4, 9, 2]
-print(max(scores) - min(scores), sorted(scores)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max gives 9 and min gives 2, so 9 - 2 is 7. sorted(scores) is [2, 4, 9], and its first item is 2." }]
+print(max(scores) - min(scores), sorted(scores)[0])`, options: ["7 2", "5 4", "7 4", "11 2"], correct: 0, explain: "max gives 9 and min gives 2, so 9 - 2 is 7. sorted(scores) is [2, 4, 9], and its first item is 2." },
+      { q: "What does it print?", code: `pieces = "10,20,30".split(",")
+print(len(pieces), pieces[1] + pieces[2])`, options: ["3 2030", "3 50", "2 2030", "3 20 30"], correct: 0, explain: "split gives three pieces, ['10', '20', '30'], and they're strings: + sticks them together, and \"20\" + \"30\" makes 2030." },
+      { q: "What does it print?", code: `a, b = 3, 8
+a, b = b, a + b
+print(a, b)`, options: ["8 11", "8 16", "3 8", "11 8"], correct: 0, explain: "Right of the equals sign everything is worked out before assigning: b is 8 and a + b is 11. Then a takes 8 and b takes 11." }]
   }
 },
 {
@@ -6064,6 +6549,63 @@ print(f"{winner} wins")`,
     check: (o, c) => o === "Ada: 3\nBob: 2\nCleo: 1\nAda wins" && /\.items\s*\(/.test(c),
     tests: (c) => tlist(tcase(swapRe(c, /votes\s*=\s*\[[^\]]*\]/, 'votes = ["Zoe", "Max", "Max"]'), (o) => o === "Zoe: 1\nMax: 2\nMax wins", 'with votes = ["Zoe", "Max", "Max"] Max had to win')),
     expect: "Ada: 3\nBob: 2\nCleo: 1\nAda wins"
+  }
+},
+{
+  id: "dictkeys", teaches: ["m:keys", "m:values"],
+  it: {
+    title: "Solo le chiavi o solo i valori",
+    theory: [
+`<p>A volte di un dizionario ti servono solo le chiavi, o solo i valori: <code>d.keys()</code> dà tutte le chiavi e <code>d.values()</code> tutti i valori, nell'ordine in cui sono entrati nel dizionario. Si scorrono con <code>for</code> e si passano alle funzioni che conosci, come <code>sum</code>, <code>max</code> e <code>sorted</code>, proprio come una lista.</p>`,
+{ code: `voti = {"Ada": 8, "Bob": 6, "Cleo": 9}
+print(sorted(voti.keys()))   # ['Ada', 'Bob', 'Cleo']: i nomi in ordine
+print(sum(voti.values()))    # 23: i voti sommati
+for v in voti.values():
+    print(v)` },
+`<p>Un <code>for</code> scritto direttamente sul dizionario, <code>for nome in voti:</code>, scorre le chiavi: <code>keys()</code> rende solo più chiaro cosa stai scorrendo. E quando ti servono chiave e valore insieme, c'è <code>items()</code>.</p>`],
+    task: `Ecco le monete di ogni giocatore. Stampa i nomi in ordine alfabetico, uno per riga; poi <code>Totale: 60</code>, le monete di tutti insieme, e <code>Massimo: 25</code>, le monete di chi ne ha di più. Proverò anche con altri giocatori.`,
+    starter: `monete = {"Ugo": 15, "Ada": 25, "Eva": 20}\n\n`,
+    solution: `monete = {"Ugo": 15, "Ada": 25, "Eva": 20}
+
+for nome in sorted(monete.keys()):
+    print(nome)
+print("Totale:", sum(monete.values()))
+print("Massimo:", max(monete.values()))`,
+    hints: ["Quale metodo dà i nomi e quale le monete? Con quali funzioni già pronte li metti in ordine, li sommi e trovi il più grande?",
+      "Un for sui nomi messi in ordine da sorted, che ne stampa uno per riga. Poi stampa Totale: con sum dei valori e Massimo: con max dei valori."],
+    check: (o, c) => o === "Ada\nEva\nUgo\nTotale: 60\nMassimo: 25" && /\.keys\s*\(/.test(c) && /\.values\s*\(/.test(c),
+    why: (o) => (o === "Ada\nEva\nUgo\nTotale: 60\nMassimo: 25" ? "L'output è giusto, ma qui l'esercizio è usare keys() per i nomi e values() per le monete." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /monete\s*=\s*\{[^}]*\}/, 'monete = {"Zoe": 5, "Bob": 40}'), (o) => o === "Bob\nZoe\nTotale: 45\nMassimo: 40", 'con monete = {"Zoe": 5, "Bob": 40} doveva stampare Bob, Zoe, Totale: 45 e Massimo: 40'),
+      tcase(swapRe(c, /monete\s*=\s*\{[^}]*\}/, 'monete = {"Max": 7}'), (o) => o === "Max\nTotale: 7\nMassimo: 7", 'con un giocatore solo, monete = {"Max": 7}, doveva stampare Max, Totale: 7 e Massimo: 7')),
+    expect: "Ada\nEva\nUgo\nTotale: 60\nMassimo: 25"
+  },
+  en: {
+    title: "Only the keys or only the values",
+    theory: [
+`<p>Sometimes you only need a dictionary's keys, or only its values: <code>d.keys()</code> gives all the keys and <code>d.values()</code> all the values, in the order they went into the dictionary. You go through them with <code>for</code> and pass them to the functions you know, like <code>sum</code>, <code>max</code> and <code>sorted</code>, just like a list.</p>`,
+{ code: `grades = {"Ada": 8, "Bob": 6, "Cleo": 9}
+print(sorted(grades.keys()))   # ['Ada', 'Bob', 'Cleo']: the names in order
+print(sum(grades.values()))    # 23: the grades added up
+for g in grades.values():
+    print(g)` },
+`<p>A <code>for</code> written straight on the dictionary, <code>for name in grades:</code>, goes through the keys: <code>keys()</code> just makes it clearer what you're going through. And when you need key and value together, there's <code>items()</code>.</p>`],
+    task: `Here are each player's coins. Print the names in alphabetical order, one per line; then <code>Total: 60</code>, everyone's coins together, and <code>Highest: 25</code>, the coins of whoever has most. I'll also try other players.`,
+    starter: `coins = {"Ugo": 15, "Ada": 25, "Eva": 20}\n\n`,
+    solution: `coins = {"Ugo": 15, "Ada": 25, "Eva": 20}
+
+for name in sorted(coins.keys()):
+    print(name)
+print("Total:", sum(coins.values()))
+print("Highest:", max(coins.values()))`,
+    hints: ["Which method gives the names and which the coins? Which ready-made functions put them in order, add them up and find the biggest?",
+      "A for over the names put in order by sorted, printing one per line. Then print Total: with sum of the values and Highest: with max of the values."],
+    check: (o, c) => o === "Ada\nEva\nUgo\nTotal: 60\nHighest: 25" && /\.keys\s*\(/.test(c) && /\.values\s*\(/.test(c),
+    why: (o) => (o === "Ada\nEva\nUgo\nTotal: 60\nHighest: 25" ? "The output is right, but the exercise here is using keys() for the names and values() for the coins." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /coins\s*=\s*\{[^}]*\}/, 'coins = {"Zoe": 5, "Bob": 40}'), (o) => o === "Bob\nZoe\nTotal: 45\nHighest: 40", 'with coins = {"Zoe": 5, "Bob": 40} it had to print Bob, Zoe, Total: 45 and Highest: 40'),
+      tcase(swapRe(c, /coins\s*=\s*\{[^}]*\}/, 'coins = {"Max": 7}'), (o) => o === "Max\nTotal: 7\nHighest: 7", 'with a single player, coins = {"Max": 7}, it had to print Max, Total: 7 and Highest: 7')),
+    expect: "Ada\nEva\nUgo\nTotal: 60\nHighest: 25"
   }
 },
 {
@@ -6630,7 +7172,9 @@ print(rubrica[nome])`, spot: true, correct: 1,
 print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) arrotonda pi greco a una cifra dopo la virgola: 3.1. Per 2 fa 6.2." },
       { q: "Cosa stampa?", code: `from math import sqrt
 import random as rnd
-print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "si ferma: math non è stato importato"], correct: 0, explain: "sqrt arriva da math con from, quindi si scrive senza math. davanti: sqrt(9) fa 3.0. rnd è random con un altro nome, e randint(4, 4) può dare solo 4." }]
+print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "si ferma: math non è stato importato"], correct: 0, explain: "sqrt arriva da math con from, quindi si scrive senza math. davanti: sqrt(9) fa 3.0. rnd è random con un altro nome, e randint(4, 4) può dare solo 4." },
+      { q: "Cosa stampa?", code: `monete = {"Ada": 5, "Bob": 9}
+print(sum(monete.values()), sorted(monete.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() dà le monete, 5 e 9, che sommate fanno 14. keys() dà i nomi: in ordine sono ['Ada', 'Bob'], e l'ultimo è Bob." }]
   },
   en: {
     title: "Review: the tools",
@@ -6654,7 +7198,9 @@ print(phonebook[name])`, spot: true, correct: 1,
 print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0, explain: "round(math.pi, 1) rounds pi to one digit after the point: 3.1. Times 2 is 6.2." },
       { q: "What does it print?", code: `from math import sqrt
 import random as rnd
-print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "it stops: math wasn't imported"], correct: 0, explain: "sqrt comes from math with from, so you write it without math. in front: sqrt(9) is 3.0. rnd is random with another name, and randint(4, 4) can only give 4." }]
+print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "it stops: math wasn't imported"], correct: 0, explain: "sqrt comes from math with from, so you write it without math. in front: sqrt(9) is 3.0. rnd is random with another name, and randint(4, 4) can only give 4." },
+      { q: "What does it print?", code: `coins = {"Ada": 5, "Bob": 9}
+print(sum(coins.values()), sorted(coins.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() gives the coins, 5 and 9, which add up to 14. keys() gives the names: in order they're ['Ada', 'Bob'], and the last one is Bob." }]
   }
 },
 {
@@ -6848,8 +7394,179 @@ print("Half:", len(phonebook) // 2)`,
 ];
 
 
-/* ---------- 06_oggetti: classes and attributes, methods, state, lists of objects, the final game ---------- */
+/* ---------- 06_file_e_oggetti: files (open, with, write, read, a line per record), classes and attributes, methods,
+   state, lists of objects, the final game ---------- */
+/* The record level: the file has to be read again, so a hidden test changes what the program writes in it (every
+   write call: the first writes the text, the others nothing) */
+const onlyWrite = (c, text) => { let k = 0; const x = c.replace(/\.write\s*\([^\n]*\)/g, () => (k++ ? '.write("")' : `.write(${JSON.stringify(text)})`)); return k ? x : null; };
+const fileWhy = (c, lang) => {
+  const it = lang === "it";
+  if (!/\bwith\s+open\s*\(/.test(c)) return it ? "Il file va aperto con with open(...): così si chiude da solo alla fine del blocco." : "The file has to be opened with with open(...): that way it closes by itself at the end of the block.";
+  if (!/\.write\s*\(/.test(c)) return it ? "Il record va scritto nel file con write." : "The record has to be written in the file with write.";
+  if (!/\.read\s*\(/.test(c)) return it ? "Il record va riletto dal file con read, non preso dalle variabili." : "The record has to be read back from the file with read, not taken from the variables.";
+  return null;
+};
 const C06 = [
+{
+  id: "files", needs: "full", teaches: ["open", "with", "m:write", "m:read"],
+  it: {
+    title: "Ricordare con un file",
+    theory: [
+`<p>Ricordi l'avviso dopo la parte 7? Quando un programma finisce, le sue variabili spariscono. Il modo più semplice per ricordare qualcosa è scriverlo in un <b>file</b>: il file resta anche dopo, e la volta dopo il programma lo può rileggere.</p>
+<p><code>open(nome, modo)</code> apre un file, e il modo dice cosa vuoi farci: <code>"w"</code> per scrivere (il file si crea, e se c'era già si svuota), <code>"r"</code> per leggere. Si usa insieme a <code>with</code>: <code>as</code> dà un nome al file aperto, il blocco rientrato ci lavora, e alla fine del blocco il file si chiude da solo.</p>`,
+{ code: `with open("saluto.txt", "w") as f:
+    f.write("Ciao dal passato!")    # scrive il testo nel file
+
+with open("saluto.txt", "r") as f:
+    testo = f.read()                # legge tutto il file in una stringa
+print(testo)` },
+`<p><code>write</code> accetta solo stringhe: un numero va trasformato con <code>str()</code> o messo in una f-string. <code>read()</code> restituisce tutto quello che c'è nel file come una stringa sola, che puoi spezzare con <code>split()</code>.</p>
+<p>Qui in Arcode i file di testo restano finché non ricarichi la pagina; sul tuo computer restano sul disco, come tutti i file. Un file va bene per poche cose da ricordare: per tanti dati, da cercare e da cambiare, serve un database, quello del mondo SQL.</p>`],
+    task: `Salva il record nel file <code>record.txt</code>: scrivi nel file il nome e i punti, separati da uno spazio, così: <code>Ada 40</code>. Poi, in un secondo <code>with</code>, rileggi il file, spezza il testo nei suoi due pezzi e stampa <code>Record: Ada con 40 punti</code> usando i pezzi letti. Proverò anche con un altro giocatore, e cambierò quello che scrivi nel file per vedere se lo rileggi davvero.`,
+    starter: `nome = "Ada"\npunti = 40\n\n`,
+    solution: `nome = "Ada"
+punti = 40
+
+with open("record.txt", "w") as f:
+    f.write(f"{nome} {punti}")
+
+with open("record.txt", "r") as f:
+    pezzi = f.read().split()
+print(f"Record: {pezzi[0]} con {pezzi[1]} punti")`,
+    hints: ["Quale modo di open serve per scrivere e quale per leggere? E write accetta i punti così come sono, visto che sono un numero?",
+      "Un primo with apre record.txt in scrittura e ci scrive, con una f-string, il nome, uno spazio e i punti. Un secondo with lo apre in lettura: read legge tutto e split lo spezza in una lista di due pezzi. Fuori dal blocco stampa la frase con i due pezzi."],
+    check: (o, c) => o === "Record: Ada con 40 punti" && !fileWhy(c, "it"),
+    why: (o, c) => fileWhy(c, "it"),
+    tests: (c) => tlist(
+      tcase(swapEach(c, [/nome\s*=\s*"Ada"/, 'nome = "Eva"'], [/punti\s*=\s*40\b/, "punti = 99"]), (o) => o === "Record: Eva con 99 punti", 'con nome = "Eva" e punti = 99 doveva stampare Record: Eva con 99 punti'),
+      tcase(onlyWrite(c, "Ugo 7"), (o) => o === "Record: Ugo con 7 punti", "se nel file c'è scritto Ugo 7, doveva stampare Record: Ugo con 7 punti: il record va riletto dal file")),
+    expect: "Record: Ada con 40 punti"
+  },
+  en: {
+    title: "Remembering with a file",
+    theory: [
+`<p>Remember the notice after part 7? When a program ends, its variables vanish. The simplest way to remember something is to write it in a <b>file</b>: the file stays afterwards, and next time the program can read it again.</p>
+<p><code>open(name, mode)</code> opens a file, and the mode says what you want to do with it: <code>"w"</code> to write (the file is created, and if it was already there it's emptied), <code>"r"</code> to read. It's used in a <code>with</code> line: <code>as</code> gives the open file a name, the indented block works on it, and at the end of the block the file closes by itself.</p>`,
+{ code: `with open("hello.txt", "w") as f:
+    f.write("Hello from the past!")   # writes the text in the file
+
+with open("hello.txt", "r") as f:
+    text = f.read()                   # reads the whole file into a string
+print(text)` },
+`<p><code>write</code> only takes strings: a number has to be turned into one with <code>str()</code> or put in an f-string. <code>read()</code> gives back everything in the file as a single string, which you can split with <code>split()</code>.</p>
+<p>Here in Arcode text files stay until you reload the page; on your computer they stay on the disk, like every file. A file is fine for a few things to remember: for lots of data, to search and to change, you need a database, the one of the SQL world.</p>`],
+    task: `Save the record in the file <code>record.txt</code>: write the name and the points in the file, separated by a space, like this: <code>Ada 40</code>. Then, in a second <code>with</code>, read the file again, split the text into its two pieces and print <code>Record: Ada with 40 points</code> using the pieces you read. I'll also try another player, and I'll change what you write in the file to see whether you really read it back.`,
+    starter: `name = "Ada"\npoints = 40\n\n`,
+    solution: `name = "Ada"
+points = 40
+
+with open("record.txt", "w") as f:
+    f.write(f"{name} {points}")
+
+with open("record.txt", "r") as f:
+    pieces = f.read().split()
+print(f"Record: {pieces[0]} with {pieces[1]} points")`,
+    hints: ["Which mode of open do you need to write and which to read? And does write take the points as they are, given that they're a number?",
+      "A first with opens record.txt for writing and writes in it, with an f-string, the name, a space and the points. A second with opens it for reading: read reads it all and split splits it into a list of two pieces. Outside the block print the sentence with the two pieces."],
+    check: (o, c) => o === "Record: Ada with 40 points" && !fileWhy(c, "en"),
+    why: (o, c) => fileWhy(c, "en"),
+    tests: (c) => tlist(
+      tcase(swapEach(c, [/name\s*=\s*"Ada"/, 'name = "Eva"'], [/points\s*=\s*40\b/, "points = 99"]), (o) => o === "Record: Eva with 99 points", 'with name = "Eva" and points = 99 it had to print Record: Eva with 99 points'),
+      tcase(onlyWrite(c, "Ugo 7"), (o) => o === "Record: Ugo with 7 points", "if the file says Ugo 7, it had to print Record: Ugo with 7 points: the record has to be read back from the file")),
+    expect: "Record: Ada with 40 points"
+  }
+},
+{
+  id: "filelines", needs: "full", teaches: [],
+  it: {
+    title: "Una riga per ogni partita",
+    theory: [
+`<p>Di solito in un file si scrive una <b>riga</b> per ogni cosa da ricordare, con i pezzi separati da una virgola: è il formato dei file <code>.csv</code>, che si aprono anche con un foglio di calcolo. Per andare a capo si scrive <code>\\n</code>, perché <code>write</code> non lo fa da solo.</p>
+<p>Il modo <code>"a"</code> (da <i>append</i>, aggiungere) scrive in fondo al file, senza cancellare quello che c'era. E per leggere, un <code>for</code> sul file aperto dà una riga alla volta, con il suo <code>\\n</code> alla fine: <code>strip()</code> lo toglie e <code>split(",")</code> separa i pezzi.</p>`,
+{ code: `with open("spesa.csv", "w") as f:
+    f.write("pane,2\\n")
+with open("spesa.csv", "a") as f:     # "a": aggiunge in fondo
+    f.write("latte,1\\n")
+
+with open("spesa.csv", "r") as f:
+    for riga in f:                     # una riga alla volta
+        cosa, quanti = riga.strip().split(",")
+        print(cosa, "x", quanti)` },
+`<p>Con il modo <code>"a"</code> un file cresce una riga alla volta, per esempio partita dopo partita. Per sapere qualcosa, però, va riletto tutto dall'inizio, riga per riga: con dieci righe va benissimo, con un milione no. È per questo che i programmi veri, quando i dati sono tanti, usano un database.</p>`],
+    task: `Il programma tiene le partite nel file <code>partite.csv</code>, una riga per partita: <code>nome,punti</code>. Le prime due righe le scrive già il programma. Aggiungi in fondo, con il modo <code>"a"</code>, la partita di Cleo con 55 punti. Poi rileggi il file riga per riga e stampa ogni partita così, <code>Ada: 30</code>, e alla fine il totale dei punti, <code>Totale: 125</code>. Proverò anche con altre partite nel file.`,
+    starter: `with open("partite.csv", "w") as f:
+    f.write("Ada,30\\n")
+    f.write("Bob,40\\n")
+
+`,
+    solution: `with open("partite.csv", "w") as f:
+    f.write("Ada,30\\n")
+    f.write("Bob,40\\n")
+
+with open("partite.csv", "a") as f:
+    f.write("Cleo,55\\n")
+
+totale = 0
+with open("partite.csv", "r") as f:
+    for partita in f:
+        nome, punti = partita.strip().split(",")
+        print(f"{nome}: {punti}")
+        totale += int(punti)
+print("Totale:", totale)`,
+    hints: ["Con quale modo di open scrivi in fondo senza cancellare le righe che ci sono? E ogni riga che leggi, cosa si porta dietro alla fine?",
+      "Un with in modo a scrive la riga di Cleo, con il suo a capo. Poi un totale a zero e un with in lettura con un for sulle righe: pulisci la riga con strip, spezzala sulla virgola in due variabili, stampa nome e punti e aggiungi al totale i punti trasformati in numero. Il totale si stampa alla fine."],
+    check: (o, c) => o === "Ada: 30\nBob: 40\nCleo: 55\nTotale: 125" && /\bopen\s*\([^)\n]*["']a["']/.test(c),
+    why: (o, c) => (/\bopen\s*\([^)\n]*["']a["']/.test(c) ? null : "La partita di Cleo va aggiunta con il modo \"a\", che scrive in fondo al file senza cancellare le righe che ci sono."),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /"Cleo,55\\n"/, '"Zoe,5\\n"'), (o) => o === "Ada: 30\nBob: 40\nZoe: 5\nTotale: 75", "aggiungendo Zoe con 5 punti al posto di Cleo doveva stampare anche Zoe: 5, e Totale: 75"),
+      tcase(swapRe(c, /"Bob,40\\n"/, '"Max,1\\n"'), (o) => o === "Ada: 30\nMax: 1\nCleo: 55\nTotale: 86", "se nel file c'è Max con 1 punto al posto di Bob, doveva leggerlo dal file: Max: 1 e Totale: 86")),
+    expect: "Ada: 30\nBob: 40\nCleo: 55\nTotale: 125"
+  },
+  en: {
+    title: "One line for every game",
+    theory: [
+`<p>Usually a file has one <b>line</b> for every thing to remember, with the pieces separated by a comma: it's the format of <code>.csv</code> files, which spreadsheets open too. To go to a new line you write <code>\\n</code>, because <code>write</code> doesn't do it by itself.</p>
+<p>The mode <code>"a"</code> (for <i>append</i>) writes at the end of the file, without deleting what was there. And to read, a <code>for</code> over the open file gives one line at a time, with its <code>\\n</code> at the end: <code>strip()</code> takes it away and <code>split(",")</code> separates the pieces.</p>`,
+{ code: `with open("shopping.csv", "w") as f:
+    f.write("bread,2\\n")
+with open("shopping.csv", "a") as f:   # "a": adds at the end
+    f.write("milk,1\\n")
+
+with open("shopping.csv", "r") as f:
+    for line in f:                       # one line at a time
+        item, how_many = line.strip().split(",")
+        print(item, "x", how_many)` },
+`<p>With the <code>"a"</code> mode a file grows one line at a time, game after game for example. To find something out, though, it has to be read again from the start, line by line: with ten lines that's fine, with a million it isn't. That's why real programs use a database when there's lots of data.</p>`],
+    task: `The program keeps the games in the file <code>games.csv</code>, one line per game: <code>name,points</code>. The program already writes the first two lines. Add at the end, with the mode <code>"a"</code>, Cleo's game with 55 points. Then read the file again line by line and print every game like this, <code>Ada: 30</code>, and at the end the total of the points, <code>Total: 125</code>. I'll also try other games in the file.`,
+    starter: `with open("games.csv", "w") as f:
+    f.write("Ada,30\\n")
+    f.write("Bob,40\\n")
+
+`,
+    solution: `with open("games.csv", "w") as f:
+    f.write("Ada,30\\n")
+    f.write("Bob,40\\n")
+
+with open("games.csv", "a") as f:
+    f.write("Cleo,55\\n")
+
+total = 0
+with open("games.csv", "r") as f:
+    for game in f:
+        name, points = game.strip().split(",")
+        print(f"{name}: {points}")
+        total += int(points)
+print("Total:", total)`,
+    hints: ["Which mode of open writes at the end without deleting the lines that are there? And every line you read, what does it carry at its end?",
+      "A with in mode a writes Cleo's line, with its new line. Then a total at zero and a with for reading with a for over the lines: clean the line with strip, split it on the comma into two variables, print name and points and add the points, turned into a number, to the total. The total is printed at the end."],
+    check: (o, c) => o === "Ada: 30\nBob: 40\nCleo: 55\nTotal: 125" && /\bopen\s*\([^)\n]*["']a["']/.test(c),
+    why: (o, c) => (/\bopen\s*\([^)\n]*["']a["']/.test(c) ? null : "Cleo's game has to be added with the mode \"a\", which writes at the end of the file without deleting the lines that are there."),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /"Cleo,55\\n"/, '"Zoe,5\\n"'), (o) => o === "Ada: 30\nBob: 40\nZoe: 5\nTotal: 75", "adding Zoe with 5 points instead of Cleo it had to print Zoe: 5 too, and Total: 75"),
+      tcase(swapRe(c, /"Bob,40\\n"/, '"Max,1\\n"'), (o) => o === "Ada: 30\nMax: 1\nCleo: 55\nTotal: 86", "if the file has Max with 1 point instead of Bob, it had to read it from the file: Max: 1 and Total: 86")),
+    expect: "Ada: 30\nBob: 40\nCleo: 55\nTotal: 125"
+  }
+},
 {
   id: "class", teaches: ["class", "self", "__init__"],
   it: {
@@ -8610,14 +9327,14 @@ const PY_WORLDS = [
     it: { name: "Le basi", tag: "Variabili, conti, tipi e input" }, en: { name: "The basics", tag: "Variables, math, types and input" } },
   { id: "w2", dir: { it: "02_decisioni", en: "02_decisions" }, mascot: "graffa", levels: ["bool", "ifblock", "ifelse", "if", "elifq", "textcmp", "logic", "parity", "ripasso2", "build2", "boss2"],
     it: { name: "Decisioni", tag: "Vero, falso, if e blocchi" }, en: { name: "Decisions", tag: "True, false, if and blocks" } },
-  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "loop", "best", "index", "grid", "while", "whilein", "ripasso3", "build3", "boss3"],
+  { id: "w3", dir: { it: "03_cicli", en: "03_loops" }, mascot: "pip", levels: ["for", "step", "rangeq", "count", "list", "listlen", "listmod", "listmore", "loop", "best", "index", "enumzip", "grid", "while", "whilein", "continue", "ripasso3", "build3", "boss3"],
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
-  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "vowels", "builtins", "def0", "params", "def", "retq", "build4a", "fcall", "pgzwin", "pgzkeys", "pgzclick", "ripasso4", "build4", "boss4"],
-    it: { name: "Testo e funzioni", tag: "Stringhe, def e return, poi la finestra del gioco" }, en: { name: "Text and functions", tag: "Strings, def and return, then the game window" } },
-  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictq", "try", "retry", "mod", "build5a", "math", "imports", "comp", "ripasso5", "build5", "boss5"],
+  { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "splitjoin", "vowels", "strsearch", "builtins", "def0", "params", "def", "retq", "tuple", "build4a", "fcall", "pgzwin", "pgzkeys", "pgzclick", "ripasso4", "build4", "boss4"],
+    it: { name: "Testo e funzioni", tag: "Stringhe, def, return e tuple, poi la finestra del gioco" }, en: { name: "Text and functions", tag: "Strings, def, return and tuples, then the game window" } },
+  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictkeys", "dictq", "try", "retry", "mod", "build5a", "math", "imports", "comp", "ripasso5", "build5", "boss5"],
     it: { name: "Strumenti", tag: "Dizionari, errori e librerie" }, en: { name: "Tools", tag: "Dictionaries, errors and libraries" } },
-  { id: "w6", dir: { it: "06_oggetti", en: "06_objects" }, mascot: "pip", levels: ["class", "method", "classq", "state", "build6a", "objlist", "ripasso6", "final", "boss6"],
-    it: { name: "Oggetti", tag: "Classi e sfida finale" }, en: { name: "Objects", tag: "Classes and final challenge" } },
+  { id: "w6", dir: { it: "06_file_e_oggetti", en: "06_files_and_objects" }, mascot: "pip", levels: ["files", "filelines", "class", "method", "classq", "state", "build6a", "objlist", "ripasso6", "final", "boss6"],
+    it: { name: "File e oggetti", tag: "File, classi e sfida finale" }, en: { name: "Files and objects", tag: "Files, classes and final challenge" } },
   { id: "bonus", dir: { it: "07_librerie", en: "07_libraries" }, mascot: "bit", levels: ["pip", "build7", "build8", "numpy", "plot"],
     it: { name: "Librerie", tag: "pip, il gioco con pygame, numpy e grafici" }, en: { name: "Libraries", tag: "pip, the game with pygame, numpy and charts" } }
 ];
@@ -8636,18 +9353,18 @@ const FILE_BASE = {
   parity: ["pari_dispari.py", "even_odd.py"], ripasso2: ["ripasso.py", "review.py"], build2: ["costruisci_gioco.py", "build_game.py"],
   boss2: ["boss_termometro.py", "boss_thermometer.py"], for: ["for.py", "for.py"], step: ["passo.py", "step.py"],
   rangeq: ["prevedi_range.py", "predict_range.py"], count: ["contare.py", "counting.py"], list: ["liste.py", "lists.py"],
-  listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], loop: ["scorrere.py", "looping.py"], best: ["il_migliore.py", "the_best.py"],
-  index: ["posizioni.py", "positions.py"], grid: ["griglie.py", "grids.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"],
+  listlen: ["len_e_in.py", "len_and_in.py"], listmod: ["modificare.py", "changing.py"], listmore: ["altri_metodi.py", "more_methods.py"], loop: ["scorrere.py", "looping.py"], best: ["il_migliore.py", "the_best.py"],
+  index: ["posizioni.py", "positions.py"], enumzip: ["enumerate_zip.py", "enumerate_zip.py"], grid: ["griglie.py", "grids.py"], while: ["while.py", "while.py"], whilein: ["break.py", "break.py"], continue: ["continue.py", "continue.py"],
   ripasso3: ["ripasso.py", "review.py"], build3: ["costruisci_gioco.py", "build_game.py"], boss3: ["boss_scontrino.py", "boss_receipt.py"],
-  str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], vowels: ["vocali.py", "vowels.py"], builtins: ["funzioni_pronte.py", "ready_made_functions.py"],
+  str: ["testo.py", "text.py"], strmeth: ["metodi.py", "methods.py"], splitjoin: ["split_join.py", "split_join.py"], strsearch: ["cercare.py", "searching.py"], vowels: ["vocali.py", "vowels.py"], builtins: ["funzioni_pronte.py", "ready_made_functions.py"],
   def0: ["def.py", "def.py"], params: ["parametri.py", "parameters.py"], def: ["return.py", "return.py"],
-  retq: ["prevedi_return.py", "predict_return.py"], fcall: ["insieme.py", "together.py"], pgzwin: ["finestra.py", "window.py"], pgzkeys: ["tasti.py", "keys.py"],
+  retq: ["prevedi_return.py", "predict_return.py"], tuple: ["tuple.py", "tuples.py"], fcall: ["insieme.py", "together.py"], pgzwin: ["finestra.py", "window.py"], pgzkeys: ["tasti.py", "keys.py"],
   pgzclick: ["clic_e_tempo.py", "clicks_and_time.py"], ripasso4: ["ripasso.py", "review.py"],
   build4a: ["costruisci_verdetto.py", "build_verdict.py"], build4: ["costruisci_partita.py", "build_play.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
-  dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
+  dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictkeys: ["chiavi_valori.py", "keys_values.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
   try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], imports: ["importare.py", "importing.py"], math: ["moduli_math.py", "math_module.py"],
   comp: ["liste_veloci.py", "comprehensions.py"], ripasso5: ["ripasso.py", "review.py"], build5a: ["costruisci_dadi.py", "build_dice.py"], build5: ["costruisci_livelli.py", "build_levels.py"],
-  boss5: ["boss_rubrica.py", "boss_phonebook.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
+  boss5: ["boss_rubrica.py", "boss_phonebook.py"], files: ["file.py", "files.py"], filelines: ["righe_file.py", "file_lines.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
   classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
   ripasso6: ["grande_ripasso.py", "big_review.py"], build6a: ["costruisci_giocatore.py", "build_player.py"], final: ["sfida_finale.py", "final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
   pip: ["pip_install.py", "pip_install.py"], build7: ["costruisci_colori.py", "build_colours.py"], build8: ["costruisci_pygame.py", "build_pygame.py"],
@@ -46006,7 +46723,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "52f1c13729", APP_BUILT = "2026-11-12T01:58Z";
+const APP_VERSION = "3e77c91a2e", APP_BUILT = "2026-11-12T02:40Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
