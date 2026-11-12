@@ -6375,6 +6375,13 @@ const diceWhy = (lang) => (o) => {
   if (!(it ? /^Tocca a (Ada|Bob|Cleo)$/ : /^(Ada|Bob|Cleo)'s turn$/).test(r[1])) return it ? "La seconda riga deve essere Tocca a seguito da uno dei tre nomi." : "The second line must be one of the three names followed by 's turn.";
   return null;
 };
+/* raise and finally: what the program needs besides the right output */
+const raiseWhy = (c, lang) => {
+  const it = lang === "it";
+  if (!/\braise\s+ValueError\s*\(/.test(c)) return it ? "La funzione deve far nascere l'errore con raise ValueError(...), con il messaggio tra parentesi." : "The function has to raise the error with raise ValueError(...), with the message in brackets.";
+  if (!/^[ \t]*finally\s*:/m.test(c)) return it ? "Fine va stampato in un blocco finally, dopo l'except: così esce sempre." : "End has to be printed in a finally block, after the except: that way it always comes out.";
+  return null;
+};
 const C05 = [
 {
   id: "dict", teaches: ["dict"],
@@ -6782,6 +6789,99 @@ print(f"Total: {tickets * 5} euros")`,
   }
 },
 {
+  id: "raisefinally", teaches: ["raise", "finally", "as"],
+  it: {
+    title: "Errori tuoi: raise e finally",
+    theory: [
+`<p>Finora gli errori li faceva nascere Python. Puoi farlo anche tu, con <code>raise</code>: una funzione che riceve un valore impossibile si ferma con un errore che dice cosa non va, invece di andare avanti con un risultato sbagliato. <code>raise ValueError("messaggio")</code> fa nascere un <code>ValueError</code> con il tuo messaggio, e chi chiama la funzione lo può intercettare con <code>try</code>. Scrivendo <code>except ValueError as e</code>, la parola <code>as</code> dà un nome all'errore intercettato: stampando <code>e</code> esce il suo messaggio.</p>
+<p><code>finally</code>, scritto dopo <code>try</code> ed <code>except</code>, è un blocco che viene eseguito <b>sempre</b>, che l'errore ci sia stato o no: si usa per le cose da fare comunque, come chiudere o salutare.</p>`,
+{ code: `def eta_valida(eta):
+    if eta < 0:
+        raise ValueError("l'età non può essere negativa")
+    return eta
+
+try:
+    print(eta_valida(12))      # 12
+    print(eta_valida(-3))      # qui nasce l'errore
+except ValueError as e:
+    print("Non va:", e)        # Non va: l'età non può essere negativa
+finally:
+    print("Controllo finito")  # questa riga c'è sempre` }],
+    task: `Scrivi la funzione <code>preleva(monete, quante)</code>: restituisce le monete che restano dopo averne prese <code>quante</code>, ma se non bastano fa nascere un <code>ValueError</code> con il messaggio <code>monete insufficienti</code>. Nel programma, dentro un <code>try</code>, preleva 5 monete dal borsellino e stampa <code>Restano 15</code>, poi prova a prelevarne 30 e a stampare quante ne restano. Intercetta l'errore e stampa <code>Errore: monete insufficienti</code>; con <code>finally</code>, alla fine stampa sempre <code>Fine</code>. Proverò anche la funzione con altri numeri.`,
+    starter: `borsellino = 20\n\n`,
+    solution: `borsellino = 20
+
+def preleva(monete, quante):
+    if quante > monete:
+        raise ValueError("monete insufficienti")
+    return monete - quante
+
+try:
+    borsellino = preleva(borsellino, 5)
+    print("Restano", borsellino)
+    borsellino = preleva(borsellino, 30)
+    print("Restano", borsellino)
+except ValueError as e:
+    print("Errore:", e)
+finally:
+    print("Fine")`,
+    hints: ["Quando deve fermarsi la funzione con un errore? E perché il secondo Restano non deve uscire?",
+      "Nella funzione un if: se quante supera le monete, raise di un ValueError con il messaggio; altrimenti return della differenza. Nel try i due prelievi, ognuno seguito dal suo print; except ValueError as e stampa Errore: e il messaggio; finally stampa Fine."],
+    check: (o, c) => o === "Restano 15\nErrore: monete insufficienti\nFine" && !raiseWhy(c, "it"),
+    why: (o, c) => raiseWhy(c, "it"),
+    tests: (c) => tlist(
+      tcase(c + "\nprint(preleva(10, 10))", (o) => o.split("\n").pop() === "0", "preleva(10, 10) doveva restituire 0: si possono prendere tutte le monete che ci sono"),
+      tcase(c + "\ntry:\n    preleva(3, 4)\nexcept ValueError as x:\n    print('preso:', x)", (o) => o.split("\n").pop() === "preso: monete insufficienti", "preleva(3, 4) doveva far nascere un ValueError con il messaggio monete insufficienti"),
+      tcase(swapRe(c, /borsellino\s*=\s*20\b/, "borsellino = 50"), (o) => o === "Restano 45\nRestano 15\nFine", "con borsellino = 50 i due prelievi bastavano: doveva stampare Restano 45, Restano 15 e Fine")),
+    expect: "Restano 15\nErrore: monete insufficienti\nFine"
+  },
+  en: {
+    title: "Your own errors: raise and finally",
+    theory: [
+`<p>So far errors were raised by Python. You can raise them too, with <code>raise</code>: a function that gets an impossible value stops with an error saying what's wrong, instead of carrying on with a wrong result. <code>raise ValueError("message")</code> raises a <code>ValueError</code> with your message, and whoever calls the function can catch it with <code>try</code>. Writing <code>except ValueError as e</code>, the word <code>as</code> gives the caught error a name: printing <code>e</code> shows its message.</p>
+<p><code>finally</code>, written after <code>try</code> and <code>except</code>, is a block that runs <b>always</b>, whether there was an error or not: it's for the things to do anyway, like closing or saying goodbye.</p>`,
+{ code: `def valid_age(age):
+    if age < 0:
+        raise ValueError("age can't be negative")
+    return age
+
+try:
+    print(valid_age(12))      # 12
+    print(valid_age(-3))      # the error happens here
+except ValueError as e:
+    print("Not right:", e)    # Not right: age can't be negative
+finally:
+    print("Check over")       # this line is always there` }],
+    task: `Write the function <code>withdraw(coins, how_many)</code>: it gives back the coins left after taking <code>how_many</code>, but if there aren't enough it raises a <code>ValueError</code> with the message <code>not enough coins</code>. In the program, inside a <code>try</code>, withdraw 5 coins from the purse and print <code>Left 15</code>, then try to withdraw 30 and to print how many are left. Catch the error and print <code>Error: not enough coins</code>; with <code>finally</code>, at the end always print <code>End</code>. I'll also try the function with other numbers.`,
+    starter: `purse = 20\n\n`,
+    solution: `purse = 20
+
+def withdraw(coins, how_many):
+    if how_many > coins:
+        raise ValueError("not enough coins")
+    return coins - how_many
+
+try:
+    purse = withdraw(purse, 5)
+    print("Left", purse)
+    purse = withdraw(purse, 30)
+    print("Left", purse)
+except ValueError as e:
+    print("Error:", e)
+finally:
+    print("End")`,
+    hints: ["When must the function stop with an error? And why mustn't the second Left come out?",
+      "In the function an if: if how_many is more than the coins, raise a ValueError with the message; otherwise return the difference. In the try the two withdrawals, each followed by its print; except ValueError as e prints Error: and the message; finally prints End."],
+    check: (o, c) => o === "Left 15\nError: not enough coins\nEnd" && !raiseWhy(c, "en"),
+    why: (o, c) => raiseWhy(c, "en"),
+    tests: (c) => tlist(
+      tcase(c + "\nprint(withdraw(10, 10))", (o) => o.split("\n").pop() === "0", "withdraw(10, 10) had to give back 0: all the coins there are can be taken"),
+      tcase(c + "\ntry:\n    withdraw(3, 4)\nexcept ValueError as x:\n    print('caught:', x)", (o) => o.split("\n").pop() === "caught: not enough coins", "withdraw(3, 4) had to raise a ValueError with the message not enough coins"),
+      tcase(swapRe(c, /purse\s*=\s*20\b/, "purse = 50"), (o) => o === "Left 45\nLeft 15\nEnd", "with purse = 50 both withdrawals were fine: it had to print Left 45, Left 15 and End")),
+    expect: "Left 15\nError: not enough coins\nEnd"
+  }
+},
+{
   id: "mod", teaches: ["random.randint", "random.choice"],
   it: {
     title: "Moduli: il caso con random",
@@ -7025,7 +7125,66 @@ print(round(math.pi * radius ** 2, 2))`,
   }
 },
 {
-  id: "imports", teaches: ["fromimport", "as"], sample: [],
+  id: "fmt", teaches: ["fmtspec"],
+  it: {
+    title: "Numeri in bella copia: :.2f",
+    theory: [
+`<p>In una f-string, dopo il valore puoi scrivere i due punti e un <b>formato</b>, che dice come scriverlo. <code>:.2f</code> scrive il numero con <b>due cifre dopo la virgola</b>, arrotondando: <code>f"{3.14159:.2f}"</code> dà <code>3.14</code>, e <code>f"{5:.2f}"</code> dà <code>5.00</code>. Il numero dopo il punto dice quante cifre: <code>:.1f</code> una, <code>:.0f</code> nessuna.</p>`,
+{ code: `prezzo = 7.5
+media = 10 / 3
+print(f"Prezzo: {prezzo:.2f} euro")   # Prezzo: 7.50 euro
+print(f"Media: {media:.1f}")          # Media: 3.3
+print(round(prezzo, 2))               # 7.5: round dà un numero` },
+`<p>La differenza con <code>round</code>: <code>round</code> restituisce un numero, che Python poi scrive senza zeri in fondo; il formato decide come il numero appare nel testo, con tutte le cifre che chiedi. Per i soldi e per le colonne di numeri si usa il formato. E nasconde anche i piccoli errori dei numeri con la virgola: <code>0.1 + 0.2</code> fa <code>0.30000000000000004</code>, ma con <code>:.2f</code> si legge <code>0.30</code>.</p>`],
+    task: `Lo scontrino dei gettoni: per ogni gettone della lista stampa il suo prezzo con due cifre dopo la virgola, <code>Gettone: 2.00 euro</code>; poi il totale, <code>Totale: 4.25 euro</code>, e la media, <code>Media: 1.42 euro</code>, sempre con due cifre. Proverò anche con altri prezzi.`,
+    starter: `prezzi = [2, 1.5, 0.75]\n\n`,
+    solution: `prezzi = [2, 1.5, 0.75]
+
+for p in prezzi:
+    print(f"Gettone: {p:.2f} euro")
+totale = sum(prezzi)
+print(f"Totale: {totale:.2f} euro")
+print(f"Media: {totale / len(prezzi):.2f} euro")`,
+    hints: ["Dove si scrive il formato, dentro la f-string? E quante cifre dopo la virgola vuole lo scontrino?",
+      "Un for sui prezzi con una f-string che scrive il prezzo seguito da :.2f. Poi il totale con sum, stampato con lo stesso formato, e la media, cioè il totale diviso len della lista, anche lei con :.2f."],
+    check: (o, c) => o === "Gettone: 2.00 euro\nGettone: 1.50 euro\nGettone: 0.75 euro\nTotale: 4.25 euro\nMedia: 1.42 euro" && /:\s*\.2f\s*\}/.test(c),
+    why: (o) => (o === "Gettone: 2.00 euro\nGettone: 1.50 euro\nGettone: 0.75 euro\nTotale: 4.25 euro\nMedia: 1.42 euro" ? "L'output è giusto, ma qui l'esercizio è scrivere i numeri con il formato :.2f, dentro le f-string." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /prezzi\s*=\s*\[[^\]]*\]/, "prezzi = [1, 2]"), (o) => o === "Gettone: 1.00 euro\nGettone: 2.00 euro\nTotale: 3.00 euro\nMedia: 1.50 euro", "con prezzi = [1, 2] doveva stampare 1.00, 2.00, Totale: 3.00 euro e Media: 1.50 euro"),
+      tcase(swapRe(c, /prezzi\s*=\s*\[[^\]]*\]/, "prezzi = [0.1, 0.2]"), (o) => o === "Gettone: 0.10 euro\nGettone: 0.20 euro\nTotale: 0.30 euro\nMedia: 0.15 euro", "con prezzi = [0.1, 0.2] doveva stampare 0.10, 0.20, Totale: 0.30 euro e Media: 0.15 euro")),
+    expect: "Gettone: 2.00 euro\nGettone: 1.50 euro\nGettone: 0.75 euro\nTotale: 4.25 euro\nMedia: 1.42 euro"
+  },
+  en: {
+    title: "Numbers written neatly: :.2f",
+    theory: [
+`<p>In an f-string, after the value you can write a colon and a <b>format</b>, which says how to write it. <code>:.2f</code> writes the number with <b>two digits after the point</b>, rounding: <code>f"{3.14159:.2f}"</code> gives <code>3.14</code>, and <code>f"{5:.2f}"</code> gives <code>5.00</code>. The number after the point says how many digits: <code>:.1f</code> one, <code>:.0f</code> none.</p>`,
+{ code: `price = 7.5
+average = 10 / 3
+print(f"Price: {price:.2f} euros")    # Price: 7.50 euros
+print(f"Average: {average:.1f}")      # Average: 3.3
+print(round(price, 2))                # 7.5: round gives a number` },
+`<p>The difference from <code>round</code>: <code>round</code> gives back a number, which Python then writes without zeros at the end; the format decides how the number looks in the text, with all the digits you ask for. For money and for columns of numbers you use the format. It also hides the small errors of decimal numbers: <code>0.1 + 0.2</code> makes <code>0.30000000000000004</code>, but with <code>:.2f</code> it reads <code>0.30</code>.</p>`],
+    task: `The receipt for the tokens: for every token in the list print its price with two digits after the point, <code>Token: 2.00 euros</code>; then the total, <code>Total: 4.25 euros</code>, and the average, <code>Average: 1.42 euros</code>, always with two digits. I'll also try other prices.`,
+    starter: `prices = [2, 1.5, 0.75]\n\n`,
+    solution: `prices = [2, 1.5, 0.75]
+
+for p in prices:
+    print(f"Token: {p:.2f} euros")
+total = sum(prices)
+print(f"Total: {total:.2f} euros")
+print(f"Average: {total / len(prices):.2f} euros")`,
+    hints: ["Where does the format go, inside the f-string? And how many digits after the point does the receipt want?",
+      "A for over the prices with an f-string that writes the price followed by :.2f. Then the total with sum, printed with the same format, and the average, that is the total divided by len of the list, also with :.2f."],
+    check: (o, c) => o === "Token: 2.00 euros\nToken: 1.50 euros\nToken: 0.75 euros\nTotal: 4.25 euros\nAverage: 1.42 euros" && /:\s*\.2f\s*\}/.test(c),
+    why: (o) => (o === "Token: 2.00 euros\nToken: 1.50 euros\nToken: 0.75 euros\nTotal: 4.25 euros\nAverage: 1.42 euros" ? "The output is right, but the exercise here is writing the numbers with the :.2f format, inside the f-strings." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /prices\s*=\s*\[[^\]]*\]/, "prices = [1, 2]"), (o) => o === "Token: 1.00 euros\nToken: 2.00 euros\nTotal: 3.00 euros\nAverage: 1.50 euros", "with prices = [1, 2] it had to print 1.00, 2.00, Total: 3.00 euros and Average: 1.50 euros"),
+      tcase(swapRe(c, /prices\s*=\s*\[[^\]]*\]/, "prices = [0.1, 0.2]"), (o) => o === "Token: 0.10 euros\nToken: 0.20 euros\nTotal: 0.30 euros\nAverage: 0.15 euros", "with prices = [0.1, 0.2] it had to print 0.10, 0.20, Total: 0.30 euros and Average: 0.15 euros")),
+    expect: "Token: 2.00 euros\nToken: 1.50 euros\nToken: 0.75 euros\nTotal: 4.25 euros\nAverage: 1.42 euros"
+  }
+},
+{
+  id: "imports", teaches: ["fromimport"], sample: [],
   it: {
     title: "Tre modi di importare",
     theory: [
@@ -7149,6 +7308,138 @@ print(fahrenheit)`,
   }
 },
 {
+  id: "sets", teaches: ["set_fn", "m:add"],
+  it: {
+    title: "Insiemi: niente doppioni",
+    theory: [
+`<p>Un <b>insieme</b>, in Python <code>set</code>, è una raccolta <b>senza doppioni</b>: ogni valore c'è una volta sola. <code>set(lista)</code> crea l'insieme dei valori di una lista, <code>add(valore)</code> ne aggiunge uno (se c'è già, non cambia niente), <code>in</code> chiede se un valore c'è e <code>len</code> dice quanti valori diversi contiene.</p>`,
+{ code: `visite = ["Ada", "Bob", "Ada", "Cleo", "Bob"]
+persone = set(visite)          # Ada, Bob e Cleo, una volta sola
+print(len(persone))            # 3
+persone.add("Dan")
+persone.add("Ada")             # c'era già: non cambia niente
+print(len(persone))            # 4
+print("Eva" in persone)        # False
+print(sorted(persone))         # ['Ada', 'Bob', 'Cleo', 'Dan']` },
+`<p>Un insieme non ha posizioni: niente indici, e se lo stampi così com'è i valori possono uscire in un ordine qualsiasi. Per averli in ordine si passa l'insieme a <code>sorted</code>, che restituisce una lista. Un insieme vuoto si crea con <code>set()</code>, perché <code>{}</code> è un dizionario vuoto. E chiedere <code>in</code> a un insieme è velocissimo, anche quando i valori sono milioni.</p>`],
+    task: `Nel registro della sala giochi c'è un nome per ogni partita giocata. Stampa quante partite ci sono, <code>Partite: 6</code>, e con un insieme quanti giocatori diversi, <code>Giocatori: 3</code>. Poi stampa i giocatori in ordine alfabetico, separati da una virgola e uno spazio: <code>Ada, Bob, Cleo</code>. Infine giocano anche Zoe e Ada: aggiungile all'insieme con <code>add</code> e stampa di nuovo quanti sono i giocatori, <code>Giocatori: 4</code>. Proverò anche con un altro registro.`,
+    starter: `registro = ["Ada", "Bob", "Ada", "Cleo", "Bob", "Ada"]\n\n`,
+    solution: `registro = ["Ada", "Bob", "Ada", "Cleo", "Bob", "Ada"]
+
+giocatori = set(registro)
+print("Partite:", len(registro))
+print("Giocatori:", len(giocatori))
+print(", ".join(sorted(giocatori)))
+giocatori.add("Zoe")
+giocatori.add("Ada")
+print("Giocatori:", len(giocatori))`,
+    hints: ["Quale raccolta tiene ogni valore una volta sola? E come stampi in ordine qualcosa che un ordine non ce l'ha?",
+      "Crea l'insieme dal registro con set. Stampa len del registro e len dell'insieme; poi i giocatori messi in ordine da sorted e uniti da join con una virgola e uno spazio. Aggiungi Zoe e Ada con add e stampa di nuovo len dell'insieme."],
+    check: (o, c) => o === "Partite: 6\nGiocatori: 3\nAda, Bob, Cleo\nGiocatori: 4" && /\bset\s*\(/.test(c) && /\.add\s*\(/.test(c),
+    why: (o) => (o === "Partite: 6\nGiocatori: 3\nAda, Bob, Cleo\nGiocatori: 4" ? "L'output è giusto, ma qui l'esercizio è usare un insieme: set per i giocatori diversi e add per quelli che arrivano." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /registro\s*=\s*\[[^\]]*\]/, 'registro = ["Max", "Max"]'), (o) => o === "Partite: 2\nGiocatori: 1\nMax\nGiocatori: 3", 'con registro = ["Max", "Max"] doveva stampare Partite: 2, Giocatori: 1, Max e poi Giocatori: 3'),
+      tcase(swapRe(c, /registro\s*=\s*\[[^\]]*\]/, 'registro = ["Zoe", "Ada"]'), (o) => o === "Partite: 2\nGiocatori: 2\nAda, Zoe\nGiocatori: 2", 'con registro = ["Zoe", "Ada"] Zoe e Ada c\'erano già: alla fine i giocatori dovevano restare 2')),
+    expect: "Partite: 6\nGiocatori: 3\nAda, Bob, Cleo\nGiocatori: 4"
+  },
+  en: {
+    title: "Sets: no duplicates",
+    theory: [
+`<p>A <b>set</b>, written <code>set</code> in Python, is a collection <b>without duplicates</b>: each value is there only once. <code>set(items)</code> makes the set of a list's values, <code>add(value)</code> adds one (if it's already there, nothing changes), <code>in</code> asks whether a value is there and <code>len</code> says how many different values it holds.</p>`,
+{ code: `visits = ["Ada", "Bob", "Ada", "Cleo", "Bob"]
+people = set(visits)           # Ada, Bob and Cleo, once each
+print(len(people))             # 3
+people.add("Dan")
+people.add("Ada")              # already there: nothing changes
+print(len(people))             # 4
+print("Eva" in people)         # False
+print(sorted(people))          # ['Ada', 'Bob', 'Cleo', 'Dan']` },
+`<p>A set has no positions: no indexes, and if you print it as it is the values can come out in any order. To have them in order you pass the set to <code>sorted</code>, which gives back a list. An empty set is made with <code>set()</code>, because <code>{}</code> is an empty dictionary. And asking a set with <code>in</code> is really fast, even when there are millions of values.</p>`],
+    task: `The arcade's register has a name for every game played. Print how many games there are, <code>Games: 6</code>, and with a set how many different players, <code>Players: 3</code>. Then print the players in alphabetical order, separated by a comma and a space: <code>Ada, Bob, Cleo</code>. Finally Zoe and Ada play too: add them to the set with <code>add</code> and print again how many players there are, <code>Players: 4</code>. I'll also try another register.`,
+    starter: `register = ["Ada", "Bob", "Ada", "Cleo", "Bob", "Ada"]\n\n`,
+    solution: `register = ["Ada", "Bob", "Ada", "Cleo", "Bob", "Ada"]
+
+players = set(register)
+print("Games:", len(register))
+print("Players:", len(players))
+print(", ".join(sorted(players)))
+players.add("Zoe")
+players.add("Ada")
+print("Players:", len(players))`,
+    hints: ["Which collection keeps each value only once? And how do you print in order something that has no order?",
+      "Make the set from the register with set. Print len of the register and len of the set; then the players put in order by sorted and joined by join with a comma and a space. Add Zoe and Ada with add and print len of the set again."],
+    check: (o, c) => o === "Games: 6\nPlayers: 3\nAda, Bob, Cleo\nPlayers: 4" && /\bset\s*\(/.test(c) && /\.add\s*\(/.test(c),
+    why: (o) => (o === "Games: 6\nPlayers: 3\nAda, Bob, Cleo\nPlayers: 4" ? "The output is right, but the exercise here is using a set: set for the different players and add for the ones who arrive." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /register\s*=\s*\[[^\]]*\]/, 'register = ["Max", "Max"]'), (o) => o === "Games: 2\nPlayers: 1\nMax\nPlayers: 3", 'with register = ["Max", "Max"] it had to print Games: 2, Players: 1, Max and then Players: 3'),
+      tcase(swapRe(c, /register\s*=\s*\[[^\]]*\]/, 'register = ["Zoe", "Ada"]'), (o) => o === "Games: 2\nPlayers: 2\nAda, Zoe\nPlayers: 2", 'with register = ["Zoe", "Ada"] Zoe and Ada were already there: at the end the players had to stay 2')),
+    expect: "Games: 6\nPlayers: 3\nAda, Bob, Cleo\nPlayers: 4"
+  }
+},
+{
+  id: "sortkey", teaches: ["keyarg", "lambda"],
+  it: {
+    title: "Ordinare a modo tuo: key e lambda",
+    theory: [
+`<p><code>sorted</code> confronta gli elementi così come sono: i numeri per grandezza, le parole in ordine alfabetico, le tuple guardando prima il primo valore. Con <code>key=</code> decidi tu <b>cosa</b> confrontare: gli dai una funzione, e <code>sorted</code> la chiama su ogni elemento e mette in ordine secondo i risultati.</p>
+<p>La funzione si può scrivere al volo con <code>lambda</code>: <code>lambda p: len(p)</code> è una funzione senza nome che riceve <code>p</code> e restituisce <code>len(p)</code>. È come un <code>def</code> con dentro solo un <code>return</code>, scritto in una riga.</p>`,
+{ code: `parole = ["kiwi", "fragola", "uva"]
+print(sorted(parole))                        # ['fragola', 'kiwi', 'uva']
+print(sorted(parole, key=lambda p: len(p)))  # ['uva', 'kiwi', 'fragola']: per lunghezza
+coppie = [("Ada", 30), ("Bob", 10)]
+print(min(coppie, key=lambda c: c[1]))       # ('Bob', 10): il punteggio più basso` },
+`<p><code>key</code> funziona anche con <code>max</code>, <code>min</code> e <code>sort()</code>, e si può unire a <code>reverse=True</code>. Al posto di una lambda puoi dare anche il nome di una funzione che c'è già, senza parentesi: <code>sorted(parole, key=len)</code> fa lo stesso della lambda dell'esempio.</p>`],
+    task: `La classifica è una lista di tuple <code>(nome, punti)</code>. Stampala dal punteggio più alto, numerata da 1: <code>1. Cleo: 50 punti</code>, e così via. Poi stampa chi ha il punteggio più basso, trovato con <code>min</code> e <code>key</code>: <code>Ultimo posto: Dan</code>. Proverò anche con un'altra classifica.`,
+    starter: `classifica = [("Ada", 30), ("Bob", 45), ("Cleo", 50), ("Dan", 20)]\n\n`,
+    solution: `classifica = [("Ada", 30), ("Bob", 45), ("Cleo", 50), ("Dan", 20)]
+
+ordinata = sorted(classifica, key=lambda g: g[1], reverse=True)
+for posto, giocatore in enumerate(ordinata, 1):
+    nome, punti = giocatore
+    print(f"{posto}. {nome}: {punti} punti")
+ultimo = min(classifica, key=lambda g: g[1])
+print("Ultimo posto:", ultimo[0])`,
+    hints: ["Quale dei due valori di ogni tupla deve decidere l'ordine, e in che posizione si trova? E da che parte va l'ordine?",
+      "sorted della classifica con key una lambda che restituisce il secondo valore della tupla, e reverse=True. Un for con enumerate da 1 sulla lista ordinata spacchetta ogni tupla e stampa la riga. Per l'ultimo posto, min della classifica con la stessa key, e stampa il nome che c'è nella tupla."],
+    check: (o, c) => o === "1. Cleo: 50 punti\n2. Bob: 45 punti\n3. Ada: 30 punti\n4. Dan: 20 punti\nUltimo posto: Dan" && /\blambda\b/.test(c) && /\bsorted\s*\([^\n]*\bkey\s*=/.test(c) && /\bmin\s*\([^\n]*\bkey\s*=/.test(c),
+    why: (o) => (o === "1. Cleo: 50 punti\n2. Bob: 45 punti\n3. Ada: 30 punti\n4. Dan: 20 punti\nUltimo posto: Dan" ? "L'output è giusto, ma qui l'esercizio è ordinare con sorted e una lambda in key, e trovare l'ultimo posto con min e key." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /classifica\s*=\s*\[[^\]]*\]/, 'classifica = [("Zoe", 5), ("Max", 9)]'), (o) => o === "1. Max: 9 punti\n2. Zoe: 5 punti\nUltimo posto: Zoe", 'con classifica = [("Zoe", 5), ("Max", 9)] doveva stampare 1. Max: 9 punti, 2. Zoe: 5 punti e Ultimo posto: Zoe'),
+      tcase(swapRe(c, /classifica\s*=\s*\[[^\]]*\]/, 'classifica = [("Eva", 70), ("Ugo", 80), ("Ida", 60)]'), (o) => o === "1. Ugo: 80 punti\n2. Eva: 70 punti\n3. Ida: 60 punti\nUltimo posto: Ida", 'con classifica = [("Eva", 70), ("Ugo", 80), ("Ida", 60)] doveva vincere Ugo, e l\'ultimo posto era di Ida')),
+    expect: "1. Cleo: 50 punti\n2. Bob: 45 punti\n3. Ada: 30 punti\n4. Dan: 20 punti\nUltimo posto: Dan"
+  },
+  en: {
+    title: "Sorting your way: key and lambda",
+    theory: [
+`<p><code>sorted</code> compares the items as they are: numbers by size, words in alphabetical order, tuples looking at the first value first. With <code>key=</code> you decide <b>what</b> to compare: you give it a function, and <code>sorted</code> calls it on every item and puts them in order by the results.</p>
+<p>The function can be written on the spot with <code>lambda</code>: <code>lambda w: len(w)</code> is a function with no name that gets <code>w</code> and gives back <code>len(w)</code>. It's like a <code>def</code> with only a <code>return</code> inside, written in one line.</p>`,
+{ code: `words = ["kiwi", "apple", "fig"]
+print(sorted(words))                        # ['apple', 'fig', 'kiwi']
+print(sorted(words, key=lambda w: len(w)))  # ['fig', 'kiwi', 'apple']: by length
+pairs = [("Ada", 30), ("Bob", 10)]
+print(min(pairs, key=lambda p: p[1]))       # ('Bob', 10): the lowest score` },
+`<p><code>key</code> also works with <code>max</code>, <code>min</code> and <code>sort()</code>, and it can go together with <code>reverse=True</code>. Instead of a lambda you can also give the name of a function that already exists, without brackets: <code>sorted(words, key=len)</code> does the same as the lambda in the example.</p>`],
+    task: `The ranking is a list of tuples <code>(name, points)</code>. Print it from the highest score, numbered from 1: <code>1. Cleo: 50 points</code>, and so on. Then print who has the lowest score, found with <code>min</code> and <code>key</code>: <code>Last place: Dan</code>. I'll also try another ranking.`,
+    starter: `ranking = [("Ada", 30), ("Bob", 45), ("Cleo", 50), ("Dan", 20)]\n\n`,
+    solution: `ranking = [("Ada", 30), ("Bob", 45), ("Cleo", 50), ("Dan", 20)]
+
+ordered = sorted(ranking, key=lambda g: g[1], reverse=True)
+for place, player in enumerate(ordered, 1):
+    name, points = player
+    print(f"{place}. {name}: {points} points")
+last = min(ranking, key=lambda g: g[1])
+print("Last place:", last[0])`,
+    hints: ["Which of the two values of each tuple must decide the order, and in which position is it? And which way does the order go?",
+      "sorted of the ranking with key a lambda that gives back the tuple's second value, and reverse=True. A for with enumerate from 1 over the sorted list unpacks each tuple and prints the line. For last place, min of the ranking with the same key, and print the name that's in the tuple."],
+    check: (o, c) => o === "1. Cleo: 50 points\n2. Bob: 45 points\n3. Ada: 30 points\n4. Dan: 20 points\nLast place: Dan" && /\blambda\b/.test(c) && /\bsorted\s*\([^\n]*\bkey\s*=/.test(c) && /\bmin\s*\([^\n]*\bkey\s*=/.test(c),
+    why: (o) => (o === "1. Cleo: 50 points\n2. Bob: 45 points\n3. Ada: 30 points\n4. Dan: 20 points\nLast place: Dan" ? "The output is right, but the exercise here is sorting with sorted and a lambda in key, and finding last place with min and key." : null),
+    tests: (c) => tlist(
+      tcase(swapRe(c, /ranking\s*=\s*\[[^\]]*\]/, 'ranking = [("Zoe", 5), ("Max", 9)]'), (o) => o === "1. Max: 9 points\n2. Zoe: 5 points\nLast place: Zoe", 'with ranking = [("Zoe", 5), ("Max", 9)] it had to print 1. Max: 9 points, 2. Zoe: 5 points and Last place: Zoe'),
+      tcase(swapRe(c, /ranking\s*=\s*\[[^\]]*\]/, 'ranking = [("Eva", 70), ("Ugo", 80), ("Ida", 60)]'), (o) => o === "1. Ugo: 80 points\n2. Eva: 70 points\n3. Ida: 60 points\nLast place: Ida", 'with ranking = [("Eva", 70), ("Ugo", 80), ("Ida", 60)] Ugo had to win, and last place was Ida\'s')),
+    expect: "1. Cleo: 50 points\n2. Bob: 45 points\n3. Ada: 30 points\n4. Dan: 20 points\nLast place: Dan"
+  }
+},
+{
   id: "ripasso5", kind: "quiz", review: true, teaches: [],
   it: {
     title: "Ripasso: gli strumenti",
@@ -7174,7 +7465,10 @@ print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0,
 import random as rnd
 print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "si ferma: math non è stato importato"], correct: 0, explain: "sqrt arriva da math con from, quindi si scrive senza math. davanti: sqrt(9) fa 3.0. rnd è random con un altro nome, e randint(4, 4) può dare solo 4." },
       { q: "Cosa stampa?", code: `monete = {"Ada": 5, "Bob": 9}
-print(sum(monete.values()), sorted(monete.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() dà le monete, 5 e 9, che sommate fanno 14. keys() dà i nomi: in ordine sono ['Ada', 'Bob'], e l'ultimo è Bob." }]
+print(sum(monete.values()), sorted(monete.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() dà le monete, 5 e 9, che sommate fanno 14. keys() dà i nomi: in ordine sono ['Ada', 'Bob'], e l'ultimo è Bob." },
+      { q: "Cosa stampa?", code: `s = set([3, 1, 3, 2, 1])
+s.add(4)
+print(len(s), f"{sum(s) / len(s):.1f}")`, options: ["4 2.5", "6 2.3", "5 2.6", "4 2.50"], correct: 0, explain: "L'insieme tiene 1, 2 e 3 una volta sola, poi arriva il 4: sono 4 valori, che sommati fanno 10. 10 / 4 fa 2.5, scritto con una cifra dopo la virgola." }]
   },
   en: {
     title: "Review: the tools",
@@ -7200,7 +7494,10 @@ print(round(math.pi, 1) * 2)`, options: ["6.2", "6.28", "3.1", "6"], correct: 0,
 import random as rnd
 print(sqrt(9), rnd.randint(4, 4))`, options: ["3.0 4", "3 4", "9 4", "it stops: math wasn't imported"], correct: 0, explain: "sqrt comes from math with from, so you write it without math. in front: sqrt(9) is 3.0. rnd is random with another name, and randint(4, 4) can only give 4." },
       { q: "What does it print?", code: `coins = {"Ada": 5, "Bob": 9}
-print(sum(coins.values()), sorted(coins.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() gives the coins, 5 and 9, which add up to 14. keys() gives the names: in order they're ['Ada', 'Bob'], and the last one is Bob." }]
+print(sum(coins.values()), sorted(coins.keys())[-1])`, options: ["14 Bob", "14 Ada", "2 Bob", "Ada Bob"], correct: 0, explain: "values() gives the coins, 5 and 9, which add up to 14. keys() gives the names: in order they're ['Ada', 'Bob'], and the last one is Bob." },
+      { q: "What does it print?", code: `s = set([3, 1, 3, 2, 1])
+s.add(4)
+print(len(s), f"{sum(s) / len(s):.1f}")`, options: ["4 2.5", "6 2.3", "5 2.6", "4 2.50"], correct: 0, explain: "The set keeps 1, 2 and 3 once each, then 4 comes in: that's 4 values, which add up to 10. 10 / 4 is 2.5, written with one digit after the point." }]
   }
 },
 {
@@ -9331,8 +9628,8 @@ const PY_WORLDS = [
     it: { name: "Ripetere", tag: "Cicli, contatori e liste" }, en: { name: "Repeating", tag: "Loops, counters and lists" } },
   { id: "w4", dir: { it: "04_funzioni", en: "04_functions" }, mascot: "graffa", levels: ["str", "strmeth", "splitjoin", "vowels", "strsearch", "builtins", "def0", "params", "def", "retq", "tuple", "build4a", "fcall", "pgzwin", "pgzkeys", "pgzclick", "ripasso4", "build4", "boss4"],
     it: { name: "Testo e funzioni", tag: "Stringhe, def, return e tuple, poi la finestra del gioco" }, en: { name: "Text and functions", tag: "Strings, def, return and tuples, then the game window" } },
-  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictkeys", "dictq", "try", "retry", "mod", "build5a", "math", "imports", "comp", "ripasso5", "build5", "boss5"],
-    it: { name: "Strumenti", tag: "Dizionari, errori e librerie" }, en: { name: "Tools", tag: "Dictionaries, errors and libraries" } },
+  { id: "w5", dir: { it: "05_strumenti", en: "05_tools" }, mascot: "floppy", levels: ["dict", "dictget", "dictloop", "dictkeys", "dictq", "try", "retry", "raisefinally", "mod", "build5a", "math", "fmt", "imports", "comp", "sets", "sortkey", "ripasso5", "build5", "boss5"],
+    it: { name: "Strumenti", tag: "Dizionari, errori, moduli e insiemi" }, en: { name: "Tools", tag: "Dictionaries, errors, modules and sets" } },
   { id: "w6", dir: { it: "06_file_e_oggetti", en: "06_files_and_objects" }, mascot: "pip", levels: ["files", "filelines", "class", "method", "classq", "state", "build6a", "objlist", "ripasso6", "final", "boss6"],
     it: { name: "File e oggetti", tag: "File, classi e sfida finale" }, en: { name: "Files and objects", tag: "Files, classes and final challenge" } },
   { id: "bonus", dir: { it: "07_librerie", en: "07_libraries" }, mascot: "bit", levels: ["pip", "build7", "build8", "numpy", "plot"],
@@ -9362,8 +9659,8 @@ const FILE_BASE = {
   pgzclick: ["clic_e_tempo.py", "clicks_and_time.py"], ripasso4: ["ripasso.py", "review.py"],
   build4a: ["costruisci_verdetto.py", "build_verdict.py"], build4: ["costruisci_partita.py", "build_play.py"], boss4: ["boss_funzioni.py", "boss_functions.py"], dict: ["dizionari.py", "dicts.py"],
   dictget: ["chiavi.py", "keys.py"], dictloop: ["contare.py", "counting.py"], dictkeys: ["chiavi_valori.py", "keys_values.py"], dictq: ["prevedi_dizionari.py", "predict_dicts.py"],
-  try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], mod: ["moduli_random.py", "random_module.py"], imports: ["importare.py", "importing.py"], math: ["moduli_math.py", "math_module.py"],
-  comp: ["liste_veloci.py", "comprehensions.py"], ripasso5: ["ripasso.py", "review.py"], build5a: ["costruisci_dadi.py", "build_dice.py"], build5: ["costruisci_livelli.py", "build_levels.py"],
+  try: ["try.py", "try.py"], retry: ["chiedere_ancora.py", "ask_again.py"], raisefinally: ["raise_finally.py", "raise_finally.py"], mod: ["moduli_random.py", "random_module.py"], imports: ["importare.py", "importing.py"], math: ["moduli_math.py", "math_module.py"], fmt: ["formato.py", "formatting.py"],
+  comp: ["liste_veloci.py", "comprehensions.py"], sets: ["insiemi.py", "sets.py"], sortkey: ["ordinare_key.py", "sorting_key.py"], ripasso5: ["ripasso.py", "review.py"], build5a: ["costruisci_dadi.py", "build_dice.py"], build5: ["costruisci_livelli.py", "build_levels.py"],
   boss5: ["boss_rubrica.py", "boss_phonebook.py"], files: ["file.py", "files.py"], filelines: ["righe_file.py", "file_lines.py"], class: ["classi.py", "classes.py"], method: ["metodi.py", "methods.py"],
   classq: ["prevedi_oggetti.py", "predict_objects.py"], state: ["stato.py", "state.py"], objlist: ["squadra.py", "team.py"],
   ripasso6: ["grande_ripasso.py", "big_review.py"], build6a: ["costruisci_giocatore.py", "build_player.py"], final: ["sfida_finale.py", "final_challenge.py"], boss6: ["boss_contatore.py", "boss_counter.py"],
@@ -41235,12 +41532,26 @@ const CHEAT = [
   [`while x > 0:`, "ripete finché è vero", "repeats while true"],
   [`lista = [1, 2, 3]`, "lista", "list"],
   [`lista.append(4)`, "aggiunge in fondo", "adds at the end"],
+  [`lista.pop()`, "toglie l'ultimo e lo restituisce", "takes out the last one and gives it back"],
+  [`lista.sort()`, "mette in ordine la lista stessa", "puts the list itself in order"],
   [`len(lista)`, "quanti elementi", "how many items"],
+  [`for i, x in enumerate(lista):`, "posizione ed elemento insieme", "position and item together"],
+  [`for a, b in zip(l1, l2):`, "due liste nello stesso giro", "two lists in the same round"],
+  [`break  /  continue`, "esce dal ciclo / salta al giro dopo", "leaves the loop / skips to the next round"],
+  [`testo.split(",")`, "testo → lista di pezzi", "text → list of pieces"],
+  [`", ".join(lista)`, "lista di testi → un testo solo", "list of texts → a single text"],
+  [`f"{x:.2f}"`, "un numero con due cifre dopo la virgola", "a number with two digits after the point"],
+  [`x, y = (3, 5)`, "spacchetta una tupla", "unpacks a tuple"],
   [`griglia[r][c]`, "casella di una lista di liste", "a square of a list of lists"],
   [`d = {"a": 1}`, "dizionario", "dictionary"],
+  [`d.keys()  /  d.values()`, "le chiavi / i valori", "the keys / the values"],
+  [`set(lista)`, "insieme: niente doppioni", "set: no duplicates"],
+  [`sorted(l, key=lambda t: t[1])`, "ordina secondo il secondo valore", "sorts by the second value"],
   [`def f(n):`, "crea una funzione", "defines a function"],
   [`return n * 2`, "restituisce un valore", "gives back a value"],
   [`try:  /  except:`, "gestisce gli errori", "handles errors"],
+  [`raise ValueError("…")`, "fa nascere un errore", "raises an error"],
+  [`with open("f.txt", "w") as f:`, "apre un file: \"w\" scrive, \"r\" legge, \"a\" aggiunge", "opens a file: \"w\" writes, \"r\" reads, \"a\" appends"],
   [`import random`, "carica un modulo", "loads a module"],
   [`def draw():`, "Pygame Zero: disegna la finestra", "Pygame Zero: draws the window"],
   [`def update():`, "Pygame Zero: 60 volte al secondo", "Pygame Zero: 60 times a second"],
@@ -46723,7 +47034,7 @@ introEl.querySelectorAll("[data-il]").forEach((b) => {
 window.addEventListener("resize", () => { if (!IN.open) return; introLayout(); if (!IN.on) drawStage(introT()); });
 
 /* ---------- Boot ---------- */
-const APP_VERSION = "3e77c91a2e", APP_BUILT = "2026-11-12T02:40Z";
+const APP_VERSION = "3c5d691738", APP_BUILT = "2026-11-12T02:54Z";
 const IS_APP = !!document.querySelector('link[rel="manifest"]');
 /* "Update now" reloads the page by itself: that's not a new opening, so no opening scene, just a word on how it went */
 const UPD_KEY = "arcode-updating-from";
